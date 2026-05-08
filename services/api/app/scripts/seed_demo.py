@@ -605,10 +605,13 @@ async def _mirror_cases_to_aisoc(session, tenant: Tenant) -> int:
                     opened_at, resolved_at, closed_at,
                     created_at, updated_at, created_by, tags
                 ) VALUES (
-                    :id, :tenant_id, :title, :description, :severity, :status,
-                    :assignee, CAST(:mitre_techniques AS JSONB), CAST(:alert_ids AS UUID[]),
+                    CAST(:id AS UUID), CAST(:tenant_id AS UUID),
+                    :title, :description, :severity, :status,
+                    :assignee, CAST(:mitre_techniques AS JSONB),
+                    CAST(:alert_ids AS UUID[]),
                     :opened_at, :resolved_at, :closed_at,
-                    :created_at, :updated_at, :created_by, CAST(:tags AS JSONB)
+                    :created_at, :updated_at, :created_by,
+                    CAST(:tags AS JSONB)
                 )
                 ON CONFLICT (id) DO NOTHING
                 """
