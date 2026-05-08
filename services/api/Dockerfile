@@ -21,4 +21,13 @@ COPY . .
 
 EXPOSE 8000
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Use a tiny Python wrapper (app.scripts.serve) that pre-binds a dual-stack
+# IPv6 socket with IPV6_V6ONLY=0 and hands the fd to uvicorn via --fd.
+#
+# Why not just `uvicorn --host ::`? Python's asyncio explicitly sets
+# IPV6_V6ONLY=1 on IPv6 sockets it creates, so binding to "::" only accepts
+# IPv6 connections. On Fly we need BOTH: IPv6 for 6PN private traffic
+# (aisoc-demo-api.internal from the web app) AND IPv4 for fly-proxy's public
+# /health checks against api.tryaisoc.com (which speak IPv4 to 127.0.0.1).
+# Pre-binding lets us turn IPV6_V6ONLY off so a single socket serves both.
+CMD ["python", "-m", "app.scripts.serve"]

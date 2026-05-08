@@ -14,4 +14,5 @@ COPY app/ ./app/
 
 EXPOSE 8087
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8087"]
+# Dual-stack entrypoint (IPv6 + IPv4-mapped). See app/scripts/serve.py.
+CMD ["python", "-m", "app.scripts.serve"]

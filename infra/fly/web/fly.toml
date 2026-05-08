@@ -43,6 +43,18 @@ kill_timeout   = "5s"
   [build.args]
     NEXT_PUBLIC_API_URL = "https://api.tryaisoc.com"
     NEXT_PUBLIC_WS_URL  = "wss://ws.tryaisoc.com"
+    # Server-side proxy targets MUST be passed at build time, not just runtime.
+    # next.config.js evaluates `process.env.API_URL` when the config module
+    # loads, and the resulting rewrite destinations are written into
+    # .next/routes-manifest.json by `next build`. If these aren't set during
+    # the build the Dockerfile defaults (http://api:8000 etc., for the local
+    # docker-compose stack) bleed through and `next start` proxies to a host
+    # that doesn't exist in Fly's 6PN DNS — the browser sees `Internal Server
+    # Error` from the same-origin /api/v1/* routes even though api.tryaisoc.com
+    # is healthy.
+    API_URL      = "http://aisoc-demo-api.internal:8000"
+    AGENTS_URL   = "http://aisoc-demo-agents.internal:8084"
+    REALTIME_URL = "http://aisoc-demo-realtime.internal:4000"
 
 [env]
   NODE_ENV               = "production"

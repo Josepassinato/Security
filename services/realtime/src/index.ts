@@ -397,8 +397,12 @@ app.get('/health', reportHealth);
 app.get('/healthz', reportHealth);
 
 // --- Start ---
-server.listen(PORT, async () => {
-  log.info({ port: PORT }, 'AiSOC Real-time service started');
+// Bind to "::" so we are reachable over Fly.io's 6PN private network (IPv6).
+// Node defaults to "::" when IPv6 is available, but be explicit to match the
+// other services and avoid surprises if a future Node release changes the
+// default or the container is launched with IPv6 disabled.
+server.listen(PORT, '::', async () => {
+  log.info({ port: PORT, host: '::' }, 'AiSOC Real-time service started');
   try {
     await startKafkaConsumer();
   } catch (err) {
