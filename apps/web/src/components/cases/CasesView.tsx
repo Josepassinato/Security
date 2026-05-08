@@ -4,7 +4,7 @@ import { useState } from 'react';
 import useSWR from 'swr';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
-import { casesApi, type Case } from '@/lib/api';
+import { casesApi, type Case, type CasesResponse } from '@/lib/api';
 import { clsx } from 'clsx';
 import { format } from 'date-fns';
 
@@ -126,21 +126,33 @@ function CaseCard({ c }: { c: Case }) {
 
 type FilterStatus = Case['status'] | 'all';
 
-export function CasesView() {
+interface CasesViewProps {
+  /**
+   * Optional pre-fetched cases from a Server Component. When provided, these
+   * are rendered on first paint (no flash of mock data) and SWR revalidates
+   * in the background. When omitted (e.g. dev/local without API access),
+   * deterministic mock data is used so the layout stays stable for SSR.
+   */
+  initialCases?: CasesResponse;
+}
+
+export function CasesView({ initialCases }: CasesViewProps = {}) {
   const [statusFilter, setStatusFilter] = useState<FilterStatus>('all');
   const [severityFilter, setSeverityFilter] = useState<Case['severity'] | 'all'>('all');
   const [search, setSearch] = useState('');
+
+  const fallback: CasesResponse = initialCases ?? {
+    cases: MOCK_CASES,
+    total: MOCK_CASES.length,
+    page: 1,
+    pageSize: MOCK_CASES.length,
+  };
 
   const { data: casesData, isLoading } = useSWR(
     ['cases', statusFilter, severityFilter],
     () => casesApi.list({ status: statusFilter !== 'all' ? statusFilter : undefined }),
     {
-      fallbackData: {
-        cases: MOCK_CASES,
-        total: MOCK_CASES.length,
-        page: 1,
-        pageSize: MOCK_CASES.length,
-      },
+      fallbackData: fallback,
     }
   );
 

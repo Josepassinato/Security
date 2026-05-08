@@ -704,7 +704,7 @@ function normalizeCase(raw: unknown): Case {
   };
 }
 
-function normalizeCasesResponse(raw: unknown, filters: CaseFilters = {}): CasesResponse {
+export function normalizeCasesResponse(raw: unknown, filters: CaseFilters = {}): CasesResponse {
   // The API may return either a bare array of cases or an envelope shape.
   if (Array.isArray(raw)) {
     const cases = raw.map(normalizeCase);
