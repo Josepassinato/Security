@@ -578,25 +578,147 @@ export interface CaseFilters {
   pageSize?: number;
 }
 
+/**
+ * Normalize a case payload from the backend API.
+ *
+ * The Postgres-backed API returns snake_case fields and stores `tags` as a
+ * JSONB object (`{labels: string[]}`). The web console's `Case` type uses
+ * camelCase and expects `tags: string[]`. Without this normalization the
+ * detail page crashes with a runtime TypeError when components call
+ * `.map()` on `tags` directly.
+ */
+function normalizeCase(raw: unknown): Case {
+  const r = (raw ?? {}) as Record<string, unknown>;
+  const tagsRaw = r.tags;
+  let tags: string[] | undefined;
+  if (Array.isArray(tagsRaw)) {
+    tags = tagsRaw.map((t) => String(t));
+  } else if (
+    tagsRaw &&
+    typeof tagsRaw === 'object' &&
+    Array.isArray((tagsRaw as Record<string, unknown>).labels)
+  ) {
+    tags = ((tagsRaw as Record<string, unknown>).labels as unknown[]).map((t) =>
+      String(t),
+    );
+  }
+
+  const alertIds = Array.isArray(r.alert_ids)
+    ? (r.alert_ids as unknown[]).map((x) => String(x))
+    : Array.isArray(r.alertIds)
+      ? (r.alertIds as unknown[]).map((x) => String(x))
+      : undefined;
+
+  const mitre = Array.isArray(r.mitre_techniques)
+    ? (r.mitre_techniques as unknown[]).map((x) => String(x))
+    : Array.isArray(r.mitre)
+      ? (r.mitre as unknown[]).map((x) => String(x))
+      : undefined;
+
+  const createdAt =
+    (r.created_at as string | undefined) ??
+    (r.createdAt as string | undefined) ??
+    (r.opened_at as string | undefined) ??
+    new Date().toISOString();
+
+  const updatedAt =
+    (r.updated_at as string | undefined) ??
+    (r.updatedAt as string | undefined) ??
+    createdAt;
+
+  return {
+    id: String(r.id ?? ''),
+    title: String(r.title ?? ''),
+    description: (r.description as string | undefined) ?? undefined,
+    status: (r.status as Case['status']) ?? 'open',
+    severity: (r.severity as Case['severity']) ?? 'medium',
+    priority: (r.priority as Case['severity'] | undefined) ?? (r.severity as Case['severity'] | undefined),
+    assignee: (r.assignee as string | null | undefined) ?? undefined,
+    tenantId:
+      (r.tenant_id as string | undefined) ?? (r.tenantId as string | undefined),
+    alertIds,
+    alertCount:
+      (r.alert_count as number | undefined) ??
+      (r.alertCount as number | undefined) ??
+      (alertIds ? alertIds.length : undefined),
+    tags,
+    mitre,
+    resolution: (r.resolution as string | undefined) ?? undefined,
+    createdBy:
+      (r.created_by as string | undefined) ?? (r.createdBy as string | undefined),
+    createdAt,
+    updatedAt,
+    closedAt:
+      (r.closed_at as string | null | undefined) ??
+      (r.closedAt as string | null | undefined) ??
+      undefined,
+    dueAt:
+      (r.sla_due_at as string | null | undefined) ??
+      (r.dueAt as string | null | undefined) ??
+      undefined,
+    timeline: Array.isArray(r.timeline)
+      ? (r.timeline as CaseTimelineEvent[])
+      : undefined,
+    tasks: Array.isArray(r.tasks) ? (r.tasks as CaseTask[]) : undefined,
+  };
+}
+
+function normalizeCasesResponse(raw: unknown, filters: CaseFilters = {}): CasesResponse {
+  // The API may return either a bare array of cases or an envelope shape.
+  if (Array.isArray(raw)) {
+    const cases = raw.map(normalizeCase);
+    return {
+      cases,
+      total: cases.length,
+      page: filters.page ?? 1,
+      pageSize: filters.pageSize ?? cases.length,
+    };
+  }
+  const r = (raw ?? {}) as Record<string, unknown>;
+  const list = Array.isArray(r.cases)
+    ? (r.cases as unknown[]).map(normalizeCase)
+    : [];
+  return {
+    cases: list,
+    total: typeof r.total === 'number' ? (r.total as number) : list.length,
+    page: typeof r.page === 'number' ? (r.page as number) : (filters.page ?? 1),
+    pageSize:
+      typeof r.pageSize === 'number'
+        ? (r.pageSize as number)
+        : typeof r.page_size === 'number'
+          ? (r.page_size as number)
+          : (filters.pageSize ?? list.length),
+  };
+}
+
 export const casesApi = {
-  list: (filters: CaseFilters = {}) =>
-    request<CasesResponse>('/api/v1/cases', {
+  list: async (filters: CaseFilters = {}) => {
+    const raw = await request<unknown>('/api/v1/cases', {
       params: filters as Record<string, string>,
-    }),
+    });
+    return normalizeCasesResponse(raw, filters);
+  },
 
-  get: (id: string) => request<Case>(`/api/v1/cases/${id}`),
+  get: async (id: string) => {
+    const raw = await request<unknown>(`/api/v1/cases/${id}`);
+    return normalizeCase(raw);
+  },
 
-  create: (data: Partial<Case>) =>
-    request<Case>('/api/v1/cases', {
+  create: async (data: Partial<Case>) => {
+    const raw = await request<unknown>('/api/v1/cases', {
       method: 'POST',
       body: JSON.stringify(data),
-    }),
+    });
+    return normalizeCase(raw);
+  },
 
-  update: (id: string, data: Partial<Case>) =>
-    request<Case>(`/api/v1/cases/${id}`, {
+  update: async (id: string, data: Partial<Case>) => {
+    const raw = await request<unknown>(`/api/v1/cases/${id}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
-    }),
+    });
+    return normalizeCase(raw);
+  },
 
   addComment: (id: string, comment: string) =>
     request<{ id: string; comment: string; createdAt: string }>(
@@ -607,11 +729,13 @@ export const casesApi = {
       },
     ),
 
-  linkAlerts: (id: string, alertIds: string[]) =>
-    request<Case>(`/api/v1/cases/${id}/alerts`, {
+  linkAlerts: async (id: string, alertIds: string[]) => {
+    const raw = await request<unknown>(`/api/v1/cases/${id}/alerts`, {
       method: 'POST',
       body: JSON.stringify({ alertIds }),
-    }),
+    });
+    return normalizeCase(raw);
+  },
 
   getTimeline: (id: string) =>
     request<{ events: CaseTimelineEvent[] }>(`/api/v1/cases/${id}/timeline`),
