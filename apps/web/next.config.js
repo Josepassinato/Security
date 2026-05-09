@@ -84,9 +84,20 @@ const nextConfig = {
         source: '/api/v1/realtime/healthz',
         destination: `${REALTIME_HOST}/healthz`,
       },
-      // Agents service owns contextual actions, playbooks, investigations,
-      // hunt search, and copilot chat. These must come before the
-      // `/api/v1/:path*` catch-all so they don't get sent to the core API.
+      // Agents service owns contextual actions, playbooks, hunt search,
+      // and copilot chat. These must come before the `/api/v1/:path*`
+      // catch-all so they don't get sent to the core API.
+      //
+      // NOTE: `/api/v1/investigations*` is intentionally NOT routed here.
+      // The agents service only exposes the *write* side (POST to start a
+      // run, GET /{run_id} for the in-memory orchestrator state). The
+      // browser-facing *read* side — list runs, replay events, explain
+      // step, fetch artifacts, cost aggregates — is owned by the core API
+      // (see services/api/app/api/v1/endpoints/investigations.py, backed
+      // by the persistent ledger in Postgres). Routing those reads to
+      // agents returns 405/404 and breaks the case workspace ledger pane.
+      // We let `/api/v1/investigations*` fall through to the core API
+      // catch-all at the bottom of this list.
       {
         source: '/api/v1/contextual/:path*',
         destination: `${AGENTS_HOST}/api/v1/contextual/:path*`,
@@ -98,14 +109,6 @@ const nextConfig = {
       {
         source: '/api/v1/playbooks',
         destination: `${AGENTS_HOST}/api/v1/playbooks`,
-      },
-      {
-        source: '/api/v1/investigations/:path*',
-        destination: `${AGENTS_HOST}/api/v1/investigations/:path*`,
-      },
-      {
-        source: '/api/v1/investigations',
-        destination: `${AGENTS_HOST}/api/v1/investigations`,
       },
       // Hunt search + saved searches (singular /hunt, distinct from /hunts corpus)
       {

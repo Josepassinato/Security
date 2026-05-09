@@ -122,6 +122,6 @@ describe('CaseWorkspace', () => {
     ).toBeInTheDocument();
 
     // …and the demo-mode banner is visible so the analyst knows it's not live data.
-    expect(screen.getByText(/demo data — backend offline/i)).toBeInTheDocument();
+    expect(screen.getByText(/demo data — writes disabled/i)).toBeInTheDocument();
   });
 });

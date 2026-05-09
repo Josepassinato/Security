@@ -17,7 +17,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/copilot",
     "/graph",
   ];
-  const lowPriority = ["/login", "/signup", "/detection", "/threat-intel", "/sla"];
+  // Note: AiSOC is open source and self-hosted — there is no `/signup` route.
+  // Anonymous demo lands directly via `/` and the in-app demo button. The
+  // hosted login at `/login` is the only auth entry point we ship.
+  const lowPriority = ["/login", "/detection", "/threat-intel", "/sla"];
 
   return [
     ...highPriority.map((path) => ({

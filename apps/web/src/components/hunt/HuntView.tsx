@@ -461,7 +461,7 @@ export function HuntView() {
       void savedState.mutate();
     } catch (err) {
       console.error(err);
-      toast.error('Could not save (backend offline)');
+      toast.error('Could not save search');
     }
   };
 
@@ -473,7 +473,7 @@ export function HuntView() {
       toast.success('Deleted');
       void savedState.mutate();
     } catch {
-      toast.error('Could not delete (backend offline)');
+      toast.error('Could not delete saved search');
     }
   };
 

@@ -485,7 +485,7 @@ export function CaseWorkspace({ caseId }: { caseId: string }) {
       await casesApi.update(caseRecord.id, { status });
       toast.success(`Status set to ${STATUS_LABEL[status]}`);
     } catch {
-      toast(`Demo: status set to ${STATUS_LABEL[status]} locally (backend offline)`);
+      toast(`Demo: status set to ${STATUS_LABEL[status]} locally (writes disabled)`);
     } finally {
       setStatusUpdating(false);
     }
@@ -511,7 +511,7 @@ export function CaseWorkspace({ caseId }: { caseId: string }) {
       await casesApi.addComment(caseRecord.id, trimmed);
       toast.success('Comment added');
     } catch {
-      toast('Saved locally (backend offline)');
+      toast('Saved locally (writes disabled in demo)');
     }
   };
 
@@ -533,7 +533,7 @@ export function CaseWorkspace({ caseId }: { caseId: string }) {
       await casesApi.addTask(caseRecord.id, optimistic);
       toast.success('Task added');
     } catch {
-      toast('Saved locally (backend offline)');
+      toast('Saved locally (writes disabled in demo)');
     }
   };
 
@@ -609,7 +609,7 @@ export function CaseWorkspace({ caseId }: { caseId: string }) {
         {demoMode && (
           <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2 py-0.5 text-[11px] text-amber-300 ring-1 ring-amber-500/30">
             <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
-            Demo data — backend offline
+            Demo data — writes disabled
           </span>
         )}
       </div>
