@@ -16,6 +16,7 @@ import { ErrorState } from '@/components/ui/ErrorState';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ContributorLeaderboard } from './ContributorLeaderboard';
 import { MitreRuleHeatmap } from './MitreRuleHeatmap';
+import { ConfidenceTrends } from './ConfidenceTrends';
 import { DriftInbox } from './DriftInbox';
 
 // ─── Demo fallback ────────────────────────────────────────────────────────────
@@ -138,7 +139,7 @@ const SEVERITY_BADGE: Record<string, string> = {
 
 // ─── Tabs ────────────────────────────────────────────────────────────────────
 
-type DetectionsTab = 'rules' | 'coverage' | 'drift';
+type DetectionsTab = 'rules' | 'coverage' | 'confidence' | 'drift';
 
 const TABS: { id: DetectionsTab; label: string; description: string }[] = [
   {
@@ -151,6 +152,12 @@ const TABS: { id: DetectionsTab; label: string; description: string }[] = [
     label: 'Coverage',
     description:
       'Rule-centric MITRE ATT&CK heatmap — see what kill-chain stages are well covered and where the tuning gaps are.',
+  },
+  {
+    id: 'confidence',
+    label: 'Confidence',
+    description:
+      'How trustworthy is your rule library? Distribution, per-tactic averages, and the rules dragging the average down.',
   },
   {
     id: 'drift',
@@ -616,6 +623,8 @@ export function DetectionsView() {
       )}
 
       {tab === 'coverage' && <MitreRuleHeatmap />}
+
+      {tab === 'confidence' && <ConfidenceTrends />}
 
       {tab === 'drift' && <DriftInbox />}
     </div>

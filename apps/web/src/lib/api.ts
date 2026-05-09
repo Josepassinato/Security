@@ -2145,6 +2145,55 @@ export interface DetectionBulkToggleResult {
   skipped: string[];
 }
 
+/** One bar in the confidence histogram. */
+export interface ConfidenceBucket {
+  /** Display label, e.g. ``"0–25"``. */
+  label: string;
+  floor: number;
+  ceil: number;
+  count: number;
+  activeCount: number;
+}
+
+/** Per-MITRE-tactic confidence average. */
+export interface TacticConfidence {
+  tactic: string;
+  rules: number;
+  activeRules: number;
+  avgConfidence: number;
+  avgConfidenceActive: number;
+}
+
+/** Compact rule reference for the lowest/highest tables. */
+export interface ConfidenceRuleEntry {
+  ruleId: string;
+  name: string;
+  severity: string;
+  enabled: boolean;
+  confidence: number;
+  fpRate: number;
+  primaryTactic: string | null;
+}
+
+export interface ConfidenceSummary {
+  totalRules: number;
+  activeRules: number;
+  avgConfidence: number;
+  avgConfidenceActive: number;
+  medianConfidence: number;
+  /** Rules below the drift low-confidence threshold (server side: 60). */
+  lowConfidence: number;
+}
+
+export interface DetectionConfidence {
+  summary: ConfidenceSummary;
+  buckets: ConfidenceBucket[];
+  tactics: TacticConfidence[];
+  lowest: ConfidenceRuleEntry[];
+  highest: ConfidenceRuleEntry[];
+  generatedAt: string;
+}
+
 export const detectionApi = {
   list: () =>
     request<{ rules: DetectionRule[]; total: number }>(
@@ -2183,6 +2232,14 @@ export const detectionApi = {
     request<DetectionCoverage>('/api/v1/detection/coverage'),
 
   drift: () => request<DetectionDrift>('/api/v1/detection/drift'),
+
+  /**
+   * Confidence distribution + per-tactic averages + worst/best rules.
+   * The plan calls this "confidence trends"; we surface it as a
+   * snapshot histogram + ranked tables since rule confidence isn't
+   * captured historically yet.
+   */
+  confidence: () => request<DetectionConfidence>('/api/v1/detection/confidence'),
 
   /**
    * Enable or disable many rules in one round-trip. Built-in /

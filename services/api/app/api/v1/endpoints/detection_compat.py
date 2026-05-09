@@ -479,6 +479,67 @@ class DriftResponse(BaseModel):
     generatedAt: str
 
 
+class ConfidenceBucket(BaseModel):
+    """One column in the confidence histogram.
+
+    ``label`` is the human-friendly bucket label rendered on the x-axis
+    ("0–25", "26–50", …). ``floor`` / ``ceil`` are inclusive bounds so the
+    UI can highlight the bucket a particular rule falls into without
+    re-parsing the label.
+    """
+
+    label: str
+    floor: int
+    ceil: int
+    count: int
+    activeCount: int
+
+
+class TacticConfidence(BaseModel):
+    """Average rule confidence within one MITRE tactic.
+
+    Useful for the "where is my coverage weakest?" question — analysts
+    plot tactics as bars and immediately see that, e.g. *exfiltration*
+    averages 38/100 while *execution* averages 78/100.
+    """
+
+    tactic: str
+    rules: int
+    activeRules: int
+    avgConfidence: float
+    avgConfidenceActive: float
+
+
+class ConfidenceRuleEntry(BaseModel):
+    """A rule highlighted in the worst/best lists."""
+
+    ruleId: str
+    name: str
+    severity: str
+    enabled: bool
+    confidence: int
+    fpRate: float
+    primaryTactic: str | None = None
+
+
+class ConfidenceSummary(BaseModel):
+    totalRules: int
+    activeRules: int
+    avgConfidence: float
+    avgConfidenceActive: float
+    medianConfidence: int
+    lowConfidence: int  # rules below ``DRIFT_LOW_CONFIDENCE_THRESHOLD``
+
+
+class ConfidenceResponse(BaseModel):
+    summary: ConfidenceSummary
+    buckets: list[ConfidenceBucket]
+    tactics: list[TacticConfidence]
+    lowest: list[ConfidenceRuleEntry]
+    highest: list[ConfidenceRuleEntry]
+    generatedAt: str
+
+
 # ─── WS-B3 pure helpers (unit-testable, no DB) ───────────────────────────────
 
 
@@ -671,6 +732,167 @@ def _build_drift(
     )
 
 
+# Confidence histogram is fixed at 4 buckets (0-25 / 26-50 / 51-75 / 76-100)
+# so a tuning analyst can compare libraries across tenants without having to
+# pick a binning scheme. Tweak with care: the frontend assumes 4 buckets when
+# rendering the histogram component.
+_CONFIDENCE_BUCKETS: tuple[tuple[str, int, int], ...] = (
+    ("0–25", 0, 25),
+    ("26–50", 26, 50),
+    ("51–75", 51, 75),
+    ("76–100", 76, 100),
+)
+
+
+def _build_confidence(
+    rules: list[DetectionRule],
+    *,
+    now: datetime | None = None,
+    top_n: int = 5,
+    low_confidence_threshold: int = DRIFT_LOW_CONFIDENCE_THRESHOLD,
+) -> ConfidenceResponse:
+    """Compute the rule confidence distribution for the WS-B3 trends panel.
+
+    The plan asks for *trends* but the schema doesn't snapshot confidence
+    over time, so we surface the most useful trend-like cuts instead:
+
+    * histogram across 4 fixed confidence buckets,
+    * average confidence overall and per tactic — "where is my library
+      weakest?" is the question analysts actually ask,
+    * top-``top_n`` rules at each end so they have something concrete to
+      tune (or trust) right now.
+
+    All math is plain Python so it stays unit-testable without a database.
+    """
+
+    now = now or datetime.now(UTC)
+
+    total = len(rules)
+    if total == 0:
+        empty_buckets = [
+            ConfidenceBucket(label=lbl, floor=lo, ceil=hi, count=0, activeCount=0)
+            for lbl, lo, hi in _CONFIDENCE_BUCKETS
+        ]
+        return ConfidenceResponse(
+            summary=ConfidenceSummary(
+                totalRules=0,
+                activeRules=0,
+                avgConfidence=0.0,
+                avgConfidenceActive=0.0,
+                medianConfidence=0,
+                lowConfidence=0,
+            ),
+            buckets=empty_buckets,
+            tactics=[],
+            lowest=[],
+            highest=[],
+            generatedAt=now.isoformat(),
+        )
+
+    confidences = [int(r.confidence or 0) for r in rules]
+    active_rules = [r for r in rules if r.status == "active"]
+    active_confidences = [int(r.confidence or 0) for r in active_rules]
+
+    avg_conf = sum(confidences) / total
+    avg_active = (
+        sum(active_confidences) / len(active_confidences) if active_confidences else 0.0
+    )
+
+    sorted_conf = sorted(confidences)
+    mid = len(sorted_conf) // 2
+    if len(sorted_conf) % 2:
+        median = sorted_conf[mid]
+    else:
+        median = (sorted_conf[mid - 1] + sorted_conf[mid]) // 2
+
+    low_count = sum(1 for c in confidences if c < low_confidence_threshold)
+
+    # Histogram buckets.
+    buckets: list[ConfidenceBucket] = []
+    for label, floor, ceil in _CONFIDENCE_BUCKETS:
+        count = sum(1 for c in confidences if floor <= c <= ceil)
+        active = sum(
+            1
+            for r in rules
+            if r.status == "active" and floor <= int(r.confidence or 0) <= ceil
+        )
+        buckets.append(
+            ConfidenceBucket(
+                label=label,
+                floor=floor,
+                ceil=ceil,
+                count=count,
+                activeCount=active,
+            )
+        )
+
+    # Per-tactic average confidence.
+    by_tactic: dict[str, dict[str, Any]] = defaultdict(
+        lambda: {"sum": 0, "count": 0, "active_sum": 0, "active_count": 0}
+    )
+    for rule, conf in zip(rules, confidences):
+        tactic = _primary_tactic(rule)
+        if not tactic:
+            continue
+        bucket = by_tactic[tactic]
+        bucket["sum"] = int(bucket["sum"]) + conf
+        bucket["count"] = int(bucket["count"]) + 1
+        if rule.status == "active":
+            bucket["active_sum"] = int(bucket["active_sum"]) + conf
+            bucket["active_count"] = int(bucket["active_count"]) + 1
+
+    tactics: list[TacticConfidence] = []
+    for tactic, agg in by_tactic.items():
+        rules_in = int(agg["count"])
+        active_in = int(agg["active_count"])
+        avg = (int(agg["sum"]) / rules_in) if rules_in else 0.0
+        avg_active_t = (int(agg["active_sum"]) / active_in) if active_in else 0.0
+        tactics.append(
+            TacticConfidence(
+                tactic=tactic,
+                rules=rules_in,
+                activeRules=active_in,
+                avgConfidence=round(avg, 2),
+                avgConfidenceActive=round(avg_active_t, 2),
+            )
+        )
+    # Worst-first so the UI doesn't have to re-sort.
+    tactics.sort(key=lambda t: (t.avgConfidence, t.tactic))
+
+    def _entry(rule: DetectionRule) -> ConfidenceRuleEntry:
+        return ConfidenceRuleEntry(
+            ruleId=str(rule.id),
+            name=rule.name,
+            severity=rule.severity or "medium",
+            enabled=rule.status == "active",
+            confidence=int(rule.confidence or 0),
+            fpRate=float(rule.fp_rate or 0.0),
+            primaryTactic=_primary_tactic(rule),
+        )
+
+    # Lowest / highest confidence rules. Stable secondary sort by name so
+    # consecutive responses don't flip order on rules with identical scores.
+    sorted_rules = sorted(rules, key=lambda r: (int(r.confidence or 0), r.name))
+    lowest = [_entry(r) for r in sorted_rules[:top_n]]
+    highest = [_entry(r) for r in list(reversed(sorted_rules))[:top_n]]
+
+    return ConfidenceResponse(
+        summary=ConfidenceSummary(
+            totalRules=total,
+            activeRules=len(active_rules),
+            avgConfidence=round(avg_conf, 2),
+            avgConfidenceActive=round(avg_active, 2),
+            medianConfidence=int(median),
+            lowConfidence=low_count,
+        ),
+        buckets=buckets,
+        tactics=tactics,
+        lowest=lowest,
+        highest=highest,
+        generatedAt=now.isoformat(),
+    )
+
+
 def _coerce_uuid(raw: str) -> uuid.UUID | None:
     """Best-effort cast of a frontend rule ID to ``uuid.UUID``.
 
@@ -788,3 +1010,30 @@ async def get_detection_drift(
     )
     rules = (await db.execute(stmt)).scalars().all()
     return _build_drift(list(rules))
+
+
+@router.get("/confidence", response_model=ConfidenceResponse)
+async def get_detection_confidence(
+    current_user: Annotated[AuthUser, Depends(require_permission("rules:read"))],
+    db: DBSession,
+) -> ConfidenceResponse:
+    """Rule-confidence trend panel for the WS-B3 Detections UI.
+
+    Returns a 4-bucket histogram of rule confidence, the per-tactic
+    average, and the top/bottom rules so analysts can see at a glance
+    where the rule library is brittle and which tactics need the most
+    tuning love.
+
+    No history table is needed — this view derives its trend signal from
+    the current confidence/FP-rate columns set by the rule engine and
+    operator review on every match.
+    """
+    tid = current_user.tenant_id
+    stmt = select(DetectionRule).where(
+        or_(
+            DetectionRule.tenant_id == tid,
+            and_(DetectionRule.tenant_id.is_(None), DetectionRule.is_builtin.is_(True)),
+        )
+    )
+    rules = (await db.execute(stmt)).scalars().all()
+    return _build_confidence(list(rules))

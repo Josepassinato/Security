@@ -24,6 +24,7 @@ from app.api.v1.endpoints.detection_compat import (
     DRIFT_FP_RATE_THRESHOLD,
     DRIFT_LOW_CONFIDENCE_THRESHOLD,
     DRIFT_STALE_DAYS,
+    _build_confidence,
     _build_coverage,
     _build_drift,
     _coerce_uuid,
@@ -373,6 +374,182 @@ class TestCoerceUuid:
         # The frontend technically can't send ``None``, but defensive
         # coding because pydantic's coercion can produce surprises.
         assert _coerce_uuid(None) is None  # type: ignore[arg-type]
+
+
+# ---------------------------------------------------------------------------
+# _build_confidence (WS-B3.1 — confidence trends panel)
+# ---------------------------------------------------------------------------
+
+
+class TestBuildConfidence:
+    """Histogram + per-tactic averages + worst/best leaderboards.
+
+    The confidence panel is the analyst's "what's brittle in my library?"
+    view — it has to be deterministic across calls so the UI doesn't
+    flicker when nothing changed, and it has to handle edge cases
+    (empty library, all-active, no MITRE coverage) without raising.
+    """
+
+    NOW = datetime(2026, 5, 9, tzinfo=UTC)
+
+    def test_empty_library_returns_zeroed_buckets(self):
+        # Empty library should still emit all 4 buckets so the UI doesn't
+        # have to special-case "no data" — it just renders zeros.
+        out = _build_confidence([], now=self.NOW)
+        assert out.summary.totalRules == 0
+        assert out.summary.activeRules == 0
+        assert out.summary.avgConfidence == 0.0
+        assert out.summary.medianConfidence == 0
+        assert out.summary.lowConfidence == 0
+        assert len(out.buckets) == 4
+        assert [b.label for b in out.buckets] == ["0–25", "26–50", "51–75", "76–100"]
+        assert all(b.count == 0 and b.activeCount == 0 for b in out.buckets)
+        assert out.tactics == []
+        assert out.lowest == []
+        assert out.highest == []
+
+    def test_histogram_bins_inclusively(self):
+        # Bucket bounds are inclusive on both sides — 25 lands in 0–25,
+        # 26 lands in 26–50. This test pins that contract.
+        rules = [
+            FakeRule(name="r0", confidence=0),
+            FakeRule(name="r25", confidence=25),
+            FakeRule(name="r26", confidence=26),
+            FakeRule(name="r50", confidence=50),
+            FakeRule(name="r51", confidence=51),
+            FakeRule(name="r75", confidence=75),
+            FakeRule(name="r76", confidence=76),
+            FakeRule(name="r100", confidence=100),
+        ]
+        out = _build_confidence(rules, now=self.NOW)
+        counts = {b.label: b.count for b in out.buckets}
+        assert counts == {"0–25": 2, "26–50": 2, "51–75": 2, "76–100": 2}
+
+    def test_active_only_count_is_separate(self):
+        # The histogram tracks both total and active counts so the UI can
+        # render a "active vs disabled" stacked bar without a second call.
+        rules = [
+            FakeRule(name="active_low", confidence=10, status="active"),
+            FakeRule(name="disabled_low", confidence=10, status="inactive"),
+            FakeRule(name="active_high", confidence=90, status="active"),
+        ]
+        out = _build_confidence(rules, now=self.NOW)
+        low_bucket = next(b for b in out.buckets if b.label == "0–25")
+        high_bucket = next(b for b in out.buckets if b.label == "76–100")
+        assert low_bucket.count == 2
+        assert low_bucket.activeCount == 1
+        assert high_bucket.count == 1
+        assert high_bucket.activeCount == 1
+
+    def test_summary_avg_and_median(self):
+        rules = [
+            FakeRule(confidence=20),
+            FakeRule(confidence=40),
+            FakeRule(confidence=60),
+            FakeRule(confidence=80),
+        ]
+        out = _build_confidence(rules, now=self.NOW)
+        # avg = 50, median (even count) = (40+60)//2 = 50
+        assert out.summary.avgConfidence == pytest.approx(50.0)
+        assert out.summary.medianConfidence == 50
+
+    def test_median_with_odd_count(self):
+        rules = [FakeRule(confidence=c) for c in (10, 30, 50, 70, 90)]
+        out = _build_confidence(rules, now=self.NOW)
+        assert out.summary.medianConfidence == 50
+
+    def test_low_confidence_count_uses_drift_threshold(self):
+        # ``lowConfidence`` is gated on ``DRIFT_LOW_CONFIDENCE_THRESHOLD``
+        # so the confidence panel and the drift inbox agree on what "low"
+        # means. If the threshold ever changes, both views move together.
+        rules = [
+            FakeRule(confidence=DRIFT_LOW_CONFIDENCE_THRESHOLD - 1),
+            FakeRule(confidence=DRIFT_LOW_CONFIDENCE_THRESHOLD),
+            FakeRule(confidence=DRIFT_LOW_CONFIDENCE_THRESHOLD + 1),
+        ]
+        out = _build_confidence(rules, now=self.NOW)
+        # Strictly below the threshold counts as low; at-or-above does not.
+        assert out.summary.lowConfidence == 1
+
+    def test_active_avg_excludes_disabled(self):
+        # Average across all rules vs. active-only should diverge once a
+        # disabled rule pulls the overall average down.
+        rules = [
+            FakeRule(confidence=100, status="active"),
+            FakeRule(confidence=100, status="active"),
+            FakeRule(confidence=0, status="inactive"),
+        ]
+        out = _build_confidence(rules, now=self.NOW)
+        assert out.summary.avgConfidence == pytest.approx(200 / 3, abs=0.01)
+        assert out.summary.avgConfidenceActive == pytest.approx(100.0)
+
+    def test_per_tactic_averages_sorted_worst_first(self):
+        # Multiple tactics → worst-average first so the UI can render the
+        # chart without re-sorting on the client.
+        rules = [
+            FakeRule(confidence=20, mitre_tactics=["exfiltration"]),
+            FakeRule(confidence=30, mitre_tactics=["exfiltration"]),
+            FakeRule(confidence=80, mitre_tactics=["execution"]),
+            FakeRule(confidence=90, mitre_tactics=["execution"]),
+        ]
+        out = _build_confidence(rules, now=self.NOW)
+        assert [t.tactic for t in out.tactics] == ["exfiltration", "execution"]
+        ex = next(t for t in out.tactics if t.tactic == "exfiltration")
+        assert ex.rules == 2
+        assert ex.avgConfidence == pytest.approx(25.0)
+
+    def test_rules_without_tactic_skipped_in_per_tactic(self):
+        # A rule with no MITRE tactic still contributes to the histogram
+        # and summary, but shouldn't show up in the per-tactic view —
+        # we'd be inventing a "no-tactic" pseudo-tactic otherwise.
+        rules = [
+            FakeRule(confidence=10, mitre_tactics=[]),
+            FakeRule(confidence=90, mitre_tactics=["execution"]),
+        ]
+        out = _build_confidence(rules, now=self.NOW)
+        assert out.summary.totalRules == 2
+        assert [t.tactic for t in out.tactics] == ["execution"]
+
+    def test_lowest_and_highest_leaderboards(self):
+        # ``lowest`` / ``highest`` are top-N by confidence, ascending /
+        # descending. We use top_n=2 here so the assertion is tight.
+        rules = [
+            FakeRule(name="a", confidence=10),
+            FakeRule(name="b", confidence=20),
+            FakeRule(name="c", confidence=80),
+            FakeRule(name="d", confidence=95),
+        ]
+        out = _build_confidence(rules, now=self.NOW, top_n=2)
+        assert [e.name for e in out.lowest] == ["a", "b"]
+        assert [e.name for e in out.highest] == ["d", "c"]
+
+    def test_lowest_stable_secondary_sort(self):
+        # Tied confidence → stable, alphabetical secondary sort so the
+        # leaderboard doesn't flicker between calls.
+        rules = [
+            FakeRule(name="zebra", confidence=10),
+            FakeRule(name="apple", confidence=10),
+            FakeRule(name="mango", confidence=10),
+        ]
+        out = _build_confidence(rules, now=self.NOW, top_n=3)
+        assert [e.name for e in out.lowest] == ["apple", "mango", "zebra"]
+
+    def test_top_n_clamped_to_library_size(self):
+        # A small library shouldn't crash when top_n is larger than the
+        # number of rules — we just return everything.
+        rules = [FakeRule(name="only", confidence=50)]
+        out = _build_confidence(rules, now=self.NOW, top_n=10)
+        assert len(out.lowest) == 1
+        assert len(out.highest) == 1
+
+    def test_none_confidence_treated_as_zero(self):
+        # ``confidence`` is non-null in the schema but the helper guards
+        # against ``None`` defensively (DB drivers can return ``None``
+        # for newly inserted rows before the default kicks in).
+        rule = FakeRule(name="r", confidence=None)  # type: ignore[arg-type]
+        out = _build_confidence([rule], now=self.NOW)
+        assert out.summary.avgConfidence == 0.0
+        assert out.summary.lowConfidence == 1
 
 
 # ---------------------------------------------------------------------------
