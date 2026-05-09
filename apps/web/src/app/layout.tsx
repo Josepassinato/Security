@@ -3,6 +3,8 @@ import { Inter, JetBrains_Mono } from 'next/font/google';
 import { Toaster } from 'react-hot-toast';
 import './globals.css';
 import { PwaBootstrap } from '@/components/pwa/PwaBootstrap';
+import { ThemeProvider } from '@/components/theme/ThemeProvider';
+import { themeBootstrapScript } from '@/components/theme/themeScript';
 import { DISCOVERY_KEYWORDS, getPublicSiteUrl } from '@/lib/site';
 
 const inter = Inter({
@@ -163,33 +165,51 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
-      <body className="bg-[#0a0d14] text-gray-100 antialiased">
+    // Default to `data-theme="dark"` for SSR so that the markup React sends
+    // matches what the bootstrap script will write before hydration. The
+    // bootstrap script (rendered first thing inside <body>) flips this to
+    // light/system if the user previously chose so, before any pixels are
+    // painted — that's why we don't see a flash.
+    <html
+      lang="en"
+      data-theme="dark"
+      className={`${inter.variable} ${jetbrainsMono.variable}`}
+    >
+      <body className="bg-surface-base text-fg-primary antialiased">
+        <script
+          // eslint-disable-next-line react/no-danger -- pre-hydration theme bootstrap
+          dangerouslySetInnerHTML={{ __html: themeBootstrapScript }}
+        />
         <script
           type="application/ld+json"
           // eslint-disable-next-line react/no-danger -- JSON-LD for SEO crawlers
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         <PwaBootstrap />
-        {children}
-        <Toaster
-          position="bottom-right"
-          toastOptions={{
-            duration: 4000,
-            style: {
-              background: '#11151f',
-              color: '#e2e8f0',
-              border: '1px solid rgba(59,130,246,0.2)',
-              fontSize: '0.875rem',
-            },
-            success: {
-              iconTheme: { primary: '#22c55e', secondary: '#0a0d14' },
-            },
-            error: {
-              iconTheme: { primary: '#ef4444', secondary: '#0a0d14' },
-            },
-          }}
-        />
+        <ThemeProvider>
+          {children}
+          <Toaster
+            position="bottom-right"
+            toastOptions={{
+              duration: 4000,
+              // Toast styles read CSS variables so the toaster flips with
+              // the rest of the chrome. `iconTheme` only takes hex values,
+              // so we pin the brand semantic colors there.
+              style: {
+                background: 'var(--surface-raised)',
+                color: 'var(--fg-primary)',
+                border: '1px solid var(--surface-border)',
+                fontSize: '0.875rem',
+              },
+              success: {
+                iconTheme: { primary: '#22c55e', secondary: '#0a0d14' },
+              },
+              error: {
+                iconTheme: { primary: '#ef4444', secondary: '#0a0d14' },
+              },
+            }}
+          />
+        </ThemeProvider>
       </body>
     </html>
   );

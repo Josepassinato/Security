@@ -301,7 +301,7 @@ export function Sidebar() {
         type="button"
         aria-label="Open navigation"
         onClick={() => setMobileOpen(true)}
-        className="md:hidden fixed top-4 left-4 z-40 p-2 rounded-lg bg-gray-800/90 text-gray-300 hover:text-white"
+        className="md:hidden fixed top-4 left-4 z-40 p-2 rounded-lg bg-surface-card/90 text-fg-secondary hover:text-fg-primary"
       >
         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -317,25 +317,25 @@ export function Sidebar() {
       )}
 
     <aside className={clsx(
-      'fixed inset-y-0 left-0 w-60 flex flex-col bg-gray-900/95 border-r border-gray-800/60 z-40 transition-transform duration-200',
+      'fixed inset-y-0 left-0 w-60 flex flex-col bg-surface-raised/95 border-r border-surface-border z-40 transition-transform duration-200',
       mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
     )}>
       {/* Logo */}
-      <div className="flex items-center gap-3 px-5 h-16 border-b border-gray-800/60">
-        <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-blue-600/20 border border-blue-600/30 flex items-center justify-center">
-          <span className="text-blue-400">
+      <div className="flex items-center gap-3 px-5 h-16 border-b border-surface-border">
+        <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-brand-600/20 border border-brand-600/30 flex items-center justify-center">
+          <span className="text-brand-400">
             <ShieldIcon />
           </span>
         </div>
         <div>
-          <span className="text-white font-bold text-base tracking-tight">Ai</span>
-          <span className="text-blue-400 font-bold text-base tracking-tight">SOC</span>
-          <p className="text-xs text-gray-500 -mt-0.5">open-source</p>
+          <span className="text-fg-primary font-bold text-base tracking-tight">Ai</span>
+          <span className="text-brand-400 font-bold text-base tracking-tight">SOC</span>
+          <p className="text-xs text-fg-subtle -mt-0.5">open-source</p>
         </div>
         {/* Live indicator */}
         <div className="ml-auto flex items-center gap-1">
           <div className="w-1.5 h-1.5 rounded-full bg-green-400 pulse-dot" />
-          <span className="text-xs text-gray-500">Live</span>
+          <span className="text-xs text-fg-subtle">Live</span>
         </div>
       </div>
 
@@ -344,7 +344,7 @@ export function Sidebar() {
         {navSections.map((section, si) => (
           <div key={si}>
             {section.title && (
-              <p className="px-3 mb-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+              <p className="px-3 mb-1.5 text-xs font-semibold text-fg-subtle uppercase tracking-wider">
                 {section.title}
               </p>
             )}
@@ -359,11 +359,11 @@ export function Sidebar() {
                       className={clsx(
                         'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150',
                         active
-                          ? 'bg-blue-600/15 text-blue-300 border border-blue-600/20'
-                          : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/70'
+                          ? 'bg-brand-600/15 text-brand-300 border border-brand-600/20'
+                          : 'text-fg-muted hover:text-fg-secondary hover:bg-surface-hover'
                       )}
                     >
-                      <span className={active ? 'text-blue-400' : 'text-gray-500'}>{item.icon}</span>
+                      <span className={active ? 'text-brand-400' : 'text-fg-subtle'}>{item.icon}</span>
                       <span>{item.label}</span>
                       {typeof item.badge === 'number' && item.badge > 0 && (
                         <span
@@ -382,15 +382,15 @@ export function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="p-4 border-t border-gray-800/60">
-        <div className="flex items-center gap-2 text-xs text-gray-600">
+      <div className="p-4 border-t border-surface-border">
+        <div className="flex items-center gap-2 text-xs text-fg-subtle">
           <span className="font-mono">v{APP_VERSION}</span>
           <span>·</span>
           <a
             href="https://github.com/beenuar/AiSOC"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-gray-400 transition-colors"
+            className="hover:text-fg-muted transition-colors"
           >
             MIT License
           </a>

@@ -27,8 +27,19 @@ export const metadata: Metadata = {
 };
 
 export default function HomePage() {
+  // The marketing landing is intentionally locked to the dark palette via a
+  // nested `data-theme="dark"` boundary. The hero is built around fixed dark
+  // gradient overlays (see `StartHero`, `Architecture`, `Features`) and the
+  // copy was tuned against that backdrop. Migrating every decorative layer
+  // to themable tokens would balloon the WS-F1 diff for negligible buyer
+  // value. The console chrome (TopBar / Sidebar / AppShell) — i.e. the
+  // surfaces a buyer actually inhabits — *does* honour the toggle, which is
+  // the buyer-visible promise. See apps/docs/docs/operations/theming.md.
   return (
-    <main className="relative min-h-screen overflow-x-hidden bg-surface-base text-white">
+    <main
+      data-theme="dark"
+      className="relative min-h-screen overflow-x-hidden bg-surface-base text-fg-primary"
+    >
       <LandingNav />
       <StartHero />
       <Features />

@@ -48,7 +48,7 @@ export function DashboardWelcome() {
           <p className="text-xs font-semibold uppercase tracking-wider text-brand-300">
             Welcome to AiSOC
           </p>
-          <h2 className="mt-1 text-lg font-semibold text-white">
+          <h2 className="mt-1 text-lg font-semibold text-fg-primary">
             You&apos;re looking at a clean console. Here&apos;s how to make it useful.
           </h2>
         </div>
@@ -56,7 +56,7 @@ export function DashboardWelcome() {
           type="button"
           onClick={dismiss}
           aria-label="Dismiss welcome message"
-          className="rounded-md p-1.5 text-gray-400 transition hover:bg-white/5 hover:text-white"
+          className="rounded-md p-1.5 text-fg-muted transition hover:bg-surface-hover hover:text-fg-primary"
         >
           <svg viewBox="0 0 20 20" className="h-4 w-4" fill="currentColor" aria-hidden="true">
             <path d="M6.28 5.22a.75.75 0 011.06 0L10 7.88l2.66-2.66a.75.75 0 111.06 1.06L11.06 8.94l2.66 2.66a.75.75 0 11-1.06 1.06L10 10l-2.66 2.66a.75.75 0 11-1.06-1.06l2.66-2.66-2.66-2.66a.75.75 0 010-1.06z" />
@@ -100,14 +100,14 @@ function Tip({
   cta: { label: string; href: string };
 }) {
   return (
-    <li className="rounded-lg border border-white/5 bg-surface-card/60 p-4">
+    <li className="rounded-lg border border-surface-border bg-surface-card/60 p-4">
       <div className="flex items-center gap-2">
         <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-brand-500/20 text-xs font-bold text-brand-200">
           {step}
         </span>
-        <h3 className="text-sm font-semibold text-white">{title}</h3>
+        <h3 className="text-sm font-semibold text-fg-primary">{title}</h3>
       </div>
-      <p className="mt-2 text-xs leading-relaxed text-gray-400">{body}</p>
+      <p className="mt-2 text-xs leading-relaxed text-fg-muted">{body}</p>
       <Link href={cta.href} className="mt-3 inline-block text-xs font-semibold text-brand-300 hover:text-brand-200">
         {cta.label}
       </Link>

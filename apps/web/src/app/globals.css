@@ -3,9 +3,90 @@
 @source "../../src";
 @source "../../../../packages/ui/src";
 
-:root {
-  --background: #0a0d14;
-  --foreground: #e2e8f0;
+/*
+ * ─────────────────────── Theme tokens (WS-F1) ───────────────────────
+ *
+ * The console ships dark-by-default; light mode is opt-in via the user
+ * preference toggle (mounted in `TopBar`) which writes either:
+ *   <html data-theme="dark">
+ *   <html data-theme="light">
+ *   <html data-theme="system">  ← resolved into "dark" or "light" by the
+ *                                  ThemeProvider before paint.
+ *
+ * The variables below cover the chrome surfaces a buyer encounters first
+ * (body, AppShell, TopBar, Sidebar, marketing landing, dashboard welcome,
+ * playbook gallery). The rest of the app is still dark-only by design —
+ * see `apps/docs/docs/operations/theming.md` for the migration playbook
+ * we use to roll surfaces over without a flag day.
+ *
+ * The tokens are referenced directly by `tailwind.config.ts` so that any
+ * Tailwind utility built on these palettes (e.g. `bg-surface-card`,
+ * `text-fg-secondary`, `border-surface-divider`) flips automatically
+ * when `data-theme` changes.
+ */
+
+:root,
+[data-theme="dark"] {
+  /* Surfaces — page bg up through hovered card */
+  --surface-base: #0a0d14;
+  --surface-raised: #11151f;
+  --surface-card: #141926;
+  --surface-hover: #1a2030;
+  --surface-subtle: #0d1119;
+
+  /* Borders / dividers — slate-400 with low alpha so they tint the surface
+     instead of cutting hard lines. */
+  --surface-border: rgba(148, 163, 184, 0.12);
+  --surface-divider: rgba(148, 163, 184, 0.08);
+
+  /* Foregrounds — high → muted */
+  --fg-primary: #e2e8f0;     /* slate-200,  body text default */
+  --fg-secondary: #cbd5e1;   /* slate-300,  paragraph copy */
+  --fg-muted: #9ca3af;       /* gray-400,   captions, labels */
+  --fg-subtle: #6b7280;      /* gray-500,   timestamps, helper text */
+  --fg-inverse: #0f172a;     /* slate-900,  text on light buttons */
+
+  /* Compatibility: legacy --background / --foreground used by `body`. */
+  --background: var(--surface-base);
+  --foreground: var(--fg-primary);
+
+  /* Selection — slightly brand-tinted for both themes. */
+  --selection-bg: rgba(59, 130, 246, 0.35);
+  --selection-fg: #ffffff;
+
+  /* Scrollbar — semi-transparent so the same rule works in both themes. */
+  --scrollbar-thumb: rgba(255, 255, 255, 0.1);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="light"] {
+  /* Surfaces — paper-white base, slightly tinted raised/card so cards have
+     definition without a hard shadow. */
+  --surface-base: #f8fafc;       /* slate-50,  page bg */
+  --surface-raised: #ffffff;     /* card containers */
+  --surface-card: #ffffff;       /* same as raised, kept distinct so we
+                                    can introduce a subtle tint later
+                                    without touching consumers */
+  --surface-hover: #eef2f7;      /* slate-100/200, hovered rows */
+  --surface-subtle: #f1f5f9;     /* slate-100, deeper tint */
+
+  --surface-border: rgba(15, 23, 42, 0.12);
+  --surface-divider: rgba(15, 23, 42, 0.06);
+
+  --fg-primary: #0f172a;         /* slate-900 */
+  --fg-secondary: #334155;       /* slate-700 */
+  --fg-muted: #64748b;           /* slate-500 */
+  --fg-subtle: #94a3b8;          /* slate-400 */
+  --fg-inverse: #f8fafc;
+
+  --background: var(--surface-base);
+  --foreground: var(--fg-primary);
+
+  --selection-bg: rgba(37, 99, 235, 0.18);
+  --selection-fg: #0f172a;
+
+  --scrollbar-thumb: rgba(15, 23, 42, 0.18);
+  --scrollbar-thumb-hover: rgba(15, 23, 42, 0.32);
 }
 
 * {
@@ -14,6 +95,14 @@
 
 html {
   scroll-behavior: smooth;
+  /* Tells form controls (date pickers, scroll bars on Safari, etc.) which
+     theme to render. The ThemeProvider keeps `data-theme` in sync, but
+     `color-scheme` lets the UA chrome match without the toggle running. */
+  color-scheme: dark;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
 }
 
 body {
@@ -22,6 +111,11 @@ body {
   font-feature-settings: "rlig" 1, "calt" 1;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: var(--selection-bg);
+  color: var(--selection-fg);
 }
 
 /* Scrollbar */
@@ -35,12 +129,12 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--scrollbar-thumb);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--scrollbar-thumb-hover);
 }
 
 /* Focus */

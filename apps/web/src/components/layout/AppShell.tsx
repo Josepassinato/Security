@@ -37,7 +37,7 @@ export function AppShell({ children }: AppShellProps) {
         No-ops outside demo mode.
       */}
       <DemoAutoLogin />
-      <div className="min-h-screen bg-[#0a0d14]">
+      <div className="min-h-screen bg-surface-base">
         <DemoBanner />
         <Sidebar />
         <div className="md:ml-60">

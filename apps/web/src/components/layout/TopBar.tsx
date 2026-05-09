@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
+import { ThemeToggle } from '@/components/theme/ThemeToggle';
 
 // Order matters: longer/more specific paths first so startsWith() picks
 // the right label for nested routes (e.g. /detection/catalog before /detection).
@@ -110,14 +111,14 @@ export function TopBar({ demoOffset = false }: TopBarProps) {
 
   return (
     <header
-      className={`fixed left-60 right-0 h-16 flex items-center justify-between px-6 bg-gray-900/90 backdrop-blur-sm border-b border-gray-800/60 z-20 ${
+      className={`fixed left-60 right-0 h-16 flex items-center justify-between px-6 bg-surface-raised/90 backdrop-blur-sm border-b border-surface-border z-20 ${
         demoOffset ? 'top-9' : 'top-0'
       }`}
     >
       {/* Page title */}
       <div>
-        <h1 className="text-base font-semibold text-white leading-tight">{routeInfo.title}</h1>
-        <p className="text-xs text-gray-500">{routeInfo.description}</p>
+        <h1 className="text-base font-semibold text-fg-primary leading-tight">{routeInfo.title}</h1>
+        <p className="text-xs text-fg-subtle">{routeInfo.description}</p>
       </div>
 
       {/* Center: command palette launcher */}
@@ -126,10 +127,10 @@ export function TopBar({ demoOffset = false }: TopBarProps) {
           type="button"
           onClick={openPalette}
           aria-label="Open command palette"
-          className="group relative flex w-full items-center gap-3 rounded-lg border border-gray-700/60 bg-gray-800/60 px-3 py-2 text-left text-sm text-gray-400 transition-all hover:border-blue-500/40 hover:bg-gray-800 focus:border-blue-500/60 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+          className="group relative flex w-full items-center gap-3 rounded-lg border border-surface-border bg-surface-card/60 px-3 py-2 text-left text-sm text-fg-muted transition-all hover:border-brand-500/40 hover:bg-surface-card focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/30"
         >
           <svg
-            className="h-4 w-4 text-gray-500 transition-colors group-hover:text-gray-300"
+            className="h-4 w-4 text-fg-subtle transition-colors group-hover:text-fg-secondary"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -141,39 +142,42 @@ export function TopBar({ demoOffset = false }: TopBarProps) {
               d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
             />
           </svg>
-          <span className="flex-1 truncate text-gray-400 group-hover:text-gray-300">
+          <span className="flex-1 truncate text-fg-muted group-hover:text-fg-secondary">
             Search alerts, cases, rules, or run a command…
           </span>
-          <kbd className="pointer-events-none rounded bg-gray-700/60 px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wide text-gray-300">
+          <kbd className="pointer-events-none rounded bg-surface-hover px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wide text-fg-secondary">
             {shortcut}
           </kbd>
         </button>
       </div>
 
-      {/* Right: clock, notifications, user */}
+      {/* Right: clock, theme toggle, notifications, user */}
       <div className="flex items-center gap-4">
         {/* Clock */}
         <div className="text-right hidden lg:block">
-          <p className="text-sm font-mono text-gray-300" suppressHydrationWarning>{timeStr}</p>
-          <p className="text-xs text-gray-500" suppressHydrationWarning>{dateStr}</p>
+          <p className="text-sm font-mono text-fg-secondary" suppressHydrationWarning>{timeStr}</p>
+          <p className="text-xs text-fg-subtle" suppressHydrationWarning>{dateStr}</p>
         </div>
 
+        {/* Theme toggle (WS-F1) */}
+        <ThemeToggle />
+
         {/* Notifications */}
-        <button className="relative p-1.5 text-gray-400 hover:text-gray-200 transition-colors">
+        <button className="relative p-1.5 text-fg-muted hover:text-fg-primary transition-colors">
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
           </svg>
-          <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full ring-2 ring-gray-900" />
+          <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full ring-2 ring-surface-raised" />
         </button>
 
         {/* User avatar */}
         <div className="flex items-center gap-2 cursor-pointer group">
-          <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-xs font-bold text-white">
+          <div className="w-8 h-8 rounded-full bg-brand-600 flex items-center justify-center text-xs font-bold text-white">
             SO
           </div>
           <div className="hidden lg:block">
-            <p className="text-xs font-medium text-gray-300">SOC Analyst</p>
-            <p className="text-xs text-gray-500">Admin</p>
+            <p className="text-xs font-medium text-fg-secondary">SOC Analyst</p>
+            <p className="text-xs text-fg-subtle">Admin</p>
           </div>
         </div>
       </div>
