@@ -28,6 +28,7 @@ from app.api.v1.endpoints import (
     hunts,
     identity_timeline,
     inbox,
+    inbox_itsm,
     knowledge_base,
     lake,
     nl_detection,
@@ -165,6 +166,15 @@ api_router.include_router(agents.router)
 # itself terminates at services/ingest, which resolves the token to a
 # tenant + template_id and reuses the existing OCSF normalizer.
 api_router.include_router(inbox.router)
+
+# Bidirectional ITSM webhook receiver (Workstream 8 of AI Stack plan).
+# /inbox/itsm/{tenant_token}/{connector_instance_id} accepts inbound
+# Jira / ServiceNow webhooks, resolves the external ticket back to its
+# AiSOC case via case_external_refs, and mirrors the status onto
+# aisoc_cases. This is the *inbound* counterpart to case_fanout (which
+# handles outbound AiSOC → ITSM projection) and is what makes the
+# operator's existing ITSM the source of truth for case status.
+api_router.include_router(inbox_itsm.router)
 
 # Tenant lake API (Workstream 7 of AI Stack plan).
 # /lake/sql executes a tenant-scoped SELECT against the warm tier

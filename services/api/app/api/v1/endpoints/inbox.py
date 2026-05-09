@@ -74,6 +74,12 @@ ALLOWED_TEMPLATE_IDS: tuple[str, ...] = (
     "cef-syslog",
     "splunk-hec",
     "email-forwarded",
+    # Bidirectional ITSM (Workstream 8) — inbound Jira / ServiceNow webhooks.
+    # Tokens minted with this template terminate at
+    # /api/v1/inbox/itsm/{tenant_token}/{connector_instance_id} on services/api
+    # rather than the generic ingest path, because they need to resolve back
+    # to a specific connector instance and mirror status onto aisoc_cases.
+    "itsm-inbound",
 )
 
 # Same character set as connector_type — tightens HMAC body shape.
@@ -96,8 +102,39 @@ def _fingerprint(token: str) -> str:
     return f"...{token[-8:]}" if len(token) > 8 else "...<short>"
 
 
-def _build_inbox_url(token: str) -> str:
-    """Build the absolute inbox URL the customer pastes into the vendor."""
+def _build_inbox_url(token: str, template_id: str | None = None) -> str:
+    """Build the absolute inbox URL the customer pastes into the vendor.
+
+    For most templates (PagerDuty, generic-json, syslog, etc.) the URL
+    terminates at services/ingest, which resolves the token to a tenant
+    + template_id and runs the OCSF normalizer.
+
+    The exception is ``itsm-inbound`` (Workstream 8). Those URLs need to
+    terminate at services/api because they:
+
+    1. Need a database transaction to update aisoc_cases / case_external_refs.
+    2. Need to look up case_fanout's earlier outbound projection to find
+       the AiSOC case ID, which lives in the api-service-managed schema.
+    3. Are pinned to a specific connector instance, so the URL carries a
+       ``{connector_instance_id}`` placeholder that the operator fills in
+       when they paste it into Jira/ServiceNow's webhook config.
+
+    The placeholder ``<connector_instance_id>`` (UUID) is intentionally
+    angle-bracketed so it's obvious in the wizard UI that the operator
+    has to substitute it before saving the URL on the vendor side.
+    """
+    if template_id == "itsm-inbound":
+        # Public URL of the API service (NOT the ingest service). Reuses
+        # ``OAUTH_PUBLIC_BASE_URL`` because that's already the canonical
+        # "where does the world reach my API" setting — adding a separate
+        # ``API_PUBLIC_URL`` would duplicate the same value with different
+        # names. Falls back to a relative path when unset, which is fine
+        # for dev / docker-compose where the operator paste happens on the
+        # same host the API is exposed from.
+        api_base = (getattr(settings, "OAUTH_PUBLIC_BASE_URL", "") or "").rstrip("/")
+        path = f"/api/v1/inbox/itsm/{token}/<connector_instance_id>"
+        return f"{api_base}{path}" if api_base else path
+
     base = (getattr(settings, "INGEST_PUBLIC_URL", "") or "").rstrip("/")
     return f"{base}/v1/inbox/{token}" if base else f"/v1/inbox/{token}"
 
@@ -239,6 +276,17 @@ _TEMPLATE_CATALOG: dict[str, dict[str, str]] = {
         ),
         "category": "email",
     },
+    "itsm-inbound": {
+        "label": "Inbound ITSM (Jira / ServiceNow)",
+        "description": (
+            "Receive status-change webhooks from Jira or ServiceNow. The URL "
+            "must be paired with a specific connector instance — paste it "
+            "into the vendor's webhook config alongside the connector ID. "
+            "Tokens of this type terminate at services/api so we can mirror "
+            "status onto aisoc_cases."
+        ),
+        "category": "itsm",
+    },
 }
 
 
@@ -253,7 +301,7 @@ def _to_response(row: TenantInboxToken, *, include_plaintext: bool) -> InboxToke
     """
     return InboxTokenResponse(
         token=row.token if include_plaintext else _fingerprint(row.token),
-        inbox_url=_build_inbox_url(row.token),
+        inbox_url=_build_inbox_url(row.token, row.template_id),
         template_id=row.template_id,
         label=row.label,
         has_hmac_secret=row.hmac_secret is not None,
