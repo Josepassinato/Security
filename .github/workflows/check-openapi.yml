@@ -75,8 +75,11 @@ jobs:
       - name: Regenerate and commit openapi.yaml
         run: |
           python scripts/export_openapi.py
-          git config user.name  "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # Identity policy: all commits on this repo must be authored by
+          # Beenu Arora <beenu@cyble.com>, including machine-written CI
+          # commits like the auto-regenerated OpenAPI spec.
+          git config user.name  "Beenu Arora"
+          git config user.email "beenu@cyble.com"
           git add docs/openapi.yaml
           git diff --staged --quiet || git commit -m "chore: regenerate docs/openapi.yaml [skip ci]"
           git push

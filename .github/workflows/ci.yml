@@ -446,8 +446,13 @@ jobs:
           # Maintain a stable `latest.json` for the eval harness page badge
           cp /tmp/eval_report.json eval/results/latest.json
 
-          git config user.email "ci@example.com"
-          git config user.name "AiSOC CI"
+          # Identity policy: every commit on this repo must be authored by
+          # Beenu Arora <beenu@cyble.com>. The eval-results branch is no
+          # exception — even though it is machine-written by CI, attributing
+          # it to a separate "AiSOC CI" identity would re-pollute the
+          # contributors graph after the 2026-05-08 history rewrite.
+          git config user.email "beenu@cyble.com"
+          git config user.name "Beenu Arora"
           git add eval/results
           git commit -m "eval: ${COMMIT_SHA::7} (auto)" || echo "no changes"
           git push origin eval-results || echo "push skipped"
