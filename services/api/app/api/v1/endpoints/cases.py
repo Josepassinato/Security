@@ -21,9 +21,11 @@ from __future__ import annotations
 
 import logging
 import os
+import re
 import uuid
 from datetime import UTC, datetime
 from typing import Any, Literal
+from urllib.parse import quote
 
 import httpx
 from fastapi import APIRouter, HTTPException, Query, Response, status
@@ -45,6 +47,26 @@ _AGENTS_URL = (
     or os.getenv("AGENTS_API_URL")
     or "http://agents:8084"
 ).rstrip("/")
+
+# Tight allowlist for proxied request paths. We only ever proxy to a fixed
+# upstream (`_AGENTS_URL`) on a known set of investigation routes, so the
+# path must be a pure relative path — no scheme, no host, no control bytes,
+# no traversal sequences. This neutralises partial-SSRF (an attacker cannot
+# redirect the request to a different host) and log-injection (the path
+# can never contain CR/LF or other control characters).
+_SAFE_PROXY_PATH_RE = re.compile(r"^/[A-Za-z0-9_\-./%]*$")
+
+
+def _validate_agents_path(path: str) -> str:
+    """Reject any proxied path that isn't a tightly constrained relative path."""
+    if (
+        not isinstance(path, str)
+        or not _SAFE_PROXY_PATH_RE.match(path)
+        or ".." in path
+        or path.startswith("//")  # protocol-relative URL
+    ):
+        raise HTTPException(status_code=400, detail="invalid_request_path")
+    return path
 
 # ────────────────────────────────────────────────────────────────────────────
 # Pydantic schemas
@@ -835,13 +857,14 @@ async def update_task(
 
 
 async def _agents_proxy(method: str, path: str, **kwargs: Any) -> httpx.Response:
-    url = f"{_AGENTS_URL}{path}"
+    safe_path = _validate_agents_path(path)
+    url = f"{_AGENTS_URL}{safe_path}"
     timeout = kwargs.pop("timeout", 30.0)
     try:
         async with httpx.AsyncClient(timeout=timeout) as client:
             return await client.request(method, url, **kwargs)
     except httpx.HTTPError as exc:
-        logger.exception("Agents service request failed: %s %s", method, url)
+        logger.exception("Agents service request failed: %s %s", method, safe_path)
         raise HTTPException(
             status_code=503,
             detail=f"Agents service unavailable: {exc}",
@@ -902,10 +925,23 @@ async def case_investigation_run(
     run_id: str,
     user: AuthUser,
 ) -> dict[str, Any]:
-    resp = await _agents_proxy("GET", f"/api/v1/investigations/{run_id}")
+    # URL-encode the user-supplied run_id so it cannot inject `/`, `?`, `#`,
+    # CR/LF, or other URL syntax into the proxied path.
+    safe_run_id = quote(run_id, safe="")
+    resp = await _agents_proxy("GET", f"/api/v1/investigations/{safe_run_id}")
     if resp.status_code >= 400:
         raise HTTPException(status_code=resp.status_code, detail=resp.text)
     return resp.json()
+
+
+# Filename sanitiser for Content-Disposition: keep only safe ASCII so the
+# header cannot be split with CR/LF and the value renders consistently.
+_SAFE_FILENAME_RE = re.compile(r"[^A-Za-z0-9._-]")
+
+
+def _safe_filename_segment(value: str) -> str:
+    """Reduce an identifier to a Content-Disposition-safe filename segment."""
+    return _SAFE_FILENAME_RE.sub("_", value)[:64] or "unknown"
 
 
 @router.get(
@@ -917,16 +953,19 @@ async def case_investigation_pdf(
     run_id: str,
     user: AuthUser,
 ) -> Response:
-    resp = await _agents_proxy("GET", f"/api/v1/investigations/{run_id}/report.pdf")
+    safe_run_id = quote(run_id, safe="")
+    resp = await _agents_proxy("GET", f"/api/v1/investigations/{safe_run_id}/report.pdf")
     if resp.status_code >= 400:
         raise HTTPException(status_code=resp.status_code, detail=resp.text)
+    safe_case_id = _safe_filename_segment(case_id)
+    safe_run_id_filename = _safe_filename_segment(run_id)
     return Response(
         content=resp.content,
         media_type=resp.headers.get("content-type", "application/pdf"),
         headers={
             "Content-Disposition": resp.headers.get(
                 "content-disposition",
-                f'attachment; filename="case-{case_id}-{run_id}.pdf"',
+                f'attachment; filename="case-{safe_case_id}-{safe_run_id_filename}.pdf"',
             ),
         },
     )

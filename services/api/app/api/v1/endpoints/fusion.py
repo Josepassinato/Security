@@ -26,7 +26,9 @@ from __future__ import annotations
 
 import logging
 import os
+import re
 from typing import Any
+from urllib.parse import quote
 from uuid import UUID
 
 import httpx
@@ -45,19 +47,39 @@ _FUSION_URL = (
     or ""
 ).rstrip("/")
 
+# Tight allowlist for proxied request paths. We only ever proxy to a fixed
+# upstream (`_FUSION_URL`) on a known set of routes, so the path must be a
+# pure relative path with no scheme, host, control characters, or traversal
+# sequences. This neutralises partial-SSRF (an attacker cannot redirect the
+# request elsewhere) and log-injection (the path can never contain CR/LF).
+_SAFE_PATH_RE = re.compile(r"^/[A-Za-z0-9_\-./%]*$")
+
+
+def _validate_proxy_path(path: str) -> str:
+    """Reject any proxied path that isn't a tightly constrained relative path."""
+    if (
+        not isinstance(path, str)
+        or not _SAFE_PATH_RE.match(path)
+        or ".." in path
+        or path.startswith("//")  # protocol-relative URL
+    ):
+        raise HTTPException(status_code=400, detail="invalid_request_path")
+    return path
+
 
 async def _proxy_get(path: str, params: dict[str, Any] | None = None) -> dict[str, Any] | None:
     """Forward GET to fusion if configured. Return None on transport error."""
     if not _FUSION_URL:
         return None
+    safe_path = _validate_proxy_path(path)
     try:
         async with httpx.AsyncClient(timeout=15.0) as client:
-            resp = await client.get(f"{_FUSION_URL}{path}", params=params or {})
+            resp = await client.get(f"{_FUSION_URL}{safe_path}", params=params or {})
         if resp.status_code >= 500:
             logger.warning(
                 "Fusion upstream returned %s for %s; falling back to stub",
                 resp.status_code,
-                path,
+                safe_path,
             )
             return None
         if resp.status_code == 404:
@@ -172,8 +194,12 @@ async def entity_risk_detail(
 ) -> dict[str, Any]:
     if entity_type == "ip":
         entity_type = "src_ip"
+    # URL-encode user-controlled path segments so they cannot inject `/`,
+    # `?`, `#`, or other URL syntax into the proxied path.
+    safe_type = quote(entity_type, safe="")
+    safe_value = quote(entity_value, safe="")
     upstream = await _proxy_get(
-        f"/entity-risk/{entity_type}/{entity_value}",
+        f"/entity-risk/{safe_type}/{safe_value}",
         params={"tenant_id": str(tenant_id)},
     )
     if upstream is not None:
