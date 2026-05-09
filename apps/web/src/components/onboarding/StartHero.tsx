@@ -176,11 +176,17 @@ export function StartHero() {
 }
 
 function Stat({ label, value, caption }: { label: string; value: string; caption: string }) {
+  // Caption is wrapped inside the `<dd>` so the surrounding `<dl>` stays
+  // structurally valid (axe's `definition-list` rule rejects any direct
+  // child of the `<dl>`'s div-wrapper that isn't `<dt>`/`<dd>`). Same
+  // visual layout as before.
   return (
     <div>
       <dt className="text-xs font-semibold uppercase tracking-wider text-gray-500">{label}</dt>
-      <dd className="mt-2 text-2xl font-bold text-white">{value}</dd>
-      <p className="mt-1 text-xs text-gray-500">{caption}</p>
+      <dd className="mt-2 text-2xl font-bold text-white">
+        {value}
+        <span className="mt-1 block text-xs font-normal text-gray-500">{caption}</span>
+      </dd>
     </div>
   );
 }

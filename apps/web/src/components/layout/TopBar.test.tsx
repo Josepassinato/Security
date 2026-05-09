@@ -9,11 +9,23 @@ vi.mock('next/navigation', () => ({
 }));
 
 import { TopBar } from './TopBar';
+import { ThemeProvider } from '../theme/ThemeProvider';
+
+// TopBar embeds <ThemeToggle/> (WS-F1), which calls useTheme() and so must
+// always be rendered inside a <ThemeProvider>. Wrap once here so each test
+// reads naturally.
+function renderTopBar() {
+  return render(
+    <ThemeProvider>
+      <TopBar />
+    </ThemeProvider>,
+  );
+}
 
 describe('TopBar', () => {
   it('shows the per-route title and description for known paths', () => {
     pathnameMock.mockReturnValue('/cases');
-    render(<TopBar />);
+    renderTopBar();
 
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Cases');
     expect(screen.getByText('Incident case management')).toBeInTheDocument();
@@ -22,7 +34,7 @@ describe('TopBar', () => {
   it('matches the most specific nested route first', () => {
     // /detection/catalog must win over /detection.
     pathnameMock.mockReturnValue('/detection/catalog');
-    render(<TopBar />);
+    renderTopBar();
 
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Detection Catalog');
   });
@@ -30,14 +42,14 @@ describe('TopBar', () => {
   it('derives a sensible title for unknown routes from the path itself', () => {
     // Regression: previously fell back to "Alerts" for everything unmapped.
     pathnameMock.mockReturnValue('/some-new-page');
-    render(<TopBar />);
+    renderTopBar();
 
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Some New Page');
   });
 
   it('dispatches a Cmd-K keyboard event when the palette button is clicked', async () => {
     pathnameMock.mockReturnValue('/dashboard');
-    render(<TopBar />);
+    renderTopBar();
 
     const listener = vi.fn();
     window.addEventListener('keydown', listener);

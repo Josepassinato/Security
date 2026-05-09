@@ -99,11 +99,18 @@ export function Hero() {
 }
 
 function Stat({ label, value, caption }: { label: string; value: string; caption: string }) {
+  // The caption lives inside the same `<dd>` as the value so the `<dl>` keeps
+  // valid HTML5 structure (only `<dt>`/`<dd>` may live inside the wrapping
+  // `<div>`). Visually the caption still reads as a smaller line below the
+  // headline number; screen readers announce both as part of the description
+  // term, which is what we want.
   return (
     <div>
       <dt className="text-xs font-semibold uppercase tracking-wider text-gray-500">{label}</dt>
-      <dd className="mt-2 text-2xl font-bold text-white">{value}</dd>
-      <p className="mt-1 text-xs text-gray-500">{caption}</p>
+      <dd className="mt-2 text-2xl font-bold text-white">
+        {value}
+        <span className="mt-1 block text-xs font-normal text-gray-500">{caption}</span>
+      </dd>
     </div>
   );
 }

@@ -5,8 +5,19 @@
 // but that jsdom doesn't ship.
 
 import '@testing-library/jest-dom/vitest';
-import { afterEach, vi } from 'vitest';
+import { afterEach, expect, vi } from 'vitest';
 import { cleanup } from '@testing-library/react';
+// NOTE: vitest-axe@0.1.0 ships a broken `vitest-axe/matchers.d.ts` that wraps
+// its re-exports in `export type *`, so TS thinks `toHaveNoViolations` is a
+// type even though the JS file exports a function. The deep path resolves to
+// `dist/matchers.d.ts`, which uses regular value re-exports and works.
+import { toHaveNoViolations } from 'vitest-axe/dist/matchers.js';
+import 'vitest-axe/extend-expect';
+
+// vitest-axe ships matchers separately from the type augmentation; register
+// here so every component test can call `expect(...).toHaveNoViolations()`
+// without per-file boilerplate. WS-F2.
+expect.extend({ toHaveNoViolations });
 
 afterEach(() => {
   cleanup();
