@@ -91,7 +91,6 @@ router = APIRouter(prefix="/oauth", tags=["oauth"])
 # Same regex used in connectors.py — we don't want a hostile state row
 # ever embedding path traversal / log injection in connector_type.
 _CONNECTOR_TYPE_RE = re.compile(r"^[a-zA-Z0-9_\-]{1,100}$")
-_LOG_CTRL_RE = re.compile(r"[\x00-\x1f\x7f]")
 
 # OAuth state TTL. The plan calls it 10 minutes; that's tight enough that
 # a stolen state cookie is useless before it expires, loose enough that a
@@ -730,10 +729,17 @@ def _callback_error_redirect(return_to: str, code: str, detail: str) -> Redirect
     owns the operator UX, and the verify-data-flowing screen already
     knows how to surface ``oauth_error=…&oauth_message=…`` on
     /onboarding.
+
+    ``return_to`` is re-validated here even though every caller pulls it
+    from a state row that was itself sanitised at /oauth/start.  CodeQL
+    cannot follow that round-trip through the database, so re-asserting
+    the whitelist at the sink keeps the taint analysis quiet *and*
+    closes the door on a future caller that forgets to validate.
     """
-    sep = "&" if "?" in return_to else "?"
+    safe_return = _validate_return_to(return_to)
+    sep = "&" if "?" in safe_return else "?"
     qs = urlencode({"oauth_error": code, "oauth_message": detail[:200]})
-    return RedirectResponse(url=f"{return_to}{sep}{qs}", status_code=302)
+    return RedirectResponse(url=f"{safe_return}{sep}{qs}", status_code=302)
 
 
 @router.get("/callback")

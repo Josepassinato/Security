@@ -791,7 +791,11 @@ async def update_connector_capabilities(
         extra={
             "tenant_id": current_user.tenant_id,
             "connector_id": str(connector_id),
-            "connector_type": _safe_log_val(connector.connector_type),
+            # _safe_connector_type reconstructs from a whitelist regex
+            # (negative-class sub) — that's a taint-breaker CodeQL
+            # actually recognises, unlike _safe_log_val's strip-only
+            # cleanup which it (correctly) treats as cosmetic.
+            "connector_type": _safe_connector_type(connector.connector_type),
             "allowed": request.allowed_capabilities,
         },
     )
@@ -1110,7 +1114,10 @@ async def troubleshoot_connection(
     logger.info(
         "connectors.troubleshoot",
         extra={
-            "type": _safe_log_val(safe_type),
+            # safe_type is already taint-broken by _safe_connector_type
+            # above; wrapping it in _safe_log_val just re-introduced a
+            # function CodeQL doesn't model as a sanitizer.
+            "type": safe_type,
             "keys": sorted(request.auth_config_keys)[:8],  # cap to avoid log spam
             "err_len": len(request.error),
         },
