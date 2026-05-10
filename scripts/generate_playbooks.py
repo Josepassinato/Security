@@ -1575,8 +1575,8 @@ def main() -> int:
         "lateral-movement": 5, "supply-chain": 5, "ddos": 5,
     }
 
-    if PACK_ROOT.exists():
-        shutil.rmtree(PACK_ROOT)
+    # Do NOT remove the entire pack root – hand-crafted playbooks live alongside
+    # generated ones and must not be deleted on every generator run.
     PACK_ROOT.mkdir(parents=True, exist_ok=True)
 
     total = 0
