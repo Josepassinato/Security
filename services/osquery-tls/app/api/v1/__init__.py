@@ -8,6 +8,7 @@ from app.api.v1.endpoints import (
     distributed_status,
     distributed_write,
     enroll,
+    extensions,
     fim,
     log,
     packs,
@@ -23,3 +24,4 @@ router.include_router(distributed_enqueue.router)
 router.include_router(distributed_status.router)
 router.include_router(packs.router)
 router.include_router(fim.router)
+router.include_router(extensions.router)
