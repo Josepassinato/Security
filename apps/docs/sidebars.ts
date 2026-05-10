@@ -48,6 +48,8 @@ const sidebars: SidebarsConfig = {
         "connectors/cloudflare",
         "connectors/github",
         "connectors/tailscale",
+        "connectors/osctrl",
+        "connectors/fleetdm",
       ],
     },
     {

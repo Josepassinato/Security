@@ -33,6 +33,7 @@ from app.connectors.datadog_cloud_siem import DatadogCloudSIEMConnector
 from app.connectors.duo_security import DuoSecurityConnector
 from app.connectors.elastic import ElasticConnector
 from app.connectors.email_inbox import EmailInboxConnector
+from app.connectors.fleetdm import FleetDMConnector
 from app.connectors.gcp_cloud_audit import GCPCloudAuditConnector
 from app.connectors.gcp_scc import GCPSCCConnector
 from app.connectors.github import GitHubConnector
@@ -44,6 +45,7 @@ from app.connectors.microsoft_sentinel import MicrosoftSentinelConnector
 from app.connectors.mimecast import MimecastConnector
 from app.connectors.okta import OktaConnector
 from app.connectors.onepassword import OnePasswordConnector
+from app.connectors.osctrl import OsctrlConnector
 from app.connectors.proofpoint import ProofpointConnector
 from app.connectors.rapid7_insightidr import Rapid7InsightIDRConnector
 from app.connectors.salesforce import SalesforceConnector
@@ -83,6 +85,7 @@ _CONNECTOR_CLASSES: tuple[type[BaseConnector], ...] = (
     DuoSecurityConnector,
     ElasticConnector,
     EmailInboxConnector,
+    FleetDMConnector,
     GCPCloudAuditConnector,
     GCPSCCConnector,
     GitHubConnector,
@@ -94,6 +97,7 @@ _CONNECTOR_CLASSES: tuple[type[BaseConnector], ...] = (
     MimecastConnector,
     OktaConnector,
     OnePasswordConnector,
+    OsctrlConnector,
     ProofpointConnector,
     Rapid7InsightIDRConnector,
     SalesforceConnector,
@@ -173,6 +177,7 @@ __all__ = [
     "ElasticConnector",
     "EmailInboxConnector",
     "Field",
+    "FleetDMConnector",
     "GCPCloudAuditConnector",
     "GCPSCCConnector",
     "GitHubConnector",
@@ -185,6 +190,7 @@ __all__ = [
     "OAuthHints",
     "OktaConnector",
     "OnePasswordConnector",
+    "OsctrlConnector",
     "ProofpointConnector",
     "Rapid7InsightIDRConnector",
     "SalesforceConnector",
