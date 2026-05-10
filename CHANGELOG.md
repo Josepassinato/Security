@@ -5,55 +5,72 @@ All notable changes to AiSOC will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] — osquery extensions (PR5 + PR6)
+## [8.0.0] — 2026-05-10
 
-### Added — osquery pack management, FIM pipeline, and custom virtual tables
+### Added — osquery TLS fleet integration, pack management, FIM pipeline, and custom virtual tables
+
+#### PR2 — osquery detection migration (20 rules)
+
+- Migrated 16 quarantined osquery detection rules from `detections/splunk-imports/_quarantine/`
+  to first-class AiSOC YAML format (`det-endpoint-281` through `det-endpoint-296`).
+  Rules cover process injection, credential access, lateral movement, defence evasion,
+  and persistence vectors across Linux, macOS, and Windows.
+- Added 16 corresponding fixture files in `detections/fixtures/positive/` to gate the
+  detection validation CI workflow.
 
 #### PR5 — osquery pack management + FIM
 
-- **`services/osquery-tls/app/packs/`** — YAML pack loader with 5 curated packs
-  (discovery, process-events, network-events, browser-extensions, file-integrity).
-  Packs validated against a Pydantic schema on load; invalid YAML logged and skipped.
-- **`services/osquery-tls/app/pack_resolver.py`** — tenant-aware resolver that merges
-  global packs with per-tenant overrides; respects `enabled` flag on assignments.
-- **`services/osquery-tls/app/api/v1/endpoints/packs.py`** — REST catalog:
-  `GET /api/v1/osquery/packs` (all packs), `GET /api/v1/osquery/packs/{id}`,
-  `GET /api/v1/osquery/tenants/{id}/packs`, `POST /api/v1/osquery/tenants/{id}/packs`,
-  `PATCH /api/v1/osquery/tenants/{id}/packs/{pack_id}`. Supports `?format=fleet|osquery`
-  render modes.
-- **`services/osquery-tls/app/models/pack_assignment.py`** — `OsqueryPackAssignment`
-  model with `enabled` flag; Alembic migration `002_pack_assignment_enabled.py`.
-- **`services/osquery-tls/app/api/v1/endpoints/fim.py`** — FIM event ingestion and
-  query endpoints: `POST /api/v1/osquery/fim/events`, `GET /api/v1/osquery/fim/events`,
-  `GET /api/v1/osquery/fim/summary`.
-- **`apps/web/src/components/FimEventTable.tsx`** and **`FimSummaryCard.tsx`** — React
-  widgets for the FIM dashboard with real-time updates via `useSWR`.
-- **`apps/web/src/pages/fim.tsx`** — FIM dashboard page wired into Next.js routing.
-- **Detection rules** `det-endpoint-281` through `det-endpoint-284` — FIM detections:
-  SSH key modification, sudoers changes, cron modification, and world-writable files.
+- **`services/api/app/services/pack_loader.py`** — In-memory YAML pack loader: reads
+  all `packs/*.yaml`, validates against a Pydantic schema, and caches on startup.
+  Invalid YAML is logged and skipped without crashing the API.
+- **`services/api/app/services/pack_assignment.py`** — Tenant-aware pack assignment
+  service: stores assignments in Postgres (`osquery_pack_assignments`), compiles
+  assigned packs into the canonical osquery config JSON, and supports FleetDM-compatible
+  and raw-osquery render formats.
+- **`services/api/app/api/v1/endpoints/packs.py`** — REST catalog:
+  `GET /api/v1/packs` (catalog), `GET /api/v1/packs/{id}`,
+  `GET /api/v1/packs/assigned`, `POST /api/v1/packs/assign`,
+  `DELETE /api/v1/packs/unassign/{pack_id}`.
+- **`packs/`** — Five curated YAML packs:
+  `aisoc-fim-baseline`, `aisoc-fim-credentials`, `aisoc-attck-persistence`,
+  `aisoc-attck-defense-evasion`, `aisoc-inventory-baseline`.
+- **`packages/types/src/packs.ts`** — TypeScript interfaces for pack data mirroring
+  the Pydantic models (exported from `@aisoc/types`).
+- **`apps/web/src/lib/api.ts`** — `packsApi` object with `list`, `listAssigned`,
+  `assign`, and `unassign` methods.
+- **`apps/web/src/components/dashboard/FimWidget.tsx`** — Compact FIM activity summary
+  widget (24 h event count, active node count, top paths).
+- **`apps/web/src/components/dashboard/PackHealthWidget.tsx`** — Compact pack health
+  widget (assigned packs, last poll time, enabled status).
+- **`apps/web/src/components/dashboard/DashboardView.tsx`** — Integrated `fim-pack-health`
+  widget row into the drag-and-drop dashboard layout.
+- **`apps/web/src/app/(app)/dashboard/file-integrity/page.tsx`** — Dedicated FIM
+  dashboard page at `/dashboard/file-integrity`.
+- **Detection rules** `det-endpoint-297` through `det-endpoint-300` — Four FIM
+  detections: critical system file modified, SSH authorized_keys changed,
+  sudoers file modified, and new SUID/SGID binary appeared.
+- **`apps/docs/docs/packs/`** — Seven documentation pages: pack index, schema
+  reference, and one walkthrough per first-party pack.
+- **`apps/docs/docs/dashboards/file-integrity.md`** — FIM dashboard user guide.
 
-#### PR6 — AiSOC osquery extensions (5 virtual tables)
+#### PR6 — AiSOC osquery extension (virtual-table API layer)
 
-- **`services/osquery-extensions/`** — New Go module shipping a standalone osquery
-  extension binary with five virtual tables:
+- **`services/api/app/api/v1/endpoints/extensions.py`** — Three read-only FastAPI
+  endpoints consumed by the extension binary, authenticated with host-scoped JWTs
+  (`extensions:read` permission):
+  - `GET /api/v1/extensions/pending-actions`
+  - `GET /api/v1/extensions/alert-cache`
+  - `GET /api/v1/extensions/persistence-baseline`
+- **`services/osquery-extensions/`** — Go module scaffold for the standalone osquery
+  extension binary exposing five virtual tables:
   - `aisoc_pending_actions` — HITL response actions queued for the host
   - `aisoc_alert_cache` — Alerts fired against the host (last 24 h)
   - `aisoc_attck_persistence` — Approved persistence baseline (MITRE T1547 diff)
   - `aisoc_kernel_modules_verified` — Loaded kernel modules with signing status (Linux)
   - `aisoc_browser_extensions` — Installed browser extensions per user profile
-- **`services/osquery-extensions/internal/aisocapi/`** — Typed HTTP client with
-  httptest-backed unit tests covering all three API methods.
-- **`services/osquery-tls/app/api/v1/endpoints/extensions.py`** — Three read-only
-  FastAPI endpoints consumed by the extension binary:
-  `GET /api/v1/osquery/extensions/pending-actions`,
-  `GET /api/v1/osquery/extensions/alert-cache`,
-  `GET /api/v1/osquery/extensions/persistence-baseline`.
-- **`.github/workflows/build-extensions.yml`** — CI: Go unit tests on every PR;
-  release matrix building `linux/amd64`, `linux/arm64`, `darwin/amd64`, `darwin/arm64`,
-  `windows/amd64` binaries on `ext-v*` tags with cosign keyless signing.
-- **`apps/docs/docs/connectors/osquery-extensions.md`** — Full installation guide
-  (systemd, launchd, osquery flags), example queries, API reference, build-from-source,
-  troubleshooting, and security notes.
+- **`apps/docs/docs/extensions/`** — Four documentation pages: extension overview,
+  install guide (systemd / launchd / Windows service), virtual-table SQL reference,
+  and security model (host-scoped JWT lifecycle, threat model).
 
 ---
 

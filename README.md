@@ -9,7 +9,7 @@ An open-source, self-hostable AI SOC. The agent's prompts, tool calls, and ratio
 [![License: MIT](https://img.shields.io/badge/License-MIT-22c55e.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 [![Public eval harness: CI-gated](https://img.shields.io/badge/eval%20harness-CI--gated-2563eb?style=flat-square)](apps/docs/docs/benchmark.md)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-8b5cf6?style=flat-square)](CONTRIBUTING.md)
-[![Version](https://img.shields.io/badge/version-7.0.0-f59e0b?style=flat-square)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-8.0.0-f59e0b?style=flat-square)](CHANGELOG.md)
 
 [Live demo](https://tryaisoc.com) · [How AiSOC compares](#how-aisoc-compares) · [Public eval harness](apps/docs/docs/benchmark.md) · [Deploy in 60 seconds](#deploy-in-60-seconds) · [Deployment options](#deployment-options) · [Architecture](#architecture) · [Docs](apps/docs/)
 
@@ -184,21 +184,16 @@ Shipped by Beenu Arora <beenu@cyble.com>. All 16 workstreams:
 
 Everything ships under MIT. Fork it, self-host it, audit it, extend it.
 
-### v7.0 addendum — osquery integration (PR1–PR6, 2026-05-10)
+### v8.0 — osquery fleet integration, pack management, FIM + custom virtual tables (2026-05-10)
 
-Six-PR osquery integration shipped on top of the v7.0 buyer-value plan:
+20 new detection rules, osquery pack catalog, FIM dashboard, and an osquery extension API shipped across three PRs:
 
-- **osquery TLS service** (`services/osquery-tls/`) — FastAPI server implementing the osquery TLS enrollment/configuration/logging protocol. Multi-tenant: each tenant gets its own enrollment secret. Nodes enroll, receive packs, and POST results back.
-- **osctrl + FleetDM connectors** — two new connectors pull query results and status events from existing osquery fleet managers. Normalized to OCSF; FIM and process-event detections auto-fire.
-- **Pack management** — YAML pack loader with 5 curated packs (discovery, process-events, network-events, browser-extensions, file-integrity). Tenant-aware resolver merges global + per-tenant overrides; REST catalog with `?format=fleet|osquery` render modes.
-- **FIM pipeline** — ingestion endpoint + query/summary API + React FIM dashboard (live table + summary card) + 4 new detection rules (SSH key modification, sudoers changes, cron modification, world-writable files).
-- **Custom osquery extension binary** (`services/osquery-extensions/`) — standalone Go binary adding 5 virtual tables to any osquery instance:
-  - `aisoc_pending_actions` — HITL response actions queued for the host
-  - `aisoc_alert_cache` — alerts fired against the host (last 24 h)
-  - `aisoc_attck_persistence` — approved persistence baseline (MITRE T1547 diff)
-  - `aisoc_kernel_modules_verified` — loaded kernel modules with signing status (Linux)
-  - `aisoc_browser_extensions` — installed browser extensions per user profile
-- **Cross-platform CI** — GitHub Actions build matrix (`linux/amd64`, `linux/arm64`, `darwin/amd64`, `darwin/arm64`, `windows/amd64`) with cosign keyless signing on every `ext-v*` tag.
+- **Pack catalog** (`packs/`) — 5 curated YAML packs: `aisoc-fim-baseline`, `aisoc-fim-credentials`, `aisoc-attck-persistence`, `aisoc-attck-defense-evasion`, `aisoc-inventory-baseline`. In-memory pack loader (Pydantic validation), tenant-aware assignment service, REST catalog (`GET/POST/DELETE /api/v1/packs/*`).
+- **FIM pipeline** — 4 new detection rules (`det-endpoint-297` through `det-endpoint-300`): critical system files modified, SSH `authorized_keys` changed, sudoers modified, new SUID/SGID binary. FIM activity widget on the main dashboard; dedicated `/dashboard/file-integrity` page.
+- **Extensions API** — Three host-scoped JWT endpoints (`extensions:read` permission) feeding the osquery virtual table layer: `GET /api/v1/extensions/pending-actions`, `/alert-cache`, `/persistence-baseline`.
+- **osquery extension** (`services/osquery-extensions/`) — Go module scaffold exposing 5 virtual tables: `aisoc_pending_actions`, `aisoc_alert_cache`, `aisoc_attck_persistence`, `aisoc_kernel_modules_verified`, `aisoc_browser_extensions`.
+- **20 migrated detections** (`det-endpoint-281`–`det-endpoint-296`) — 16 quarantined osquery rules promoted to first-class AiSOC YAML with fixture files.
+- **Docs** — Pack schema reference, per-pack walkthroughs, extension install guide, virtual-table SQL reference, security model (host-scoped JWT threat model), and FIM dashboard user guide.
 
 ---
 

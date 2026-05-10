@@ -125,6 +125,56 @@ endpoint on the connectors microservice, which constructs the connector
 in memory and calls `test_connection()`. Bad credentials never touch the
 database.
 
+## osquery Fleet Integration
+
+AiSOC ships a first-class osquery integration with three layers:
+
+### osquery-tls service (`services/osquery-tls/`)
+
+A FastAPI service that implements the full [osquery TLS protocol](https://osquery.readthedocs.io/en/stable/deployment/remote/) (enrolment, configuration, log ingestion, distributed queries) with multi-tenant isolation. All osquery nodes enrol using the standard `--tls_enroll_secret` / `--enroll_secret_path` flag pair.
+
+```
+osquery agent (fleet host)
+    │  TLS 1.3, mutual auth
+    ├─▶  POST /api/v1/osquery/enroll         — returns node_key, host-scoped JWT
+    ├─▶  POST /api/v1/osquery/config         — returns compiled pack + FIM config
+    ├─▶  POST /api/v1/osquery/log            — ingests result + status logs
+    └─▶  POST /api/v1/osquery/distributed/*  — live query fan-out (read/write)
+                    │
+                    ▼  normalised events
+               services/ingest ──▶ Kafka spine ──▶ Detections / Fusion
+```
+
+### osquery pack catalog (`packs/`)
+
+Five curated YAML packs ship in the repo root's `packs/` directory. Each pack is validated on load against a Pydantic schema and cached in memory by the pack loader service.
+
+| Pack ID | Purpose | Tables |
+|---|---|---|
+| `aisoc-fim-baseline` | File-integrity monitoring for critical paths | `file_events` |
+| `aisoc-fim-credentials` | Credential file changes (`/etc/passwd`, SSH keys, sudoers) | `file_events` |
+| `aisoc-attck-persistence` | MITRE T1547 — startup items, cron, systemd units | `startup_items`, `cron_tab`, `systemd_units` |
+| `aisoc-attck-defense-evasion` | MITRE T1562 — log clearing, module unload, AV disablement | `process_events`, `kernel_modules` |
+| `aisoc-inventory-baseline` | Hardware/software inventory baseline | `system_info`, `os_version`, `programs` |
+
+Pack assignment (which packs run on which tenants) is stored in Postgres. The osquery-tls service compiles assigned packs into the canonical osquery config response at enrolment time, with optional FleetDM-compatible or raw-osquery JSON render formats.
+
+### AiSOC osquery extension (`services/osquery-extensions/`)
+
+A standalone Go binary that loads into osquery as a [thrift extension](https://osquery.readthedocs.io/en/stable/development/osquery-sdk/). It exposes five virtual tables that let analysts query AiSOC state directly from osquery SQL:
+
+| Table | Description | Auth |
+|---|---|---|
+| `aisoc_pending_actions` | HITL response actions queued for this host | host-scoped JWT |
+| `aisoc_alert_cache` | Alerts fired against this host (last 24 h) | host-scoped JWT |
+| `aisoc_attck_persistence` | Approved persistence baseline (T1547 diff) | host-scoped JWT |
+| `aisoc_kernel_modules_verified` | Loaded kernel modules with signing status (Linux) | local only |
+| `aisoc_browser_extensions` | Installed browser extensions per user profile | local only |
+
+The extension authenticates via **host-scoped JWTs** issued at TLS enrolment. Each token is bound to a single `host_identifier`, scoped to `extensions:read`, and valid for 24 hours with automatic refresh. See [Extension Security Model](./extensions/security-model.md) for the full threat model.
+
+The extension is distributed as a pre-built binary for Linux (amd64/arm64), macOS (amd64/arm64), and Windows (amd64). CI builds release artifacts on `ext-v*` tags with cosign keyless signing. See [Extension Install](./extensions/install.md).
+
 ## Monorepo Layout
 
 ```
@@ -145,6 +195,8 @@ AiSOC/
 │   ├── honeytokens/        # Deception platform           (port 8008)
 │   ├── purple-team/        # Adversary emulation          (port 8006)
 │   ├── connectors/         # Connector polling + credential vault
+│   ├── osquery-tls/        # osquery TLS server (enrol, config, log, distributed)
+│   ├── osquery-extensions/ # Go extension binary (5 virtual tables)
 │   ├── demo-producer/      # Synthetic event generator for demos
 │   └── mcp/                # Model Context Protocol server (TypeScript)
 ├── packages/
@@ -153,6 +205,7 @@ AiSOC/
 │   ├── sdk-py/             # Python client SDK
 │   ├── sdk-ts/             # TypeScript client SDK
 │   └── sdk-go/             # Go models / client helpers
+├── packs/                  # Curated osquery packs (YAML, 5 first-party)
 ├── infra/
 │   ├── helm/aisoc/         # Helm chart (Kubernetes, HA-ready)
 │   ├── terraform/          # Terraform modules
@@ -160,7 +213,7 @@ AiSOC/
 │   ├── fly/                # Fly.io demo deployments
 │   ├── railway/            # Railway templates
 │   └── render/             # render.yaml blueprint
-├── detections/             # 200+ Sigma/YARA/KQL detection rules (YAML)
+├── detections/             # 300+ detection rules (osquery/Sigma/YARA/KQL, YAML)
 ├── hunts/                  # Hunt-as-Code YAML definitions (hypothesis + indicators)
 ├── playbooks/              # 50+ SOAR playbooks (YAML)
 ├── plugins/                # 15 first-party plugins (Go + Python)
