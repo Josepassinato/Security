@@ -1,4 +1,4 @@
-id: det-cloud-193
+id: det-cloud-219
 name: M365 eDiscovery Compliance Search Created
 description: Detects creation of an eDiscovery compliance search in Microsoft Purview.
   Insider threats and compromised admin accounts abuse eDiscovery to search and export

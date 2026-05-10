@@ -1,4 +1,4 @@
-id: det-cloud-194
+id: det-cloud-225
 name: M365 Unified Audit Log Disabled
 description: Detects disabling of the Microsoft 365 unified audit log. Attackers disable
   auditing early in a compromise to erase their trail across Exchange, SharePoint, Teams,

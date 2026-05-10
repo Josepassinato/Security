@@ -1,4 +1,4 @@
-id: det-cloud-195
+id: det-cloud-220
 name: M365 Exchange Inbound Connector From Untrusted Domain
 description: Detects creation of an Exchange Online inbound connector that accepts mail
   from a specific external sender domain. Adversaries create connectors to bypass spam

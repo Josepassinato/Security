@@ -417,7 +417,7 @@ def main() -> int:
             continue
         if len(rel_under.parts) < 2:
             continue
-        if rel_under.parts[0] == "fixtures":
+        if rel_under.parts[0] in ("fixtures", "playbooks"):
             continue
 
         classification = classify(path)

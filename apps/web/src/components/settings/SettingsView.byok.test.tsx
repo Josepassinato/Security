@@ -112,12 +112,13 @@ function credentialFixture(
   overrides: Partial<LlmCredentialView> = {},
 ): LlmCredentialView {
   return {
-    tenant_id: 'tenant-abc',
     provider: 'openai',
     base_url: null,
     model: 'gpt-4o-mini',
     has_api_key: true,
     enabled: true,
+    settings: {},
+    created_at: '2026-01-01T00:00:00Z',
     last_rotated_at: '2026-02-01T12:00:00Z',
     updated_at: '2026-02-01T12:00:00Z',
     ...overrides,

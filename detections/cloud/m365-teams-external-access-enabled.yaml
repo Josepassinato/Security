@@ -1,4 +1,4 @@
-id: det-cloud-198
+id: det-cloud-224
 name: M365 Teams External Access Policy Enabled
 description: Teams external access was changed to allow federation with all external
   domains or specific unblocked domains. Attackers leverage external access to phish

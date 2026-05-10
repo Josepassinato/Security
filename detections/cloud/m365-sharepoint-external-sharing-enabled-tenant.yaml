@@ -1,4 +1,4 @@
-id: det-cloud-196
+id: det-cloud-222
 name: M365 SharePoint External Sharing Enabled Tenant-Wide
 description: Detects tenant-level SharePoint sharing policy changed to allow external
   or anonymous sharing. Widens the data-loss attack surface across all sites.
