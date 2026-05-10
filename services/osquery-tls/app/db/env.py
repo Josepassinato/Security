@@ -12,9 +12,12 @@ from alembic import context
 from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import create_async_engine
 
-import app.models as _models  # noqa: F401 — side-effect: register ORM models with metadata
+import app.models as _models  # noqa: F401 — side-effect: register ORM models with Base.metadata
 from app.core.config import settings
 from app.db.base import Base
+
+# Explicitly reference the import so static analysis tools don't flag it as unused.
+_ = _models
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.database_url)
