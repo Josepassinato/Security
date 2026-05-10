@@ -51,3 +51,37 @@ Closes #<!-- issue number -->
 - [ ] I have updated documentation as needed (README, CHANGELOG, CONTRIBUTING)
 - [ ] My changes do not introduce new linter warnings
 - [ ] I have checked for sensitive data / credentials in my diff
+
+## Eval harness (required for substrate / playbook / detection changes)
+
+> **Required if this PR touches:** `services/agents/`, `services/api/app/orchestrator/`,
+> `playbooks/packs/`, `detections/`, `services/agents/tests/eval_data/`,
+> `scripts/generate_eval_incidents.py`, `scripts/run_evals.py`, or any prompt /
+> RAG corpus / response template under those trees.
+>
+> Run `python3 scripts/run_evals.py --json --out /tmp/report.json` before and
+> after your change and paste both summary blocks below. Any axis that
+> regresses must be called out explicitly. Playbook-touching PRs must include
+> the `playbook_completion_rate` block — orphan playbooks / templates fail CI.
+
+<details>
+<summary><strong>Before</strong> (paste <code>scripts/run_evals.py</code> output on base branch)</summary>
+
+```text
+
+```
+
+</details>
+
+<details>
+<summary><strong>After</strong> (paste <code>scripts/run_evals.py</code> output on this branch)</summary>
+
+```text
+
+```
+
+</details>
+
+- [ ] Not applicable — this PR does not touch substrate, playbooks, detections, or eval inputs
+- [ ] No axis regressed
+- [ ] An axis regressed; rationale and follow-up are described in the Summary above

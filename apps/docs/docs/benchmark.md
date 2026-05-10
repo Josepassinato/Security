@@ -1,7 +1,7 @@
 ---
 sidebar_position: 4
 title: Public Eval Harness
-description: AiSOC's open, deterministic regression harness. 200 synthetic incidents drawn from 55 distinct templates with backing telemetry (Sysmon, M365, CloudTrail, Azure sign-in, Linux auditd, …). Per-case and per-template CI gates over the substrate. Honest about what it measures — and what it doesn't.
+description: AiSOC's open, deterministic regression harness. 200 synthetic incidents drawn from 55 distinct templates with backing telemetry (Sysmon, M365, CloudTrail, Azure sign-in, Linux auditd, …). Per-case and per-template CI gates over the substrate, plus operational coverage gates (synthetic telemetry corpus, playbook completion rate). Honest about what it measures — and what it doesn't.
 ---
 
 # AiSOC Public Eval Harness
@@ -66,12 +66,13 @@ the numbers.
 
 ## Latest results
 
-The four numbers below are produced by `scripts/run_evals.py`. The MITRE,
+The numbers below are produced by `scripts/run_evals.py`. The MITRE,
 completeness, and response-quality suites run against the 200-incident
 synthetic dataset; the alert-reduction suite runs against a separately
-generated 1 000-alert noisy stream. The whole run takes roughly 25 ms total
-(no LLM calls, no DB) so it's cheap enough to gate every PR targeting `main`
-or `develop`.
+generated 1 000-alert noisy stream; the playbook-completion suite runs
+against the same 200-incident corpus and the v1 playbook pack. The whole run
+takes roughly 35 ms total (no LLM calls, no DB) so it's cheap enough to gate
+every PR targeting `main` or `develop`.
 
 | Suite                          | Metric                  | Per-case   | Per-template macro     | Target  | What it checks |
 |--------------------------------|-------------------------|------------|------------------------|---------|----------------|
@@ -79,6 +80,7 @@ or `develop`.
 | MITRE ATT&CK tactic accuracy   | accuracy                | 97.0 %     | 96.4 % (n=55)          | ≥ 80 %  | Substrate self-consistency — keyword extractor vs. dataset written for it |
 | Investigation completeness     | mean keyword coverage   | 94.2 %     | 94.3 % (n=55)          | ≥ 85 %  | Substrate self-consistency — report template wraps the description; judge finds keywords from the description |
 | Response-plan quality          | mean rubric score       | 1.000      | 1.000 (n=55)           | ≥ 0.80  | Substrate self-consistency — synthesizer embeds the keywords the rubric checks for |
+| Playbook completion rate       | completion rate         | 50.5 %     | 100 % H/C (mapped)     | ≥ 50 %  | Operational coverage gate — every incident in scope has a matching playbook with aligned response action; orphan playbooks/templates fail CI |
 
 > The synthetic telemetry suite is a **schema/coverage gate**, not a scoring
 > suite, so it does not appear in the table. It checks that every incident has
@@ -87,6 +89,15 @@ or `develop`.
 > and that the source distribution is not concentrated on a single template.
 > It currently passes against 361 events spanning 14 distinct log sources
 > wired to all 200 incidents.
+
+> The playbook completion rate is also an **operational coverage gate** —
+> it grades the v1 playbook pack itself, not the substrate's per-incident
+> output. The headline 50.5 % overall figure is the share of synthetic
+> incidents whose category, severity, and response action are matched by at
+> least one playbook in `playbooks/packs/v1/`. The 100 % high+critical figure
+> is over the *mapped* subset (incidents whose template the pack claims to
+> cover) — the raw H/C figure is reported in JSON but not gated, because the
+> dataset includes documented v1 coverage gaps. See [section 7](#7-playbook-completion-rate).
 
 These numbers move with the codebase. The current snapshot lives at
 [`eval-results/eval/results/latest.json`](https://github.com/beenuar/AiSOC/blob/eval-results/eval/results/latest.json).
@@ -137,6 +148,10 @@ That's it. No Docker, no API key, no GPU, no LLM. Expected output:
          per-template macro            0.943  (target >= 0.80, n=55 templates) [PASS]
   [PASS] response_quality              mean_rubric_score      1.000  (target >= 0.80)
          per-template macro            1.000  (target >= 0.75, n=55 templates) [PASS]
+  [PASS] playbook_completion_rate      completion_rate        0.505  (target >= 0.50)
+         high+critical (mapped)        1.000  (target >= 0.95) [PASS]
+         action alignment              0.939  (target >= 0.85) [PASS]
+         orphan playbooks / templates  0 / 0                          [PASS]
 ------------------------------------------------------------------------------
   Synthetic telemetry: 361 events across 14 sources,
                        200 incidents wired up
@@ -356,6 +371,50 @@ To regenerate the adversary dataset:
 python3 scripts/generate_adversary_incidents.py
 ```
 
+### 7. Playbook completion rate — `Operational coverage gate` {#7-playbook-completion-rate}
+
+**Source:** [`services/agents/tests/test_playbook_completion_rate.py`](https://github.com/beenuar/AiSOC/blob/main/services/agents/tests/test_playbook_completion_rate.py)
+· **Dataset:** [`eval_data/synthetic_incidents.json`](https://github.com/beenuar/AiSOC/blob/main/services/agents/tests/eval_data/synthetic_incidents.json)
+· **Pack under test:** [`playbooks/packs/v1/`](https://github.com/beenuar/AiSOC/tree/main/playbooks/packs/v1)
+
+This suite is **not** a quality measurement of playbook execution — it is a
+coverage gate over the v1 playbook pack itself. For every one of the 200
+synthetic incidents, the harness asks: *does at least one playbook in the
+pack match this incident's category, severity, and expected response action?*
+That answer is then rolled up into a small set of CI-enforced sub-gates so a
+PR that touches `playbooks/packs/` cannot silently shrink coverage.
+
+The metric reports five things; the suite passes only when **all** of them
+pass:
+
+| Sub-gate | Floor / value | What it catches |
+|----------|---------------|-----------------|
+| Overall completion rate | ≥ 0.50 | Wholesale regressions (e.g. a deletion or category rename that drops dozens of incidents into the "no playbook" bucket). The floor is intentionally honest about v1's coverage, not aspirational. |
+| High+critical completion rate (**mapped**) | ≥ 0.95 | Among incidents whose templates the pack *claims* to cover, every severe one must have a containment playbook. We measure this over the **mapped** subset to avoid forcing a pass by inflating coverage with mismatched playbooks. The raw rate (over all H/C templates) is reported for transparency but not gated. |
+| Action alignment rate | ≥ 0.85 | Among matched incidents, the playbook's first-line steps must align with the dataset's `response_class` (e.g. `block` / `quarantine` / `disable_user` / `reset_credentials`). Stops "any matching playbook is good enough" drift. |
+| Orphan playbooks | exactly 0 (with allowlist) | Playbooks that match zero incidents in the corpus. An explicit allowlist (`_PLAYBOOKS_NOT_IN_BENCHMARK_DATASET`) documents playbooks that are deliberately off-corpus (e.g. removable-media exfil, volumetric DDoS) so adding new orphans is loud. |
+| Orphan templates | exactly 0 (with allowlist) | Mapped templates with zero playbook hits. Templates whose category isn't in v1 scope are explicitly listed in `_TEMPLATES_WITHOUT_PACK_COVERAGE`; the gate only triggers when a *previously-mapped* template loses coverage. |
+
+The mapped-vs-raw distinction matters: the synthetic dataset includes ~22
+endpoint-compromise / persistence / defense-evasion templates that are
+documented v1 coverage gaps. Gating on raw high+critical coverage would
+either force dishonest coverage (mapping a credential-stuffing playbook to
+ransomware just to clear the floor) or punish CI for known scope decisions.
+Gating on **mapped** coverage instead lets v1's scope evolve cleanly: as new
+playbooks land and templates move from `_TEMPLATES_WITHOUT_PACK_COVERAGE`
+into `_TEMPLATE_CATEGORIES`, the mapped denominator grows with them.
+
+What this suite **does not** do: it does not execute playbooks, time their
+steps, or measure their reliability against live telemetry. Step execution
+is covered by the playbook engine's own unit tests; this gate is the
+*inventory check* that runs before every push.
+
+The full per-suite payload is emitted as JSON via
+`scripts/run_evals.py --json --out report.json` under
+`suites.playbook_completion_rate.details` — including per-severity breakdown,
+per-category coverage, and the orphan lists — so the same diff that adds a
+playbook can be reviewed alongside its coverage delta.
+
 ## Community benchmark scoreboard
 
 The dataset and the harness are MIT-licensed and fully reproducible. Any third
@@ -418,6 +477,12 @@ A few caveats:
   consistent. They will fail if it is not. The per-template macro adds a
   non-tautological dimension on top: a single broken template stops being
   hidden behind 199 working duplicates.
+- **The playbook completion gate is a coverage check, not a quality check.**
+  It verifies that every in-scope incident has a playbook with the right
+  category and response action — it does not execute the playbook, time its
+  steps, or measure its reliability against live telemetry. Step execution is
+  covered by the playbook engine's own unit tests in
+  `services/agents/tests/test_playbook_engine.py`.
 - **"Public eval harness" means this harness, not a third-party leaderboard.**
   These numbers are reproducible by anyone with `python3`. They are not
   comparable to MITRE Engenuity, MLPerf, or any other external evaluator.

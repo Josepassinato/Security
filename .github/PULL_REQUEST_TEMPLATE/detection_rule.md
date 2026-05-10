@@ -41,12 +41,25 @@
 - [ ] Rule validates with `python3 scripts/validate_detections.py`
 - [ ] Tested against sample log data (describe below)
 - [ ] False-positive scenarios documented above
+- [ ] Re-graded the eval harness with `python3 scripts/run_evals.py` and confirmed no axis regressed (paste before/after summary blocks below if any axis moved)
 
 <details>
 <summary>Test evidence</summary>
 
 <!-- Paste sample events, screenshots, or test output showing the rule fires
      on true-positive data and does not fire on benign data. -->
+
+</details>
+
+<details>
+<summary>Eval harness deltas (only required if an axis moved)</summary>
+
+```text
+# scripts/run_evals.py — before
+
+# scripts/run_evals.py — after
+
+```
 
 </details>
 

@@ -12,6 +12,10 @@ Suites:
     4. Response-plan quality          (services/agents/tests/test_response_quality.py)
     5. Hunt corpus coverage           (services/agents/tests/test_hunt_corpus.py)
     6. AI-vs-AI adversary degradation (services/agents/tests/test_adversary_eval.py)
+    7. Confidence calibration         (services/agents/tests/test_confidence_calibration.py)
+    8. Memory recall fidelity         (services/agents/tests/test_memory_recall.py)
+    9. Override accuracy              (services/agents/tests/test_override_accuracy.py)
+   10. Playbook completion rate       (services/agents/tests/test_playbook_completion_rate.py)
 
 Each substrate suite reports two metrics:
 
@@ -90,6 +94,12 @@ from tests.test_override_accuracy import (  # type: ignore
     OVERRIDE_ACCURACY_FLOOR as _OVERRIDE_FLOOR,
     run_evaluation as _run_override_accuracy_eval,
 )
+from tests.test_playbook_completion_rate import (  # type: ignore
+    OVERALL_COMPLETION_FLOOR as _PLAYBOOK_OVERALL_FLOOR,
+    HIGH_CRIT_MAPPED_FLOOR as _PLAYBOOK_HIGH_CRIT_FLOOR,
+    ACTION_ALIGNMENT_FLOOR as _PLAYBOOK_ALIGN_FLOOR,
+    evaluate_playbook_completion,
+)
 
 
 # Per-suite floors (must match what tests assert)
@@ -105,6 +115,11 @@ _TARGETS = {
     "confidence_calibration": _CALIB_BRIER_INV,
     "memory_recall": _RECALL_FLOOR,
     "override_accuracy": _OVERRIDE_FLOOR,
+    # Playbook completion gate (WS-C3): we surface the *overall* coverage
+    # rate as the headline metric but the pass condition combines three
+    # sub-gates (overall, mapped high+critical, action alignment, no
+    # orphan playbooks/templates). See _run_playbook_completion().
+    "playbook_completion_rate": _PLAYBOOK_OVERALL_FLOOR,
 }
 
 # Per-template macro floors (kept slightly below per-case floors because each
@@ -430,6 +445,84 @@ def _run_override_accuracy() -> dict:
     }
 
 
+def _run_playbook_completion() -> dict:
+    """WS-C3 gate: playbook eval-harness validation.
+
+    Measures playbook coverage against the deterministic 200-incident
+    benchmark dataset. Reports the *overall* completion rate as the headline
+    metric for diff-friendly trend tracking, but the suite passes only when
+    *all* sub-gates pass:
+
+      * overall completion rate ≥ ``OVERALL_COMPLETION_FLOOR`` —
+        catches accidental playbook deletions / wholesale regressions;
+      * high+critical completion rate over *mapped* templates ≥
+        ``HIGH_CRIT_MAPPED_FLOOR`` — every severe incident the pack claims
+        to cover must have a containment playbook;
+      * action alignment rate ≥ ``ACTION_ALIGNMENT_FLOOR`` — among matched
+        incidents, the playbook's first-line steps align with the dataset's
+        ``response_class`` (block / quarantine / disable / etc.);
+      * no orphan playbooks (firing on zero incidents, except the documented
+        allowlist of medium-severity / off-corpus playbooks);
+      * no orphan templates (mapped templates with zero playbook hits).
+
+    The high+critical gate intentionally measures *mapped* coverage rather
+    than raw severity coverage — the dataset includes ~22 endpoint-compromise
+    / persistence / defense-evasion templates that are documented v1 coverage
+    gaps, and gating on them would either force inflating coverage with
+    mismatched playbooks or punish CI for known scope decisions.
+    """
+    t0 = time.perf_counter()
+    res = evaluate_playbook_completion(keep_per_incident=True)
+    dur = (time.perf_counter() - t0) * 1000
+
+    per_incident = res.per_incident or []
+    hc_rate, hc_covered, hc_total = res.severity_completion_rate_mapped(
+        ("high", "critical"), per_incident
+    )
+    hc_raw_rate = res.severity_completion_rate(("high", "critical"))
+    overall_pass = res.completion_rate >= _PLAYBOOK_OVERALL_FLOOR
+    high_crit_pass = hc_rate >= _PLAYBOOK_HIGH_CRIT_FLOOR
+    align_pass = res.action_alignment_rate >= _PLAYBOOK_ALIGN_FLOOR
+    no_orphan_playbooks = not res.orphan_playbooks
+    no_orphan_templates = not res.orphan_templates
+
+    return {
+        "metric": "completion_rate",
+        "value": round(res.completion_rate, 4),
+        "target": _PLAYBOOK_OVERALL_FLOOR,
+        "passed": (
+            overall_pass
+            and high_crit_pass
+            and align_pass
+            and no_orphan_playbooks
+            and no_orphan_templates
+        ),
+        "duration_ms": round(dur, 1),
+        "details": {
+            "incidents": res.incidents,
+            "covered": res.covered,
+            "aligned": res.aligned,
+            "overall_completion_rate": round(res.completion_rate, 4),
+            "overall_completion_pass": overall_pass,
+            "high_critical_completion_rate_mapped": round(hc_rate, 4),
+            "high_critical_completion_rate_raw": round(hc_raw_rate, 4),
+            "high_critical_covered_mapped": hc_covered,
+            "high_critical_total_mapped": hc_total,
+            "high_critical_floor": _PLAYBOOK_HIGH_CRIT_FLOOR,
+            "high_critical_pass": high_crit_pass,
+            "action_alignment_rate": round(res.action_alignment_rate, 4),
+            "action_alignment_floor": _PLAYBOOK_ALIGN_FLOOR,
+            "action_alignment_pass": align_pass,
+            "per_severity": res.per_severity,
+            "per_category": res.per_category,
+            "orphan_templates": res.orphan_templates,
+            "orphan_playbooks": res.orphan_playbooks,
+            "no_orphan_playbooks": no_orphan_playbooks,
+            "no_orphan_templates": no_orphan_templates,
+        },
+    }
+
+
 def _summarise_telemetry() -> dict:
     """Summarise the synthetic-telemetry corpus produced alongside the dataset.
 
@@ -510,6 +603,7 @@ def main() -> None:
             "confidence_calibration": _run_confidence_calibration(),
             "memory_recall": _run_memory_recall(),
             "override_accuracy": _run_override_accuracy(),
+            "playbook_completion_rate": _run_playbook_completion(),
         },
         "telemetry": _summarise_telemetry(),
     }
