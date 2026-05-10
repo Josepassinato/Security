@@ -16,6 +16,7 @@ from app.api.v1.endpoints import (
     community,
     compliance,
     connectors,
+    costs,
     deployment,
     detection_compat,
     detection_loop,
@@ -89,6 +90,12 @@ api_router.include_router(compliance.router)
 api_router.include_router(metrics.router)
 api_router.include_router(sla.router)
 api_router.include_router(investigations.router)
+
+# Cost dashboard — WS-H1 (buyer-value plan).
+# Aggregates LLM spend / token volume from aisoc_run_costs joined with
+# investigation_runs, plus action counts from audit_log and BYOK savings
+# imputed from public list pricing. Backs apps/web/src/app/(admin)/costs.
+api_router.include_router(costs.router)
 
 # Mobile responder PWA (Phase 4B)
 api_router.include_router(push.router)

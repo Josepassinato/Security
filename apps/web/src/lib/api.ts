@@ -3424,6 +3424,120 @@ export const reportsApi = {
   },
 };
 
+// ─── Cost dashboard (WS-H1) ─────────────────────────────────────────────────
+
+export interface DashboardPeriod {
+  /** ISO timestamp marking the start of the rolling window (inclusive). */
+  start: string;
+  /** ISO timestamp marking the end of the window (exclusive, i.e. now()). */
+  end: string;
+  /** Width of the window in days, derived from start/end. */
+  window_days: number;
+  /** Human-readable label, e.g. "Apr 9 – May 9, 2026". */
+  label: string;
+}
+
+export interface CostHeadline {
+  /** Sum of recorded LLM cost in USD over the window. */
+  total_cost_usd: number;
+  /** Sum of prompt + completion tokens. */
+  total_tokens: number;
+  /** Total LLM API call count (one row in aisoc_run_costs ≈ one call). */
+  total_calls: number;
+  /** Distinct investigation_runs that produced cost in the window. */
+  total_runs: number;
+  /** Mean cost per run; null when no runs landed in the window. */
+  avg_cost_per_run_usd: number | null;
+}
+
+export interface CostBucket {
+  /** Calendar day in UTC, ISO ``YYYY-MM-DD``. */
+  day: string;
+  total_cost_usd: number;
+  total_tokens: number;
+  call_count: number;
+}
+
+export interface ModelBreakdown {
+  /** Lowercased model id, e.g. ``gpt-4o-mini``. */
+  model: string;
+  runs: number;
+  calls: number;
+  total_prompt_tokens: number;
+  total_completion_tokens: number;
+  total_cost_usd: number;
+  /** What this volume would have cost on the public list price. */
+  imputed_public_cost_usd: number;
+  avg_latency_ms: number | null;
+}
+
+export interface TopCostCase {
+  case_id: string;
+  runs: number;
+  total_cost_usd: number;
+  total_tokens: number;
+}
+
+export interface ActionCount {
+  /** ``cases:read``, ``alerts:write``, etc. — straight from audit_log.action. */
+  action: string;
+  count: number;
+}
+
+export interface ByokSavings {
+  /** True iff the current LLM provider is loopback / private (BYOK active). */
+  is_byok_active: boolean;
+  /** Provider id from /llm/status (e.g. ``openai``, ``local-ollama``). */
+  provider: string;
+  /** Recorded cost — what the cost tracker actually booked. */
+  recorded_cost_usd: number;
+  /** Re-priced cost using public list pricing (BYOK-neutral baseline). */
+  imputed_public_cost_usd: number;
+  /**
+   * Estimated savings vs hosted: equals imputed_public_cost on BYOK,
+   * ``max(imputed - recorded, 0)`` otherwise.
+   */
+  savings_usd: number;
+}
+
+export interface CostDashboard {
+  tenant_id: string;
+  period: DashboardPeriod;
+  headline: CostHeadline;
+  daily_costs: CostBucket[];
+  by_model: ModelBreakdown[];
+  top_cases: TopCostCase[];
+  action_counts: ActionCount[];
+  byok_savings: ByokSavings;
+}
+
+/**
+ * Query parameters for the cost-dashboard endpoint. Declared as a `type`
+ * (not interface) so it satisfies the request helper's
+ * `Record<string, string | number | boolean | undefined>` constraint.
+ */
+export type CostDashboardParams = {
+  /**
+   * Rolling window in days. The API clamps to ``[1, 365]`` and defaults
+   * to 30 — leaving this unset is the right call for the default view.
+   */
+  window_days?: number;
+};
+
+export const costsApi = {
+  /**
+   * WS-H1 — fetch the cost dashboard snapshot for the current tenant.
+   *
+   * Backs the admin cost dashboard at ``apps/web/src/app/(admin)/costs``.
+   * Requires the ``reports:read`` permission server-side (granted to
+   * tenant_admin / soc_lead / soc_analyst / threat_hunter / viewer), so
+   * the page is gated by the same role bar that protects the executive
+   * digest.
+   */
+  dashboard: (params: CostDashboardParams = {}) =>
+    request<CostDashboard>('/api/v1/costs/dashboard', { params }),
+};
+
 // ─── Audit log / compliance bundle helpers ──────────────────────────────────
 
 /**
@@ -3597,4 +3711,5 @@ export default {
   feedback: feedbackApi,
   deployment: deploymentApi,
   reports: reportsApi,
+  costs: costsApi,
 };
