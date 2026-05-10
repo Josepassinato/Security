@@ -266,20 +266,39 @@ class OsctrlConnector(BaseConnector):
         table_name = query.get("query_table") or _infer_table(query.get("query"))
 
         hostname = row.get("hostname") or row.get("host_identifier") or row.get("computer_name")
-        return {
-            "source": self.connector_id,
-            "category": "endpoint",
-            "severity": _osctrl_severity(table_name),
-            "title": (f"osctrl query: {query.get('name') or query.get('uuid') or 'distributed-query'}"),
-            "description": (query.get("query") or "")[:400],
-            "alert_id": f"{query.get('name') or 'q'}::{row.get('uuid') or row.get('host_identifier') or ''}",
-            "hostname": hostname,
-            "host": hostname,
-            "external_id": query.get("uuid"),
-            "osquery_table": table_name,
-            "raw_event": row,
-            "raw": raw,
-        }
+
+        # Flatten osquery row columns to the top level so detection
+        # rules can reference them directly in match_when clauses
+        # (the matcher only reads top-level fields). We start with the
+        # row dict and let the AiSOC-canonical fields below win on
+        # collision so source/category/severity stay correct.
+        event: dict[str, Any] = {}
+        if isinstance(row, dict):
+            event.update(row)
+        event.update(
+            {
+                "source": self.connector_id,
+                "category": "endpoint",
+                "event_type": "osquery_query_row",
+                "severity": _osctrl_severity(table_name),
+                "title": (
+                    f"osctrl query: {query.get('name') or query.get('uuid') or 'distributed-query'}"
+                ),
+                "description": (query.get("query") or "")[:400],
+                "alert_id": (
+                    f"{query.get('name') or 'q'}::"
+                    f"{row.get('uuid') or row.get('host_identifier') or ''}"
+                ),
+                "hostname": hostname,
+                "host": hostname,
+                "external_id": query.get("uuid"),
+                "osquery_table": table_name,
+                "query_name": query.get("name") or query.get("query_name"),
+                "raw_event": row,
+                "raw": raw,
+            }
+        )
+        return event
 
 
 # ---------------------------------------------------------------------------

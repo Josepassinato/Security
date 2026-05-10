@@ -1059,6 +1059,280 @@ HOST_NETWORK_RULES: list[dict] = [
 
 
 # ---------------------------------------------------------------------------
+# osquery-native detections (migrated from splunk-imports/_quarantine/)
+# IDs: det-endpoint-281 … det-endpoint-296
+# ---------------------------------------------------------------------------
+OSQUERY_RULES: list[dict] = [
+    # 281 ── AMoS Stealer VM Check
+    S(
+        slug="osquery-macos-amos-stealer-vm-check",
+        name="AMoS Stealer Virtual Machine Detection via osquery",
+        severity="high",
+        mitre=["t1059.002"],
+        product="osquery",
+        service="processes",
+        when={
+            "event_type": "osquery_query_row",
+            "cmdline_contains_all": ["osascript", "system_profiler"],
+            "cmdline_contains_any": ["VMware", "QEMU", "VirtualBox"],
+        },
+        fp=["Admin/developer running virtual machine checks (allow-listed)"],
+        playbook="tpl-malware-execution",
+    ),
+    # 282 ── macOS Data Chunking
+    S(
+        slug="osquery-macos-data-chunking",
+        name="macOS Data Chunking via dd or split",
+        severity="high",
+        mitre=["t1030"],
+        product="osquery",
+        service="processes",
+        when={
+            "event_type": "osquery_query_row",
+            "cmdline_contains_any": ["dd if=", "split -b"],
+        },
+        fp=["Legitimate backup or data-processing script (allow-listed)"],
+        playbook="tpl-data-exfil",
+    ),
+    # 283 ── macOS Gatekeeper Bypass
+    S(
+        slug="osquery-macos-gatekeeper-bypass",
+        name="macOS Gatekeeper Bypass Attempt",
+        severity="high",
+        mitre=["t1553.001"],
+        product="osquery",
+        service="processes",
+        when={
+            "event_type": "osquery_query_row",
+            "cmdline_contains_any": [
+                "com.apple.quarantine",
+                "spctl --master-disable",
+            ],
+        },
+        fp=["Developer removing quarantine attr for internal build (allow-listed)"],
+        playbook="tpl-defense-evasion",
+    ),
+    # 284 ── Suspicious PlistBuddy LaunchAgent
+    S(
+        slug="osquery-macos-suspicious-plistbuddy",
+        name="Suspicious PlistBuddy LaunchAgent Modification",
+        severity="high",
+        mitre=["t1543.001"],
+        product="osquery",
+        service="processes",
+        when={
+            "event_type": "osquery_query_row",
+            "cmdline_contains_all": ["PlistBuddy"],
+            "cmdline_contains_any": ["LaunchAgents", "RunAtLoad"],
+        },
+        fp=["Legitimate plist management by administrator (allow-listed)"],
+        playbook="tpl-persistence",
+    ),
+    # 285 ── Baron Samedit CVE-2021-3156
+    S(
+        slug="osquery-linux-baron-samedit-cve-2021-3156",
+        name="Baron Samedit CVE-2021-3156 Exploit Attempt",
+        severity="medium",
+        mitre=["t1068"],
+        product="osquery",
+        service="processes",
+        when={
+            "event_type": "osquery_query_row",
+            "cmdline_startswith": "sudoedit -s ",
+        },
+        fp=["Security testing in authorised environment"],
+        playbook="tpl-privilege-escalation",
+    ),
+    # 286 ── Linux osqueryd Service Stop (auditd)
+    S(
+        slug="osquery-linux-auditd-service-stop",
+        name="Linux osqueryd Service Stop Detected via auditd",
+        severity="high",
+        mitre=["t1489"],
+        product="linux",
+        service="auditd",
+        when={
+            "event_type": "osquery_query_row",
+            "cmdline_contains_any": [
+                "service osqueryd stop",
+                "systemctl stop osqueryd",
+            ],
+        },
+        fp=["Admin stopping osqueryd for maintenance (allow-listed)"],
+        playbook="tpl-defense-evasion",
+    ),
+    # 287 ── macOS Account Created
+    S(
+        slug="osquery-macos-account-created",
+        name="macOS Local User Account Created",
+        severity="medium",
+        mitre=["t1136.001"],
+        product="osquery",
+        service="processes",
+        when={
+            "event_type": "osquery_query_row",
+            "cmdline_contains_any": [
+                "sysadminctl -addUser",
+                "dscl . -create /Users/",
+                "createhomedir -u ",
+            ],
+        },
+        fp=["IT administrator provisioning new user"],
+        playbook="tpl-account-anomaly",
+    ),
+    # 288 ── macOS Hidden File or Directory
+    S(
+        slug="osquery-macos-hidden-file-directory",
+        name="macOS Hidden File or Directory Created",
+        severity="medium",
+        mitre=["t1564.001"],
+        product="osquery",
+        service="processes",
+        when={
+            "event_type": "osquery_query_row",
+            "cmdline_contains_any": [
+                "chflags hidden",
+                "xattr -wx com.apple",
+            ],
+        },
+        fp=["Developer setting extended attributes for application bundle"],
+        playbook="tpl-defense-evasion",
+    ),
+    # 289 ── macOS kextload
+    S(
+        slug="osquery-macos-kextload",
+        name="macOS Kernel Extension Loaded via kextload",
+        severity="high",
+        mitre=["t1543"],
+        product="osquery",
+        service="processes",
+        when={
+            "event_type": "osquery_query_row",
+            "name": "kextload",
+        },
+        fp=["Authorised kernel extension for security or virtualisation tool"],
+        playbook="tpl-persistence",
+    ),
+    # 290 ── macOS Keychain Dump
+    S(
+        slug="osquery-macos-keychain-dump",
+        name="macOS Keychain Dumping Attempt",
+        severity="high",
+        mitre=["t1555.001"],
+        product="osquery",
+        service="processes",
+        when={
+            "event_type": "osquery_query_row",
+            "cmdline_contains_any": [
+                "dump-keychain -d",
+                "find-certificate -p",
+                "keychaindump",
+                "Library/Keychains/",
+            ],
+        },
+        fp=["Authorised credential management or backup script"],
+        playbook="tpl-credential-theft",
+    ),
+    # 291 ── macOS System Log Removal
+    S(
+        slug="osquery-macos-log-removal",
+        name="macOS System Log Removed or Manually Rotated",
+        severity="medium",
+        mitre=["t1070"],
+        product="osquery",
+        service="processes",
+        when={
+            "event_type": "osquery_query_row",
+            "cmdline_contains_all": ["system.log"],
+            "cmdline_contains_any": ["rm ", "truncate", "audit -n"],
+        },
+        fp=["Scheduled log rotation via cron or launchd"],
+        playbook="tpl-defense-evasion",
+    ),
+    # 292 ── macOS LoginHook Persistence
+    S(
+        slug="osquery-macos-loginhook-persistence",
+        name="macOS LoginHook Persistence via defaults write",
+        severity="high",
+        mitre=["t1037.002"],
+        product="osquery",
+        service="processes",
+        when={
+            "event_type": "osquery_query_row",
+            "cmdline_contains_all": ["defaults", "write", "loginwindow", "LoginHook"],
+        },
+        fp=["Authorised enterprise login script (allow-listed)"],
+        playbook="tpl-persistence",
+    ),
+    # 293 ── macOS LOLBin Execution
+    S(
+        slug="osquery-macos-lolbin-execution",
+        name="macOS Suspicious Living-Off-The-Land Binary Execution",
+        severity="low",
+        mitre=["t1059.004"],
+        product="osquery",
+        service="processes",
+        when={
+            "event_type": "osquery_query_row",
+            "cmdline_startswith_any": [
+                "funzip ",
+                "openssl s_client",
+                "openssl base64",
+                "python -c import",
+            ],
+        },
+        fp=["Developer using openssl for TLS testing (allow-listed)"],
+        playbook="tpl-execution",
+    ),
+    # 294 ── macOS Network Share Discovery
+    S(
+        slug="osquery-macos-network-share-discovery",
+        name="macOS Network Share Discovery via showmount or smbutil",
+        severity="low",
+        mitre=["t1135"],
+        product="osquery",
+        service="processes",
+        when={
+            "event_type": "osquery_query_row",
+            "name_in": ["showmount", "smbutil"],
+        },
+        fp=["Admin auditing network shares"],
+        playbook="tpl-discovery",
+    ),
+    # 295 ── macOS plutil Plist Modification
+    S(
+        slug="osquery-macos-plutil-plist-modification",
+        name="macOS Plist Modification via plutil",
+        severity="medium",
+        mitre=["t1647"],
+        product="osquery",
+        service="processes",
+        when={
+            "event_type": "osquery_query_row",
+            "path": "/usr/bin/plutil",
+        },
+        fp=["Admin or developer editing plist files"],
+        playbook="tpl-persistence",
+    ),
+    # 296 ── macOS Keyboard Event Tap
+    S(
+        slug="osquery-macos-keyboard-event-tap",
+        name="Process Tapping macOS Keyboard Events",
+        severity="high",
+        mitre=["t1056.001"],
+        product="osquery",
+        service="es_process_events",
+        when={
+            "event_type": "osquery_query_row",
+            "query_name_contains": "Keyboard_Event_Tap",
+        },
+        fp=["Authorised accessibility software or approved input manager"],
+        playbook="tpl-collection",
+    ),
+]
+
+
+# ---------------------------------------------------------------------------
 # Aggregate
 # ---------------------------------------------------------------------------
 ENDPOINT_EXTRA: list[dict] = (
@@ -1068,6 +1342,7 @@ ENDPOINT_EXTRA: list[dict] = (
     + CONTAINER_RULES
     + MOBILE_RULES
     + HOST_NETWORK_RULES
+    + OSQUERY_RULES
 )
 
 
@@ -1079,4 +1354,5 @@ __all__ = [
     "CONTAINER_RULES",
     "MOBILE_RULES",
     "HOST_NETWORK_RULES",
+    "OSQUERY_RULES",
 ]

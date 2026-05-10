@@ -82,6 +82,15 @@ def test_osctrl_normalize_high_severity_for_persistence_table():
     assert normalized["host"] == "macbook-01.corp"
     assert normalized["osquery_table"] == "startup_items"
     assert normalized["raw_event"]["path"] == "/Library/StartupItems/evil"
+    # Flattened osquery columns must be reachable at the top level so
+    # detection rules can match on them via match_when (the matcher
+    # only reads top-level fields).
+    assert normalized["path"] == "/Library/StartupItems/evil"
+    assert normalized["name"] == "evil.app"
+    assert normalized["query_name"] == "list-startup-items"
+    # event_type is the stable handle detection authors use to scope
+    # rules to osquery row events (vs. EndpointSecurity 'exec' events).
+    assert normalized["event_type"] == "osquery_query_row"
 
 
 def test_osctrl_normalize_inventory_table_is_info():
@@ -239,6 +248,10 @@ def test_fleetdm_normalize_query_row_uses_table_severity():
     assert norm["severity"] == "high"
     assert norm["osquery_table"] == "scheduled_tasks"
     assert norm["hostname"] == "win-jumphost"
+    # Flattened osquery columns reachable at the top level
+    assert norm["name"] == "evil-task"
+    assert norm["host_id"] == 22
+    assert norm["event_type"] == "osquery_query_row"
 
 
 @pytest.mark.asyncio

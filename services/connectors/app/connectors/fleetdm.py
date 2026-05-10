@@ -304,20 +304,34 @@ class FleetDMConnector(BaseConnector):
         row = raw.get("row") or {}
         table = _infer_table(query.get("query"))
         host_name = row.get("host_hostname") or row.get("hostname")
-        return {
-            "source": self.connector_id,
-            "category": "endpoint",
-            "severity": _table_severity(table),
-            "title": f"FleetDM query: {query.get('name') or query.get('id')}",
-            "description": (query.get("query") or "")[:400],
-            "alert_id": (f"fleetdm-q{query.get('id')}-h{row.get('host_id') or row.get('host_hostname')}"),
-            "hostname": host_name,
-            "host": host_name,
-            "external_id": str(query.get("id")) if query.get("id") is not None else None,
-            "osquery_table": table,
-            "raw_event": row,
-            "raw": raw,
-        }
+
+        # Flatten osquery row columns to the top level so detection
+        # rules can match on them directly. AiSOC-canonical fields
+        # (source/category/severity/...) win on collision.
+        event: dict[str, Any] = {}
+        if isinstance(row, dict):
+            event.update(row)
+        event.update(
+            {
+                "source": self.connector_id,
+                "category": "endpoint",
+                "event_type": "osquery_query_row",
+                "severity": _table_severity(table),
+                "title": f"FleetDM query: {query.get('name') or query.get('id')}",
+                "description": (query.get("query") or "")[:400],
+                "alert_id": (
+                    f"fleetdm-q{query.get('id')}-h{row.get('host_id') or row.get('host_hostname')}"
+                ),
+                "hostname": host_name,
+                "host": host_name,
+                "external_id": str(query.get("id")) if query.get("id") is not None else None,
+                "osquery_table": table,
+                "query_name": query.get("name"),
+                "raw_event": row,
+                "raw": raw,
+            }
+        )
+        return event
 
 
 # ---------------------------------------------------------------------------
