@@ -23,6 +23,8 @@ import { format } from 'date-fns';
 import { LiveFeedPanel } from './LiveFeedPanel';
 import { SOCMetricsDashboard } from './SOCMetricsDashboard';
 import { DashboardWelcome } from './DashboardWelcome';
+import { FimWidget } from './FimWidget';
+import { PackHealthWidget } from './PackHealthWidget';
 
 const RechartsArea = dynamic(
   () => import('recharts').then((m) => {
@@ -227,13 +229,15 @@ type WidgetId =
   | 'top-metrics'
   | 'charts-row'
   | 'bottom-row'
-  | 'soc-performance';
+  | 'soc-performance'
+  | 'fim-pack-health';
 
 const DEFAULT_WIDGET_ORDER: WidgetId[] = [
   'welcome',
   'top-metrics',
   'charts-row',
   'bottom-row',
+  'fim-pack-health',
   'soc-performance',
 ];
 
@@ -247,7 +251,8 @@ function loadWidgetOrder(): WidgetId[] {
     if (
       Array.isArray(parsed) &&
       parsed.length === DEFAULT_WIDGET_ORDER.length &&
-      DEFAULT_WIDGET_ORDER.every((id) => parsed.includes(id))
+      DEFAULT_WIDGET_ORDER.every((id) => parsed.includes(id)) &&
+      parsed.every((id) => (DEFAULT_WIDGET_ORDER as string[]).includes(id))
     ) {
       return parsed;
     }
@@ -509,6 +514,13 @@ export function DashboardView() {
           </div>
         </div>
         <LiveFeedPanel />
+      </div>
+    ),
+
+    'fim-pack-health': (
+      <div className="grid grid-cols-2 gap-4">
+        <FimWidget />
+        <PackHealthWidget />
       </div>
     ),
 

@@ -1,0 +1,46 @@
+id: det-endpoint-293
+name: MacOS Hidden Files and Directories Created
+description: Detects suspicious creation of hidden files and directories on macOS
+  using chflags or xattr, which may indicate an attacker's attempt to conceal malicious
+  activities. Hidden files and directories are commonly used to evade detection by
+  security tools and administrators, providing a stealthy means for storing malware,
+  logs, or sensitive information.
+severity: medium
+enabled: true
+tags:
+  mitre:
+  - mitre.attack.t1564.001
+  categories:
+  - endpoint
+references:
+- https://osquery.readthedocs.io/en/stable/deployment/process-auditing/
+- https://ss64.com/mac/chflags.html
+- https://ss64.com/mac/xattr.html
+false_positives:
+- Legitimate macOS applications or system tools may use chflags or xattr for valid
+  file management purposes.
+playbook: Investigate the parent process and user context. Determine if the target
+  path is a known system directory or a suspicious new location. Correlate with other
+  suspicious process events on the same host.
+log_source:
+  category: edr
+  event_type: process-create
+detection:
+  condition: |
+    process.name in ("chflags", "xattr") and (
+      (process.name == "chflags" and process.args contains "hidden")
+      or
+      (process.name == "xattr" and process.args contains "-wx" and process.args contains "com.apple.FinderInfo")
+    )
+author: AiSOC Community
+created: '2026-05-10'
+modified: '2026-05-10'
+provenance:
+  source: splunk/security_content
+  source_id: macos-hidden-files-and-directories
+  source_commit: 4d4c7ee
+  license: Apache-2.0
+  license_url: https://github.com/splunk/security_content/blob/develop/LICENSE
+  imported_at: '2026-05-10'
+  imported_by: aisoc_migrator
+  upstream_path: detections/splunk-imports/_quarantine/macos-hidden-files-and-directories.yaml

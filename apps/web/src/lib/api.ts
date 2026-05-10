@@ -3818,6 +3818,48 @@ export interface SavedViewUpdateRequest {
   is_default?: boolean;
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Packs API
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface PackSummaryItem {
+  id: string;
+  name: string;
+  version: string;
+  platforms: string[];
+  description: string;
+  query_count: number;
+  is_fim_pack: boolean;
+}
+
+export interface AssignedPackItem {
+  pack_id: string;
+  assigned_at: string; // ISO-8601
+}
+
+export const packsApi = {
+  /** List all available packs in the catalog */
+  list: (): Promise<PackSummaryItem[]> =>
+    request<PackSummaryItem[]>('/api/v1/packs'),
+
+  /** Fetch assigned packs for the current tenant */
+  listAssigned: (): Promise<AssignedPackItem[]> =>
+    request<{ packs: AssignedPackItem[] }>('/api/v1/packs/assigned').then(
+      (r) => r.packs,
+    ),
+
+  /** Assign a pack to the current tenant */
+  assign: (packId: string): Promise<void> =>
+    request<void>('/api/v1/packs/assign', {
+      method: 'POST',
+      body: JSON.stringify({ pack_id: packId }),
+    }),
+
+  /** Unassign a pack from the current tenant */
+  unassign: (packId: string): Promise<void> =>
+    request<void>(`/api/v1/packs/unassign/${packId}`, { method: 'DELETE' }),
+};
+
 export const savedViewsApi = {
   /**
    * List the caller's presets for one list page. Sorted by
@@ -3896,4 +3938,5 @@ export default {
   reports: reportsApi,
   costs: costsApi,
   savedViews: savedViewsApi,
+  packs: packsApi,
 };

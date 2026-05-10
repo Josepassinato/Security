@@ -1,0 +1,6 @@
+{
+  "process.name": "chflags",
+  "process.args": "hidden /tmp/.malware",
+  "process.path": "/usr/bin/chflags",
+  "process.parent_name": "bash"
+}

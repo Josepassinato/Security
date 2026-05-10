@@ -1,0 +1,6 @@
+{
+  "process.name": "kextload",
+  "process.args": "/tmp/malicious.kext",
+  "process.path": "/sbin/kextload",
+  "process.parent_name": "bash"
+}

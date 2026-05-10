@@ -1,0 +1,37 @@
+{
+  "name": "file_events",
+  "hostIdentifier": "linux-prod-01.corp.example.com",
+  "calendarTime": "Sun May 10 09:00:00 2026 UTC",
+  "unixTime": 1746871200,
+  "epoch": 0,
+  "counter": 0,
+  "numerics": false,
+  "decorations": {
+    "host_uuid": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "environment": "production"
+  },
+  "columns": {
+    "action": "MODIFIED",
+    "target_path": "/etc/passwd",
+    "category": "etc",
+    "transaction_id": "0",
+    "inode": "917506",
+    "md5": "d9ff4f7c29a9c1c56b8e2a16c59843bf",
+    "sha1": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "hashed": "1",
+    "username": "root",
+    "uid": "0",
+    "gid": "0",
+    "mode": "0644",
+    "size": "2847",
+    "times": "1746871199",
+    "atime": "1746871199.000000000",
+    "mtime": "1746871199.000000000",
+    "ctime": "1746871199.000000000",
+    "btime": "0",
+    "symlink": "0",
+    "type": "1"
+  },
+  "action": "added"
+}

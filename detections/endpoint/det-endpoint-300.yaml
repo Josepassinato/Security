@@ -1,0 +1,58 @@
+id: det-endpoint-300
+name: Sensitive Configuration File Deleted
+description: >
+  Detects deletion of critical system or security configuration files.
+  Adversaries may delete logs, audit rules, security policies, or host-based
+  firewall configurations to cover their tracks or disable defensive controls
+  before the next phase of an attack.
+severity: high
+tags:
+  - endpoint
+  - fim
+  - file-integrity
+  - defense-evasion
+  - impact
+  - T1070
+  - T1562
+  - T1485
+log_source: osquery_fim
+detection:
+  condition: >
+    file_events WHERE action = 'DELETED'
+    AND (
+      target_path LIKE '/etc/audit/%'
+      OR target_path LIKE '/etc/auditd.conf'
+      OR target_path LIKE '/etc/iptables/%'
+      OR target_path LIKE '/etc/nftables.conf'
+      OR target_path LIKE '/etc/hosts.allow'
+      OR target_path LIKE '/etc/hosts.deny'
+      OR target_path LIKE '/etc/pam.d/%'
+      OR target_path LIKE '/var/log/auth.log'
+      OR target_path LIKE '/var/log/secure'
+      OR target_path LIKE '/var/log/audit/audit.log'
+    )
+splunk_spl: >
+  index=osquery sourcetype=osquery:file_events action="DELETED"
+  (target_path LIKE "/etc/audit/%" OR target_path="/etc/auditd.conf"
+   OR target_path LIKE "/etc/iptables/%" OR target_path="/etc/nftables.conf"
+   OR target_path LIKE "/etc/pam.d/%" OR target_path="/var/log/auth.log"
+   OR target_path="/var/log/secure" OR target_path="/var/log/audit/audit.log")
+  | eval severity="high"
+  | table _time host target_path action md5 sha256 username severity
+false_positives:
+  - Log rotation that archives and recreates log files
+  - Security configuration migration during system hardening
+  - Authorized removal of deprecated PAM modules
+playbook: >
+  1. Immediately check whether the deleted file can be restored from backup
+     or a configuration management system.
+  2. Identify the user and process that deleted the file.
+  3. Correlate with other events (process execution, network, login) in the
+     same time window to assess attack progression.
+  4. If defensive controls were removed: treat as active incident — isolate
+     the host and escalate.
+enabled: true
+author: AiSOC Community
+created: "2026-05-10"
+modified: "2026-05-10"
+provenance: aisoc-fim

@@ -1,0 +1,57 @@
+id: det-endpoint-298
+name: Unexpected Binary Dropped in System Directories
+description: >
+  Detects new executable files created in sensitive system directories such as
+  /usr/bin, /usr/sbin, /bin, /sbin, or /usr/local/bin. Legitimate software
+  installations are typically managed by package managers; ad-hoc binaries
+  dropped directly into these directories by non-root processes or at unusual
+  times can indicate malware installation, backdoor placement, or supply-chain
+  compromise.
+severity: high
+tags:
+  - endpoint
+  - fim
+  - file-integrity
+  - malware
+  - persistence
+  - T1105
+  - T1543
+  - T1574
+log_source: osquery_fim
+detection:
+  condition: >
+    file_events WHERE action = 'CREATED'
+    AND (
+      target_path LIKE '/usr/bin/%'
+      OR target_path LIKE '/usr/sbin/%'
+      OR target_path LIKE '/bin/%'
+      OR target_path LIKE '/sbin/%'
+      OR target_path LIKE '/usr/local/bin/%'
+      OR target_path LIKE '/usr/local/sbin/%'
+    )
+    AND md5 IS NOT NULL
+splunk_spl: >
+  index=osquery sourcetype=osquery:file_events action="CREATED"
+  (target_path LIKE "/usr/bin/%" OR target_path LIKE "/usr/sbin/%"
+   OR target_path LIKE "/bin/%" OR target_path LIKE "/sbin/%"
+   OR target_path LIKE "/usr/local/bin/%" OR target_path LIKE "/usr/local/sbin/%")
+  md5!=NULL
+  | eval severity="high"
+  | table _time host target_path action md5 sha256 username severity
+false_positives:
+  - Package manager installations (apt, yum, dnf, brew)
+  - CI/CD pipeline deployments that install tooling
+  - Legitimate software build processes
+playbook: >
+  1. Hash the new binary and look it up in threat intelligence (VirusTotal,
+     internal allowlist).
+  2. Identify the process tree that created the file.
+  3. If the binary is unknown or suspicious: quarantine the host, preserve the
+     binary for forensics, and escalate to incident response.
+  4. Review other FIM events on the same host in the surrounding time window
+     to check for multi-stage activity.
+enabled: true
+author: AiSOC Community
+created: "2026-05-10"
+modified: "2026-05-10"
+provenance: aisoc-fim

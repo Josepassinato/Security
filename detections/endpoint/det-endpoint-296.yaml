@@ -1,0 +1,60 @@
+id: det-endpoint-296
+name: MacOS Log Removal via Command Line
+description: Detects suspicious deletion or clearing of macOS log files using command-line
+  utilities such as rm, truncate, or find with -delete. Adversaries may delete log
+  files to cover their tracks, hinder forensic analysis, or remove evidence of malicious
+  activity. Target paths typically include /private/var/log/, /var/log/, or the unified
+  log directories. This behavior is a common anti-forensics technique.
+severity: medium
+enabled: true
+tags:
+  mitre:
+  - mitre.attack.t1070
+  categories:
+  - endpoint
+references:
+- https://osquery.readthedocs.io/en/stable/deployment/process-auditing/
+- https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/T1070.002/T1070.002.md
+false_positives:
+- Legitimate log management tools or system maintenance scripts may delete old log
+  files as part of routine cleanup tasks.
+playbook: Investigate the parent process and user context. Determine the specific
+  log files removed. Check if the removal aligns with a scheduled cleanup task. Correlate
+  with other suspicious activity on the same host around the same time.
+log_source:
+  category: edr
+  event_type: process-create
+detection:
+  condition: |
+    (
+      process.name == "rm"
+      and (
+        process.args matches ".*\/var\/log\/.*"
+        or process.args matches ".*\/private\/var\/log\/.*"
+        or (process.args contains "-rf" and process.args contains ".log")
+      )
+    )
+    or (
+      process.name == "find"
+      and process.args contains "-delete"
+      and (
+        process.args contains "/var/log"
+        or process.args contains "*.log"
+      )
+    )
+    or (
+      process.name in ("truncate", "dd")
+      and process.args matches ".*\.log"
+    )
+author: AiSOC Community
+created: '2026-05-10'
+modified: '2026-05-10'
+provenance:
+  source: splunk/security_content
+  source_id: macos-log-removal
+  source_commit: 4d4c7ee
+  license: Apache-2.0
+  license_url: https://github.com/splunk/security_content/blob/develop/LICENSE
+  imported_at: '2026-05-10'
+  imported_by: aisoc_migrator
+  upstream_path: detections/splunk-imports/_quarantine/macos-log-removal.yaml

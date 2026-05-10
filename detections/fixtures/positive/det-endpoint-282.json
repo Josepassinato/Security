@@ -1,0 +1,6 @@
+{
+  "process.name": "systemctl",
+  "process.args": "stop osqueryd",
+  "process.path": "/bin/systemctl",
+  "process.parent_name": "bash"
+}

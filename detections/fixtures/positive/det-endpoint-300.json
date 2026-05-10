@@ -1,0 +1,37 @@
+{
+  "name": "file_events",
+  "hostIdentifier": "linux-prod-04.corp.example.com",
+  "calendarTime": "Sun May 10 09:45:00 2026 UTC",
+  "unixTime": 1746873900,
+  "epoch": 0,
+  "counter": 0,
+  "numerics": false,
+  "decorations": {
+    "host_uuid": "d4e5f6a7-b8c9-0123-def0-123456789003",
+    "environment": "production"
+  },
+  "columns": {
+    "action": "DELETED",
+    "target_path": "/var/log/audit/audit.log",
+    "category": "var",
+    "transaction_id": "0",
+    "inode": "786453",
+    "md5": "",
+    "sha1": "",
+    "sha256": "",
+    "hashed": "0",
+    "username": "root",
+    "uid": "0",
+    "gid": "0",
+    "mode": "0600",
+    "size": "0",
+    "times": "1746873899",
+    "atime": "1746873899.000000000",
+    "mtime": "1746873899.000000000",
+    "ctime": "1746873899.000000000",
+    "btime": "0",
+    "symlink": "0",
+    "type": "1"
+  },
+  "action": "added"
+}

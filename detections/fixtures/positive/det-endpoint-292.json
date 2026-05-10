@@ -1,0 +1,7 @@
+{
+  "hardware_event.type": "add",
+  "hardware_event.vendor": "SanDisk",
+  "hardware_event.model": "USB Flash Drive",
+  "hardware_event.removable": "1",
+  "hardware_event.path": "/dev/disk2"
+}

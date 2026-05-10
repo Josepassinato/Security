@@ -1,0 +1,6 @@
+{
+  "process.name": "rm",
+  "process.args": "-rf /var/log/system.log",
+  "process.path": "/bin/rm",
+  "process.parent_name": "bash"
+}

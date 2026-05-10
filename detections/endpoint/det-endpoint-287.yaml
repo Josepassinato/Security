@@ -1,0 +1,33 @@
+id: det-endpoint-287
+name: macOS Kext Loading via kextload or kmutil
+description: Detects kernel extension (kext) loading on macOS using kextload or kmutil
+  commands. Loading unauthorized kernel extensions can allow attackers to gain kernel-level
+  privileges, intercept system calls, or establish persistent rootkits. This technique
+  has been observed in advanced macOS malware.
+version: 1.0.0
+severity: high
+tags:
+- mitre.attack.t1215
+- tlp.white
+category: endpoint
+log_source:
+  product: osquery
+  service: process_events
+detection:
+  condition: |
+    image_basename IN ["kextload", "kmutil"]
+    AND (
+      command_line CONTAINS_ANY ["load", "-l", "--load"]
+    )
+    AND parent_image_basename NOT IN ["softwareupdated", "system_installd", "com.apple.dt.instruments"]
+false_positives:
+- Authorized kernel extension installations via system update or known security tools
+playbook: tpl-privilege-escalation
+enabled: true
+author: AiSOC
+created: '2026-05-10'
+modified: '2026-05-10'
+provenance:
+  source: splunk/security_content
+  source_id: macos-kextload-command
+  license: Apache-2.0

@@ -23,6 +23,7 @@ from app.api.v1.endpoints import (
     detection_proposals,
     detection_rules,
     easm,
+    extensions,
     federated,
     feedback,
     fusion,
@@ -45,6 +46,7 @@ from app.api.v1.endpoints import (
     nl_query,
     oauth,
     oncall,
+    packs,
     passkeys,
     phishing,
     playbooks,
@@ -214,3 +216,10 @@ api_router.include_router(inbox_itsm.router)
 # allowlisted table catalog so operators (and LLM agents) can author
 # queries without column-name guesswork.
 api_router.include_router(lake.router)
+
+# Osquery pack catalog + per-tenant pack assignments (PR5 — packs/FIM)
+api_router.include_router(packs.router)
+
+# Osquery extension API — host-scoped tokens, feeds aisoc_pending_actions /
+# aisoc_alert_cache / aisoc_attck_persistence virtual tables (PR6)
+api_router.include_router(extensions.router)

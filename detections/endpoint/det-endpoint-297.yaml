@@ -1,0 +1,53 @@
+id: det-endpoint-297
+name: Critical File Modified Outside Maintenance Window
+description: >
+  Detects modifications to critical system files or configuration files that
+  occur outside of approved maintenance windows. Unexpected changes to files
+  such as /etc/passwd, /etc/shadow, /etc/sudoers, or SSH authorized_keys
+  may indicate credential manipulation, privilege escalation, or persistence
+  establishment by an attacker.
+severity: high
+tags:
+  - endpoint
+  - fim
+  - file-integrity
+  - persistence
+  - privilege-escalation
+  - T1098
+  - T1548
+  - T1070
+log_source: osquery_fim
+detection:
+  condition: >
+    file_events WHERE action IN ('MODIFIED', 'CREATED') AND (
+      target_path LIKE '/etc/passwd'
+      OR target_path LIKE '/etc/shadow'
+      OR target_path LIKE '/etc/sudoers'
+      OR target_path LIKE '/etc/sudoers.d/%'
+      OR target_path LIKE '/root/.ssh/authorized_keys'
+      OR target_path LIKE '/home/%/.ssh/authorized_keys'
+    )
+splunk_spl: >
+  index=osquery sourcetype=osquery:file_events action IN ("MODIFIED","CREATED")
+  (target_path="/etc/passwd" OR target_path="/etc/shadow"
+   OR target_path="/etc/sudoers" OR target_path LIKE "/etc/sudoers.d/%"
+   OR target_path LIKE "%/.ssh/authorized_keys")
+  | eval severity="high"
+  | table _time host target_path action md5 sha256 username severity
+false_positives:
+  - Legitimate system administration and package manager updates
+  - Scheduled configuration management runs (Ansible, Chef, Puppet)
+  - Authorized user provisioning workflows
+playbook: >
+  1. Identify the process and user that made the change (correlate with process
+     events around the same timestamp).
+  2. Check if a maintenance window or change ticket covers this host and time.
+  3. Compare the new file content against the last known-good backup or
+     configuration repository.
+  4. If unauthorized: immediately review all accounts in the modified file,
+     rotate credentials, and initiate an incident response workflow.
+enabled: true
+author: AiSOC Community
+created: "2026-05-10"
+modified: "2026-05-10"
+provenance: aisoc-fim

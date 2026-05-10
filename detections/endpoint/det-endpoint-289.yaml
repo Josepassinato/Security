@@ -1,0 +1,34 @@
+id: det-endpoint-289
+name: macOS Screensaver Plist Modification for Persistence
+description: Detects modification of the macOS screensaver plist file which can be
+  used as a persistence mechanism. Attackers can configure a malicious screensaver
+  that executes payload code when the screensaver activates, providing persistence
+  without traditional LaunchAgent or LaunchDaemon mechanisms.
+version: 1.0.0
+severity: medium
+tags:
+- mitre.attack.t1546.002
+- tlp.white
+category: endpoint
+log_source:
+  product: osquery
+  service: process_events
+detection:
+  condition: |
+    image_basename IN ["defaults", "PlistBuddy", "plutil", "osascript"]
+    AND command_line CONTAINS_ANY [
+      "com.apple.screensaver",
+      "com.apple.ScreenSaver"
+    ]
+    AND command_line CONTAINS_ANY ["write", "-insert", "-set", "ModuleURL", "moduleName"]
+false_positives:
+- System administrators legitimately configuring screensaver policies
+playbook: tpl-persistence
+enabled: true
+author: AiSOC
+created: '2026-05-10'
+modified: '2026-05-10'
+provenance:
+  source: splunk/security_content
+  source_id: macos-screensaver-plist-modification
+  license: Apache-2.0

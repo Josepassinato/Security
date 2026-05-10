@@ -1,0 +1,6 @@
+{
+  "process.name": "launchctl",
+  "process.args": "load /tmp/malicious.plist",
+  "process.path": "/bin/launchctl",
+  "process.parent_name": "bash"
+}

@@ -1,0 +1,56 @@
+id: det-endpoint-299
+name: Cron Job or Systemd Unit File Added or Modified
+description: >
+  Detects creation or modification of cron job definitions or systemd unit
+  files. Attackers commonly abuse scheduled task mechanisms to achieve
+  persistence and survive reboots. This rule covers both classic cron
+  directories (/etc/cron*, /var/spool/cron) and systemd unit directories
+  (/etc/systemd, /lib/systemd, /usr/lib/systemd).
+severity: medium
+tags:
+  - endpoint
+  - fim
+  - file-integrity
+  - persistence
+  - scheduled-tasks
+  - T1053
+  - T1053.003
+  - T1053.006
+log_source: osquery_fim
+detection:
+  condition: >
+    file_events WHERE action IN ('CREATED', 'MODIFIED')
+    AND (
+      target_path LIKE '/etc/cron%'
+      OR target_path LIKE '/var/spool/cron/%'
+      OR target_path LIKE '/etc/systemd/system/%.service'
+      OR target_path LIKE '/etc/systemd/system/%.timer'
+      OR target_path LIKE '/lib/systemd/system/%.service'
+      OR target_path LIKE '/lib/systemd/system/%.timer'
+      OR target_path LIKE '/usr/lib/systemd/system/%.service'
+      OR target_path LIKE '/usr/lib/systemd/system/%.timer'
+    )
+splunk_spl: >
+  index=osquery sourcetype=osquery:file_events action IN ("CREATED","MODIFIED")
+  (target_path LIKE "/etc/cron%" OR target_path LIKE "/var/spool/cron/%"
+   OR target_path LIKE "/etc/systemd/system/%.service"
+   OR target_path LIKE "/etc/systemd/system/%.timer"
+   OR target_path LIKE "/lib/systemd/system/%.service"
+   OR target_path LIKE "/usr/lib/systemd/system/%.service")
+  | eval severity="medium"
+  | table _time host target_path action md5 sha256 username severity
+false_positives:
+  - Package manager cron job registration (logrotate, updatedb, etc.)
+  - Authorized automation tooling (Ansible, Puppet, Chef)
+  - Application deployments that install systemd services
+playbook: >
+  1. Review the content of the new or modified cron/systemd file.
+  2. Identify which user and process created the change.
+  3. Compare against the approved list of scheduled tasks for this host role.
+  4. If unexpected: disable the scheduled task, capture the configuration
+     for forensics, and investigate the parent process.
+enabled: true
+author: AiSOC Community
+created: "2026-05-10"
+modified: "2026-05-10"
+provenance: aisoc-fim

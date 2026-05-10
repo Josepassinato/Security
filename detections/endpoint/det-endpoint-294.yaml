@@ -1,0 +1,57 @@
+id: det-endpoint-294
+name: MacOS Keychains Dumped
+description: Detects command-line attempts to access or dump macOS Keychain data
+  using native utilities or direct file access. This includes credential dumping via
+  the security utility (e.g. dump-keychain -d), bulk certificate export using security
+  find-certificate, and direct file copying of Keychain database files. Keychain files
+  are located in ~/Library/Keychains/, /Library/Keychains/, and /Network/Library/Keychains/.
+  This technique is commonly associated with post-exploitation credential harvesting.
+severity: medium
+enabled: true
+tags:
+  mitre:
+  - mitre.attack.t1555.001
+  categories:
+  - endpoint
+references:
+- https://osquery.readthedocs.io/en/stable/deployment/process-auditing/
+- https://gist.github.com/hfeeki/88c12f01d00534e09a84
+- https://ss64.com/mac/security-keychain-settings.html
+- https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/T1555.001/T1555.001.md
+false_positives:
+- Security tools, backup software, or legitimate administrative scripts may access
+  Keychain files for valid purposes. Validate against known processes.
+playbook: Verify if the process is authorised by the user. Check if the initiating
+  process is a known legitimate application. Investigate if credentials were successfully
+  exfiltrated. Correlate with network connections from the same host.
+log_source:
+  category: edr
+  event_type: process-create
+detection:
+  condition: |
+    (
+      process.path == "/usr/bin/security"
+      and (
+        (process.args contains "dump-keychain" and process.args contains "-d")
+        or
+        (process.args contains "find-certificate" and process.args contains "-p")
+      )
+    )
+    or process.args contains "keychaindump"
+    or (
+      process.name in ("cat", "cp", "dd", "mv")
+      and process.args contains "Library/Keychains/"
+      and process.args contains ".keychain"
+    )
+author: AiSOC Community
+created: '2026-05-10'
+modified: '2026-05-10'
+provenance:
+  source: splunk/security_content
+  source_id: macos-keychains-dumped
+  source_commit: 4d4c7ee
+  license: Apache-2.0
+  license_url: https://github.com/splunk/security_content/blob/develop/LICENSE
+  imported_at: '2026-05-10'
+  imported_by: aisoc_migrator
+  upstream_path: detections/splunk-imports/_quarantine/macos-keychains-dumped.yaml

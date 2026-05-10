@@ -1,0 +1,36 @@
+id: det-endpoint-292
+name: osquery USB Device Attached - Unusual Storage Device
+description: Detects attachment of unusual or unauthorized USB storage devices on
+  macOS or Linux hosts via osquery hardware event monitoring. Unauthorized USB devices
+  are a common vector for data exfiltration, malware introduction, or BadUSB attacks.
+version: 1.0.0
+severity: medium
+tags:
+- mitre.attack.t1091
+- mitre.attack.t1052.001
+- tlp.white
+category: endpoint
+log_source:
+  product: osquery
+  service: hardware_events
+detection:
+  condition: |
+    action == "attach"
+    AND type == "disk"
+    AND model NOT IN ["Apple SD Card Reader", "Apple Internal SSD"]
+    AND (
+      removable == true
+      OR transport == "USB"
+    )
+false_positives:
+- Authorized USB storage devices used by privileged administrators (allowlist device serial numbers)
+- IT asset management tools scanning USB inventory
+playbook: tpl-exfiltration
+enabled: true
+author: AiSOC
+created: '2026-05-10'
+modified: '2026-05-10'
+provenance:
+  source: splunk/security_content
+  source_id: osquery-usb-device-attached
+  license: Apache-2.0

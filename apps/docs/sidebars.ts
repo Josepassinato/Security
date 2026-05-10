@@ -62,6 +62,34 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: "category",
+      label: "Packs",
+      items: [
+        "packs/index",
+        "packs/schema",
+        "packs/fim-baseline",
+        "packs/fim-credentials",
+        "packs/attck-persistence",
+        "packs/attck-defense-evasion",
+        "packs/inventory-baseline",
+      ],
+    },
+    {
+      type: "category",
+      label: "Osquery Extension",
+      items: [
+        "extensions/index",
+        "extensions/install",
+        "extensions/tables-reference",
+        "extensions/security-model",
+      ],
+    },
+    {
+      type: "category",
+      label: "Dashboards",
+      items: ["dashboards/file-integrity"],
+    },
+    {
+      type: "category",
       label: "Operations",
       items: [
         "operations/security",

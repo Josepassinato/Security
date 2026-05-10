@@ -1,0 +1,33 @@
+id: det-endpoint-285
+name: macOS Data Chunking for Exfiltration
+description: Detects data-chunking activity on macOS typically used in preparation
+  for exfiltration. Attackers split large files into smaller chunks using split, dd,
+  or tar to avoid triggering size-based DLP controls or to stage data for transfer.
+version: 1.0.0
+severity: medium
+tags:
+- mitre.attack.t1030
+- tlp.white
+category: endpoint
+log_source:
+  product: osquery
+  service: process_events
+detection:
+  condition: |
+    image_basename IN ["split", "dd", "tar"]
+    AND (
+      command_line CONTAINS_ANY ["-b", "--bytes", "bs=", "if="]
+    )
+    AND parent_image_basename NOT IN ["backup_helper", "time_machine_helper"]
+false_positives:
+- Legitimate backup software chunking data (allowlist backup processes)
+- System administrators performing authorized data exports
+playbook: tpl-collection
+enabled: true
+author: AiSOC
+created: '2026-05-10'
+modified: '2026-05-10'
+provenance:
+  source: splunk/security_content
+  source_id: macos-data-chunking
+  license: Apache-2.0

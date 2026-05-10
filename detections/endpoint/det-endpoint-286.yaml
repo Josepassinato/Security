@@ -1,0 +1,31 @@
+id: det-endpoint-286
+name: macOS Gatekeeper Bypass via Quarantine Attribute Removal
+description: Detects Gatekeeper bypass attempts on macOS by monitoring for removal
+  of the com.apple.quarantine extended attribute using xattr. Removing this attribute
+  prevents macOS from warning users about untrusted software and can allow execution
+  of unsigned or malicious applications.
+version: 1.0.0
+severity: high
+tags:
+- mitre.attack.t1553.001
+- tlp.white
+category: endpoint
+log_source:
+  product: osquery
+  service: process_events
+detection:
+  condition: |
+    image_basename == "xattr"
+    AND command_line CONTAINS_ANY ["-d", "-c"]
+    AND command_line CONTAINS "com.apple.quarantine"
+false_positives:
+- Developer workflows removing quarantine attributes from trusted downloads (allowlist developer machines)
+playbook: tpl-defense-evasion
+enabled: true
+author: AiSOC
+created: '2026-05-10'
+modified: '2026-05-10'
+provenance:
+  source: splunk/security_content
+  source_id: macos-gatekeeper-bypass
+  license: Apache-2.0

@@ -1,0 +1,6 @@
+{
+  "process.name": "sysadminctl",
+  "process.args": "-addUser hacker -password P@ssw0rd -admin",
+  "process.path": "/usr/sbin/sysadminctl",
+  "process.parent_name": "bash"
+}

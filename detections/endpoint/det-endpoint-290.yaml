@@ -1,0 +1,31 @@
+id: det-endpoint-290
+name: macOS Suspicious SIP Disabled via csrutil
+description: Detects disabling of System Integrity Protection (SIP) on macOS via
+  the csrutil command. SIP prevents unauthorized modification of protected system
+  files and processes. Disabling it is a significant security risk and is often performed
+  by attackers to remove kernel-level protections before deploying rootkits or persistent
+  malware.
+version: 1.0.0
+severity: critical
+tags:
+- mitre.attack.t1562.001
+- tlp.white
+category: endpoint
+log_source:
+  product: osquery
+  service: process_events
+detection:
+  condition: |
+    image_basename == "csrutil"
+    AND command_line CONTAINS "disable"
+false_positives:
+- Security researchers or developers in testing environments (allowlist non-production machines)
+playbook: tpl-defense-evasion
+enabled: true
+author: AiSOC
+created: '2026-05-10'
+modified: '2026-05-10'
+provenance:
+  source: splunk/security_content
+  source_id: macos-suspicious-sip-disable
+  license: Apache-2.0

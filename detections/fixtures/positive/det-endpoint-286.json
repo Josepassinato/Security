@@ -1,0 +1,6 @@
+{
+  "process.name": "xattr",
+  "process.args": "-d com.apple.quarantine /Applications/MaliciousApp.app",
+  "process.path": "/usr/bin/xattr",
+  "process.parent_name": "bash"
+}

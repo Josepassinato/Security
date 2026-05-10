@@ -1,0 +1,6 @@
+{
+  "process.name": "split",
+  "process.args": "-b 5m /tmp/exfil.tar.gz /tmp/chunk_",
+  "process.path": "/usr/bin/split",
+  "process.parent_name": "bash"
+}

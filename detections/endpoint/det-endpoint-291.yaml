@@ -1,0 +1,40 @@
+id: det-endpoint-291
+name: osquery Process Monitor - Suspicious Child Process of Launchd
+description: Detects suspicious processes spawned directly by launchd on macOS that
+  are not typical system services. Attackers can register malicious LaunchDaemons
+  or LaunchAgents to achieve persistence, where launchd becomes the parent of their
+  malicious payload.
+version: 1.0.0
+severity: medium
+tags:
+- mitre.attack.t1543.001
+- mitre.attack.t1543.004
+- tlp.white
+category: endpoint
+log_source:
+  product: osquery
+  service: process_events
+detection:
+  condition: |
+    parent_image_basename == "launchd"
+    AND image_basename NOT IN [
+      "bash", "sh", "zsh", "python", "python3", "ruby", "perl",
+      "com.apple.security.pboxd", "cfprefsd", "distnoted",
+      "secinitd", "syslogd", "systemstats", "coreduetd",
+      "mds", "mds_stores", "mdworker_shared", "lsd",
+      "backgroundtaskmanagementagent"
+    ]
+    AND image_path NOT LIKE "/System/%"
+    AND image_path NOT LIKE "/usr/libexec/%"
+    AND image_path NOT LIKE "/usr/sbin/%"
+false_positives:
+- Third-party system services registered as LaunchDaemons (allowlist known commercial software)
+playbook: tpl-persistence
+enabled: true
+author: AiSOC
+created: '2026-05-10'
+modified: '2026-05-10'
+provenance:
+  source: splunk/security_content
+  source_id: osquery-process-monitor-suspicious-launchd-child
+  license: Apache-2.0

@@ -1,0 +1,6 @@
+{
+  "process.name": "sudoedit",
+  "process.args": "-s /",
+  "process.path": "/usr/bin/sudoedit",
+  "process.parent_name": "bash"
+}

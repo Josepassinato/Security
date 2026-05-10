@@ -1,0 +1,46 @@
+id: det-endpoint-295
+name: MacOS LoginHook Persistence
+description: Detects the configuration of a LoginHook on macOS systems, which executes
+  a script or binary whenever a user logs in. Adversaries may use LoginHooks as a
+  persistence mechanism to execute malicious code at login. This is accomplished
+  via the 'defaults write' command targeting the LoginHook key in com.apple.loginwindow.
+  LoginHooks execute with root privileges and can be abused to gain persistence or
+  escalate privileges.
+severity: medium
+enabled: true
+tags:
+  mitre:
+  - mitre.attack.t1037.002
+  categories:
+  - endpoint
+references:
+- https://osquery.readthedocs.io/en/stable/deployment/process-auditing/
+- https://support.apple.com/en-us/HT2420
+- https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/T1037.002/T1037.002.md
+false_positives:
+- Some legitimate enterprise management tools may configure LoginHooks for deployment
+  and configuration management purposes.
+playbook: Determine the script or binary configured as the LoginHook. Assess if it
+  is a known legitimate tool or a suspicious file. Check when it was created and
+  who created it. Investigate other persistence indicators on the same host.
+log_source:
+  category: edr
+  event_type: process-create
+detection:
+  condition: |
+    process.path == "/usr/bin/defaults"
+    and process.args contains "write"
+    and process.args contains "com.apple.loginwindow"
+    and process.args contains "LoginHook"
+author: AiSOC Community
+created: '2026-05-10'
+modified: '2026-05-10'
+provenance:
+  source: splunk/security_content
+  source_id: macos-loginhook-persistence
+  source_commit: 4d4c7ee
+  license: Apache-2.0
+  license_url: https://github.com/splunk/security_content/blob/develop/LICENSE
+  imported_at: '2026-05-10'
+  imported_by: aisoc_migrator
+  upstream_path: detections/splunk-imports/_quarantine/macos-loginhook-persistence.yaml

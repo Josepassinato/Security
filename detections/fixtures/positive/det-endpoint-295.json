@@ -1,0 +1,6 @@
+{
+  "process.name": "defaults",
+  "process.args": "write com.apple.loginwindow LoginHook /Users/attacker/evil.sh",
+  "process.path": "/usr/bin/defaults",
+  "process.parent_name": "zsh"
+}

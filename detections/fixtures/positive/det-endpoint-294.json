@@ -1,0 +1,6 @@
+{
+  "process.name": "security",
+  "process.args": "dump-keychain -d login.keychain",
+  "process.path": "/usr/bin/security",
+  "process.parent_name": "python3"
+}

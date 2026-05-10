@@ -1,0 +1,6 @@
+{
+  "process.name": "osqueryi",
+  "process.args": "--json 'SELECT * FROM system_info'",
+  "process.path": "/usr/local/bin/osqueryi",
+  "process.parent_name": "AMOS"
+}
