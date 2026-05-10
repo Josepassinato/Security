@@ -72,3 +72,21 @@ variable "kafka_instance_type" {
   type        = string
   default     = "kafka.m5.large"
 }
+
+variable "osquery_tls_image_tag" {
+  description = "Container image tag for aisoc-osquery-tls"
+  type        = string
+  default     = "latest"
+}
+
+variable "osquery_tls_replicas" {
+  description = "Baseline pod replica count for aisoc-osquery-tls"
+  type        = number
+  default     = 2
+}
+
+variable "osquery_tls_enroll_secret" {
+  description = "Shared enroll secret for osqueryd agent authentication"
+  type        = string
+  sensitive   = true
+}

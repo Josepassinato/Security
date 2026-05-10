@@ -330,6 +330,26 @@ services:
       - aisoc
     restart: unless-stopped
 
+  osquery-tls:
+    build:
+      context: ./services/osquery-tls
+      dockerfile: Dockerfile
+    container_name: aisoc-osquery-tls
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8007:8007"
+    profiles:
+      - osquery
+    environment:
+      DATABASE_URL: postgresql+asyncpg://aisoc:aisoc_dev_secret@postgres:5432/aisoc
+      AISOC_OSQUERY_TLS_ENROLL_SECRET: ${AISOC_OSQUERY_TLS_ENROLL_SECRET:-change-me-in-production}
+      AISOC_INGEST_BASE_URL: http://ingest:8080
+    networks:
+      - aisoc
+    restart: unless-stopped
+
   actions:
     build:
       context: ./services/actions

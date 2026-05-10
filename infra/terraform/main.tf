@@ -146,6 +146,29 @@ module "kafka" {
   allowed_security_groups = [module.eks.node_security_group_id]
 }
 
+module "osquery_tls" {
+  source = "./modules/osquery-tls"
+
+  namespace        = "aisoc"
+  create_namespace = false
+
+  image_repository = "ghcr.io/aisoc-community/osquery-tls"
+  image_tag        = var.osquery_tls_image_tag
+
+  replicas = var.osquery_tls_replicas
+
+  enroll_secret   = var.osquery_tls_enroll_secret
+  database_url    = "postgresql+asyncpg://${var.db_username}:${module.rds.db_password}@${module.rds.endpoint}/aisoc"
+  ingest_base_url = "http://aisoc-ingest.aisoc.svc.cluster.local:8080"
+
+  autoscaling = {
+    enabled                = true
+    min_replicas           = var.osquery_tls_replicas
+    max_replicas           = var.osquery_tls_replicas * 5
+    target_cpu_utilization = 70
+  }
+}
+
 # ─── Outputs ──────────────────────────────────────────────────────────────────
 
 output "eks_cluster_name" {
@@ -180,4 +203,9 @@ output "kafka_bootstrap_servers" {
 output "vpc_id" {
   description = "VPC ID"
   value       = module.vpc.vpc_id
+}
+
+output "osquery_tls_internal_url" {
+  description = "In-cluster URL for the osquery-tls TLS endpoint"
+  value       = module.osquery_tls.internal_url
 }
