@@ -23,6 +23,7 @@ const AGENTS_HOST = process.env.AGENTS_URL || 'http://localhost:8001';
 // gateway (services/api/app/api/v1/endpoints/fusion.py).
 const FUSION_HOST = process.env.FUSION_URL || '';
 const ENRICHMENT_HOST = process.env.ENRICHMENT_URL || 'http://localhost:8083';
+const OSQUERY_TLS_HOST = process.env.OSQUERY_TLS_URL || 'http://localhost:8090';
 
 const nextConfig = {
   reactStrictMode: true,
@@ -62,6 +63,7 @@ const nextConfig = {
     NEXT_PUBLIC_TENANT_ID: process.env.NEXT_PUBLIC_TENANT_ID || 'default',
     NEXT_PUBLIC_PURPLE_TEAM_API: process.env.NEXT_PUBLIC_PURPLE_TEAM_API || '',
     NEXT_PUBLIC_HONEYTOKENS_URL: process.env.NEXT_PUBLIC_HONEYTOKENS_URL || '',
+    NEXT_PUBLIC_OSQUERY_TLS_URL: process.env.NEXT_PUBLIC_OSQUERY_TLS_URL || '',
   },
   // ─── Same-origin proxy rules ─────────────────────────────────────────────
   //
@@ -136,6 +138,11 @@ const nextConfig = {
       {
         source: '/api/v1/hunts',
         destination: `${AGENTS_HOST}/api/v1/hunts`,
+      },
+      // osquery-TLS service: pack catalog, FIM events, distributed queries
+      {
+        source: '/api/v1/osquery/:path*',
+        destination: `${OSQUERY_TLS_HOST}/api/v1/osquery/:path*`,
       },
       // Enrichment service (Go service; paths differ from /api/v1 prefix)
       {

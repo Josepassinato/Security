@@ -8,7 +8,9 @@ from app.api.v1.endpoints import (
     distributed_status,
     distributed_write,
     enroll,
+    fim,
     log,
+    packs,
 )
 
 router = APIRouter(prefix="/api/v1/osquery")
@@ -19,3 +21,5 @@ router.include_router(distributed_read.router)
 router.include_router(distributed_write.router)
 router.include_router(distributed_enqueue.router)
 router.include_router(distributed_status.router)
+router.include_router(packs.router)
+router.include_router(fim.router)

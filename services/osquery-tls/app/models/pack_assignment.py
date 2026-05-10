@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from sqlalchemy import DateTime, Integer, String, UniqueConstraint
+from sqlalchemy import Boolean, DateTime, Integer, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import func
 
@@ -11,7 +11,7 @@ from app.db.base import Base
 
 
 class OsqueryPackAssignment(Base):
-    """Maps a tenant to a named osquery pack (resolved in PR5)."""
+    """Maps a tenant to a named osquery pack (managed in PR5)."""
 
     __tablename__ = "osquery_pack_assignment"
     __table_args__ = (
@@ -21,6 +21,7 @@ class OsqueryPackAssignment(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     tenant_id: Mapped[str] = mapped_column(String(64), nullable=False)
     pack_id: Mapped[str] = mapped_column(String(128), nullable=False)
+    enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     assigned_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )

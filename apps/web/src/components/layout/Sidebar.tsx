@@ -229,6 +229,11 @@ const navSections: NavSection[] = [
         icon: <MarketplaceIcon />,
       },
       {
+        label: 'File Integrity (FIM)',
+        href: '/fim',
+        icon: <FolderIcon />,
+      },
+      {
         label: 'Honeytokens',
         href: '/honeytokens',
         icon: <EyeIcon />,
