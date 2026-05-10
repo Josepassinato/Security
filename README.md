@@ -184,6 +184,22 @@ Shipped by Beenu Arora <beenu@cyble.com>. All 16 workstreams:
 
 Everything ships under MIT. Fork it, self-host it, audit it, extend it.
 
+### v7.0 addendum — osquery integration (PR1–PR6, 2026-05-10)
+
+Six-PR osquery integration shipped on top of the v7.0 buyer-value plan:
+
+- **osquery TLS service** (`services/osquery-tls/`) — FastAPI server implementing the osquery TLS enrollment/configuration/logging protocol. Multi-tenant: each tenant gets its own enrollment secret. Nodes enroll, receive packs, and POST results back.
+- **osctrl + FleetDM connectors** — two new connectors pull query results and status events from existing osquery fleet managers. Normalized to OCSF; FIM and process-event detections auto-fire.
+- **Pack management** — YAML pack loader with 5 curated packs (discovery, process-events, network-events, browser-extensions, file-integrity). Tenant-aware resolver merges global + per-tenant overrides; REST catalog with `?format=fleet|osquery` render modes.
+- **FIM pipeline** — ingestion endpoint + query/summary API + React FIM dashboard (live table + summary card) + 4 new detection rules (SSH key modification, sudoers changes, cron modification, world-writable files).
+- **Custom osquery extension binary** (`services/osquery-extensions/`) — standalone Go binary adding 5 virtual tables to any osquery instance:
+  - `aisoc_pending_actions` — HITL response actions queued for the host
+  - `aisoc_alert_cache` — alerts fired against the host (last 24 h)
+  - `aisoc_attck_persistence` — approved persistence baseline (MITRE T1547 diff)
+  - `aisoc_kernel_modules_verified` — loaded kernel modules with signing status (Linux)
+  - `aisoc_browser_extensions` — installed browser extensions per user profile
+- **Cross-platform CI** — GitHub Actions build matrix (`linux/amd64`, `linux/arm64`, `darwin/amd64`, `darwin/arm64`, `windows/amd64`) with cosign keyless signing on every `ext-v*` tag.
+
 ---
 
 ## Highlights

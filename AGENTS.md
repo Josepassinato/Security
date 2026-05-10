@@ -15,7 +15,7 @@
 - Project: AiSOC — open-source, AI-powered Security Operations Center maintained by the AiSOC community under the MIT license.
 - Monorepo managed with pnpm (pnpm@8.15.1) and Turborepo; workspaces defined in `apps/*` and `packages/*`.
 - Apps: `apps/web` (Next.js frontend), `apps/docs` (documentation site).
-- Backend services in `services/`: `api` (FastAPI/Python 3.11), `agents`, `alert-fusion`, `connectors`, `demo-producer`, `enrichment`, `fusion`, `ingest`, `realtime`, `threatintel`, `ocsf`.
+- Backend services in `services/`: `api` (FastAPI/Python 3.11), `agents`, `alert-fusion`, `connectors`, `demo-producer`, `enrichment`, `fusion`, `ingest`, `realtime`, `threatintel`, `ocsf`, `osquery-tls` (FastAPI osquery TLS enrollment/log server), `osquery-extensions` (Go module — 5 virtual tables).
 - API service stack: FastAPI, Uvicorn, SQLAlchemy (async), asyncpg (PostgreSQL), Alembic (migrations), Redis, python-jose (JWT), Pydantic v2.
 - Packages: `packages/types` (shared TypeScript types), `packages/ui`, `packages/sdk-go`, `packages/sdk-py`, `packages/sdk-ts`, `packages/plugin-sdk-go`, `packages/plugin-sdk-py`.
 - Docker Compose used for local dev (`docker-compose.dev.yml`); Terraform in `infra/terraform/` for infrastructure.
@@ -45,3 +45,12 @@
   - WS-G: Slack Bolt service at `services/slack-bot/` with `/aisoc` ChatOps commands (WS-G1); executive digest with auto-generated PDF + weekly scheduler in `services/api/app/services/digest_pdf.py` and `services/api/app/api/v1/endpoints/reports.py` (WS-G2).
   - WS-H: LLM cost dashboard (`services/api/app/services/cost_dashboard.py` + `apps/web/src/app/(admin)/costs/page.tsx` — WS-H1); BYOK per-tenant LLM credentials vault-encrypted via `CredentialVault`, model `TenantLlmCredential`, settings UI in `apps/web/src/components/settings/SettingsView.tsx` (WS-H2); compliance audit export CSV + HTML bundles at `services/api/app/services/audit_export.py` (WS-H3); air-gapped / local-LLM mode via Ollama/LiteLLM overlay + zero-external-call demo seed (WS-H4).
   - Threat actor attribution engine v0 at `services/threatintel/` (rebased, hardened, open as PR #43).
+- osquery TLS + Extensions plan (PR1–PR6, shipped 2026-05-10):
+  - `services/osquery-tls/` — FastAPI osquery TLS server (enrollment, configuration, logging). Multi-tenant via enrollment secrets; packs delivered as `OsqueryConfigResponse`.
+  - osctrl + FleetDM connectors pull query results; FIM and process-event detections auto-fire against normalized events.
+  - Pack loader reads YAML from `services/osquery-tls/app/packs/`; tenant-aware resolver merges global + per-tenant overrides. REST catalog at `GET/POST/PATCH /api/v1/osquery/tenants/{id}/packs` with `?format=fleet|osquery` render.
+  - FIM pipeline: `POST /api/v1/osquery/fim/events` ingestion, `/fim/summary` query API, React dashboard (`FimEventTable.tsx`, `FimSummaryCard.tsx`), 4 detection rules `det-endpoint-281..284`.
+  - `services/osquery-extensions/` — Go module (osquery-go) with 5 virtual tables: `aisoc_pending_actions`, `aisoc_alert_cache`, `aisoc_attck_persistence`, `aisoc_kernel_modules_verified`, `aisoc_browser_extensions`.
+  - Extensions API stubs at `services/osquery-tls/app/api/v1/endpoints/extensions.py` — `/api/v1/osquery/extensions/{pending-actions,alert-cache,persistence-baseline}`.
+  - CI: `.github/workflows/build-extensions.yml` — cross-platform build matrix (linux/amd64, linux/arm64, darwin/amd64, darwin/arm64, windows/amd64) with cosign keyless signing on `ext-v*` tags.
+  - Docs: `apps/docs/docs/connectors/osquery-extensions.md` + sidebar entry.

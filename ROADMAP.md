@@ -186,6 +186,10 @@ Implemented and reviewed by Beenu Arora <beenu@cyble.com>.
 - [x] Case auto-summary + PDF export (`case_summary.py` + `case_summary_html.py`)
 - [x] Investigation timeline (replayable) (`InvestigationTimeline.tsx`)
 - [x] Playbook gallery with 12 curated packs + GitHub PR integration for detection proposals
+- [x] osquery pack management — YAML pack loader, 5 curated packs, tenant-aware resolver, pack catalog API, `?format=fleet|osquery` render modes
+- [x] FIM pipeline — ingestion endpoint, event query / summary API, React FIM dashboard (table + summary card), 4 FIM detection rules (det-endpoint-281..284)
+- [x] Custom osquery extension binary — 5 virtual tables (`aisoc_pending_actions`, `aisoc_alert_cache`, `aisoc_attck_persistence`, `aisoc_kernel_modules_verified`, `aisoc_browser_extensions`)
+- [x] Extensions API endpoints (`/api/v1/osquery/extensions/*`) and cross-platform CI build matrix with cosign signing
 - [ ] Mobile responder console (React Native) — triage and acknowledge from phone _(deferred to v8.0)_
 - [ ] Plugin publishing marketplace v3 (commercial plugins, revenue sharing) _(deferred to v8.0)_
 
@@ -203,6 +207,10 @@ Implemented and reviewed by Beenu Arora <beenu@cyble.com>.
 - SLA breach predictor (ML model on historical MTTR data)
 - Incident cost estimator (breach impact calculator)
 - SOC-in-a-box one-click cloud deploy (Terraform module for AWS / GCP)
+- osquery live-query response action — push ad-hoc queries to hosts via playbooks
+- FleetDM connector (alternative/complement to osctrl)
+- Wire `aisoc_pending_actions` / `aisoc_alert_cache` to live case/alert DB tables (replace stubs)
+- osquery extension signing verification in CI (`cosign verify-blob` gate)
 
 ---
 
