@@ -1,5 +1,8 @@
 import Link from 'next/link';
+import packageJson from '../../../package.json';
 import { Logo } from './Logo';
+
+const APP_VERSION = packageJson.version;
 
 const COLUMNS = [
   {
@@ -112,7 +115,7 @@ export function Footer() {
             rel="noreferrer"
             className="font-mono hover:text-white"
           >
-            v6.1.0
+            v{APP_VERSION}
           </a>
         </div>
       </div>

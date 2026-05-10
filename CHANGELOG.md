@@ -5,6 +5,19 @@ All notable changes to AiSOC will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.0.2] — 2026-05-10
+
+### Fixed — Version alignment, landing-page footer, documentation
+
+- **`apps/web/package.json`**: Bumped `version` to `7.0.2`; sidebar now shows `v7.0.2` dynamically.
+- **`apps/web/src/components/landing/Footer.tsx`**: Replaced hard-coded `v6.1.0` string with a
+  dynamic import of `package.json` so the landing page footer always reflects the current package version.
+- **`README.md`**: Updated version badge to `7.0.1`; added `osquery-tls` (port 8090) and
+  `osquery-extensions` entries to the services table, the Swagger-UI URL table, and the
+  directory tree; added osquery TLS server URL to the dev surface table.
+
+---
+
 ## [7.0.1] — 2026-05-10
 
 ### Fixed — Web app hardening: CodeQL, hydration, Turbopack config

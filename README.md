@@ -9,7 +9,7 @@ An open-source, self-hostable AI SOC. The agent's prompts, tool calls, and ratio
 [![License: MIT](https://img.shields.io/badge/License-MIT-22c55e.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 [![Public eval harness: CI-gated](https://img.shields.io/badge/eval%20harness-CI--gated-2563eb?style=flat-square)](apps/docs/docs/benchmark.md)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-8b5cf6?style=flat-square)](CONTRIBUTING.md)
-[![Version](https://img.shields.io/badge/version-7.0.0-f59e0b?style=flat-square)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-7.0.2-f59e0b?style=flat-square)](CHANGELOG.md)
 
 [Live demo](https://tryaisoc.com) · [How AiSOC compares](#how-aisoc-compares) · [Public eval harness](apps/docs/docs/benchmark.md) · [Deploy in 60 seconds](#deploy-in-60-seconds) · [Deployment options](#deployment-options) · [Architecture](#architecture) · [Docs](apps/docs/)
 
@@ -342,6 +342,8 @@ flowchart LR
 | `ueba` | Python | 8007 | User & Entity Behavior Analytics |
 | `honeytokens` | Python | 8008 | Honeytoken lifecycle + webhook alerting |
 | `purple-team` | Python | 8006 | Atomic Red Team + Caldera + ATT&CK heatmap + detection drift snapshots |
+| `osquery-tls` | Python | 8090 | Native osquery TLS server — enroll nodes, distribute packs, stream FIM/process/network telemetry |
+| `osquery-extensions` | Python | — | Custom osquery extensions (AI-powered threat intel table, ML anomaly score table) |
 | `ingest` | Go | 8081 | OCSF normalization + Shodan/CVE |
 | `enrichment` | Go | 8080 | IOC enrichment (VT, AbuseIPDB, GreyNoise) |
 
@@ -625,6 +627,7 @@ The harness runs deterministic substrate code (extractors, fusion, templates, ju
 | UEBA | http://localhost:8007/docs | Behavioural analytics |
 | Honeytokens | http://localhost:8008/docs | Honeytoken lifecycle |
 | Purple Team | http://localhost:8006/docs | Adversary emulation |
+| osquery TLS | http://localhost:8090/docs | Node enrolment + pack distribution + FIM stream |
 | Realtime WS | ws://localhost:8086/ws/alerts | Live alert channel |
 | Neo4j | http://localhost:7474 | `neo4j` / `neo4j_dev_secret` |
 | Grafana | http://localhost:3001 | `admin` / `admin` (`monitoring` profile) |
@@ -658,6 +661,8 @@ AiSOC/
 │   ├── ueba/             # Python · User & Entity Behavior Analytics
 │   ├── honeytokens/      # Python · deceptive credential traps
 │   ├── purple-team/      # Python · Atomic Red Team + Caldera + ATT&CK
+│   ├── osquery-tls/      # Python · native osquery TLS server + FIM + pack distribution
+│   ├── osquery-extensions/ # Python · AI threat-intel table + ML anomaly score table
 │   └── mcp/              # TypeScript · Model Context Protocol server (@aisoc/mcp)
 ├── integrations/         # Connector implementations (CrowdStrike, Splunk, AWS, …)
 ├── packages/
