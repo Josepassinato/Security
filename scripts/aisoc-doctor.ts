@@ -127,26 +127,94 @@ async function checkDocker() {
   }
   record("docker available", "OK", docker);
 
+  // Enforce Compose v2+. Compose v1 (the standalone `docker-compose` Python
+  // binary) does not register a `compose` Docker subcommand, so calling
+  // `docker compose version` on a v1-only system errors out and tryRun
+  // returns null. But on systems that *do* have v2, we want to enforce a
+  // minimum of v2.0 because earlier alpha builds had healthcheck and
+  // depends_on bugs that surface as opaque container failures.
   const compose = tryRun("docker compose version");
   if (!compose) {
-    record("docker compose v2", "FAIL", "docker compose plugin not installed");
+    record(
+      "docker compose v2",
+      "FAIL",
+      "docker compose plugin not installed (Compose v1's `docker-compose` is not supported)"
+    );
     return;
   }
-  record("docker compose v2", "OK", compose);
+  const versionMatch = compose.match(/v?(\d+)\.(\d+)\.(\d+)/);
+  if (!versionMatch) {
+    record("docker compose v2", "WARN", `unrecognized version string: ${compose}`);
+  } else {
+    const [, major, minor] = versionMatch;
+    const majorNum = parseInt(major, 10);
+    if (majorNum < 2) {
+      record(
+        "docker compose v2",
+        "FAIL",
+        `Compose v${major}.${minor} detected — AiSOC requires v2.0+`
+      );
+      return;
+    }
+    record("docker compose v2", "OK", compose);
+  }
 
-  const ps = tryRun("docker compose ps --format json");
+  // Docker daemon resource allocation. The #1 source of opaque
+  // "container exited" failures on a clean clone is Docker Desktop being
+  // under-provisioned: OpenSearch + ClickHouse + Neo4j + Kafka together
+  // reserve ~3.5 GB at idle, and the full stack peaks around 5-6 GB.
+  const info = tryRun("docker info --format json");
+  if (info) {
+    try {
+      const parsed = JSON.parse(info);
+      const memBytes: number = parsed.MemTotal ?? 0;
+      const memGb = memBytes / 1024 / 1024 / 1024;
+      const memDetail = `Docker daemon has ${memGb.toFixed(1)} GB RAM allocated`;
+      if (memGb < 4) {
+        record(
+          "docker RAM allocation",
+          "FAIL",
+          `${memDetail} — full stack needs 6 GB+, demo stack needs 4 GB+ (Docker Desktop → Settings → Resources)`
+        );
+      } else if (memGb < 6) {
+        record(
+          "docker RAM allocation",
+          "WARN",
+          `${memDetail} — sufficient for demo stack only; full dev stack will OOM-kill (raise to 6 GB+ in Docker Desktop → Settings → Resources)`
+        );
+      } else {
+        record("docker RAM allocation", "OK", memDetail);
+      }
+    } catch {
+      record("docker RAM allocation", "WARN", "could not parse `docker info` output");
+    }
+  } else {
+    // `docker info` failing usually means the daemon is not running.
+    // The container check below will surface a clearer error in that case;
+    // here we just note the resource probe was skipped.
+    record("docker RAM allocation", "WARN", "could not query daemon (is Docker running?)");
+  }
+
+  // Use `docker ps -a` instead of `docker compose ps` so we discover
+  // containers across compose projects (the demo stack uses
+  // `-f docker-compose.demo.yml` which is a separate project) AND so we can
+  // distinguish "container never created" from "container exited" — the most
+  // common silent failure mode is the data tier (postgres, redis, kafka)
+  // exiting 255 after a Docker Desktop restart while upper services keep
+  // running. The `aisoc-` prefix on every container_name in both compose
+  // files makes this a safe filter.
+  const ps = tryRun("docker ps -a --format json --filter name=aisoc-");
   if (!ps) {
     record(
       "containers running",
       "WARN",
-      'no compose stack running — run `docker compose up -d`'
+      'no AiSOC containers running — run `pnpm aisoc:demo` (slim) or `docker compose up -d` (full)'
     );
     return;
   }
 
-  // docker compose ps --format json prints ndjson on Compose v2
   const lines = ps.split("\n").filter((l) => l.trim());
-  const services = lines
+  const containers = lines
     .map((l) => {
       try {
         return JSON.parse(l);
@@ -156,14 +224,46 @@ async function checkDocker() {
     })
     .filter(Boolean);
 
-  if (services.length === 0) {
-    record("containers running", "WARN", "no services up");
+  if (containers.length === 0) {
+    record(
+      "containers running",
+      "WARN",
+      "no AiSOC containers up — run `pnpm aisoc:demo` (slim) or `docker compose up -d` (full)"
+    );
     return;
   }
 
-  // The doctor runs against either the full stack (`aisoc-*`) or the
-  // smaller demo stack (`aisoc-demo-*`). We accept either prefix for the
-  // core services so `pnpm aisoc:demo` users don't see false FAILs.
+  // Detect which stack flavor is present so the per-role check below can give
+  // an accurate "looked for X" message and so demo users aren't told to chase
+  // services (kafka-ui, neo4j, etc.) that the demo stack intentionally omits.
+  // We classify by container *name*, not state, because a wedged data-tier
+  // container is still informative about which stack the user tried to run.
+  const hasDemo = containers.some((c: any) =>
+    typeof c.Names === "string" && c.Names.startsWith("aisoc-demo-")
+  );
+  const hasFull = containers.some(
+    (c: any) =>
+      typeof c.Names === "string" &&
+      c.Names.startsWith("aisoc-") &&
+      !c.Names.startsWith("aisoc-demo-")
+  );
+  const runningCount = containers.filter((c: any) => c.State === "running").length;
+  const stackLabel = hasDemo && hasFull
+    ? "demo + full (mixed)"
+    : hasDemo
+      ? "demo"
+      : hasFull
+        ? "full"
+        : "unknown";
+  record(
+    "stack flavor",
+    "OK",
+    `${stackLabel} (${runningCount}/${containers.length} container(s) running)`
+  );
+
+  // The full stack uses `aisoc-<role>` names; the demo stack uses
+  // `aisoc-demo-<role>`. We accept either prefix for the core services so
+  // `pnpm aisoc:demo` users don't see false FAILs.
   const expectedRoles = [
     "api",
     "agents",
@@ -174,19 +274,44 @@ async function checkDocker() {
   ];
   for (const role of expectedRoles) {
     const candidates = [`aisoc-${role}`, `aisoc-demo-${role}`];
-    const found = services.find((s: any) => candidates.includes(s.Name));
+    const found = containers.find((c: any) => candidates.includes(c.Names));
     if (!found) {
-      record(`container ${role}`, "FAIL", `not running (looked for ${candidates.join(" or ")})`);
+      // No container with this name in either stack — the user probably hasn't
+      // booted the corresponding compose file yet, so this is a hint, not a
+      // hard failure (the API check below will tell them whether the stack
+      // is actually broken).
+      record(
+        `container ${role}`,
+        "WARN",
+        `not present (looked for ${candidates.join(" or ")}) — start the stack with \`pnpm aisoc:demo\` or \`docker compose up -d\``
+      );
       continue;
     }
-    const healthy =
-      found.Health === "healthy" ||
-      found.Health === "" /* no healthcheck */ ||
-      found.State === "running";
+    // `docker ps --format json` exposes Status as a free-text string like
+    // "Up About an hour (healthy)" / "Up 2 minutes (starting)" / "Exited
+    // (255) About an hour ago". Parse the parenthetical for health, and
+    // treat "no parens" as "no healthcheck configured" — which we accept as
+    // healthy if the container is running.
+    const status: string = found.Status ?? "";
+    const state: string = found.State ?? "";
+    const healthMatch = status.match(/\(([^)]+)\)/);
+    const health = healthMatch ? healthMatch[1] : "";
+    if (state !== "running") {
+      // The most actionable signal we can give: the container exists but
+      // exited. The exit code (e.g. "Exited (255)") is in the status string
+      // and is exactly what a user should grep `docker logs` for.
+      record(
+        `container ${role}`,
+        "FAIL",
+        `${found.Names} ${status.toLowerCase()} — run \`docker logs ${found.Names}\``
+      );
+      continue;
+    }
+    const ok = health === "" || health === "healthy";
     record(
       `container ${role}`,
-      healthy ? "OK" : "FAIL",
-      `${found.Name} state=${found.State}${found.Health ? ` health=${found.Health}` : ""}`
+      ok ? "OK" : health === "starting" ? "WARN" : "FAIL",
+      `${found.Names} state=${state}${health ? ` health=${health}` : ""}`
     );
   }
 }

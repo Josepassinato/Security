@@ -5,6 +5,107 @@ All notable changes to AiSOC will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.1.1] — 2026-05-10
+
+### Fixed — `docker compose up -d` first-touch experience
+
+Hotfix in response to user-reported `docker compose up -d` failures on a clean
+clone. None of these are functional changes to the running services — every
+fix is in the boot path, the boot documentation, or the pre-flight check.
+
+#### Compose hygiene
+
+- **`docker-compose.yml`**: Removed the obsolete `version: '3.8'` declaration,
+  which Docker Compose v2 ignores and warns about on every invocation
+  (`level=warning msg="...the attribute version is obsolete..."`). The warning
+  is harmless but is the very first line of output a new user sees, which
+  signals "this project is broken" before the build even starts.
+- **`docker-compose.yml`**: Added `mem_limit` + `mem_reservation` to the four
+  data-tier containers most likely to OOM-kill on an under-provisioned Docker
+  Desktop:
+  - `kafka`: 1.5 GB limit / 1 GB reservation
+  - `clickhouse`: 1 GB limit / 768 MB reservation
+  - `opensearch`: 1 GB limit / 768 MB reservation
+  - `neo4j`: 1 GB limit / 768 MB reservation
+
+  Without these caps, a 4 GB Docker Desktop allocation (the default on macOS)
+  would silently OOM-kill OpenSearch or Neo4j during JVM warmup, leaving the
+  rest of the stack running but the alert/case feeds permanently empty.
+- **`docker-compose.yml`** (`osquery-tls` service): Fixed `AISOC_INGEST_BASE_URL`
+  pointing at the non-existent `ingest:8080` (the actual service is named
+  `ingest-worker`). Also remapped the host port from `8007` to `8091` to
+  resolve a host-port collision with the `ueba` service. Both bugs only
+  surfaced if the user actually queried the osquery TLS server, which is why
+  they survived the previous release; running `docker compose up -d` would
+  succeed but `osquery-tls` would log connection-refused errors on every
+  agent check-in.
+
+#### README rewrite
+
+- **`README.md`** — *Quick start*: Restructured so `pnpm aisoc:demo` is the
+  canonical first-touch path (4 prebuilt images, ~90s to a working SOC
+  console) and `docker compose up -d` is explicitly labelled the
+  "developer-build path" (22 services, 10–20 min cold build, requires Docker
+  with at least 6 GB RAM allocated). The previous structure presented both
+  paths as equally valid, which led users with stock Docker Desktop settings
+  straight into a stack that physically cannot fit in the daemon's memory.
+- **`README.md`** — *Service map*: Updated `osquery-tls` from `:8090` to `:8091`
+  and added a `Kafka UI` row at `:8090`, matching the compose hygiene fix
+  above.
+- **`README.md`** — *Boot section*: Added explicit timing expectations
+  ("~5 GB of base image pulls + 10–20 min of build on a typical laptop"), a
+  recommendation to run `pnpm aisoc:doctor` before kicking off the build, and
+  a troubleshooting note pointing under-provisioned Docker Desktop installs
+  at *Settings → Resources*.
+
+#### `aisoc:doctor` hardening
+
+The pre-flight check that the user is now told to run before
+`docker compose up -d` was previously useless to first-time users — its
+container check used `docker compose ps` (which is project-scoped and
+therefore couldn't see containers launched by a sibling compose file), and
+it had no opinion on whether Docker itself was provisioned to actually run
+the stack. This release fixes both:
+
+- **Docker Compose plugin enforcement**: New check that fails with an
+  actionable error if the user only has Compose v1 (`docker-compose` Python
+  binary) on PATH, which is now end-of-life and lacks healthcheck semantics
+  the stack depends on.
+- **Docker daemon RAM check**: Reads `docker info --format json` and asserts
+  at least 6 GB allocated for the full stack (4 GB for the demo stack).
+  Anything less hard-fails with a pointer to *Docker Desktop → Settings →
+  Resources*. This single check would have prevented every variant of "the
+  build succeeds but `docker compose ps` shows half my containers in a
+  restart loop" reported to date.
+- **Cross-compose-project container discovery**: Replaced `docker compose ps`
+  with `docker ps -a --format json --filter name=aisoc-`. The doctor now
+  detects whether the user is on the demo stack (`aisoc-demo-*` containers)
+  or full stack (`aisoc-*` containers) and accepts either as a valid boot,
+  so demo users no longer see false `FAIL` rows for services the demo
+  intentionally omits (kafka-ui, neo4j, etc.).
+- **Exit-code aware container reporting**: When a container exists but is
+  not running, the doctor now emits the exact `Exited (255)` status from
+  `docker ps` and tells the user `run \`docker logs <container>\``. The
+  previous output ("not running") gave the user no signal about whether
+  the container had crashed, never started, or been manually stopped.
+- **Stack flavor summary**: A new `stack flavor` row reports `demo`,
+  `full`, or `mixed`, plus a running/total container count
+  (`(4/8 container(s) running)`) so the user can see at a glance whether
+  they're looking at a half-broken stack or a fully-broken stack.
+
+### Changed
+
+- **`apps/web/package.json`**: Bumped to `7.1.1`.
+
+### Migration notes
+
+None. This is a docker-compose hygiene release — no service code,
+no database schema, no API surface area changed. Pull, re-run
+`pnpm aisoc:doctor`, and re-run `docker compose up -d` (the
+`osquery-tls` port change means existing deployments need to update any
+osquery-agent `tls_hostname:tls_port` config from `localhost:8007` to
+`localhost:8091`, but no one was using that interface yet).
+
 ## [7.1.0] — 2026-05-10
 
 ### Added — Cloud Security Coverage Wave

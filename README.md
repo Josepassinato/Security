@@ -343,7 +343,7 @@ flowchart LR
 | `ueba` | Python | 8007 | User & Entity Behavior Analytics |
 | `honeytokens` | Python | 8008 | Honeytoken lifecycle + webhook alerting |
 | `purple-team` | Python | 8006 | Atomic Red Team + Caldera + ATT&CK heatmap + detection drift snapshots |
-| `osquery-tls` | Python | 8090 | Native osquery TLS server — enroll nodes, distribute packs, stream FIM/process/network telemetry |
+| `osquery-tls` | Python | 8091 | Native osquery TLS server — enroll nodes, distribute packs, stream FIM/process/network telemetry |
 | `osquery-extensions` | Python | — | Custom osquery extensions (AI-powered threat intel table, ML anomaly score table) |
 | `ingest` | Go | 8081 | OCSF normalization + Shodan/CVE |
 | `enrichment` | Go | 8080 | IOC enrichment (VT, AbuseIPDB, GreyNoise) |
@@ -525,11 +525,19 @@ upstream so anyone can do the same on their own domain.
 
 ### Full stack (development)
 
+> **Heads-up — this is the developer-build path.**
+> If you just want to *see* AiSOC investigate cases in your browser, use [`pnpm aisoc:demo`](#one-shot-demo) above instead — it pulls prebuilt images from `ghcr.io/beenuar/*` and is up in ~5 minutes.
+> The full stack below builds **22 services from source** (Python, Go, Node, Next.js) and brings up a heavy datastore tier (Postgres, Redis, Kafka, ClickHouse, OpenSearch, Neo4j, Qdrant). Only use this path if you're hacking on the source.
+
 #### Prerequisites
 
-- Docker 24+ and Docker Compose v2
-- Node.js 20+ and pnpm 8+
-- Go 1.21+ and Python 3.11+ (only for local service hacking)
+- **Docker 24+** with **Docker Compose v2** (built into Docker Desktop). Run `docker compose version` to confirm — Compose v1's `docker-compose` is not supported.
+- **Docker resources**: at minimum **6 GB of RAM** and **20 GB of free disk** allocated to the Docker daemon. On Docker Desktop: *Settings → Resources*. The OpenSearch + ClickHouse + Neo4j + Kafka quartet alone reserves ~3.5 GB at idle; under-provisioning causes silent OOM-kills that surface as opaque "container exited" errors.
+- **Node.js 20+** and **pnpm 8+** (`corepack enable` then `corepack prepare pnpm@8.15.1 --activate`).
+- **Go 1.21+** and **Python 3.11+** are only required if you plan to run individual services *outside* the compose stack.
+- A free **8 GB of disk** for the build cache and image layers, on top of the 20 GB allocated to Docker.
+
+Run `pnpm aisoc:doctor` after cloning — it sanity-checks Docker, Compose v2, allocated RAM, and host port availability before you spend 10 minutes on a build that's destined to fail.
 
 #### 1. Clone
 
@@ -573,11 +581,20 @@ ATOMIC_RED_TEAM_PATH=/opt/atomic-red-team/atomics
 #### 3. Boot
 
 ```bash
-docker compose up -d
+# Optional: pre-flight check (Docker daemon, RAM, ports) before a long build
+pnpm aisoc:doctor
+
+# Build and start all 22 services. Cold first run: 10-20 min (build) + ~90s (warm-up).
+# Subsequent runs reuse cached layers and start in ~90s.
+docker compose up -d --build
+
+# Watch services come up
 docker compose ps
 ```
 
-First start takes ~60s while datastores warm up.
+The first invocation on a clean checkout will pull ~5 GB of base images and compile every Python, Go, and Next.js service from source. Plan for **10-20 minutes** on a typical laptop. After that, layers are cached and `docker compose up -d` is roughly 90 seconds.
+
+If the build aborts, check Docker Desktop *Settings → Resources* — under-provisioning RAM is the #1 cause of opaque failures, particularly for the Kafka, OpenSearch, ClickHouse, and Neo4j containers.
 
 #### 4. Seed demo data
 
@@ -628,7 +645,8 @@ The harness runs deterministic substrate code (extractors, fusion, templates, ju
 | UEBA | http://localhost:8007/docs | Behavioural analytics |
 | Honeytokens | http://localhost:8008/docs | Honeytoken lifecycle |
 | Purple Team | http://localhost:8006/docs | Adversary emulation |
-| osquery TLS | http://localhost:8090/docs | Node enrolment + pack distribution + FIM stream |
+| osquery TLS | http://localhost:8091/docs | Node enrolment + pack distribution + FIM stream (`osquery` profile) |
+| Kafka UI | http://localhost:8090 | Kafka topic + consumer-group inspector |
 | Realtime WS | ws://localhost:8086/ws/alerts | Live alert channel |
 | Neo4j | http://localhost:7474 | `neo4j` / `neo4j_dev_secret` |
 | Grafana | http://localhost:3001 | `admin` / `admin` (`monitoring` profile) |

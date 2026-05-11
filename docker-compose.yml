@@ -15,8 +15,6 @@
 # password while you're there.
 ###############################################################################
 
-version: '3.8'
-
 networks:
   aisoc:
     driver: bridge
@@ -106,6 +104,10 @@ services:
       - aisoc
     volumes:
       - kafka_data:/var/lib/kafka/data
+    # Memory caps surface OOMKiller events as a clear container exit instead of
+    # silent broker rebalances. Tune up if you raise KAFKA_HEAP_OPTS.
+    mem_limit: 1536m
+    mem_reservation: 1g
     healthcheck:
       test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
       interval: 15s
@@ -146,6 +148,8 @@ services:
       nofile:
         soft: 262144
         hard: 262144
+    mem_limit: 1g
+    mem_reservation: 768m
 
   opensearch:
     image: opensearchproject/opensearch:2.11.0
@@ -168,6 +172,8 @@ services:
       - "127.0.0.1:9200:9200"
     networks:
       - aisoc
+    mem_limit: 1g
+    mem_reservation: 768m
 
   qdrant:
     image: qdrant/qdrant:v1.7.0
@@ -196,6 +202,8 @@ services:
       - neo4j_logs:/logs
     networks:
       - aisoc
+    mem_limit: 1g
+    mem_reservation: 768m
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:7474 || exit 1"]
       interval: 15s
@@ -338,14 +346,18 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    # Host port 8007 was previously colliding with the `ueba` service's
+    # 127.0.0.1:8007 binding; remapped to 8091 here. UEBA still owns 8007.
     ports:
-      - "127.0.0.1:8007:8007"
+      - "127.0.0.1:8091:8007"
     profiles:
       - osquery
     environment:
       DATABASE_URL: postgresql+asyncpg://aisoc:aisoc_dev_secret@postgres:5432/aisoc
       AISOC_OSQUERY_TLS_ENROLL_SECRET: ${AISOC_OSQUERY_TLS_ENROLL_SECRET:-change-me-in-production}
-      AISOC_INGEST_BASE_URL: http://ingest:8080
+      # The ingest service is registered as `ingest-worker` in this compose
+      # file; the previous `http://ingest:8080` would not resolve via DNS.
+      AISOC_INGEST_BASE_URL: http://ingest-worker:8080
     networks:
       - aisoc
     restart: unless-stopped
