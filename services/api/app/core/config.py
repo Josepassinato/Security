@@ -153,7 +153,12 @@ class Settings(BaseSettings):
     WEEKLY_DIGEST_POLL_INTERVAL_SECONDS: int = 3600
 
     # Database
-    DATABASE_URL: PostgresDsn = "postgresql+asyncpg://aisoc:aisoc@localhost:5432/aisoc"  # type: ignore[assignment]
+    # The default points at the bundled compose Postgres with its dev password.
+    # In docker-compose.yml and .env.example the password is parameterised via
+    # ``POSTGRES_PASSWORD`` so a single env var rotates it across the stack;
+    # this default mirrors the compose default so ``aisoc serve`` works on a
+    # fresh clone with zero configuration.
+    DATABASE_URL: PostgresDsn = "postgresql+asyncpg://aisoc:aisoc_dev_secret@localhost:5432/aisoc"  # type: ignore[assignment]
     DATABASE_POOL_SIZE: int = 20
     DATABASE_MAX_OVERFLOW: int = 10
 
