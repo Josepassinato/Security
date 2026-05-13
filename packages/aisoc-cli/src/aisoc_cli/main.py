@@ -1,5 +1,5 @@
 """
-AiSOC CLI — scaffold, validate, and publish plugins and detections.
+AiSOC CLI — scaffold, validate, publish, and operate.
 
 Commands:
   aisoc plugin new <name>           Scaffold a typed plugin from disk templates
@@ -8,11 +8,18 @@ Commands:
   aisoc plugin publish [path]       Sign with Ed25519 key + POST to AiSOC API
   aisoc detection validate <file>   Validate Sigma rule syntax
   aisoc keygen                      Generate an Ed25519 signing key pair
+  aisoc serve [--detach]            Start the dev stack via docker compose
+  aisoc db upgrade                  Run database migrations against the dev stack
+  aisoc mcp serve [--transport]     Launch the MCP server for IDE assistants
+  aisoc mcp install --host <h>      Wire AiSOC into Claude / Cursor / Continue
 """
 from __future__ import annotations
 
 import base64
 import json
+import os
+import shutil
+import subprocess
 import sys
 from importlib import resources
 from pathlib import Path
@@ -454,6 +461,246 @@ def _basic_sigma_validate(rule_path: Path) -> None:
 
     console.print(f"[green bold]Basic Sigma validation passed[/green bold] — {rule_path}")
     console.print("[yellow]Install sigma-cli for full validation: pip install sigma-cli[/yellow]")
+
+
+# ── Repo / compose helpers ────────────────────────────────────────────────────
+
+def _find_repo_root(start: Path | None = None) -> Path:
+    """Walk up from ``start`` (default: cwd) looking for a docker-compose root.
+
+    A repo root here is any directory containing either ``docker-compose.yml``
+    or ``docker-compose.dev.yml``. Falls back to the current working directory
+    if no match is found, so the underlying ``docker compose`` invocation can
+    still produce a sensible error message.
+    """
+    current = (start or Path.cwd()).resolve()
+    for candidate in [current, *current.parents]:
+        if (candidate / "docker-compose.yml").exists() or (
+            candidate / "docker-compose.dev.yml"
+        ).exists():
+            return candidate
+    return current
+
+
+def _compose_file_arg(repo_root: Path) -> list[str]:
+    """Pick the right ``-f`` arg for docker compose.
+
+    Prefers ``docker-compose.dev.yml`` (the dev-aliased entry point) when
+    present, otherwise falls back to the base ``docker-compose.yml``.
+    """
+    dev = repo_root / "docker-compose.dev.yml"
+    if dev.exists():
+        return ["-f", str(dev)]
+    return ["-f", str(repo_root / "docker-compose.yml")]
+
+
+def _require_docker() -> None:
+    """Hard-fail with a friendly message if docker is not on PATH."""
+    if shutil.which("docker") is None:
+        console.print(
+            "[red bold]docker not found on PATH[/red bold]\n\n"
+            "Install Docker Desktop or Docker Engine, then retry. See:\n"
+            "  https://docs.docker.com/engine/install/"
+        )
+        sys.exit(1)
+
+
+# ── serve command ─────────────────────────────────────────────────────────────
+
+@cli.command()
+@click.option(
+    "--detach/--no-detach",
+    "detach",
+    default=True,
+    show_default=True,
+    help="Run docker compose up in detached mode (default: detached).",
+)
+@click.option(
+    "--build/--no-build",
+    "build",
+    default=False,
+    show_default=True,
+    help="Force a rebuild of changed images before starting.",
+)
+def serve(detach: bool, build: bool) -> None:
+    """Start the AiSOC dev stack via docker compose.
+
+    Resolves the closest docker-compose root walking up from the cwd, prefers
+    ``docker-compose.dev.yml`` if it exists, and shells out to
+    ``docker compose -f <file> up``. Treat this as the founder-style
+    one-liner equivalent of the documented ``docker compose up -d``.
+    """
+    _require_docker()
+    repo_root = _find_repo_root()
+    cmd = ["docker", "compose", *_compose_file_arg(repo_root), "up"]
+    if detach:
+        cmd.append("-d")
+    if build:
+        cmd.append("--build")
+
+    console.print(
+        Panel(
+            f"[bold]cwd:[/bold] {repo_root}\n"
+            f"[bold]cmd:[/bold] {' '.join(cmd)}",
+            title="[bold green]aisoc serve[/bold green]",
+        )
+    )
+    result = subprocess.run(cmd, cwd=str(repo_root))
+    if result.returncode != 0:
+        sys.exit(result.returncode)
+
+
+# ── db group ──────────────────────────────────────────────────────────────────
+
+@cli.group()
+def db() -> None:
+    """Database lifecycle commands."""
+
+
+@db.command("upgrade")
+@click.option(
+    "--service",
+    default="api",
+    show_default=True,
+    help="docker compose service that owns the migrations.",
+)
+def db_upgrade(service: str) -> None:
+    """Apply pending SQL migrations against the running dev stack.
+
+    Delegates to ``docker compose exec <service> python -m
+    app.scripts.run_migrations``, which is the custom forward-only migration
+    runner under ``services/api``. Requires the stack to already be up
+    (``aisoc serve``).
+    """
+    _require_docker()
+    repo_root = _find_repo_root()
+    cmd = [
+        "docker",
+        "compose",
+        *_compose_file_arg(repo_root),
+        "exec",
+        "-T",
+        service,
+        "python",
+        "-m",
+        "app.scripts.run_migrations",
+    ]
+    console.print(
+        Panel(
+            f"[bold]cwd:[/bold] {repo_root}\n"
+            f"[bold]cmd:[/bold] {' '.join(cmd)}",
+            title="[bold green]aisoc db upgrade[/bold green]",
+        )
+    )
+    result = subprocess.run(cmd, cwd=str(repo_root))
+    if result.returncode != 0:
+        console.print(
+            "[yellow]If the stack is not up yet, run [bold]aisoc serve[/bold] "
+            "first, then re-run this command.[/yellow]"
+        )
+        sys.exit(result.returncode)
+
+
+# ── mcp group ─────────────────────────────────────────────────────────────────
+
+@cli.group()
+def mcp() -> None:
+    """Model Context Protocol (MCP) commands."""
+
+
+def _resolve_mcp_entry(repo_root: Path) -> tuple[list[str], str] | None:
+    """Return (argv, label) for invoking the local MCP build, or None.
+
+    Looks for a built ``services/mcp/dist/index.js`` next to ``package.json``.
+    Returns None if the build artifact is missing, so callers can fall back to
+    ``npx @aisoc/mcp``.
+    """
+    dist = repo_root / "services" / "mcp" / "dist" / "index.js"
+    if dist.exists():
+        node = shutil.which("node") or "node"
+        return [node, str(dist)], f"node {dist.relative_to(repo_root)}"
+    return None
+
+
+def _mcp_argv(repo_root: Path, subcommand: str, extra: list[str]) -> tuple[list[str], str]:
+    """Build the argv for an MCP subcommand, preferring local dist over npx."""
+    local = _resolve_mcp_entry(repo_root)
+    if local is not None:
+        argv, label = local
+        return [*argv, subcommand, *extra], f"{label} {subcommand} {' '.join(extra)}".strip()
+
+    npx = shutil.which("npx") or "npx"
+    return (
+        [npx, "@aisoc/mcp", subcommand, *extra],
+        f"npx @aisoc/mcp {subcommand} {' '.join(extra)}".strip(),
+    )
+
+
+@mcp.command("serve")
+@click.option(
+    "--transport",
+    type=click.Choice(["stdio", "http"]),
+    default="stdio",
+    show_default=True,
+    help="MCP transport (stdio for IDE assistants, http for remote agents).",
+)
+@click.option(
+    "--port",
+    type=int,
+    default=None,
+    help="Port for the http transport (ignored when --transport=stdio).",
+)
+def mcp_serve(transport: str, port: int | None) -> None:
+    """Launch the MCP server that exposes AiSOC to IDE assistants.
+
+    Prefers the locally built ``services/mcp/dist/index.js`` (from
+    ``pnpm --filter @aisoc/mcp build``). Falls back to ``npx @aisoc/mcp``
+    when no local build is available.
+    """
+    repo_root = _find_repo_root()
+    extra: list[str] = ["--transport", transport]
+    if transport == "http" and port is not None:
+        extra.extend(["--port", str(port)])
+
+    argv, label = _mcp_argv(repo_root, "serve", extra)
+    console.print(
+        Panel(
+            f"[bold]cwd:[/bold] {repo_root}\n"
+            f"[bold]cmd:[/bold] {label}",
+            title="[bold green]aisoc mcp serve[/bold green]",
+        )
+    )
+    # Replace this process with node so stdio is fully transparent — required
+    # for IDE assistants that pipe MCP frames over stdin/stdout.
+    os.execvp(argv[0], argv)
+
+
+@mcp.command("install")
+@click.option(
+    "--host",
+    type=click.Choice(["claude", "cursor", "continue", "cody"]),
+    required=True,
+    help="IDE assistant to wire AiSOC into.",
+)
+def mcp_install(host: str) -> None:
+    """Register the AiSOC MCP server with the given IDE assistant.
+
+    Thin wrapper over ``aisoc-mcp install --host <host>`` that picks the local
+    dist build when available and falls back to ``npx @aisoc/mcp`` otherwise.
+    """
+    repo_root = _find_repo_root()
+    argv, label = _mcp_argv(repo_root, "install", ["--host", host])
+
+    console.print(
+        Panel(
+            f"[bold]cwd:[/bold] {repo_root}\n"
+            f"[bold]cmd:[/bold] {label}",
+            title="[bold green]aisoc mcp install[/bold green]",
+        )
+    )
+    result = subprocess.run(argv, cwd=str(repo_root))
+    if result.returncode != 0:
+        sys.exit(result.returncode)
 
 
 if __name__ == "__main__":
