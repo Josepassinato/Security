@@ -2,7 +2,7 @@
 
 import uuid
 from datetime import UTC, datetime
-from typing import Annotated
+from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel
@@ -11,6 +11,13 @@ from sqlalchemy import and_, func, select, update
 from app.api.v1.deps import AuthUser, DBSession, require_permission
 from app.db.rls import TenantDBSession
 from app.models.alert import Alert
+from app.services.alert_queue import (
+    AlertAlreadyClaimedError,
+    AlertNotFoundError,
+    QueueResponse,
+    build_queue,
+    claim_alert,
+)
 
 router = APIRouter(prefix="/alerts", tags=["alerts"])
 
@@ -165,6 +172,40 @@ async def get_alert_stats(
     )
 
 
+# NOTE: `/queue` is defined here — *before* `/{alert_id}` — on purpose.
+# FastAPI matches routes top-down, so a static path must precede the
+# parametric path of the same depth or the framework will route
+# `GET /alerts/queue` into `get_alert(alert_id="queue")` and 422.
+@router.get("/queue", response_model=QueueResponse)
+async def get_alert_queue(
+    current_user: Annotated[AuthUser, Depends(require_permission("alerts:read"))],
+    db: TenantDBSession,
+    owner: Literal["me", "unassigned", "all"] = Query(default="all"),
+    period: Literal["24h", "7d", "30d", "all"] = Query(default="all"),
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=50, ge=1, le=200),
+) -> QueueResponse:
+    """Investigation Queue workbench feed.
+
+    Returns the prioritised list of alerts the analyst should work on
+    next: alerts assigned to them, followed by unassigned
+    critical/high alerts, ordered by SLA due time.
+
+    The endpoint also returns ``counts`` for both buckets unconditionally
+    so the topbar badge and the workbench tabs can render without an
+    extra round-trip.
+    """
+    return await build_queue(
+        db,
+        tenant_id=current_user.tenant_id,
+        user_id=current_user.user_id,
+        owner=owner,
+        period=period,
+        page=page,
+        page_size=page_size,
+    )
+
+
 @router.get("/{alert_id}", response_model=AlertResponse)
 async def get_alert(
     alert_id: uuid.UUID,
@@ -236,6 +277,33 @@ async def escalate_alert(
     await db.execute(update(Alert).where(Alert.id == alert_id).values(severity=new_severity, updated_at=datetime.now(UTC)))
     await db.commit()
     await db.refresh(alert)
+
+    return AlertResponse.model_validate(alert)
+
+
+@router.post("/{alert_id}/claim", response_model=AlertResponse)
+async def claim_alert_endpoint(
+    alert_id: uuid.UUID,
+    current_user: Annotated[AuthUser, Depends(require_permission("alerts:write"))],
+    db: TenantDBSession,
+) -> AlertResponse:
+    """Atomically claim an unassigned alert for the current user.
+
+    Returns ``409 Conflict`` if the alert is already assigned to someone
+    else — the claim is a compare-and-set on ``assigned_to_id``, so two
+    analysts racing for the same alert never both win.
+    """
+    try:
+        alert = await claim_alert(
+            db,
+            alert_id=alert_id,
+            tenant_id=current_user.tenant_id,
+            user_id=current_user.user_id,
+        )
+    except AlertNotFoundError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    except AlertAlreadyClaimedError as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
 
     return AlertResponse.model_validate(alert)
 

@@ -437,6 +437,147 @@ export const alertsApi = {
     }),
 };
 
+// ─── Investigation Queue (W7) ───────────────────────────────────────────────
+//
+// The Investigation Queue is the analyst's working surface: one ranked list
+// of "what should I work on next?" sourced from the canonical alerts table.
+// The backend computes a virtual ``sla_due_at`` per row (``first_seen +
+// mttd_target`` for the alert's severity) and orders the queue by
+//
+//   1. assignment bucket (mine before unassigned), and
+//   2. ``sla_due_at`` ascending within each bucket.
+//
+// Snoozed and closed alerts are excluded server-side. Unassigned ``medium``
+// and below are also excluded — those are triaged in bulk on /alerts, not
+// one-by-one on the queue. See ``services/api/app/services/alert_queue.py``
+// for the full contract.
+
+export type QueueOwner = 'me' | 'unassigned' | 'all';
+export type QueuePeriod = '24h' | '7d' | '30d' | 'all';
+export type QueueBucket = 'mine' | 'unassigned';
+export type QueueRisk = 'low' | 'medium' | 'high';
+
+export interface QueueAsset {
+  /** ``host`` | ``user`` | ``ip`` | ``asset`` — chosen by the backend. */
+  kind: string;
+  value: string;
+  label?: string | null;
+}
+
+export interface QueueAction {
+  /** 1-indexed priority; lower is more urgent. */
+  priority: number;
+  action: string;
+  risk: QueueRisk;
+}
+
+export interface QueueItem {
+  id: string;
+  tenant_id: string;
+  title: string;
+  severity: AlertSeverity;
+  status: AlertStatus;
+  priority: number;
+  category?: string | null;
+  connector_type?: string | null;
+
+  assigned_to_id?: string | null;
+  case_id?: string | null;
+
+  first_seen: string;
+  sla_due_at: string;
+  /** Seconds until ``sla_due_at`` — negative once breached. */
+  sla_remaining_seconds: number;
+  sla_breached: boolean;
+  age_seconds: number;
+
+  asset?: QueueAsset | null;
+  suggested_action?: QueueAction | null;
+
+  bucket: QueueBucket;
+}
+
+export interface QueueCounts {
+  mine: number;
+  unassigned: number;
+  all: number;
+}
+
+export interface QueueResponse {
+  items: QueueItem[];
+  total: number;
+  counts: QueueCounts;
+  period: QueuePeriod;
+  owner: QueueOwner;
+  page: number;
+  page_size: number;
+  pages: number;
+  /** Server's authoritative ``now`` — the UI drifts its countdowns from this. */
+  generated_at: string;
+}
+
+export interface QueueFilters {
+  owner?: QueueOwner;
+  period?: QueuePeriod;
+  page?: number;
+  page_size?: number;
+}
+
+export const queueApi = {
+  /**
+   * Fetch the Investigation Queue.
+   *
+   * Returns up to ``page_size`` items (capped server-side at 200) plus
+   * the live ``counts`` for all buckets — that's what the sidebar badge
+   * polls. The endpoint is cheap because the server only projects the
+   * columns the queue actually renders; do *not* fan out to ``alertsApi.get``
+   * for every row.
+   */
+  list: (filters: QueueFilters = {}) =>
+    request<QueueResponse>('/api/v1/alerts/queue', {
+      params: filters as Record<string, string | number>,
+    }),
+
+  /**
+   * Atomically claim an unassigned alert for the current user.
+   *
+   * Returns ``409`` if another analyst grabbed the row first — the UI
+   * should surface that as "claimed by Sam · refresh" rather than a
+   * generic error. Idempotent if the caller already owns the alert.
+   */
+  claim: (alertId: string) =>
+    request<Alert>(`/api/v1/alerts/${alertId}/claim`, {
+      method: 'POST',
+    }),
+
+  /**
+   * Reassign or unassign an alert. Pass ``assignee = null`` to release.
+   *
+   * Reuses the existing ``PATCH /alerts/{id}`` endpoint — the server
+   * already accepts ``assignee`` updates. We add a thin wrapper here so
+   * the queue view doesn't have to re-derive the URL.
+   */
+  assign: (alertId: string, assignee: string | null) =>
+    request<Alert>(`/api/v1/alerts/${alertId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ assignee }),
+    }),
+
+  /**
+   * Snooze an alert for ``duration_minutes`` (1 → 43200 / 30d) or until
+   * a specific timestamp. The alert re-enters the queue automatically
+   * once ``snoozed_until`` passes.
+   */
+  snooze: (
+    alertId: string,
+    body: { duration_minutes?: number; until?: string; reason?: string },
+  ) =>
+    request<Alert>(`/api/v1/alerts/${alertId}/snooze`, {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
+};
+
 // ─── Risk-Based Alerting (entity rollup) ─────────────────────────────────────
 //
 // Wave 1 of the AiSOC v6 capability roadmap: alerts contribute time-decayed
