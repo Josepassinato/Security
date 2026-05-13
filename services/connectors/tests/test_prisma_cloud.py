@@ -75,9 +75,7 @@ def test_normalize_critical_preserves_critical():
     }
     out = connector.normalize(raw)
     assert out["source"] == "prisma_cloud"
-    assert out["severity"] == "critical", (
-        "Prisma Cloud 'critical' must map directly to AiSOC 'critical' so P1 SLAs apply"
-    )
+    assert out["severity"] == "critical", "Prisma Cloud 'critical' must map directly to AiSOC 'critical' so P1 SLAs apply"
     assert out["external_id"] == "alert-1"
     assert out["title"] == "Public S3 bucket"
     assert out["cloud_resource"] == "rrn::s3:us-east-1:123:bucket/logs-bucket"
