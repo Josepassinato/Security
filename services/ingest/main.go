@@ -13,7 +13,9 @@ import (
 	"time"
 
 	"github.com/beenuar/aisoc/services/ingest/internal/config"
+	configsnap "github.com/beenuar/aisoc/services/ingest/internal/config_snapshot"
 	"github.com/beenuar/aisoc/services/ingest/internal/envmode"
+	"github.com/beenuar/aisoc/services/ingest/internal/graph"
 	"github.com/beenuar/aisoc/services/ingest/internal/handler"
 	"github.com/beenuar/aisoc/services/ingest/internal/inbox"
 	"github.com/beenuar/aisoc/services/ingest/internal/normalizer"
@@ -57,6 +59,83 @@ func main() {
 	defer pub.Close()
 
 	h := handler.New(norm, pub, cfg)
+
+	// T1.1 (v8.0) — ingest-side graph writer. Runs in fan-out: failures in
+	// the graph writer NEVER block fusion ingest; the writer's queue is
+	// bounded and drops on full + emits a metric.
+	if cfg.GraphEnabled {
+		gctx, gcancel := context.WithTimeout(context.Background(), 10*time.Second)
+		gw, err := graph.New(gctx, graph.Config{
+			URI:           cfg.Neo4jURI,
+			Username:      cfg.Neo4jUser,
+			Password:      cfg.Neo4jPassword,
+			Database:      cfg.Neo4jDatabase,
+			BatchSize:     cfg.GraphBatchSize,
+			FlushInterval: time.Duration(cfg.GraphFlushIntervalMs) * time.Millisecond,
+			QueueSize:     cfg.GraphQueueSize,
+			Publisher:     pub,
+		})
+		gcancel()
+		if err != nil {
+			// Soft fail: graph writer is opt-in. Ingest still runs without it.
+			log.Warn().Err(err).Msg("graph: writer disabled (Neo4j unreachable)")
+		} else {
+			defer func() { _ = gw.Close() }()
+			h.SetGraphWriter(gw)
+			log.Info().
+				Str("uri", cfg.Neo4jURI).
+				Str("schema_version", graph.SchemaVersion).
+				Int("batch_size", cfg.GraphBatchSize).
+				Int("flush_ms", cfg.GraphFlushIntervalMs).
+				Str("updates_topic", cfg.GraphUpdatesTopic).
+				Msg("graph: ingest-side writer enabled")
+
+			// T1.2 (v8.0) — config snapshots. Wired only when both the
+			// graph writer is up *and* the operator opts in. Falls back
+			// to in-memory cache when Redis is unhealthy; falls back to
+			// HTTPProvider against the connectors service when configured,
+			// otherwise NoopProvider (every snapshot returns
+			// ErrNotImplemented and we log skips). Failures NEVER block
+			// fusion ingest — same contract as T1.1.
+			if cfg.SnapshotEnabled {
+				ttl := time.Duration(cfg.SnapshotCacheTTLSecs) * time.Second
+				cacheCtx, cacheCancel := context.WithTimeout(context.Background(), 2*time.Second)
+				cache := configsnap.NewRedisCache(cacheCtx, configsnap.RedisConfig{
+					Addr: cfg.RedisAddr,
+					TTL:  ttl,
+				})
+				cacheCancel()
+				var provider configsnap.Provider
+				if cfg.SnapshotProviderURL != "" {
+					provider = configsnap.NewHTTPProvider(
+						cfg.SnapshotProviderURL,
+						time.Duration(cfg.SnapshotProviderTimeoutMs)*time.Millisecond,
+					)
+				} else {
+					provider = configsnap.NoopProvider{}
+				}
+				snapper, err := configsnap.New(configsnap.Config{
+					Provider: provider,
+					Cache:    cache,
+					TTL:      ttl,
+				})
+				if err != nil {
+					log.Warn().Err(err).Msg("snapshot: disabled (constructor failed)")
+				} else {
+					defer func() { _ = snapper.Close() }()
+					h.SetSnapshotApplier(snapper)
+					log.Info().
+						Str("provider_url", cfg.SnapshotProviderURL).
+						Dur("cache_ttl", ttl).
+						Msg("snapshot: T1.2 config snapshots enabled")
+				}
+			} else {
+				log.Info().Msg("snapshot: disabled (AISOC_SNAPSHOT_ENABLED!=true)")
+			}
+		}
+	} else {
+		log.Info().Msg("graph: writer disabled (AISOC_GRAPH_ENABLED!=true)")
+	}
 
 	// Workstream 6 — universal capture push paths.
 	//

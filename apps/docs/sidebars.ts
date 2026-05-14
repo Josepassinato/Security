@@ -5,7 +5,15 @@ const sidebars: SidebarsConfig = {
     {
       type: "category",
       label: "Getting Started",
-      items: ["intro", "installation", "quickstart", "architecture", "benchmark"],
+      items: [
+        "intro",
+        "installation",
+        "quickstart",
+        "architecture",
+        "benchmark",
+        "benchmark-methodology",
+        "benchmark-scoreboard",
+      ],
     },
     {
       type: "category",
@@ -16,6 +24,7 @@ const sidebars: SidebarsConfig = {
         "concepts/playbooks",
         "concepts/detections",
         "concepts/live-actions",
+        "concepts/automation-maturity",
       ],
     },
     {
@@ -40,7 +49,11 @@ const sidebars: SidebarsConfig = {
     {
       type: "category",
       label: "Architecture",
-      items: ["architecture/itsm-as-source-of-truth"],
+      items: [
+        "architecture/agents",
+        "architecture/graph-schema",
+        "architecture/itsm-as-source-of-truth",
+      ],
     },
     {
       type: "category",
@@ -93,6 +106,7 @@ const sidebars: SidebarsConfig = {
       items: [
         "operations/security",
         "operations/credentials",
+        "operations/secrets",
         "operations/airgap",
         "operations/air-gapped",
         "operations/theming",

@@ -52,6 +52,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 import time
 from datetime import UTC, datetime
@@ -59,7 +60,21 @@ from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent
 _AGENTS_ROOT = _REPO_ROOT / "services" / "agents"
+# Order matters: scripts/ also contains a tests/ package (scripts/tests/) for
+# the CLI smoke test, and would shadow services/agents/tests/ if it landed at
+# position 0 of sys.path. Insert scripts/ first, then agents/ on top, so that
+# `from tests.test_adversary_eval import ...` resolves to the substrate tests.
+sys.path.insert(0, str(_REPO_ROOT / "scripts"))
 sys.path.insert(0, str(_AGENTS_ROOT))
+
+# The per-investigation token/USD/latency telemetry block (T2.4) is stdlib-only
+# and lives in ``scripts/eval_telemetry.py`` so it can run on hosts that
+# don't have the full agent dev dependency stack (pydantic, langgraph, ...).
+from eval_telemetry import (  # type: ignore  # noqa: E402
+    DEFAULT_INCIDENTS_PATH,
+    DEFAULT_MODEL as _TELEMETRY_DEFAULT_MODEL,
+    compute_per_investigation_telemetry,
+)
 
 
 def _print_import_error_hint(exc: BaseException) -> None:
@@ -68,6 +83,10 @@ def _print_import_error_hint(exc: BaseException) -> None:
     The quickstart video walks new contributors through a fresh clone, so
     when ``run_evals.py`` fails on import we owe them the exact two-command
     fix rather than a raw ``ModuleNotFoundError`` traceback.
+
+    H-7: When the substrate is required (i.e. ``--telemetry-only`` is not
+    set), the caller invokes ``sys.exit(3)`` after printing this hint so
+    CI surfaces the missing-deps state as a distinct exit code.
     """
     print(
         "ERROR: run_evals.py could not import the AiSOC eval substrate.\n"
@@ -83,7 +102,16 @@ def _print_import_error_hint(exc: BaseException) -> None:
         file=sys.stderr,
     )
 
+# Wet-eval shim (T5.5). Dry-run path is stdlib-only; live path imports the
+# agent stack lazily and degrades cleanly if it isn't available. Lives in
+# ``scripts/wet_eval.py`` to keep the wet-eval shape decoupled from the
+# substrate-suite plumbing below.
+from wet_eval import compute_wet_eval  # type: ignore  # noqa: E402
 
+# The substrate-suite imports below pull in the agent runtime (pydantic etc).
+# Wrap them in a try/except so ``--telemetry-only`` can still run on a bare
+# Python install — the new T2.4 token/USD/latency block doesn't need them.
+_SUBSTRATE_IMPORT_ERROR: Exception | None = None
 try:
     from tests.test_adversary_eval import (
         _HEAVY_BUCKET_CEILING as _ADVERSARY_HEAVY_CEILING,
@@ -163,9 +191,28 @@ try:
     from tests.test_response_quality import (  # type: ignore
         evaluate_response_quality,
     )
-except ImportError as _import_exc:  # pragma: no cover - exercised in CLI tests
-    _print_import_error_hint(_import_exc)
-    sys.exit(3)
+    _SUBSTRATE_AVAILABLE = True
+except Exception as _exc:  # pragma: no cover - degraded mode for telemetry-only
+    _SUBSTRATE_IMPORT_ERROR = _exc
+    _SUBSTRATE_AVAILABLE = False
+    # Fallback constants so the module-level ``_TARGETS`` dict still constructs
+    # cleanly. Real values come from the test modules when ``--telemetry-only``
+    # is *not* in play. These match the floors hard-coded in the test files.
+    _ADVERSARY_HEAVY_CEILING = 0.50
+    _ADVERSARY_LIGHT_FLOOR = 0.85
+    _ADVERSARY_OVERALL_FLOOR = 0.40
+    _CALIB_BRIER_INV = 0.20
+    _CALIB_BRIER_TRIAGE = 0.20
+    _CALIB_ECE_INV = 0.10
+    _CALIB_ECE_TRIAGE = 0.10
+    _DETECTION_FP_CEILING = 0.05
+    _HUNT_NEGATIVE_CEILING = 0.0
+    _HUNT_POSITIVE_FLOOR = 1.0
+    _RECALL_FLOOR = 0.95
+    _OVERRIDE_FLOOR = 0.95
+    _PLAYBOOK_ALIGN_FLOOR = 0.85
+    _PLAYBOOK_HIGH_CRIT_FLOOR = 0.95
+    _PLAYBOOK_OVERALL_FLOOR = 0.50
 
 # Per-suite floors (must match what tests assert)
 _TARGETS = {
@@ -669,6 +716,52 @@ def _summarise_telemetry() -> dict:
     }
 
 
+def _build_per_investigation_block(model: str, *, keep_records: bool) -> dict:
+    """Compute the T2.4 per-investigation telemetry block.
+
+    The substrate doesn't call an LLM, so these are *deterministic budget
+    projections*. They are flat-out marked ``mode: deterministic_substrate``
+    in the JSON; the docs/UI must not present them as wet-eval ground truth.
+    Wet-eval (real LLM) replaces them in T5.5.
+
+    The headline keys ``tokens_per_investigation`` and
+    ``usd_per_investigation`` mirror the field names used by the Track 5 docs
+    page so a single JSON consumer can render either source.
+    """
+    rep = compute_per_investigation_telemetry(
+        DEFAULT_INCIDENTS_PATH,
+        model=model,
+        keep_records=keep_records,
+    )
+    block = rep.to_dict(include_records=keep_records)
+    # Hoist the most-asked-for headline numbers up to the block root so
+    # external consumers don't have to know about ``aggregate.tokens.total``.
+    total = block["aggregate"]["tokens"]["total"]
+    usd = block["aggregate"]["usd"]
+    latency = block["aggregate"]["latency_ms"]
+    block["tokens_per_investigation"] = {
+        "mean": total["mean"],
+        "median": total["median"],
+        "p95": total["p95"],
+        "p99": total["p99"],
+        "prompt_mean": block["aggregate"]["tokens"]["prompt"]["mean"],
+        "completion_mean": block["aggregate"]["tokens"]["completion"]["mean"],
+    }
+    block["usd_per_investigation"] = {
+        "mean": usd["mean"],
+        "median": usd["median"],
+        "p95": usd["p95"],
+        "p99": usd["p99"],
+    }
+    block["latency_per_investigation_ms"] = {
+        "p50": latency["p50"],
+        "p95": latency["p95"],
+        "p99": latency["p99"],
+        "mean": latency["mean"],
+    }
+    return block
+
+
 # Ordered suite registry — keeps CLI --suite choices, the report layout,
 # and the human-readable summary in lockstep.
 _SUITE_RUNNERS: dict[str, callable] = {
@@ -727,22 +820,179 @@ def main() -> None:
         default=1.0,
         help="Allowed MITRE accuracy regression vs baseline, in percentage points.",
     )
+    parser.add_argument(
+        "--telemetry-only",
+        action="store_true",
+        help=(
+            "Skip the substrate-suite gates and only emit the per-investigation "
+            "token/USD/latency telemetry block (T2.4). Useful on hosts without "
+            "the full agent dev dependency stack (pydantic, langgraph, ...)."
+        ),
+    )
+    parser.add_argument(
+        "--telemetry-model",
+        default=_TELEMETRY_DEFAULT_MODEL,
+        help=(
+            "Model name to apply against the rate card when computing the "
+            "per-investigation USD projection. Default: gpt-4o."
+        ),
+    )
+    parser.add_argument(
+        "--no-telemetry-records",
+        action="store_true",
+        help=(
+            "Drop the per-incident telemetry array from the JSON report. "
+            "Aggregate + per-template stats are always kept."
+        ),
+    )
+    parser.add_argument(
+        "--wet",
+        action="store_true",
+        help=(
+            "Run the live-LLM wet-eval harness (T5.5) over the 200-incident "
+            "corpus. Requires WET_EVAL_OPENAI_KEY in the environment. The "
+            "weekly cron in ``.github/workflows/wet-eval.yml`` is the only "
+            "place this should run unattended; the preflight in "
+            "``scripts/wet_eval_check.py`` no-ops the workflow on forks "
+            "where the secret isn't set."
+        ),
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help=(
+            "Only meaningful with --wet. Synthesise the wet-eval JSON shape "
+            "from the deterministic substrate budget projection (no live "
+            "LLM calls). Used by CI to validate the report shape on every "
+            "push and by the test suite."
+        ),
+    )
+    parser.add_argument(
+        "--wet-out",
+        type=Path,
+        default=None,
+        help=(
+            "Write the wet-eval block to this path in addition to the main "
+            "--out report. The weekly workflow uses this to feed "
+            "``scripts/wet_eval_update_benchmark.py`` without re-parsing "
+            "the substrate suites."
+        ),
+    )
     args = parser.parse_args()
 
-    selected = _SUITE_NAMES if args.suite == "all" else (args.suite,)
-    suites = {name: _SUITE_RUNNERS[name]() for name in selected}
+    # Wet-eval mode short-circuits the substrate gates entirely (T5.5).
+    # ``--wet --dry-run`` is the path the test and the workflow's
+    # PR-time validation step exercise; ``--wet`` without ``--dry-run``
+    # is the weekly cron job's path and refuses to start without the
+    # API key (the preflight should have caught it earlier, but we
+    # belt-and-braces here so a manual ``run_evals.py --wet`` invocation
+    # never silently degrades).
+    if args.wet:
+        wet_mode = "dry_run" if args.dry_run else "live"
+        if wet_mode == "live" and not os.environ.get("WET_EVAL_OPENAI_KEY"):
+            print(
+                "[run_evals] --wet requires WET_EVAL_OPENAI_KEY in the "
+                "environment. Pass --dry-run for the no-API-call shape "
+                "check, or run scripts/wet_eval_check.py first.",
+                file=sys.stderr,
+            )
+            sys.exit(2)
+        wet_report = compute_wet_eval(
+            mode=wet_mode,
+            harness_version=f"scripts/run_evals.py @ {os.environ.get('GITHUB_SHA', 'local')}",
+        )
+        wet_block = wet_report.to_dict(include_records=False)
+        summary = {
+            "generated_at": datetime.now(UTC).isoformat(),
+            "dataset": "synthetic_incidents.json (200 cases, deterministic)",
+            "wet_eval": wet_block,
+            "all_passed": True,  # wet-eval reports performance, not pass/fail.
+        }
+        args.out.write_text(json.dumps(summary, indent=2))
+        if args.wet_out is not None:
+            args.wet_out.parent.mkdir(parents=True, exist_ok=True)
+            args.wet_out.write_text(json.dumps(wet_block, indent=2))
+        if args.json:
+            print(json.dumps(summary, indent=2))
+        else:
+            print()
+            print("=" * 78)
+            label = "DRY RUN" if wet_mode == "dry_run" else "LIVE"
+            print(f"  AiSOC wet-eval ({label}) — 200-incident synthetic corpus")
+            print("=" * 78)
+            print(f"  Mode:           {wet_block['mode']}")
+            print(f"  Model:          {wet_block['model']}")
+            print(f"  Incidents:      {wet_block['incidents']}")
+            print(f"  Templates:      {wet_block['templates']}")
+            lat = wet_block["latency_seconds"]
+            print(
+                f"  Latency (s):    p50={lat['p50']:.2f}  p95={lat['p95']:.2f}  "
+                f"p99={lat['p99']:.2f}  mean={lat['mean']:.2f}"
+            )
+            tot = wet_block["tokens"]["total"]
+            print(
+                f"  Tokens / inv:   mean={tot['mean']:.0f}  median={tot['median']:.0f}  "
+                f"p95={tot['p95']:.0f}  p99={tot['p99']:.0f}"
+            )
+            usd = wet_block["usd"]
+            print(
+                f"  USD / inv:      mean=${usd['mean']:.5f}  median=${usd['median']:.5f}  "
+                f"p95=${usd['p95']:.5f}  p99=${usd['p99']:.5f}"
+            )
+            print(f"  MITRE accuracy: {wet_block['mitre_accuracy']:.4f}")
+            if wet_block.get("warnings"):
+                print("-" * 78)
+                print("  Warnings:")
+                for w in wet_block["warnings"]:
+                    print(f"    - {w}")
+            print("=" * 78)
+        sys.exit(0)
 
-    summary: dict = {
-        "generated_at": datetime.now(UTC).isoformat(),
-        "dataset": "synthetic_incidents.json (200 cases, deterministic)",
-        "suite_filter": args.suite,
-        "suites": suites,
-        "telemetry": _summarise_telemetry(),
-    }
-    summary["all_passed"] = all(s["passed"] for s in summary["suites"].values())
+    if not args.telemetry_only and not _SUBSTRATE_AVAILABLE:
+        # H-7: Substrate suites need pydantic / langchain etc. If they're not
+        # installed we can still emit the telemetry block — print the friendly
+        # hint and surface a distinct exit code (3) so CI / scripts can tell
+        # "missing deps" apart from "substrate failed".
+        if _SUBSTRATE_IMPORT_ERROR is not None:
+            _print_import_error_hint(_SUBSTRATE_IMPORT_ERROR)
+        else:
+            print(
+                "Substrate-suite imports failed. "
+                "Pass --telemetry-only to emit just the T2.4 token/USD/latency block.",
+                file=sys.stderr,
+            )
+        sys.exit(3)
+
+    keep_records = not args.no_telemetry_records
+    per_investigation = _build_per_investigation_block(
+        args.telemetry_model,
+        keep_records=keep_records,
+    )
+
+    if args.telemetry_only:
+        summary: dict = {
+            "generated_at": datetime.now(UTC).isoformat(),
+            "dataset": "synthetic_incidents.json (200 cases, deterministic)",
+            "telemetry_only": True,
+            "per_investigation": per_investigation,
+        }
+        summary["all_passed"] = True  # telemetry-only never gates substrate
+    else:
+        # Use the suite registry so ``--suite <name>`` can run a single suite.
+        selected = _SUITE_NAMES if args.suite == "all" else (args.suite,)
+        suites = {name: _SUITE_RUNNERS[name]() for name in selected}
+        summary = {
+            "generated_at": datetime.now(UTC).isoformat(),
+            "dataset": "synthetic_incidents.json (200 cases, deterministic)",
+            "suite_filter": args.suite,
+            "suites": suites,
+            "telemetry": _summarise_telemetry(),
+            "per_investigation": per_investigation,
+        }
+        summary["all_passed"] = all(s["passed"] for s in summary["suites"].values())
 
     regression_failure = False
-    if args.baseline is not None:
+    if args.baseline is not None and not args.telemetry_only:
         if not args.baseline.exists():
             summary["baseline_compare"] = {
                 "baseline_path": str(args.baseline),
@@ -786,6 +1036,45 @@ def main() -> None:
 
     if args.json:
         print(json.dumps(summary, indent=2))
+    elif args.telemetry_only:
+        pi = summary["per_investigation"]
+        print()
+        print("=" * 78)
+        print("  AiSOC Eval - per-investigation telemetry (deterministic substrate)")
+        print("=" * 78)
+        print(f"  Mode:          {pi['mode']}")
+        print(f"  Model:         {pi['model']}")
+        print(
+            f"  Rate (USD/M):  input ${pi['rate_card_per_m_tokens_usd']['input']:.2f}  "
+            f"output ${pi['rate_card_per_m_tokens_usd']['output']:.2f}  (illustrative)"
+        )
+        print(f"  Incidents:     {pi['incidents']}  Templates: {pi['templates']}")
+        print("-" * 78)
+        tok = pi["tokens_per_investigation"]
+        print(
+            f"  Tokens / investigation:  mean={tok['mean']:.0f}  median={tok['median']:.0f}  "
+            f"p95={tok['p95']:.0f}  p99={tok['p99']:.0f}"
+        )
+        print(
+            f"      prompt mean={tok['prompt_mean']:.0f}    completion mean={tok['completion_mean']:.0f}"
+        )
+        usd = pi["usd_per_investigation"]
+        print(
+            f"  USD / investigation:     mean=${usd['mean']:.5f}  median=${usd['median']:.5f}  "
+            f"p95=${usd['p95']:.5f}  p99=${usd['p99']:.5f}"
+        )
+        lat = pi["latency_per_investigation_ms"]
+        print(
+            f"  Latency (ms / inv):      p50={lat['p50']:.4f}  p95={lat['p95']:.4f}  "
+            f"p99={lat['p99']:.4f}  (substrate-only path)"
+        )
+        print("=" * 78)
+        try:
+            rel = args.out.relative_to(_REPO_ROOT)
+        except ValueError:
+            rel = args.out
+        print(f"  Report written to: {rel}")
+        print()
     else:
         print()
         print("=" * 78)
@@ -825,6 +1114,28 @@ def main() -> None:
             )
         else:
             print("  Synthetic telemetry: <not generated>")
+        print("-" * 78)
+        pi = summary.get("per_investigation") or {}
+        if pi:
+            tok = pi.get("tokens_per_investigation", {})
+            usd = pi.get("usd_per_investigation", {})
+            lat = pi.get("latency_per_investigation_ms", {})
+            print(
+                f"  Per-investigation budget (deterministic substrate, "
+                f"model={pi.get('model', '?')})"
+            )
+            print(
+                f"    tokens   mean={tok.get('mean', 0):.0f}  median={tok.get('median', 0):.0f}  "
+                f"p95={tok.get('p95', 0):.0f}  p99={tok.get('p99', 0):.0f}"
+            )
+            print(
+                f"    USD      mean=${usd.get('mean', 0):.5f}  median=${usd.get('median', 0):.5f}  "
+                f"p95=${usd.get('p95', 0):.5f}  p99=${usd.get('p99', 0):.5f}"
+            )
+            print(
+                f"    latency  p50={lat.get('p50', 0):.4f} ms  p95={lat.get('p95', 0):.4f} ms  "
+                f"p99={lat.get('p99', 0):.4f} ms  (substrate path)"
+            )
         print("=" * 78)
         if summary["all_passed"]:
             verdict = (

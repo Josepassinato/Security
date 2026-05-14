@@ -35,6 +35,7 @@ bin/
 # Python
 .venv/
 venv/
+.eval-test-venv/
 .mypy_cache/
 .pytest_cache/
 htmlcov/
@@ -76,6 +77,9 @@ eval_mitre_accuracy_report.json
 .gocache/
 *.tsbuildinfo
 
+# PR body scratch files (local working copy, never committed)
+.pr-body-*.md
+
 # Local progress tracking (per AGENTS.md preference, not committed)
 PROGRESS.md
 PR_TRIAGE.md
@@ -100,4 +104,9 @@ apps/web/.qa-screenshots/
 # at the repo root; the API Dockerfile only sees its own dir as build context, so
 # the deploy script copies the index in just-in-time. We never commit the copy.
 services/api/marketplace/
+
+# Live-dumped graph schema produced by `scripts/export_graph_schema.py`
+# (default mode). The source of truth is `schemas/graph-schema.yaml`; the
+# `-current.yaml` file is a runtime artefact that varies by environment.
+schemas/graph-schema-current.yaml
 
