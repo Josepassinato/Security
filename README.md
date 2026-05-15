@@ -30,12 +30,15 @@ Sobre essa fundação, Quarry adiciona uma **camada de customizações** em `cus
 | Etapa | Status |
 |---|---|
 | Auditoria técnica do AiSOC ([ADR-001](docs/adrs/ADR-001-fork-aisoc.md)) | ✅ Concluída — recomendação GO condicional |
-| Fork (mirror clone privado) — Quarry repo criado | ✅ Concluído |
+| Fork (mirror clone privado) — Quarry repo criado ([ADR-002](docs/adrs/ADR-002-fork-strategy.md)) | ✅ Concluído |
+| Rebrand AiSOC → Quarry ([ADR-003](docs/adrs/ADR-003-rebrand-strategy.md)) | ✅ Concluído — validação runtime offline pendente |
+| Deep-dive do LangGraph orchestrator | ✅ [docs/pt-br/orchestrator-deep-dive.md](docs/pt-br/orchestrator-deep-dive.md) |
+| Estratégia customização fintech BR ([ADR-004](docs/adrs/ADR-004-orchestrator-fintech-br.md)) | ✅ Aprovada — implementação por sprints A/B/C |
+| Catálogo TTPs BR fintech | ✅ 11 patterns em `customizations/threat-intel/br-fintech/` (PIX/VSH/SEN/ATO/BOL/QR/EWL/MAL) |
 | Validação funcional (demo local end-to-end) | ⏳ Pendente — ver `docs/pt-br/CARD-002-demo-checklist.md` |
-| Rebrand do código herdado (AiSOC → Quarry) | ⏳ Próximo card |
 | Roadmap Quarry independente | ⏳ Próximo card |
 
-> Rebrand do código herdado (AiSOC → Quarry) **em andamento** — workspaces `@aisoc/*` já renomeados para `@quarry/*` no batch 2 do CARD-004. Strings `tryaisoc.com`, env vars `AISOC_*` e service names ainda pendentes em batches subsequentes.
+> **Rebrand concluído** em commits `dd342d0b` → `e6c9a979` → `cfb83e92`. Logos, workspaces `@quarry/*`, env vars `QUARRY_*`, helm chart, scripts, SDKs e arquivos com `aisoc` no nome — todos renomeados. Atribuições legais (LICENSE, NOTICE, README.AISOC.md, ADR-001/002) preservadas conforme cláusula MIT.
 
 ---
 
