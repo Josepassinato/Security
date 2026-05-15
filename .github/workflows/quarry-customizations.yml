@@ -1,0 +1,117 @@
+name: quarry-customizations
+
+# Validate Quarry-specific customizations layer.
+# This workflow ONLY checks `customizations/` and `infrastructure/`.
+# Workflows for the inherited AiSOC code (ci.yml, codeql.yml, etc.) run unmodified.
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'customizations/**'
+      - 'infrastructure/**'
+      - 'NOTICE.md'
+      - 'docs/adrs/**'
+      - '.github/workflows/quarry-customizations.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'customizations/**'
+      - 'infrastructure/**'
+      - 'NOTICE.md'
+      - 'docs/adrs/**'
+
+jobs:
+  validate-yaml:
+    name: YAML syntax — customizations/
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Find YAML files in customizations/
+        id: find
+        run: |
+          files=$(find customizations -type f \( -name '*.yml' -o -name '*.yaml' \) 2>/dev/null || true)
+          echo "files<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$files" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+      - name: Lint YAML with yamllint
+        if: steps.find.outputs.files != ''
+        run: |
+          pip install yamllint
+          echo "${{ steps.find.outputs.files }}" | xargs -r yamllint -d '{extends: default, rules: {line-length: disable, document-start: disable}}'
+
+      - name: No YAML files yet
+        if: steps.find.outputs.files == ''
+        run: echo "customizations/ has no YAML yet — skipping lint."
+
+  validate-sigma:
+    name: Sigma rules — customizations/detections/
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install pysigma
+        run: pip install pysigma
+
+      - name: Validate custom Sigma rules
+        run: |
+          shopt -s nullglob
+          files=(customizations/detections/**/*.yml customizations/detections/**/*.yaml)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No custom Sigma rules yet — skipping."
+            exit 0
+          fi
+          python3 -c "
+          import sys
+          from sigma.collection import SigmaCollection
+          ok = True
+          for path in sys.argv[1:]:
+              try:
+                  SigmaCollection.from_yaml(open(path).read())
+                  print(f'OK    {path}')
+              except Exception as e:
+                  print(f'FAIL  {path}: {e}', file=sys.stderr)
+                  ok = False
+          sys.exit(0 if ok else 1)
+          " "${files[@]}"
+
+  validate-notice:
+    name: NOTICE.md present and non-empty
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: NOTICE.md exists
+        run: |
+          if [ ! -s NOTICE.md ]; then
+            echo "::error::NOTICE.md missing or empty — attribution is mandatory" >&2
+            exit 1
+          fi
+          echo "NOTICE.md present ($(wc -l < NOTICE.md) lines)."
+
+  validate-no-aisoc-leak-in-customizations:
+    name: customizations/ has no AiSOC string leak
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Grep for AiSOC strings in customizations/ and infrastructure/
+        run: |
+          # Rebrand to Quarry is gated by a future card. Until then, the
+          # rule is: inherited code may reference 'aisoc', but anything
+          # we WRITE in customizations/ or infrastructure/ should be
+          # Quarry-only naming from day one.
+          set +e
+          hits=$(grep -rniE 'aisoc|tryaisoc' customizations infrastructure 2>/dev/null | grep -v '^\s*#' || true)
+          if [ -n "$hits" ]; then
+            echo "::warning::Found AiSOC references in Quarry-owned dirs (acceptable in NOTICE/attribution contexts, but review):"
+            echo "$hits"
+          else
+            echo "Clean — no AiSOC strings in customizations/ or infrastructure/."
+          fi
+          # Warning-only for now; will be hard-error after rebrand card.
