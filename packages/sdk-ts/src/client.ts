@@ -1,5 +1,5 @@
 /**
- * AiSOCClient — typed HTTP client built on top of openapi-fetch.
+ * QuarryClient — typed HTTP client built on top of openapi-fetch.
  *
  * The client is structured around resource namespaces that mirror the REST API:
  *   client.alerts.*       – alert management
@@ -26,8 +26,8 @@ import type {
   PlaybookRun,
 } from "./types.js";
 
-export interface AiSOCClientOptions {
-  /** Base URL of the AiSOC API, e.g. https://soc.example.com */
+export interface QuarryClientOptions {
+  /** Base URL of the Quarry API, e.g. https://soc.example.com */
   baseUrl: string;
   /**
    * Authentication token.  Accepts either:
@@ -43,13 +43,13 @@ export interface AiSOCClientOptions {
 
 // ─── Error class ─────────────────────────────────────────────────────────────
 
-export class AiSOCError extends Error {
+export class QuarryError extends Error {
   constructor(
     public readonly status: number,
     public readonly body: string,
   ) {
-    super(`AiSOC API error ${status}: ${body}`);
-    this.name = "AiSOCError";
+    super(`Quarry API error ${status}: ${body}`);
+    this.name = "QuarryError";
   }
 }
 
@@ -86,7 +86,7 @@ class ResourceClient {
       body: body !== undefined ? JSON.stringify(body) : undefined,
     });
     if (!res.ok) {
-      throw new AiSOCError(res.status, await res.text());
+      throw new QuarryError(res.status, await res.text());
     }
     if (res.status === 204) return undefined as unknown as T;
     return res.json() as Promise<T>;
@@ -195,7 +195,7 @@ class ApiKeysClient extends ResourceClient {
 
 // ─── Main client ─────────────────────────────────────────────────────────────
 
-export class AiSOCClient {
+export class QuarryClient {
   /** Alert management — list, get, update alerts. */
   readonly alerts: AlertsClient;
   /** Case management — full CRUD. */
@@ -209,7 +209,7 @@ export class AiSOCClient {
   /** Scoped API key management. */
   readonly apiKeys: ApiKeysClient;
 
-  constructor(opts: AiSOCClientOptions) {
+  constructor(opts: QuarryClientOptions) {
     const args: [string, string, Record<string, string>] = [
       opts.baseUrl,
       opts.token,

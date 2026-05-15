@@ -26,7 +26,7 @@ from app.services.misp_push import (
     stix_indicator_to_misp_event,
 )
 
-logger = logging.getLogger("aisoc.stix_taxii")
+logger = logging.getLogger("quarry.stix_taxii")
 
 router = APIRouter(prefix="/threatintel/stix", tags=["Threat Intelligence"])
 
@@ -235,8 +235,8 @@ DEMO_BUNDLES: list[STIXBundle] = [
 DEMO_TAXII_COLLECTIONS: list[TAXIICollection] = [
     TAXIICollection(
         id="collection--01",
-        title="AiSOC Threat Feed",
-        description="Curated indicators from AiSOC automated threat intelligence pipeline.",
+        title="Quarry Threat Feed",
+        description="Curated indicators from Quarry automated threat intelligence pipeline.",
     ),
     TAXIICollection(
         id="collection--02",
@@ -440,7 +440,7 @@ async def misp_push_health() -> MispPushHealth:
     client = get_push_client()
     base = MispPushHealth(
         configured=client.configured,
-        airgapped=bool(settings.AISOC_AIRGAPPED),
+        airgapped=bool(settings.QUARRY_AIRGAPPED),
         auto_push=bool(settings.MISP_PUSH_AUTO),
         url=settings.MISP_URL or None,
         ok=False,

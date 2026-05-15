@@ -167,7 +167,7 @@ function TypeBadge({ type }: { type: string }) {
 function VerifiedBadge() {
   return (
     <span
-      title="Verified by AiSOC team"
+      title="Verified by Quarry team"
       className="inline-flex items-center gap-0.5 rounded border border-emerald-700/60 bg-emerald-900/30 px-1.5 py-0.5 text-xs font-medium text-emerald-300"
     >
       Verified
@@ -410,10 +410,10 @@ function ItemCard({ item, installed, busy, onInstall, onUninstall }: ItemCardPro
 type SortOption = 'name' | 'install_count' | 'rating' | 'newest';
 type SourceFilter = 'all' | 'core' | 'community';
 type SdkFilter = 'all' | 'python' | 'go' | 'both';
-// stable = native AiSOC content, hand-authored with fixture tests
+// stable = native Quarry content, hand-authored with fixture tests
 // beta   = working but not fully covered (e.g. Tier-2 plugin stubs)
 // imported = upstream content (SigmaHQ, Splunk Security Content, Chronicle, MITRE CAR)
-//            parsed and provenance-tagged but not fixture-tested per AiSOC's bar
+//            parsed and provenance-tagged but not fixture-tested per Quarry's bar
 // community = third-party contributions
 type TierFilter = 'all' | 'stable' | 'beta' | 'imported' | 'community';
 
@@ -728,10 +728,10 @@ export function MarketplaceView() {
         <div className="min-w-[280px] flex-1">
           <h1 className="text-2xl font-bold text-zinc-100">Marketplace</h1>
           <p className="mt-1 text-sm text-zinc-400">
-            Browse and install detection rules, response playbooks, and plugins shipped with AiSOC. Every entry is generated directly from the
+            Browse and install detection rules, response playbooks, and plugins shipped with Quarry. Every entry is generated directly from the
             repo&rsquo;s <code className="text-zinc-300">detections/</code>,{' '}
             <code className="text-zinc-300">playbooks/</code> and{' '}
-            <code className="text-zinc-300">plugins/</code> trees, so what you see here is what your AiSOC instance has on disk.
+            <code className="text-zinc-300">plugins/</code> trees, so what you see here is what your Quarry instance has on disk.
           </p>
         </div>
         {installedSet.size > 0 && (
@@ -829,7 +829,7 @@ export function MarketplaceView() {
             content. Users opt into imported/beta/community explicitly. */}
         <div
           className="flex gap-1 rounded-lg border border-zinc-700 bg-zinc-800 p-1"
-          title="Stable = native AiSOC content. Imported = upstream rules (SigmaHQ, Splunk, Chronicle, CAR), parseable but not fixture-tested. Beta = working but partial. Community = third-party."
+          title="Stable = native Quarry content. Imported = upstream rules (SigmaHQ, Splunk, Chronicle, CAR), parseable but not fixture-tested. Beta = working but partial. Community = third-party."
         >
           {(['all', 'stable', 'beta', 'imported', 'community'] as const).map((t) => {
             const count = tierCounts[t];
@@ -911,7 +911,7 @@ export function MarketplaceView() {
         </select>
 
         <a
-          href="https://github.com/beenuar/AiSOC/blob/main/CONTRIBUTING.md#community-marketplace"
+          href="https://github.com/beenuar/Quarry/blob/main/CONTRIBUTING.md#community-marketplace"
           target="_blank"
           rel="noopener noreferrer"
           className="ml-auto rounded-lg border border-blue-700/60 bg-blue-900/20 px-3 py-1.5 text-xs font-medium text-blue-300 hover:bg-blue-900/40"

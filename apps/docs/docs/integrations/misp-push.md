@@ -1,7 +1,7 @@
 ---
 sidebar_position: 2
 title: MISP push (mirror STIX → MISP)
-description: Mirror every STIX 2.1 indicator and bundle published by AiSOC into a downstream MISP instance, on demand or automatically.
+description: Mirror every STIX 2.1 indicator and bundle published by Quarry into a downstream MISP instance, on demand or automatically.
 ---
 
 # MISP push
@@ -19,8 +19,8 @@ shares:
 - the same credential conventions (`MISP_*` env vars, never logged),
 - the same HTTP timeout budget.
 
-> **Air-gapped deployments.** When `AISOC_AIRGAPPED=1` (or the host is
-> not on `AISOC_AIRGAP_ALLOWED_HOSTS`), every push attempt is rejected
+> **Air-gapped deployments.** When `QUARRY_AIRGAPPED=1` (or the host is
+> not on `QUARRY_AIRGAP_ALLOWED_HOSTS`), every push attempt is rejected
 > at the air-gap gate before any network I/O happens, and the failure
 > is surfaced in the response under `misp.error`.
 
@@ -43,7 +43,7 @@ MISP_PUSH_TIMEOUT_SECONDS=15
 ```
 
 `MISP_PUSH_AUTO=true` flips the default for every `POST /indicators`
-and `POST /bundles` request — useful when AiSOC is the canonical source
+and `POST /bundles` request — useful when Quarry is the canonical source
 of truth and MISP is a downstream consumer. With `MISP_PUSH_AUTO=false`
 (the default), the caller opts in per request via `?push_to_misp=true`.
 
@@ -53,7 +53,7 @@ of truth and MISP is a downstream consumer. With `MISP_PUSH_AUTO=false`
 
 ```bash
 curl -X POST \
-  "$AISOC_URL/api/v1/threatintel/stix/indicators?push_to_misp=true" \
+  "$QUARRY_URL/api/v1/threatintel/stix/indicators?push_to_misp=true" \
   -H "Content-Type: application/json" \
   -d '{
     "name": "Phishing Domain",
@@ -82,13 +82,13 @@ Response (truncated):
 
 If the push fails (auth, 5xx, air-gap, network), the publish itself
 still succeeds and `misp.pushed` is `false` with a structured `error`
-field — the AiSOC store and the MISP mirror are intentionally decoupled.
+field — the Quarry store and the MISP mirror are intentionally decoupled.
 
 ### Publish a STIX bundle and mirror it as one MISP event
 
 ```bash
 curl -X POST \
-  "$AISOC_URL/api/v1/threatintel/stix/bundles?push_to_misp=true" \
+  "$QUARRY_URL/api/v1/threatintel/stix/bundles?push_to_misp=true" \
   -H "Content-Type: application/json" \
   -d @bundle.json
 ```
@@ -101,7 +101,7 @@ counted in `misp.skipped_attributes` so you can audit coverage.
 ### Health check
 
 ```bash
-curl "$AISOC_URL/api/v1/threatintel/stix/misp/health"
+curl "$QUARRY_URL/api/v1/threatintel/stix/misp/health"
 ```
 
 ```json
@@ -110,7 +110,7 @@ curl "$AISOC_URL/api/v1/threatintel/stix/misp/health"
   "airgapped": false,
   "auto_push": false,
   "url": "https://misp.intel.corp",
-  "user": "aisoc-bot@intel.corp",
+  "user": "quarry-bot@intel.corp",
   "role": "User",
   "ok": true
 }
@@ -123,7 +123,7 @@ never echoes the API key back.
 ### Dry run — preview the MISP event without sending
 
 ```bash
-curl -X POST "$AISOC_URL/api/v1/threatintel/stix/misp/dry-run" \
+curl -X POST "$QUARRY_URL/api/v1/threatintel/stix/misp/dry-run" \
   -H "Content-Type: application/json" \
   -d '{
     "indicator": {
@@ -147,7 +147,7 @@ curl -X POST "$AISOC_URL/api/v1/threatintel/stix/misp/dry-run" \
       "Attribute": [
         {"type": "ip-dst", "category": "Network activity", "value": "198.51.100.47", "to_ids": true}
       ],
-      "Tag": [{"name": "tlp:amber"}, {"name": "aisoc:label=c2"}, {"name": "aisoc:label=apt-42"}]
+      "Tag": [{"name": "tlp:amber"}, {"name": "quarry:label=c2"}, {"name": "quarry:label=apt-42"}]
     }
   },
   "attribute_count": 1,
@@ -162,7 +162,7 @@ Dry run is the safest way to:
 - tune the STIX → MISP mapping before flipping `MISP_PUSH_AUTO=true`,
 - prove to a reviewer that an air-gapped deployment really will refuse
   to send (`airgap_blocked: true` with a populated `airgap_message`),
-- diff event payloads between two AiSOC versions when changing
+- diff event payloads between two Quarry versions when changing
   pattern parsing.
 
 ## STIX → MISP mapping
@@ -183,14 +183,14 @@ STIX `confidence` is mapped onto MISP `threat_level_id` so an
 indicator with `confidence ≥ 80` becomes `threat_level_id=1` (high),
 `50–79` becomes `2` (medium), `1–49` becomes `3` (low), and `0` or
 unset becomes `4` (undefined). STIX `labels` are mirrored as MISP
-tags prefixed with `aisoc:label=…`.
+tags prefixed with `quarry:label=…`.
 
 ## Failure modes
 
 | Symptom | Likely cause | Where to look |
 |---|---|---|
 | `misp.pushed=false`, `error="MISP push not configured"` | `MISP_URL` or `MISP_API_KEY` missing | `/misp/health` |
-| `misp.pushed=false`, `error="Air-gap policy blocked push: …"` | `AISOC_AIRGAPPED=1` and host not on the allow-list | `AISOC_AIRGAP_ALLOWED_HOSTS` |
+| `misp.pushed=false`, `error="Air-gap policy blocked push: …"` | `QUARRY_AIRGAPPED=1` and host not on the allow-list | `QUARRY_AIRGAP_ALLOWED_HOSTS` |
 | `misp.pushed=false`, `error="MISP returned 401 …"` | API key revoked or rotated | MISP → My Profile → Authentication |
 | `misp.pushed=true` but event not visible in MISP UI | Distribution scope hides it from your role | `MISP_PUSH_DEFAULT_DISTRIBUTION` |
 
@@ -200,6 +200,6 @@ tags prefixed with `aisoc:label=…`.
   never logged. Health and dry-run responses do not echo it back.
 - Every outbound request runs through `enforce_airgap_for_url` so the
   push pipeline cannot be used to exfiltrate data from an air-gapped
-  AiSOC deployment.
+  Quarry deployment.
 - The mirror is intentionally one-way. Pull from MISP still goes
   through the read-only `services/threatintel` client.

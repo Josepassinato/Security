@@ -65,8 +65,8 @@ async def send_alert(
 
     headers = {
         "Content-Type": "application/json",
-        "X-AiSOC-Signature": f"sha256={signature}",
-        "X-AiSOC-Event": "honeytoken.triggered",
+        "X-Quarry-Signature": f"sha256={signature}",
+        "X-Quarry-Event": "honeytoken.triggered",
     }
 
     try:

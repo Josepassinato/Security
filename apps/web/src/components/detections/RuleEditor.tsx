@@ -40,7 +40,7 @@ const SEVERITIES: AlertSeverity[] = ['low', 'medium', 'high', 'critical'];
 
 const SAMPLE_BODIES: Record<DetectionLanguage, string> = {
   sigma: `title: My new detection
-id: aisoc-rule-new
+id: quarry-rule-new
 status: experimental
 description: Describe what this rule catches
 logsource:
@@ -58,7 +58,7 @@ tags:
   yara: `rule MySuspiciousBinary
 {
     meta:
-        author = "AiSOC"
+        author = "Quarry"
         description = "Detects an embedded marker"
     strings:
         $a = "evil_marker"
@@ -618,7 +618,7 @@ export function RuleEditor({ mode, ruleId }: RuleEditorProps) {
             hit_count: data.hitCount,
             last_triggered_at: data.lastTriggeredAt,
           }}
-          eyebrow="Ask AiSOC about this rule"
+          eyebrow="Ask Quarry about this rule"
         />
       ) : null}
 

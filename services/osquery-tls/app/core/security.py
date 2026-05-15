@@ -1,4 +1,4 @@
-"""Security helpers for the AiSOC osquery TLS service.
+"""Security helpers for the Quarry osquery TLS service.
 
 Handles two authentication concerns:
 
@@ -6,7 +6,7 @@ Handles two authentication concerns:
    first enrolling.  Validated in ``verify_enroll_secret()``.
 2. **Node key** — a server-issued opaque token (UUID) returned after enroll.
    Every subsequent request validates ``node_key`` against ``node_registry``.
-3. **mTLS** (optional, controlled by ``AISOC_OSQUERY_TLS_REQUIRE_CLIENT_CERT``)
+3. **mTLS** (optional, controlled by ``QUARRY_OSQUERY_TLS_REQUIRE_CLIENT_CERT``)
    — after enroll, the TLS client certificate CN must match
    ``node.host_identifier``.
 

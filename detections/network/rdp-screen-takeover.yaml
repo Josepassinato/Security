@@ -1,6 +1,6 @@
 id: det-network-022
 name: RDP Logon Session With Concurrent Active Console Session
-description: AiSOC v1 curated detection. Triggers on the network signal described by 'RDP Logon Session
+description: Quarry v1 curated detection. Triggers on the network signal described by 'RDP Logon Session
   With Concurrent Active Console Session'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: medium
@@ -20,6 +20,6 @@ false_positives:
 - IT helpdesk shadow sessions (must be ticketed)
 playbook: tpl-account-anomaly
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

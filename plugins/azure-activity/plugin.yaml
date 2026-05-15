@@ -7,10 +7,10 @@ description: >
   Azure Activity Logs subscription-level control-plane events (resource creates,
   role assignments, policy changes) via the Azure Monitor REST API. Flags
   high-blast-radius operations such as RBAC role grants and policy
-  modifications, then forwards to AiSOC for cloud-plane detection coverage.
-author: AiSOC Core Team
+  modifications, then forwards to Quarry for cloud-plane detection coverage.
+author: Quarry Core Team
 tags: [cloud, azure, activity, audit, control-plane, microsoft]
-homepage: https://github.com/beenuar/AiSOC/tree/main/services/connectors/app/connectors/azure_activity.py
+homepage: https://github.com/beenuar/Quarry/tree/main/services/connectors/app/connectors/azure_activity.py
 license: MIT
 min_aisoc_version: "4.0.0"
 config_schema:

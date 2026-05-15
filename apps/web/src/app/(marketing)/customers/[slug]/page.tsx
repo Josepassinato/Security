@@ -39,15 +39,15 @@ export async function generateMetadata({
   const { slug } = await params;
   const study = getCustomerBySlug(slug);
   if (!study) {
-    return { title: 'Customer not found — AiSOC' };
+    return { title: 'Customer not found — Quarry' };
   }
   const fm = study.frontmatter;
   return {
-    title: `${fm.title} — AiSOC customer story`,
+    title: `${fm.title} — Quarry customer story`,
     description: fm.challenge,
     alternates: { canonical: `/customers/${slug}` },
     openGraph: {
-      title: `${fm.title} — AiSOC customer story`,
+      title: `${fm.title} — Quarry customer story`,
       description: fm.challenge,
       type: 'article',
       images: fm.logo ? [{ url: fm.logo }] : undefined,
@@ -294,7 +294,7 @@ function RelatedFeatures({ study }: { study: CustomerStudy }) {
             More customer stories
           </Link>
           <a
-            href="mailto:hello@aisoc.dev"
+            href="mailto:hello@quarry.dev"
             className="inline-flex items-center gap-2 rounded-md bg-brand-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-400"
           >
             Talk to us

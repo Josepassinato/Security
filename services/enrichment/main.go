@@ -8,11 +8,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/beenuar/aisoc/enrichment/internal/cache"
-	"github.com/beenuar/aisoc/enrichment/internal/config"
-	"github.com/beenuar/aisoc/enrichment/internal/enricher"
-	"github.com/beenuar/aisoc/enrichment/internal/handler"
-	"github.com/beenuar/aisoc/enrichment/internal/server"
+	"github.com/beenuar/quarry/enrichment/internal/cache"
+	"github.com/beenuar/quarry/enrichment/internal/config"
+	"github.com/beenuar/quarry/enrichment/internal/enricher"
+	"github.com/beenuar/quarry/enrichment/internal/handler"
+	"github.com/beenuar/quarry/enrichment/internal/server"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
@@ -33,7 +33,7 @@ func main() {
 	zerolog.SetGlobalLevel(level)
 
 	log.Info().
-		Str("service", "aisoc-enrichment").
+		Str("service", "quarry-enrichment").
 		Str("port", cfg.HTTPPort).
 		Msg("Starting IOC Enrichment Service")
 

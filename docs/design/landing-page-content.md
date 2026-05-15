@@ -1,4 +1,4 @@
-# AiSOC landing page — ready-to-set copy
+# Quarry landing page — ready-to-set copy
 
 > Companion to `landing-page-brief.md`. Every string below is drop-in
 > ready. Section IDs match §6 of the brief.
@@ -7,7 +7,7 @@
 
 ## `nav` — Sticky nav
 
-- **Wordmark:** `AiSOC`
+- **Wordmark:** `Quarry`
 - **Nav items (left → right):** `Product` · `Solutions` · `Connectors` ·
   `Benchmark` · `Pricing` · `Docs`
 - **GitHub chip:** `★ {count} on GitHub` (fall-back: `Star on GitHub`)
@@ -21,7 +21,7 @@
 - **Eyebrow:** `Open-source · MIT · self-hostable`
 - **H1:** `Detect. Triage. Hunt. Respond.`
 - **Sub-head:**
-  `AiSOC is the open agentic Security Operations Center. Four named
+  `Quarry is the open agentic Security Operations Center. Four named
   agents investigate every incident end-to-end, and every prompt, tool
   call, and rationale lands in a replayable ledger. Self-host in five
   minutes, take it air-gapped on a flag, or join the managed waitlist.`
@@ -51,7 +51,7 @@
 - **Eyebrow:** `Why we built this`
 - **H2:** `Your SOC is drowning in alerts.`
 - **Sub-head:**
-  `Three problems compound every shift. AiSOC was built to dissolve
+  `Three problems compound every shift. Quarry was built to dissolve
   them, not paper over them.`
 - **Pain bullets:**
   1. **Headline:** `Alert volume is up. Headcount is not.`
@@ -74,7 +74,7 @@
 - **Eyebrow:** `Four agents, one workflow`
 - **H2:** `One agent for each stage of an incident.`
 - **Sub-head:**
-  `AiSOC ships exactly four named agents — Detect, Triage, Hunt, and
+  `Quarry ships exactly four named agents — Detect, Triage, Hunt, and
   Respond. Each one has a fixed job, a published capability list, and
   a replayable audit trail. Sub-agents (phishing, identity, cloud,
   insider) are capabilities of Triage, never separate brands.`
@@ -103,7 +103,7 @@
 ## `demo` — Live demo
 
 - **Eyebrow:** `See it work`
-- **H2:** `Watch AiSOC investigate a live ransomware incident.`
+- **H2:** `Watch Quarry investigate a live ransomware incident.`
 - **Sub-head:**
   `INC-RT-001 is a LockBit 3.0 case that ships with every install. The
   ledger streams every prompt, tool call, and decision the agent made.
@@ -118,7 +118,7 @@
 
 ## `pillars` — Differentiation pillars
 
-- **Eyebrow:** `What makes AiSOC different`
+- **Eyebrow:** `What makes Quarry different`
 - **H2:** `Four promises we hold ourselves to.`
 
 - **Card P1 — Open source and transparent**
@@ -182,7 +182,7 @@
    plugins.`
 3. **Plugin SDKs.** `Python, TypeScript, Go — build a connector in 50
    lines.`
-4. **MCP server.** `Use AiSOC from Claude, Cursor, Continue, Cody — 11
+4. **MCP server.** `Use Quarry from Claude, Cursor, Continue, Cody — 11
    tools.`
 5. **Cursor extension.** `Investigate alerts without leaving your
    editor.`
@@ -255,7 +255,7 @@
 
 ## `deploy` — Deployment options
 
-- **Eyebrow:** `Run AiSOC where your data is allowed to live`
+- **Eyebrow:** `Run Quarry where your data is allowed to live`
 - **H2:** `Three deploy paths. Same code.`
 
 - **Card — Managed (waitlist)**
@@ -280,7 +280,7 @@
   - **Time to live:** `An afternoon`
   - **LLM:** `Local Ollama · BYO LiteLLM`
   - **Residency:** `Operator-defined`
-  - **Body:** `Set AISOC_AIRGAPPED=true and the platform refuses every
+  - **Body:** `Set QUARRY_AIRGAPPED=true and the platform refuses every
     outbound call. The Ollama sidecar ships a pinned local model so the
     demo seed runs end-to-end with zero external calls.`
   - **CTA:** `Read the air-gap guide`
@@ -295,7 +295,7 @@
   `Fork the agent, fork the rules, fork the harness. We measure ourselves
   on the same metrics we publish, and we ship the dataset that produced
   them. There is no private fork.`
-- **Repo card label:** `github.com/beenuar/AiSOC`
+- **Repo card label:** `github.com/beenuar/Quarry`
 - **Repo card body:** `★ {star count} · MIT · TypeScript / Python / Go`
 - **Primary CTA:** `Star on GitHub`
 - **Secondary CTA:** `Read CONTRIBUTING.md`
@@ -303,9 +303,9 @@
   three commands:`
 - **Code snippet:**
   ```bash
-  git clone https://github.com/beenuar/AiSOC.git
-  cd AiSOC
-  pnpm aisoc:demo
+  git clone https://github.com/beenuar/Quarry.git
+  cd Quarry
+  pnpm quarry:demo
   ```
 
 ---
@@ -318,7 +318,7 @@
   `Be the first reference team.`
 - **Empty-state body:**
   `We are onboarding reference partners through Q2 2026. If your team
-  ships AiSOC into production, we will publish your case study under
+  ships Quarry into production, we will publish your case study under
   your byline, with the before/after metrics you choose.`
 - **Empty-state CTA:** `Become a reference partner`
 
@@ -342,7 +342,7 @@
   - **Price:** `Contact us — waitlist`
   - **Tagline:** `We run it. You log in.`
   - **Includes:** `Everything in Community · managed instance on
-    `app.aisoc.dev` · BYOK LLM · email support · SOC 2 (in progress).`
+    `app.quarry.dev` · BYOK LLM · email support · SOC 2 (in progress).`
 - **Card — Enterprise**
   - **Price:** `Contact us`
   - **Tagline:** `Sovereign, air-gap, or single-tenant in your VPC.`
@@ -354,14 +354,14 @@
 
 ## `faq` — FAQ
 
-1. **Q.** `Is AiSOC really open source?`
+1. **Q.** `Is Quarry really open source?`
    **A.** `Yes — the agent, the connectors, the detection rules, the
    benchmark dataset, and every piece of infrastructure code are
    MIT-licensed. There is no private fork.`
 2. **Q.** `What does the agent need to call out to?`
    **A.** `By default the Triage and Hunt agents call an LLM provider
    you configure (OpenAI, Anthropic, Azure, Bedrock, or a private
-   LiteLLM gateway). Set AISOC_AIRGAPPED=true and the platform refuses
+   LiteLLM gateway). Set QUARRY_AIRGAPPED=true and the platform refuses
    every outbound call; an Ollama sidecar runs a local model in-cluster.`
 3. **Q.** `Where does my data live?`
    **A.** `Self-host: wherever you point Postgres, ClickHouse, and
@@ -387,11 +387,11 @@
    Go) let you author your own in roughly 50 lines.`
 7. **Q.** `What runs in production today?`
    **A.** `Beta deployments through reference partners and an internal
-   demo on tryaisoc.com. The managed waitlist at app.aisoc.dev is the
+   demo on tryaisoc.com. The managed waitlist at app.quarry.dev is the
    route for hosted customers.`
 8. **Q.** `Why not just use an existing AI SOC vendor?`
    **A.** `Use whichever tools fit your risk and procurement model.
-   AiSOC's contribution is making the agent itself open, the decisions
+   Quarry's contribution is making the agent itself open, the decisions
    step-by-step auditable, and the benchmark reproducible — three
    guarantees closed-source platforms typically do not offer.`
 
@@ -421,7 +421,7 @@
 - **Column 5 — Status & GitHub:**
   `Status page` · `GitHub repo` · `Discord` · `RSS`
 - **Bottom row:**
-  `© 2024–present AiSOC contributors · MIT-licensed · v7.3.1` ·
+  `© 2024–present Quarry contributors · MIT-licensed · v7.3.1` ·
   social icons (GitHub, Discord, X) · language switcher (English
   default).
 

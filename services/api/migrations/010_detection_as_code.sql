@@ -1,4 +1,4 @@
--- AiSOC Detection-as-Code lifecycle migration (Wave 2 — w2-dac)
+-- Quarry Detection-as-Code lifecycle migration (Wave 2 — w2-dac)
 --
 -- Adds the `detection_rule_proposals` table that backs the
 -- propose → review → eval-gated → promote flow. Every proposal carries

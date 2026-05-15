@@ -339,7 +339,7 @@ func (c *CybleClient) get(ctx context.Context, endpoint string) ([]byte, error) 
 	}
 	req.Header.Set("Authorization", "Bearer "+c.apiKey)
 	req.Header.Set("Accept", "application/json")
-	req.Header.Set("User-Agent", "AiSOC-Enrichment/1.0")
+	req.Header.Set("User-Agent", "Quarry-Enrichment/1.0")
 	if c.tenantID != "" {
 		req.Header.Set("X-Tenant-Id", c.tenantID)
 	}

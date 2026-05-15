@@ -39,14 +39,14 @@ export function DashboardWelcome() {
   return (
     <section
       role="region"
-      aria-label="Welcome to AiSOC"
+      aria-label="Welcome to Quarry"
       data-testid="dashboard-welcome"
       className="rounded-xl border border-brand-400/30 bg-gradient-to-br from-brand-500/10 to-brand-700/5 p-5"
     >
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wider text-brand-300">
-            Welcome to AiSOC
+            Welcome to Quarry
           </p>
           <h2 className="mt-1 text-lg font-semibold text-fg-primary">
             You&apos;re looking at a clean console. Here&apos;s how to make it useful.

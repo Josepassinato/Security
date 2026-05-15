@@ -20,6 +20,6 @@ false_positives:
 - Vulnerability scanners (must be allowlisted)
 playbook: tpl-recon
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

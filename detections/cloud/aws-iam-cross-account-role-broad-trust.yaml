@@ -1,6 +1,6 @@
 id: det-cloud-048
 name: AWS IAM Role Trusts Foreign Account Root
-description: AiSOC v1 curated detection. Triggers on the cloud signal described by 'AWS IAM Role Trusts
+description: Quarry v1 curated detection. Triggers on the cloud signal described by 'AWS IAM Role Trusts
   Foreign Account Root'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: high
@@ -20,6 +20,6 @@ false_positives:
 - Approved partner integration
 playbook: tpl-initial-access
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

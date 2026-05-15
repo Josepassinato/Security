@@ -1,7 +1,7 @@
 """Federated search across SIEM backends.
 
 The federated layer translates a single ``UnifiedQuery`` into the native
-query languages of every backend SIEM AiSOC has a connector for (today:
+query languages of every backend SIEM Quarry has a connector for (today:
 Splunk SPL, Microsoft Sentinel KQL, Elastic ES|QL). Each connector that
 opts into federated search implements ``BaseConnector.query`` against
 this model.

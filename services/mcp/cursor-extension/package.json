@@ -1,19 +1,19 @@
 {
-  "name": "aisoc-extension",
-  "displayName": "AiSOC",
+  "name": "quarry-extension",
+  "displayName": "Quarry",
   "description": "Run triage, replay decisions, and explain agent reasoning from inside your IDE.",
   "version": "0.1.0",
-  "publisher": "aisoc",
+  "publisher": "quarry",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/beenuar/AiSOC.git",
+    "url": "git+https://github.com/Josepassinato/quarry.git",
     "directory": "services/mcp/cursor-extension"
   },
   "bugs": {
-    "url": "https://github.com/beenuar/AiSOC/issues"
+    "url": "https://github.com/Josepassinato/quarry/issues"
   },
-  "homepage": "https://github.com/beenuar/AiSOC/tree/main/services/mcp/cursor-extension",
+  "homepage": "https://github.com/Josepassinato/quarry/tree/main/services/mcp/cursor-extension",
   "engines": {
     "vscode": "^1.80.0"
   },
@@ -21,7 +21,7 @@
     "Other"
   ],
   "keywords": [
-    "aisoc",
+    "quarry",
     "mcp",
     "security",
     "soc",
@@ -29,63 +29,63 @@
     "siem"
   ],
   "activationEvents": [
-    "onCommand:aisoc.runTriage",
-    "onCommand:aisoc.replayDecision",
-    "onCommand:aisoc.explainStep",
-    "onCommand:aisoc.queryDetections",
-    "onCommand:aisoc.setApiKey",
-    "onCommand:aisoc.clearApiKey"
+    "onCommand:quarry.runTriage",
+    "onCommand:quarry.replayDecision",
+    "onCommand:quarry.explainStep",
+    "onCommand:quarry.queryDetections",
+    "onCommand:quarry.setApiKey",
+    "onCommand:quarry.clearApiKey"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "aisoc.runTriage",
-        "title": "AiSOC: Run Triage on Case…",
-        "category": "AiSOC"
+        "command": "quarry.runTriage",
+        "title": "Quarry: Run Triage on Case…",
+        "category": "Quarry"
       },
       {
-        "command": "aisoc.replayDecision",
-        "title": "AiSOC: Replay Investigation Step…",
-        "category": "AiSOC"
+        "command": "quarry.replayDecision",
+        "title": "Quarry: Replay Investigation Step…",
+        "category": "Quarry"
       },
       {
-        "command": "aisoc.explainStep",
-        "title": "AiSOC: Explain Why the Agent Did This",
-        "category": "AiSOC"
+        "command": "quarry.explainStep",
+        "title": "Quarry: Explain Why the Agent Did This",
+        "category": "Quarry"
       },
       {
-        "command": "aisoc.queryDetections",
-        "title": "AiSOC: Find Detections for This Technique",
-        "category": "AiSOC"
+        "command": "quarry.queryDetections",
+        "title": "Quarry: Find Detections for This Technique",
+        "category": "Quarry"
       },
       {
-        "command": "aisoc.setApiKey",
-        "title": "AiSOC: Set API Key…",
-        "category": "AiSOC"
+        "command": "quarry.setApiKey",
+        "title": "Quarry: Set API Key…",
+        "category": "Quarry"
       },
       {
-        "command": "aisoc.clearApiKey",
-        "title": "AiSOC: Clear Stored API Key",
-        "category": "AiSOC"
+        "command": "quarry.clearApiKey",
+        "title": "Quarry: Clear Stored API Key",
+        "category": "Quarry"
       }
     ],
     "configuration": {
       "type": "object",
-      "title": "AiSOC",
+      "title": "Quarry",
       "properties": {
-        "aisoc.mcpEndpoint": {
+        "quarry.mcpEndpoint": {
           "type": "string",
           "default": "http://localhost:8765/mcp",
-          "description": "URL of the AiSOC MCP HTTP gateway. The extension posts JSON-RPC `tools/call` requests to this endpoint."
+          "description": "URL of the Quarry MCP HTTP gateway. The extension posts JSON-RPC `tools/call` requests to this endpoint."
         },
-        "aisoc.apiKey": {
+        "quarry.apiKey": {
           "type": "string",
           "default": "",
-          "markdownDescription": "**Do not paste your API key here.** This setting exists for transparency only — the active key is stored in your IDE's secret storage and managed via the `AiSOC: Set API Key…` command. Leave this empty.",
+          "markdownDescription": "**Do not paste your API key here.** This setting exists for transparency only — the active key is stored in your IDE's secret storage and managed via the `Quarry: Set API Key…` command. Leave this empty.",
           "scope": "machine"
         },
-        "aisoc.requestTimeoutMs": {
+        "quarry.requestTimeoutMs": {
           "type": "number",
           "default": 30000,
           "description": "Per-request timeout when calling the MCP endpoint, in milliseconds."

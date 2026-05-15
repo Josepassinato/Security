@@ -1,6 +1,6 @@
 id: det-cloud-168
 name: Kubernetes pods/exec In Production Namespace
-description: AiSOC v1 curated detection. Triggers on the cloud signal described by 'Kubernetes pods/exec
+description: Quarry v1 curated detection. Triggers on the cloud signal described by 'Kubernetes pods/exec
   In Production Namespace'. Watch the 2 documented false-positive cases before tuning.
 version: 1.0.0
 severity: high
@@ -21,6 +21,6 @@ false_positives:
 - DFIR responder running a documented playbook
 playbook: tpl-execution
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

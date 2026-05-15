@@ -1,6 +1,6 @@
 id: det-endpoint-011
 name: EDR / AV Service Stopped or Unloaded
-description: AiSOC v1 curated detection. Triggers on the endpoint signal described by 'EDR / AV Service
+description: Quarry v1 curated detection. Triggers on the endpoint signal described by 'EDR / AV Service
   Stopped or Unloaded'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: critical
@@ -19,6 +19,6 @@ false_positives:
 - Approved upgrade (must reference change ticket)
 playbook: tpl-defense-evasion
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

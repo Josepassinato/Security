@@ -1,1 +1,1 @@
-"""Security primitives for the AiSOC Actions service."""
+"""Security primitives for the Quarry Actions service."""

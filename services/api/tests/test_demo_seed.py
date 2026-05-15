@@ -1,4 +1,4 @@
-"""Tests for the T6.4 quick-seed (``pnpm aisoc:demo --quick``) path.
+"""Tests for the T6.4 quick-seed (``pnpm quarry:demo --quick``) path.
 
 The quick-seed mode in ``app.scripts.seed_demo`` is the path the 90-second
 product screencast records against: it populates exactly four deterministic
@@ -153,7 +153,7 @@ def test_demo_quick_uuid_is_stable_per_input() -> None:
 def test_demo_quick_clock_parses_default_iso() -> None:
     """``--clock`` defaults to the canonical T6.4 anchor.
 
-    A user who runs ``pnpm aisoc:demo --quick`` without ``--clock`` must
+    A user who runs ``pnpm quarry:demo --quick`` without ``--clock`` must
     land on the same wall-clock the screencast was recorded at, or the
     alert "happened-at" labels will drift between runs.
     """
@@ -171,7 +171,7 @@ def test_demo_quick_clock_parses_default_iso() -> None:
 # (an alembic-migrated schema). The CI demo-seed workflow runs this; the
 # default local `pytest` invocation skips it. Run explicitly with:
 #
-#     AISOC_RUN_INTEGRATION=1 pytest -m integration services/api/tests/test_demo_seed.py
+#     QUARRY_RUN_INTEGRATION=1 pytest -m integration services/api/tests/test_demo_seed.py
 #
 # Without the env var we skip rather than fail so developer machines
 # don't have to run a Postgres container to get the unit tests green.
@@ -181,13 +181,13 @@ def test_demo_quick_clock_parses_default_iso() -> None:
 def test_demo_quick_seed_persists_four_cases() -> None:
     """End-to-end: run the quick seeder, count DEMO-* cases.
 
-    Skipped unless ``AISOC_RUN_INTEGRATION=1`` and a Postgres reachable
+    Skipped unless ``QUARRY_RUN_INTEGRATION=1`` and a Postgres reachable
     via ``DATABASE_URL`` is up. The seeder is expected to land exactly
     four ``Case`` rows keyed ``DEMO-001`` … ``DEMO-004`` with the
     connector_sources lists from the contract above.
     """
-    if not os.getenv("AISOC_RUN_INTEGRATION"):
-        pytest.skip("set AISOC_RUN_INTEGRATION=1 to run the seed against Postgres")
+    if not os.getenv("QUARRY_RUN_INTEGRATION"):
+        pytest.skip("set QUARRY_RUN_INTEGRATION=1 to run the seed against Postgres")
 
     # Local import so the heavy SQLAlchemy + asyncpg dependency chain
     # doesn't load when the integration test is skipped (which is the

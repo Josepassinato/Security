@@ -1,7 +1,7 @@
 # Future Release Implementation Plan
 
 > **Status**: Draft v1 — derived from a codebase + docs scout on 2026-05.
-> **Scope**: Everything in the AiSOC monorepo currently shipped as a stub,
+> **Scope**: Everything in the Quarry monorepo currently shipped as a stub,
 > simulation, "coming soon", placeholder, or roadmap entry.
 > **Convention**: Mirrors `PROGRESS.md`. Use `[ ]` → `[~]` (in flight) → `[x]`
 > (shipped). Each item lists files, acceptance criteria, eval impact, and
@@ -57,7 +57,7 @@ files trigger the harness re-grade rule in `AGENTS.md`.
   - Audit log records vendor, isolation_id, and rollback_id.
   - `blast_radius=high` confirmation gate (already in
     `services/actions/app/blast_radius.py`) blocks unattended runs unless
-    `AISOC_ALLOW_HIGH_BLAST_AUTO=1`.
+    `QUARRY_ALLOW_HIGH_BLAST_AUTO=1`.
 - [ ] **Risk**: Vendor API rate limits, partial-isolation states. Mitigate with
       idempotency keys keyed on `action_id`.
 
@@ -94,7 +94,7 @@ files trigger the harness re-grade rule in `AGENTS.md`.
       `services/actions/app/integrations/ticketing/*.py`.
 - [ ] **Acceptance**:
   - Creates ticket with incident summary, MITRE techniques, top entities,
-    deep-link back to AiSOC case.
+    deep-link back to Quarry case.
   - Stores remote ticket key in `incident.external_refs` (new column).
   - Idempotent: re-running the same playbook step doesn't create duplicates
     (use `external_refs.{system}_dedupe_key`).
@@ -189,7 +189,7 @@ day-to-day analyst console a closed loop without dropping into the API.
 
 ## Milestone 3 — v7.0 Reach Surfaces
 
-**Theme**: Take AiSOC out of the desktop-browser comfort zone.
+**Theme**: Take Quarry out of the desktop-browser comfort zone.
 **Target release**: v7.0.
 
 ### 3A — Mobile responder app
@@ -203,11 +203,11 @@ day-to-day analyst console a closed loop without dropping into the API.
 
 ### 3B — Slack / Teams native bot
 - [ ] **What**: Replace today's webhook-only notification path with a slash-
-      command bot (`/aisoc ack`, `/aisoc assign @alice`, `/aisoc run isolate`)
+      command bot (`/quarry ack`, `/quarry assign @alice`, `/quarry run isolate`)
       that respects the blast-radius confirmation gate.
 - [ ] **Files**: new `services/chatops/` (FastAPI), connector schemas in
       `services/connectors/app/connectors/{slack,teams}.py` extended.
-- [ ] **Acceptance**: Round-trip from Slack thread → AiSOC API → playbook
+- [ ] **Acceptance**: Round-trip from Slack thread → Quarry API → playbook
       execution → reply in same thread, all under 5s p50. ChatOps actions
       are signed (Ed25519) so they show up in the immutable audit log.
 
@@ -230,7 +230,7 @@ day-to-day analyst console a closed loop without dropping into the API.
 - [ ] **Acceptance**:
   - Phase 2: User can connect Google Workspace / Microsoft 365 / Okta with
     one click — no redirect-URI configuration.
-  - Phase 3: `aisoc bundle export` produces a signed offline OAuth bundle;
+  - Phase 3: `quarry bundle export` produces a signed offline OAuth bundle;
     air-gapped install verifies signature before accepting.
 
 ---
@@ -244,7 +244,7 @@ to a real ecosystem.
 ### 4A — Commercial plugin publishing
 - [ ] **Files**: `marketplace/index.json` schema bump, `apps/web/public/marketplace/`
       sync, `scripts/build_marketplace.py` (resolve current `XXXX` placeholders).
-- [ ] **What**: Publishers can ship paid plugins with license keys; AiSOC
+- [ ] **What**: Publishers can ship paid plugins with license keys; Quarry
       core verifies entitlement at install.
 - [ ] **Acceptance**: Two reference paid plugins (one connector, one action)
       ship through the publishing flow end-to-end.
@@ -299,7 +299,7 @@ sequenced, and tied to existing surfaces.
       tenant's environment (assets, exposed services, recent detections).
 - [ ] **Files**: `services/threatintel/app/briefing.py` (new).
 - [ ] **Acceptance**: Briefing posted to the `intel` channel of each tenant;
-      links resolve back into AiSOC.
+      links resolve back into Quarry.
 
 ### 5D — Auto IOC sharing to MISP
 - [ ] **What**: Bidirectional sync with a MISP instance — pull feeds and push
@@ -340,7 +340,7 @@ sequenced, and tied to existing surfaces.
 These are real but small. Group as a single "tech-debt sweep" sprint.
 
 - [ ] Replace `# TODO: implement enrichment logic` in
-      `packages/aisoc-cli/src/aisoc_cli/main.py` with a call to the existing
+      `packages/quarry-cli/src/aisoc_cli/main.py` with a call to the existing
       enrichment service.
 - [ ] Resolve `XXXX` placeholders in `scripts/build_marketplace.py`.
 - [ ] Replace `CVE-2024-XXXXX` placeholder in
@@ -359,13 +359,13 @@ These are real but small. Group as a single "tech-debt sweep" sprint.
 
 ## Milestone 7 — Items already covered by feature flags
 
-All `AISOC_FEATURE_*` flags in `services/api/app/core/config.py` currently
+All `QUARRY_FEATURE_*` flags in `services/api/app/core/config.py` currently
 default to `True`. **Action**: audit each flag and either (a) remove it now
 that the capability is fully shipped, or (b) keep it and document it under
 `apps/docs/docs/operations/feature-flags.md` (new) with a default + deprecation
 date. Avoid permanently-on flags — they accumulate as dead code.
 
-- [ ] Inventory and triage every `AISOC_FEATURE_*` flag.
+- [ ] Inventory and triage every `QUARRY_FEATURE_*` flag.
 - [ ] Delete or document each.
 
 ---

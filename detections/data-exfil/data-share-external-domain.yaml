@@ -1,6 +1,6 @@
 id: det-data-exfil-005
 name: SaaS File Shared to External Domain
-description: AiSOC v1 curated detection. Triggers on the data-exfil signal described by 'SaaS File Shared
+description: Quarry v1 curated detection. Triggers on the data-exfil signal described by 'SaaS File Shared
   to External Domain'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: medium
@@ -20,6 +20,6 @@ false_positives:
 - Approved B2B partners (allowlisted)
 playbook: tpl-data-exfil
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

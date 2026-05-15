@@ -67,7 +67,7 @@ def _candidate_nl_query_dirs() -> list[Path]:
 
     The first entry is the in-tree vendored copy under
     ``services/api/app/_vendor/nl_query/`` — this is what ships inside the
-    ``aisoc-api`` Docker image. The second entry is the source-of-truth tree
+    ``quarry-api`` Docker image. The second entry is the source-of-truth tree
     at ``services/agents/app/nl_query/``, used during local development when
     the API runs outside of Docker.
     """
@@ -99,7 +99,7 @@ def _load_nl_query_module():
     """Load the nl_query translator under a collision-free module name.
 
     Prefers the in-tree vendored copy (so the module is available inside the
-    Dockerized ``aisoc-api`` service whose build context excludes
+    Dockerized ``quarry-api`` service whose build context excludes
     ``services/agents``) and falls back to the source-of-truth tree at
     ``services/agents/app/nl_query/`` for local non-Docker development.
     """
@@ -179,7 +179,7 @@ class NLQueryTranslateRequest(BaseModel):
         description="Plain-English security question (e.g. 'Show failed logins per user in the last 24 h').",
     )
     index_pattern: str = Field(
-        "logs-*,aisoc-events-*",
+        "logs-*,quarry-events-*",
         description="Elasticsearch index pattern to scope the ES|QL query.",
     )
     time_range_hours: int = Field(
@@ -385,7 +385,7 @@ async def execute_query(
     except AirgapViolation as exc:
         base.execution_error = (
             f"Air-gapped policy refused outbound request: {exc}. "
-            "Add the Elasticsearch host to AISOC_AIRGAP_ALLOWLIST or point ES_URL at a private endpoint."
+            "Add the Elasticsearch host to QUARRY_AIRGAP_ALLOWLIST or point ES_URL at a private endpoint."
         )
     except GrammarError as exc:
         # Should never happen — every translator output is validated — but if a

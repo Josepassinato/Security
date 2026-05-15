@@ -1,27 +1,27 @@
 ---
 sidebar_position: 13
-title: Managed instance (app.aisoc.dev)
-description: How the AiSOC managed beta works — what's deployed, how a customer is onboarded, SLAs, and billing.
+title: Managed instance (app.quarry.dev)
+description: How the Quarry managed beta works — what's deployed, how a customer is onboarded, SLAs, and billing.
 ---
 
-# Managed instance (`app.aisoc.dev`)
+# Managed instance (`app.quarry.dev`)
 
-AiSOC is open source and self-hostable, but for teams who want a SOC up
+Quarry is open source and self-hostable, but for teams who want a SOC up
 and running today — without owning the infrastructure — we run a
-**managed beta** at [`app.aisoc.dev`](https://app.aisoc.dev). This page
+**managed beta** at [`app.quarry.dev`](https://app.quarry.dev). This page
 documents how it works, who it's for, and the operational shape of the
 offering.
 
 > **Status: invite-only beta.** Capacity is rationed deliberately so we
 > can keep response times tight and feedback loops short with each
 > customer. To join the queue, submit the form at
-> [`app.aisoc.dev/waitlist`](https://app.aisoc.dev/waitlist).
+> [`app.quarry.dev/waitlist`](https://app.quarry.dev/waitlist).
 
 ## At a glance
 
 | Property | Value |
 |---|---|
-| **Hostname** | `app.aisoc.dev` (TLS terminated at Cloudflare) |
+| **Hostname** | `app.quarry.dev` (TLS terminated at Cloudflare) |
 | **Hosted on** | Fly.io (single app, multi-process) |
 | **Database** | Fly managed Postgres — primary + standby, PITR enabled |
 | **Cache / pubsub** | Fly managed Redis (Upstash-backed) |
@@ -29,17 +29,17 @@ offering.
 | **Tenancy model** | Multi-tenant; each customer is a row in `tenants` with row-level isolation |
 | **Identity** | Email + magic-link invites; SSO available on the higher tiers |
 | **Source of truth** | This repository (`apps/`, `services/`, `detections/`) |
-| **Bootstrap stack** | [`infra/terraform/environments/managed/`](https://github.com/beenuar/AiSOC/tree/main/infra/terraform/environments/managed) |
+| **Bootstrap stack** | [`infra/terraform/environments/managed/`](https://github.com/Josepassinato/quarry/tree/main/infra/terraform/environments/managed) |
 
 ## Why a managed offering at all
 
 The same code runs in three places:
 
 1. **Self-hosted** — `docker compose up`, fully air-gappable, you own the
-   keys and the data. This is the canonical AiSOC deployment.
+   keys and the data. This is the canonical Quarry deployment.
 2. **BYOC** — Terraform stack in `infra/terraform/byoc/` provisions
-   AiSOC into the customer's own AWS account.
-3. **Managed (`app.aisoc.dev`)** — same code, hosted by the AiSOC
+   Quarry into the customer's own AWS account.
+3. **Managed (`app.quarry.dev`)** — same code, hosted by the Quarry
    community on Fly.io. This is where the waitlist points.
 
 The managed offering exists for one reason: **letting a team try a
@@ -50,7 +50,7 @@ without touching any code — the migration is a `pg_dump` and a
 
 ## Architecture
 
-Each managed AiSOC deployment is a single Fly.io application with five
+Each managed Quarry deployment is a single Fly.io application with five
 process groups defined in `fly.toml`:
 
 | Process group | Source                  | Role                                                       |
@@ -78,14 +78,14 @@ The Cloudflare edge in front of Fly.io handles:
 End-to-end this is a five-step flow. Every step has an audit-log entry.
 
 1. **Customer fills the waitlist form** at
-   [`app.aisoc.dev/waitlist`](https://app.aisoc.dev/waitlist). The POST
+   [`app.quarry.dev/waitlist`](https://app.quarry.dev/waitlist). The POST
    hits `/v1/waitlist/signup`, rate-limited per IP, and the entry lands
    in `aisoc_waitlist_entries` with status `new`.
 2. **The waitlist Slack notification** fires to the sales channel via
-   `AISOC_WAITLIST_SLACK_WEBHOOK`. The Slack message links straight to
+   `QUARRY_WAITLIST_SLACK_WEBHOOK`. The Slack message links straight to
    `/admin/waitlist` for triage.
 3. **An operator reviews the entry** in
-   [`/admin/waitlist`](https://app.aisoc.dev/admin/waitlist) and
+   [`/admin/waitlist`](https://app.quarry.dev/admin/waitlist) and
    transitions the status from `new` → `contacted` once they've reached
    out, then `contacted` → `onboarded` (or `declined`) once the
    conversation has closed.
@@ -154,19 +154,19 @@ that with a small cohort of design partners than with a public price
 sheet that we have to walk back later.
 
 What we **do** care about is making LLM cost visible from day one. The
-[LLM cost dashboard](https://app.aisoc.dev/costs) (rolled out as WS-H1 of
+[LLM cost dashboard](https://app.quarry.dev/costs) (rolled out as WS-H1 of
 the v1.0 buyer-value plan) tracks every model call with token counts,
 provider, and run cost, scoped per tenant. When the beta exits and
 pricing lands, that dashboard is what we'll bill against — so
 customers can see the bill being built in real-time today.
 
-## Operator runbook (for the AiSOC community)
+## Operator runbook (for the Quarry community)
 
 If you're operating the managed instance yourself, the relevant
 runbooks live here:
 
 - **Bootstrapping new infrastructure** —
-  [`infra/terraform/environments/managed/README.md`](https://github.com/beenuar/AiSOC/blob/main/infra/terraform/environments/managed/README.md)
+  [`infra/terraform/environments/managed/README.md`](https://github.com/Josepassinato/quarry/blob/main/infra/terraform/environments/managed/README.md)
   walks through `terraform init` / `plan` / `apply`, the `fly attach`
   /`fly secrets` / `fly deploy` sequence, and the post-apply
   smoke-test commands.
@@ -187,7 +187,7 @@ runbooks live here:
 ## When to graduate
 
 The managed beta is a great starting point, but it's not where most
-serious AiSOC deployments live in steady state. Move to BYOC or
+serious Quarry deployments live in steady state. Move to BYOC or
 self-hosted when **any** of the following becomes true:
 
 - You need a contractual SLA, not a target.

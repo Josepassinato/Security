@@ -1,5 +1,5 @@
 """
-AiSOC Plugin Manager
+Quarry Plugin Manager
 Discovers, validates, loads, and dispatches calls to installed plugins.
 
 Plugin layout expected on disk (two manifest formats accepted):
@@ -10,7 +10,7 @@ Plugin layout expected on disk (two manifest formats accepted):
         class Plugin:
             async def run(self, payload: dict, context: dict) -> dict: ...
     another-connector/
-      aisoc-plugin.json    ← legacy manifest format (still supported)
+      quarry-plugin.json    ← legacy manifest format (still supported)
       plugin.py
 
 Signature verification
@@ -34,7 +34,7 @@ OCI image support (oras pull):
   Pass an OCI reference to install_from_oci() — the manager pulls the image
   layer via the ORAS CLI (must be installed) and extracts it into PLUGINS_DIR.
 
-MIT License — AiSOC (open-source AI Security Operations Center)
+MIT License — Quarry (open-source AI Security Operations Center)
 """
 
 from __future__ import annotations
@@ -66,11 +66,11 @@ except ModuleNotFoundError:
 
 logger = structlog.get_logger(__name__)
 
-# Manifest file names — plugin.yaml takes precedence over legacy aisoc-plugin.json
+# Manifest file names — plugin.yaml takes precedence over legacy quarry-plugin.json
 _MANIFEST_YAML = "plugin.yaml"
-_MANIFEST_JSON = "aisoc-plugin.json"
+_MANIFEST_JSON = "quarry-plugin.json"
 
-# Signature artifact written by ``aisoc plugin sign`` — hex-encoded Ed25519
+# Signature artifact written by ``quarry plugin sign`` — hex-encoded Ed25519
 # over the canonical manifest+source digest.
 _SIGNATURE_FILE = "plugin.sig"
 
@@ -301,7 +301,7 @@ class PluginError(Exception):
 
 def _read_manifest(plugin_dir: Path) -> dict[str, Any]:
     """
-    Read the plugin manifest from plugin.yaml (preferred) or aisoc-plugin.json (legacy).
+    Read the plugin manifest from plugin.yaml (preferred) or quarry-plugin.json (legacy).
     Raises PluginError if neither is found or parsing fails.
     """
     yaml_path = plugin_dir / _MANIFEST_YAML
@@ -325,7 +325,7 @@ def _read_manifest(plugin_dir: Path) -> dict[str, Any]:
         try:
             return json.loads(json_path.read_text())
         except (json.JSONDecodeError, OSError) as exc:
-            raise PluginError(plugin_dir.name, f"invalid aisoc-plugin.json: {exc}") from exc
+            raise PluginError(plugin_dir.name, f"invalid quarry-plugin.json: {exc}") from exc
 
     raise PluginError(plugin_dir.name, f"no manifest found (expected {_MANIFEST_YAML} or {_MANIFEST_JSON})")
 
@@ -402,7 +402,7 @@ def _load_trusted_keys(keys_dir: Path) -> list[tuple[str, bytes]]:
     """Load every PEM file under ``keys_dir`` as a candidate trust anchor.
 
     Returns a list of ``(key_id, pem_bytes)`` tuples, where ``key_id`` is
-    the file stem (e.g. ``aisoc-core`` for ``aisoc-core.pem``). Missing
+    the file stem (e.g. ``quarry-core`` for ``quarry-core.pem``). Missing
     directories yield an empty list — callers decide whether that's fatal
     based on trust mode.
     """
@@ -479,7 +479,7 @@ def _verify_plugin_signature(
 class PluginManager:
     """
     Singleton-style manager that:
-    - Discovers plugins from PLUGINS_DIR (both plugin.yaml and aisoc-plugin.json)
+    - Discovers plugins from PLUGINS_DIR (both plugin.yaml and quarry-plugin.json)
     - Validates manifests (v4.0 types: connector|enricher|responder|detection|widget)
     - Dynamically imports plugin.py
     - Supports installing plugins from OCI images via `oras pull`
@@ -494,16 +494,16 @@ class PluginManager:
             try:
                 from app.core.config import settings as _cfg  # noqa: PLC0415
 
-                self._plugins_dir = Path(_cfg.AISOC_PLUGINS_DIR)
+                self._plugins_dir = Path(_cfg.QUARRY_PLUGINS_DIR)
             except Exception:
-                self._plugins_dir = Path(os.getenv("AISOC_PLUGINS_DIR", "/opt/aisoc/plugins"))
+                self._plugins_dir = Path(os.getenv("QUARRY_PLUGINS_DIR", "/opt/quarry/plugins"))
         self._lock = asyncio.Lock()
 
     # ── Discovery ─────────────────────────────────────────────────────────────
 
     async def discover(self) -> list[str]:
         """
-        Scan PLUGINS_DIR for subdirectories that contain plugin.yaml or aisoc-plugin.json.
+        Scan PLUGINS_DIR for subdirectories that contain plugin.yaml or quarry-plugin.json.
         Returns a list of plugin IDs successfully loaded.
         """
         if not self._plugins_dir.exists():
@@ -527,7 +527,7 @@ class PluginManager:
         return loaded
 
     async def _load_plugin(self, plugin_dir: Path) -> str:
-        """Load a single plugin directory. Supports plugin.yaml and aisoc-plugin.json."""
+        """Load a single plugin directory. Supports plugin.yaml and quarry-plugin.json."""
         raw = _read_manifest(plugin_dir)
 
         missing = [f for f in ("id", "name", "version", "plugin_type") if not raw.get(f)]
@@ -603,7 +603,7 @@ class PluginManager:
             keys_dir = Path(_cfg.PLUGIN_TRUSTED_KEYS_DIR)
         except Exception:  # pragma: no cover — config import failures handled in tests
             mode = os.getenv("PLUGIN_TRUST_MODE", TRUST_MODE_STRICT).lower()
-            keys_dir = Path(os.getenv("PLUGIN_TRUSTED_KEYS_DIR", "/opt/aisoc/plugin-keys"))
+            keys_dir = Path(os.getenv("PLUGIN_TRUSTED_KEYS_DIR", "/opt/quarry/plugin-keys"))
 
         if mode not in _VALID_TRUST_MODES:
             logger.warning(
@@ -622,7 +622,7 @@ class PluginManager:
         Pull a plugin OCI image using the ``oras`` CLI and install it into PLUGINS_DIR.
 
         The OCI image must contain a single layer whose media type is
-        ``application/vnd.aisoc.plugin.v1+tar`` or any tar/gzip layer.
+        ``application/vnd.quarry.plugin.v1+tar`` or any tar/gzip layer.
         The extracted directory must contain a valid plugin manifest.
 
         Hardening (H-3):
@@ -654,7 +654,7 @@ class PluginManager:
 
         self._plugins_dir.mkdir(parents=True, exist_ok=True)
 
-        with tempfile.TemporaryDirectory(prefix="aisoc-oci-") as tmp:
+        with tempfile.TemporaryDirectory(prefix="quarry-oci-") as tmp:
             tmp_path = Path(tmp)
             logger.info("pulling OCI image", ref=oci_ref, tmp=str(tmp_path))
 

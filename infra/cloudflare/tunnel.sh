@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# tunnel.sh — bring up a Cloudflare Tunnel for the AiSOC public demo.
+# tunnel.sh — bring up a Cloudflare Tunnel for the Quarry public demo.
 #
 # What this script does, top to bottom:
 #
@@ -39,13 +39,13 @@
 #
 #   bash infra/cloudflare/tunnel.sh                # default: tryaisoc.com
 #   DOMAIN=demo.example.com bash infra/cloudflare/tunnel.sh
-#   TUNNEL_NAME=my-aisoc bash infra/cloudflare/tunnel.sh
+#   TUNNEL_NAME=my-quarry bash infra/cloudflare/tunnel.sh
 #   CLOUDFLARE_TUNNEL_TOKEN=ey… bash infra/cloudflare/tunnel.sh
 #
 # Env vars (all optional):
 #
 #   DOMAIN                    Apex domain to publish (default: tryaisoc.com)
-#   TUNNEL_NAME               Cloudflare Tunnel name (default: aisoc-tryaisoc).
+#   TUNNEL_NAME               Cloudflare Tunnel name (default: quarry-tryaisoc).
 #                             Ignored when CLOUDFLARE_TUNNEL_TOKEN is set —
 #                             the dashboard owns the name in that case.
 #   SUBDOMAINS                Space-separated subdomains to wire up under
@@ -72,7 +72,7 @@ set -euo pipefail
 # ---------------------------------------------------------------------------
 
 DOMAIN="${DOMAIN:-tryaisoc.com}"
-TUNNEL_NAME="${TUNNEL_NAME:-aisoc-tryaisoc}"
+TUNNEL_NAME="${TUNNEL_NAME:-quarry-tryaisoc}"
 SUBDOMAINS="${SUBDOMAINS:-api ws docs}"
 CFD_DIR="${CFD_DIR:-$HOME/.cloudflared}"
 # TUNNEL_ORIGIN_CERT is a recognised cloudflared env var: it points the binary
@@ -128,7 +128,7 @@ command -v cloudflared >/dev/null 2>&1 || fatal \
 #   3. The dashboard shows an install command containing `--token ey…`. Copy
 #      everything after `--token`.
 #   4. In the "Public hostnames" tab, add four entries pointing at your local
-#      host (the box running `pnpm aisoc:demo`):
+#      host (the box running `pnpm quarry:demo`):
 #          tryaisoc.com         → http://localhost:3000
 #          api.tryaisoc.com     → http://localhost:8000
 #          ws.tryaisoc.com      → http://localhost:8086
@@ -143,7 +143,7 @@ if [ -n "${CLOUDFLARE_TUNNEL_TOKEN:-}" ]; then
 
   cat <<EOF
 
-${C_BOLD}AiSOC public demo (token-managed) is now reachable at the public hostnames
+${C_BOLD}Quarry public demo (token-managed) is now reachable at the public hostnames
 configured in your Cloudflare Zero Trust dashboard, e.g.:${C_RESET}
   • https://${DOMAIN}
   • https://api.${DOMAIN}
@@ -324,7 +324,7 @@ fi
 
 cat <<EOF
 
-${C_BOLD}AiSOC public demo is now reachable at:${C_RESET}
+${C_BOLD}Quarry public demo is now reachable at:${C_RESET}
   • https://${DOMAIN}
   • https://api.${DOMAIN}
   • https://ws.${DOMAIN}

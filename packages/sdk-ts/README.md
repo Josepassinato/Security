@@ -3,7 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/@quarry/sdk)](https://www.npmjs.com/package/@quarry/sdk)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](../../LICENSE)
 
-TypeScript client SDK for [AiSOC](https://github.com/beenuar/AiSOC) — auto-generated types from `docs/openapi.yaml`, hand-crafted ergonomic API.
+TypeScript client SDK for [Quarry](https://github.com/Josepassinato/quarry) — auto-generated types from `docs/openapi.yaml`, hand-crafted ergonomic API.
 
 ## Installation
 
@@ -16,11 +16,11 @@ pnpm add @quarry/sdk
 ## Quick start
 
 ```ts
-import { AiSOCClient } from "@quarry/sdk";
+import { QuarryClient } from "@quarry/sdk";
 
-const client = new AiSOCClient({
-  baseUrl: "https://your-aisoc.example.com",
-  token: process.env.AISOC_API_TOKEN!, // JWT or aisoc_… API key
+const client = new QuarryClient({
+  baseUrl: "https://your-quarry.example.com",
+  token: process.env.QUARRY_API_TOKEN!, // JWT or aisoc_… API key
 });
 
 // List critical open alerts
@@ -59,7 +59,7 @@ const result = await client.graphql<{ alerts: { items: unknown[] } }>(`
 
 ## API reference
 
-All resource sub-clients live on the `AiSOCClient` instance:
+All resource sub-clients live on the `QuarryClient` instance:
 
 | Namespace | Methods |
 |---|---|

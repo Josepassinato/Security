@@ -1,11 +1,11 @@
 // Package main is the Jamf Pro MDM connector reference implementation in Go.
 //
-// This binary registers a Jamf connector against the AiSOC Go plugin SDK and
+// This binary registers a Jamf connector against the Quarry Go plugin SDK and
 // exposes the same surface as the Python implementation:
 //
 //	get_device, list_devices, lock_device, wipe_device, get_compliance, get_inventory
 //
-// AiSOC's runtime currently loads Python plugins via plugin.py; this Go file
+// Quarry's runtime currently loads Python plugins via plugin.py; this Go file
 // is a reference for cross-language SDK parity for operators who want to
 // build their own native binary plugins.
 package main
@@ -20,39 +20,39 @@ import (
 	"strings"
 	"time"
 
-	"github.com/beenuar/aisoc/plugin-sdk-go/aisoc"
+	"github.com/beenuar/quarry/plugin-sdk-go/quarry"
 )
 
-// JamfConnector implements the aisoc.Connector interface for Jamf Pro.
+// JamfConnector implements the quarry.Connector interface for Jamf Pro.
 type JamfConnector struct {
-	aisoc.BasePlugin
+	quarry.BasePlugin
 
 	httpClient *http.Client
 	token      string
 	tokenExp   time.Time
 }
 
-// Manifest returns the plugin manifest matching the canonical aisoc-plugin.json.
-func (j *JamfConnector) Manifest() aisoc.PluginManifest {
-	return aisoc.PluginManifest{
+// Manifest returns the plugin manifest matching the canonical quarry-plugin.json.
+func (j *JamfConnector) Manifest() quarry.PluginManifest {
+	return quarry.PluginManifest{
 		ID:          "jamf-mdm",
 		Name:        "Jamf Pro MDM Connector",
 		Version:     "1.0.0",
-		PluginType:  aisoc.PluginTypeConnector,
+		PluginType:  quarry.PluginTypeConnector,
 		Description: "Jamf Pro MDM connector for Apple device fleet management.",
-		Author:      "AiSOC Core Team",
+		Author:      "Quarry Core Team",
 		Tags:        []string{"mdm", "jamf", "endpoint", "apple"},
 	}
 }
 
 // OnLoad initializes the HTTP client.
-func (j *JamfConnector) OnLoad(ctx context.Context, pctx aisoc.PluginContext) error {
+func (j *JamfConnector) OnLoad(ctx context.Context, pctx quarry.PluginContext) error {
 	j.httpClient = &http.Client{Timeout: 30 * time.Second}
 	return nil
 }
 
 // TestConnection verifies credentials by fetching an OAuth token.
-func (j *JamfConnector) TestConnection(ctx context.Context, pctx aisoc.PluginContext) (bool, error) {
+func (j *JamfConnector) TestConnection(ctx context.Context, pctx quarry.PluginContext) (bool, error) {
 	if _, err := j.fetchToken(ctx, pctx); err != nil {
 		return false, err
 	}
@@ -62,7 +62,7 @@ func (j *JamfConnector) TestConnection(ctx context.Context, pctx aisoc.PluginCon
 // FetchEvents pulls computer-inventory updates as a stream of audit events.
 func (j *JamfConnector) FetchEvents(
 	ctx context.Context,
-	pctx aisoc.PluginContext,
+	pctx quarry.PluginContext,
 	since string,
 ) (<-chan map[string]any, error) {
 	out := make(chan map[string]any)
@@ -96,7 +96,7 @@ func (j *JamfConnector) FetchEvents(
 	return out, nil
 }
 
-func (j *JamfConnector) fetchToken(ctx context.Context, pctx aisoc.PluginContext) (string, error) {
+func (j *JamfConnector) fetchToken(ctx context.Context, pctx quarry.PluginContext) (string, error) {
 	if j.token != "" && time.Now().Before(j.tokenExp.Add(-30*time.Second)) {
 		return j.token, nil
 	}
@@ -138,7 +138,7 @@ func (j *JamfConnector) fetchToken(ctx context.Context, pctx aisoc.PluginContext
 }
 
 func main() {
-	registry := aisoc.NewRegistry()
+	registry := quarry.NewRegistry()
 	if err := registry.Register(&JamfConnector{}); err != nil {
 		panic(err)
 	}

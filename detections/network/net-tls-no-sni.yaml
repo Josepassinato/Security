@@ -1,6 +1,6 @@
 id: det-network-048
 name: HTTPS Connection To IP Without SNI
-description: AiSOC v1 curated detection. Triggers on the network signal described by 'HTTPS Connection
+description: Quarry v1 curated detection. Triggers on the network signal described by 'HTTPS Connection
   To IP Without SNI'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: medium
@@ -20,6 +20,6 @@ false_positives:
 - IoT device with broken TLS stack
 playbook: tpl-command-and-control
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

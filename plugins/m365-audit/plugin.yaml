@@ -9,9 +9,9 @@ description: >
   data-access and configuration events with the same Azure AD app credentials
   used by the Entra connector. Requires ActivityFeed.Read on the registered
   app.
-author: AiSOC Core Team
+author: Quarry Core Team
 tags: [saas, microsoft, m365, office365, audit, exchange, sharepoint, teams]
-homepage: https://github.com/beenuar/AiSOC/tree/main/services/connectors/app/connectors/m365_audit.py
+homepage: https://github.com/beenuar/Quarry/tree/main/services/connectors/app/connectors/m365_audit.py
 license: MIT
 min_aisoc_version: "4.0.0"
 config_schema:

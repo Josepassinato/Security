@@ -38,7 +38,7 @@ Postgres. The endpoint module is a thin orchestration layer; the
 service layer here is what carries the business rules. Mocking the
 session keeps the suite fast (<1s) and deterministic.
 
-AiSOC — open-source AI Security Operations Center (MIT License)
+Quarry — open-source AI Security Operations Center (MIT License)
 Author: Beenu Arora <beenu@cyble.com>
 """
 

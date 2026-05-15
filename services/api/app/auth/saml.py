@@ -1,5 +1,5 @@
 """
-SAML 2.0 Service Provider implementation for AiSOC.
+SAML 2.0 Service Provider implementation for Quarry.
 
 Flow:
   1. GET  /auth/saml/login          → redirect to IdP SSO URL

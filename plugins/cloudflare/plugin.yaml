@@ -6,12 +6,12 @@ tier: stable
 description: >
   Cloudflare account-scope audit logs (zone changes, API token grants, member
   adds, WAF/firewall edits) via the Cloudflare v4 API. Captures operator
-  activity across the account so high-risk admin actions land in AiSOC
+  activity across the account so high-risk admin actions land in Quarry
   alongside other identity-plane signal. Requires an API token scoped to
   Account: Audit Logs: Read.
-author: AiSOC Core Team
+author: Quarry Core Team
 tags: [saas, cloudflare, audit, identity, admin, edge]
-homepage: https://github.com/beenuar/AiSOC/tree/main/services/connectors/app/connectors/cloudflare.py
+homepage: https://github.com/beenuar/Quarry/tree/main/services/connectors/app/connectors/cloudflare.py
 license: MIT
 min_aisoc_version: "4.0.0"
 config_schema:

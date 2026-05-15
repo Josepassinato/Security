@@ -31,7 +31,7 @@ def test_capabilities():
 
 def test_normalize_severity_hazardous_is_critical():
     """Orca's ``hazardous`` tier (also known as ``imminent_compromise``)
-    represents active exploitation and maps to AiSOC's P1 ``critical`` tier
+    represents active exploitation and maps to Quarry's P1 ``critical`` tier
     so it lands in the 15-minute MTTD lane."""
     conn = OrcaConnector(api_token="t")
     raw = {
@@ -58,7 +58,7 @@ def test_normalize_severity_hazardous_is_critical():
 
 
 def test_normalize_severity_critical_preserves_critical():
-    # Orca's ``critical`` tier mirrors directly into AiSOC's ``critical`` —
+    # Orca's ``critical`` tier mirrors directly into Quarry's ``critical`` —
     # never silently downgrade a P1 finding.
     conn = OrcaConnector(api_token="t")
     raw = {"alert_id": "c1", "state": {"severity": "critical"}}
@@ -160,7 +160,7 @@ async def test_fetch_alerts_data_envelope():
     alerts = await conn.fetch_alerts(since_seconds=300)
     assert len(alerts) == 2
     assert alerts[0]["external_id"] == "a1"
-    # Orca's ``critical`` flows straight through to AiSOC's ``critical`` —
+    # Orca's ``critical`` flows straight through to Quarry's ``critical`` —
     # no collapse to ``high``.
     assert alerts[0]["severity"] == "critical"
     assert alerts[1]["severity"] == "medium"

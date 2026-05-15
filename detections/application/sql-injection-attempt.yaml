@@ -18,6 +18,6 @@ false_positives:
 - Security-research / pen-test traffic (allowlist src)
 playbook: tpl-webattack
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

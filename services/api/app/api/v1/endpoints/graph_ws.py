@@ -3,7 +3,7 @@
 The browser opens ``wss://api.../v1/graph_ws/stream`` with the user's
 session bearer token. This endpoint authenticates the token, derives
 the tenant_id from the resolved user, then dials the *internal*
-ingest broadcaster at ``$AISOC_INGEST_GRAPH_WS_URL`` with the
+ingest broadcaster at ``$QUARRY_INGEST_GRAPH_WS_URL`` with the
 tenant_id bound in the URL. Every envelope the upstream sends is
 relayed verbatim to the browser; the browser cannot subscribe to
 another tenant because the proxy controls the upstream URL.
@@ -81,15 +81,15 @@ router = APIRouter(prefix="/graph_ws", tags=["graph", "realtime"])
 
 # Default upstream — matches the ingest binary's default port (8080)
 # and the route registered by services/ingest/internal/server/server.go.
-# Operators override per-deployment with AISOC_INGEST_GRAPH_WS_URL,
-# e.g. ws://ingest.aisoc.svc.cluster.local:8080/v1/graph_ws/stream.
+# Operators override per-deployment with QUARRY_INGEST_GRAPH_WS_URL,
+# e.g. ws://ingest.quarry.svc.cluster.local:8080/v1/graph_ws/stream.
 _DEFAULT_UPSTREAM = "ws://ingest:8080/v1/graph_ws/stream"
 
 
 def _upstream_url(tenant_id: uuid.UUID) -> str:
     """Build the upstream URL with the resolved tenant bound."""
 
-    base = os.environ.get("AISOC_INGEST_GRAPH_WS_URL", _DEFAULT_UPSTREAM)
+    base = os.environ.get("QUARRY_INGEST_GRAPH_WS_URL", _DEFAULT_UPSTREAM)
     parts = urlsplit(base)
     qs = parts.query
     binding = f"tenant_id={quote(str(tenant_id), safe='')}"

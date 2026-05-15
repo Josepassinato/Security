@@ -1,7 +1,7 @@
 """
 Override Accuracy Eval — Analyst Feedback Fidelity Gate
 =======================================================
-Cross-cutting eval for the AiSOC capability roadmap (2026 H2): when an
+Cross-cutting eval for the Quarry capability roadmap (2026 H2): when an
 analyst overrides an agent verdict, the correction must be faithfully
 stored, retrievable, and applied to future similar alerts.
 

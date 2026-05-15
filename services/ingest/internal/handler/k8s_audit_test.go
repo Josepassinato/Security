@@ -20,7 +20,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/beenuar/aisoc/services/ingest/internal/config"
+	"github.com/beenuar/quarry/services/ingest/internal/config"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -50,7 +50,7 @@ func auditReq(t *testing.T, body []byte, tenantID, headerToken string) *http.Req
 	t.Helper()
 	req := httptest.NewRequest(http.MethodPost, "/v1/ingest/k8s-audit/"+tenantID, bytes.NewReader(body))
 	if headerToken != "" {
-		req.Header.Set("X-AiSOC-K8s-Token", headerToken)
+		req.Header.Set("X-Quarry-K8s-Token", headerToken)
 	}
 	rctx := chi.NewRouteContext()
 	rctx.URLParams.Add("tenant_id", tenantID)
@@ -115,7 +115,7 @@ func TestK8sAuditEvents_RejectsMissingTenantID(t *testing.T) {
 	rec := httptest.NewRecorder()
 	body := []byte(`{"items":[]}`)
 	req := httptest.NewRequest(http.MethodPost, "/v1/ingest/k8s-audit/", bytes.NewReader(body))
-	req.Header.Set("X-AiSOC-K8s-Token", "right-secret")
+	req.Header.Set("X-Quarry-K8s-Token", "right-secret")
 	rctx := chi.NewRouteContext()
 	rctx.URLParams.Add("tenant_id", "")
 	req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))

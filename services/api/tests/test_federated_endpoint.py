@@ -135,7 +135,7 @@ def test_ensure_feature_enabled_passthrough_when_on() -> None:
     """When the flag is on, the helper is a no-op. Anything else means
     the feature is silently broken."""
     with patch("app.api.v1.endpoints.federated.settings") as mock_settings:
-        mock_settings.AISOC_FEATURE_FED_SEARCH = True
+        mock_settings.QUARRY_FEATURE_FED_SEARCH = True
         # Should not raise.
         _ensure_feature_enabled()
 
@@ -145,11 +145,11 @@ def test_ensure_feature_enabled_404s_when_off() -> None:
     rather than admitting it exists, which matches how the rest of the
     feature-flagged endpoints behave."""
     with patch("app.api.v1.endpoints.federated.settings") as mock_settings:
-        mock_settings.AISOC_FEATURE_FED_SEARCH = False
+        mock_settings.QUARRY_FEATURE_FED_SEARCH = False
         with pytest.raises(HTTPException) as exc_info:
             _ensure_feature_enabled()
     assert exc_info.value.status_code == 404
-    assert "AISOC_FEATURE_FED_SEARCH" in exc_info.value.detail
+    assert "QUARRY_FEATURE_FED_SEARCH" in exc_info.value.detail
 
 
 # ---------------------------------------------------------- _query_one_backend

@@ -2,40 +2,40 @@
 sidebar_position: 5
 ---
 
-# Plugin CLI (`aisoc-cli`)
+# Plugin CLI (`quarry-cli`)
 
-The `aisoc-cli` ships scaffolding, validation, packaging, signing, and trust
+The `quarry-cli` ships scaffolding, validation, packaging, signing, and trust
 management commands for every supported plugin type — `enricher`, `connector`,
 `responder`, `detection`, and `widget`.
 
-The CLI source lives under `packages/aisoc-cli/`. Install it from the repo for
+The CLI source lives under `packages/quarry-cli/`. Install it from the repo for
 hacking on it locally:
 
 ```bash
-pip install -e packages/aisoc-cli
+pip install -e packages/quarry-cli
 ```
 
 Or install the published wheel:
 
 ```bash
-pip install aisoc-cli
+pip install quarry-cli
 ```
 
 ## Scaffolding new plugins
 
-Use `aisoc plugin new` to scaffold a brand-new plugin from the bundled
-templates for its type. The legacy `aisoc plugin scaffold` command remains
+Use `quarry plugin new` to scaffold a brand-new plugin from the bundled
+templates for its type. The legacy `quarry plugin scaffold` command remains
 available as an alias for backwards compatibility.
 
 ```bash
 # Recommended
-aisoc plugin new "Wazuh Connector" \
+quarry plugin new "Wazuh Connector" \
   --type connector \
   --output-dir plugins/ \
   --author "My Org <security@example.com>"
 
 # Backwards-compatible alias
-aisoc plugin scaffold "Wazuh Connector" --type connector --output-dir plugins/
+quarry plugin scaffold "Wazuh Connector" --type connector --output-dir plugins/
 ```
 
 | Flag | Default | Description |
@@ -46,7 +46,7 @@ aisoc plugin scaffold "Wazuh Connector" --type connector --output-dir plugins/
 | `--author` | `Your Name <you@example.com>` | Author string written into `plugin.yaml`. |
 
 The command refuses to overwrite an existing directory and prints the next
-steps (edit `plugin.yaml`, implement the entry point, run `aisoc plugin
+steps (edit `plugin.yaml`, implement the entry point, run `quarry plugin
 validate`).
 
 ### What you get per plugin type
@@ -64,7 +64,7 @@ following files:
 | `widget` | `plugin.yaml`, `widget.py`, `README.md` |
 
 The canonical templates live inside the CLI package at
-`packages/aisoc-cli/src/aisoc_cli/templates/<type>/` and are loaded at runtime
+`packages/quarry-cli/src/aisoc_cli/templates/<type>/` and are loaded at runtime
 via `importlib.resources`, so they ship inside the wheel. Edit the `.tmpl`
 files there to change what new plugins look like.
 
@@ -74,9 +74,9 @@ that location.
 ## Validating plugins
 
 ```bash
-aisoc plugin validate plugins/wazuh-connector/plugin.yaml
+quarry plugin validate plugins/wazuh-connector/plugin.yaml
 # or pass the directory and validate all manifests inside
-aisoc plugin validate plugins/wazuh-connector
+quarry plugin validate plugins/wazuh-connector
 ```
 
 `validate` parses the YAML manifest against the same JSON schema the platform
@@ -89,10 +89,10 @@ The CLI also wraps the workflows documented under
 [Publishing Plugins](./publishing):
 
 ```bash
-aisoc plugin keygen   --out ./keys/myorg
-aisoc plugin sign     --plugin-dir ./my-enricher --private-key $KEY
-aisoc plugin package  --plugin-dir ./my-enricher --out dist/
+quarry plugin keygen   --out ./keys/myorg
+quarry plugin sign     --plugin-dir ./my-enricher --private-key $KEY
+quarry plugin package  --plugin-dir ./my-enricher --out dist/
 ```
 
-Run `aisoc plugin --help` for the full command list and `aisoc plugin <cmd>
+Run `quarry plugin --help` for the full command list and `quarry plugin <cmd>
 --help` for individual command flags.

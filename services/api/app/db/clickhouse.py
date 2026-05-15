@@ -1,7 +1,7 @@
 """ClickHouse client for the tenant lake (Workstream 7).
 
-ClickHouse is the warm-tier store for ``aisoc.raw_events``,
-``aisoc.alert_metrics``, and ``aisoc.ioc_enrichments`` — see
+ClickHouse is the warm-tier store for ``quarry.raw_events``,
+``quarry.alert_metrics``, and ``quarry.ioc_enrichments`` — see
 ``services/api/clickhouse/001_init.sql`` for the schema. Operators and the
 agent runtime hit this tier via ``POST /api/v1/lake/sql`` and
 ``GET /api/v1/lake/schema``; that surface lives one layer above this file
@@ -354,7 +354,7 @@ async def fetch_lake_schema(
     The shape of each entry is::
 
         {
-            "table": "aisoc.raw_events",
+            "table": "quarry.raw_events",
             "columns": [
                 {"name": "tenant_id", "type": "UUID", "comment": "..."},
                 ...

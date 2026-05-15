@@ -26,7 +26,7 @@ Wazuh rules carry a 0-15 ``level``; the official guidance maps roughly to:
 * 12-14 — high (rootkit, exploit, IOC hit)
 * 15    — critical / attack (multi-stage attack, severe exploit)
 
-We map that to AiSOC's 5-tier ladder (info | low | medium | high | critical)
+We map that to Quarry's 5-tier ladder (info | low | medium | high | critical)
 so Wazuh's hardest P1 alerts (level 15 — the only level Wazuh explicitly
 documents as "critical") keep their original priority rather than getting
 silently downgraded into ``high``.
@@ -63,10 +63,10 @@ logger = structlog.get_logger()
 # ---------------------------------------------------------------------------
 # Severity mapping
 #
-# Map the 0-15 Wazuh ladder into AiSOC's 5-tier
+# Map the 0-15 Wazuh ladder into Quarry's 5-tier
 # ``info | low | medium | high | critical`` ladder. Level 15 is the only
 # tier Wazuh explicitly documents as "critical / attack" so we surface it
-# at the AiSOC ``critical`` band; levels 12-14 stay at ``high``. The
+# at the Quarry ``critical`` band; levels 12-14 stay at ``high``. The
 # matching operator-facing table lives in ``apps/docs/connectors/wazuh.md``
 # so SOC analysts can predict what they will see. Boundaries are inclusive
 # on the lower end.
@@ -82,7 +82,7 @@ _SEVERITY_BANDS: tuple[tuple[int, str], ...] = (
 
 
 def _severity_from_level(level: int | float | str | None) -> str:
-    """Map a Wazuh rule level (0-15) to an AiSOC severity tier.
+    """Map a Wazuh rule level (0-15) to an Quarry severity tier.
 
     Defensive against non-int levels because Wazuh ships rule packs from
     third parties that occasionally store ``level`` as a string. We fall
@@ -103,7 +103,7 @@ class WazuhConnector(BaseConnector):
     """Wazuh — open-source XDR/SIEM.
 
     Polls the Wazuh indexer (OpenSearch-compatible) for alerts above a
-    configurable rule-level threshold and normalizes them into the AiSOC
+    configurable rule-level threshold and normalizes them into the Quarry
     canonical alert shape.
     """
 
@@ -133,7 +133,7 @@ class WazuhConnector(BaseConnector):
             description=(
                 "Wazuh — open-source XDR/SIEM. Pulls alerts from the "
                 "Wazuh indexer (OpenSearch-compatible) and maps the "
-                "0-15 rule level onto the AiSOC severity ladder."
+                "0-15 rule level onto the Quarry severity ladder."
             ),
             docs_url="/docs/connectors/wazuh",
             fields=[
@@ -214,7 +214,7 @@ class WazuhConnector(BaseConnector):
             "Authorization": f"Basic {token}",
             "Accept": "application/json",
             "Content-Type": "application/json",
-            "User-Agent": "AiSOC/connectors-wazuh",
+            "User-Agent": "Quarry/connectors-wazuh",
         }
 
     # ---- runtime ------------------------------------------------------
@@ -305,7 +305,7 @@ class WazuhConnector(BaseConnector):
         return [self.normalize(hit) for hit in hits if isinstance(hit, dict)]
 
     def normalize(self, raw: dict[str, Any]) -> dict[str, Any]:
-        """Project a Wazuh indexer hit into the AiSOC canonical alert shape.
+        """Project a Wazuh indexer hit into the Quarry canonical alert shape.
 
         ``raw`` is the full OpenSearch hit envelope (``_id``, ``_index``,
         ``_source``). We pull the meaningful fields out of ``_source`` and

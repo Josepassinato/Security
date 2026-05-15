@@ -5,7 +5,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="HONEYTOKEN_", env_file=".env", extra="ignore")
 
     # Database
-    database_url: str = "postgresql+asyncpg://aisoc:aisoc@localhost:5432/aisoc"
+    database_url: str = "postgresql+asyncpg://quarry:aisoc@localhost:5432/quarry"
 
     # Webhook alerting. ``alert_webhook_secret`` previously defaulted to the
     # literal string ``"changeme"`` — anyone running this service with the
@@ -21,7 +21,7 @@ class Settings(BaseSettings):
 
     # OTel
     otel_endpoint: str = "http://localhost:4317"
-    service_name: str = "aisoc-honeytokens"
+    service_name: str = "quarry-honeytokens"
 
     # API
     host: str = "0.0.0.0"

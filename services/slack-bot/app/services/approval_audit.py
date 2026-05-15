@@ -1,5 +1,5 @@
 """
-Approval-trail audit sink for the AiSOC Slack bot.
+Approval-trail audit sink for the Quarry Slack bot.
 
 T3.6 adds a full audit trail for every interactive approval decision —
 ``case_id``, ``approver_id``, ``decision``, ``timestamp``, ``channel``,
@@ -17,7 +17,7 @@ T3.6 adds a full audit trail for every interactive approval decision —
   links) can stuff their own context without growing the public API.
 
 The default production sink is :class:`StructlogAuditSink` which emits a
-single ``aisoc.approval_decision`` structured event per decision. The
+single ``quarry.approval_decision`` structured event per decision. The
 ``services/api`` audit-export pipeline (`services/api/app/services/audit_export.py`)
 already grovels structlog JSON, so this lands in the existing audit
 report without any new wiring on the API side.
@@ -112,7 +112,7 @@ class InMemoryAuditSink:
 
 class StructlogAuditSink:
     """
-    Production sink. Emits one ``aisoc.approval_decision`` structlog event
+    Production sink. Emits one ``quarry.approval_decision`` structlog event
     per recorded :class:`ApprovalAuditEvent`. The event is then captured by
     the JSON log pipeline and surfaced in the audit export bundle on the
     API side.
@@ -126,6 +126,6 @@ class StructlogAuditSink:
 
     async def record(self, event: ApprovalAuditEvent) -> None:
         try:
-            self._log.info("aisoc.approval_decision", **event.as_dict())
+            self._log.info("quarry.approval_decision", **event.as_dict())
         except Exception as exc:  # noqa: BLE001 - last-resort guard
-            self._log.error("aisoc.approval_decision_audit_failed", error=str(exc))
+            self._log.error("quarry.approval_decision_audit_failed", error=str(exc))

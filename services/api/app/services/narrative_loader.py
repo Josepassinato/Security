@@ -10,7 +10,7 @@ The narrative builder lives canonically in
   alert whose ``narrative`` column is still ``NULL`` (e.g. legacy rows that
   were fused before the column existed).
 
-Because the ``aisoc-api`` Docker image is built with ``services/api`` as its
+Because the ``quarry-api`` Docker image is built with ``services/api`` as its
 build context, anything under ``services/fusion`` is **not** available at
 runtime. ``scripts/sync_vendored_narrative.py`` byte-mirrors the source file
 into ``services/api/app/_vendor/narrative.py``; CI fails the build if the two
@@ -36,7 +36,7 @@ the same ``NarrativeInputs`` returns the same byte-for-byte string. The
 caller (the alerts endpoint) safely persists the result on the row so we
 only pay the build cost once per alert.
 
-AiSOC — open-source AI Security Operations Center (MIT License)
+Quarry — open-source AI Security Operations Center (MIT License)
 Author: Beenu Arora <beenu@cyble.com>
 """
 
@@ -68,7 +68,7 @@ def _candidate_narrative_files() -> list[Path]:
 
     The first entry is the in-tree vendored copy under
     ``services/api/app/_vendor/narrative.py`` — this is what ships inside
-    the ``aisoc-api`` Docker image. The second entry is the source-of-truth
+    the ``quarry-api`` Docker image. The second entry is the source-of-truth
     file at ``services/fusion/app/services/narrative.py``, used during local
     development when the API runs outside of Docker.
     """
@@ -99,7 +99,7 @@ def _load_narrative_module() -> ModuleType:
     """Load the narrative builder under a collision-free module name.
 
     Prefers the in-tree vendored copy (so the module is available inside the
-    Dockerized ``aisoc-api`` service whose build context excludes
+    Dockerized ``quarry-api`` service whose build context excludes
     ``services/fusion``) and falls back to the source-of-truth file at
     ``services/fusion/app/services/narrative.py`` for local non-Docker
     development.

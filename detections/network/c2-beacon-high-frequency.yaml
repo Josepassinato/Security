@@ -21,6 +21,6 @@ false_positives:
 - Telemetry / heartbeat agents to known endpoints (allowlist destination)
 playbook: tpl-c2
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

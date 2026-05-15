@@ -1,6 +1,6 @@
 """Send the interactive ChatOps verification message.
 
-Two transports today, mirroring how AiSOC connectors are wired:
+Two transports today, mirroring how Quarry connectors are wired:
 
 * ``slack`` — POSTs an `Incoming Webhook
   <https://api.slack.com/messaging/webhooks>`_ payload with a Block Kit
@@ -92,7 +92,7 @@ async def send_slack_prompt(
     elements = [{k: v for k, v in el.items() if v is not None} for el in elements]
 
     payload: dict[str, Any] = {
-        "text": f"AiSOC verification: {question}",
+        "text": f"Quarry verification: {question}",
         "blocks": [
             {"type": "section", "text": {"type": "mrkdwn", "text": f"*{question}*"}},
             {"type": "context", "elements": [{"type": "mrkdwn", "text": context}]},
@@ -125,9 +125,9 @@ async def send_teams_prompt(
     payload = {
         "@type": "MessageCard",
         "@context": "https://schema.org/extensions",
-        "summary": f"AiSOC verification: {question}",
+        "summary": f"Quarry verification: {question}",
         "themeColor": "0078D4",
-        "title": "AiSOC verification",
+        "title": "Quarry verification",
         "text": f"**{question}**\n\n{context}",
         "potentialAction": [
             {

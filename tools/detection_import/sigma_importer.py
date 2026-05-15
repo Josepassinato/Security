@@ -1,17 +1,17 @@
-"""SigmaHQ → AiSOC detection importer.
+"""SigmaHQ → Quarry detection importer.
 
 Pulls rules from `SigmaHQ/sigma <https://github.com/SigmaHQ/sigma>`_ at a
-pinned commit and converts each rule into AiSOC's internal Sigma-inspired
+pinned commit and converts each rule into Quarry's internal Sigma-inspired
 schema with a populated ``provenance`` block.
 
-The Sigma format is already very close to what AiSOC ships natively, so the
+The Sigma format is already very close to what Quarry ships natively, so the
 conversion is mostly:
 
-* normalise category to AiSOC's six-folder taxonomy (cloud / endpoint /
+* normalise category to Quarry's six-folder taxonomy (cloud / endpoint /
   identity / network / application / data-exfil),
 * keep the upstream ``detection:`` block verbatim,
 * extract MITRE ATT&CK technique IDs from ``tags:``,
-* compute a stable AiSOC rule id (``sigmahq-sigma-<slug>``),
+* compute a stable Quarry rule id (``sigmahq-sigma-<slug>``),
 * drop deprecated and test rules, quarantine experimental ones.
 
 Run via ``python3 -m tools.detection_import.import_orchestrator`` from the
@@ -87,7 +87,7 @@ def _extract_mitre_techniques(tags: list[str]) -> list[str]:
 
 
 def _category_for(logsource: dict, upstream_path: Path) -> str:
-    """Map a Sigma rule to one of AiSOC's six categories.
+    """Map a Sigma rule to one of Quarry's six categories.
 
     Tries ``logsource.product`` first, then ``logsource.category``, and finally
     falls back to the top-level rules subdirectory in the upstream repo
@@ -241,7 +241,7 @@ def import_rules(
             rule = _convert_rule(raw, path, repo_path, commit)
             if rule is None:
                 continue
-            # Dedup by AiSOC rule id (collisions are extremely rare since we
+            # Dedup by Quarry rule id (collisions are extremely rare since we
             # incorporate the upstream UUID).
             if rule.rule_id in seen_ids:
                 continue

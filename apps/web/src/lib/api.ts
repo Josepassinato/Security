@@ -1,5 +1,5 @@
 /**
- * AiSOC API Client
+ * Quarry API Client
  *
  * Typed HTTP client that talks to the Core API service and a few sibling
  * microservices (agents, fusion, threatintel, enrichment).
@@ -106,7 +106,7 @@ export const DEFAULT_TENANT_ID = TENANT_ID;
 // `NEXT_PUBLIC_TENANT_ID` remains the floor so demo and SSR contexts keep
 // working when no user is logged in.
 
-export const ACTIVE_TENANT_KEY = 'aisoc.activeTenantId';
+export const ACTIVE_TENANT_KEY = 'quarry.activeTenantId';
 
 export function getActiveTenantId(): string {
   if (typeof window === 'undefined') return TENANT_ID;
@@ -186,7 +186,7 @@ async function request<T>(path: string, options: FetchOptions = {}): Promise<T> 
         (headers as Record<string, string>).Authorization ??
         (headers as Record<string, string>).authorization;
       if (!existing) {
-        const token = window.localStorage.getItem('aisoc.responder.accessToken');
+        const token = window.localStorage.getItem('quarry.responder.accessToken');
         if (token) {
           (headers as Record<string, string>).Authorization = `Bearer ${token}`;
         }
@@ -228,9 +228,9 @@ async function request<T>(path: string, options: FetchOptions = {}): Promise<T> 
 
 // ─── Auth ────────────────────────────────────────────────────────────────────
 
-export const AUTH_TOKEN_KEY = 'aisoc.responder.accessToken';
-export const AUTH_REFRESH_KEY = 'aisoc.responder.refreshToken';
-export const AUTH_USER_KEY = 'aisoc.responder.user';
+export const AUTH_TOKEN_KEY = 'quarry.responder.accessToken';
+export const AUTH_REFRESH_KEY = 'quarry.responder.refreshToken';
+export const AUTH_USER_KEY = 'quarry.responder.user';
 
 export interface AuthUser {
   id: string;
@@ -273,7 +273,7 @@ export const authApi = {
    * The backend returns access + refresh tokens only, so we follow up with
    * ``GET /api/v1/auth/me`` to fetch the user record. On success, persist
    * everything under the same localStorage keys the responder PWA uses
-   * (``aisoc.responder.accessToken`` etc.) so the existing ``request()``
+   * (``quarry.responder.accessToken`` etc.) so the existing ``request()``
    * helper attaches the JWT automatically and a single login covers desktop
    * + mobile.
    */
@@ -947,7 +947,7 @@ export const queueApi = {
 
 // ─── Risk-Based Alerting (entity rollup) ─────────────────────────────────────
 //
-// Wave 1 of the AiSOC v6 capability roadmap: alerts contribute time-decayed
+// Wave 1 of the Quarry v6 capability roadmap: alerts contribute time-decayed
 // risk *points* onto the entities they touch (user / host / src_ip / domain).
 // Once an entity crosses ``rba_promotion_threshold`` it becomes the primary
 // unit of triage in the UI — so the analyst opens "the user fox.beach" with
@@ -1482,7 +1482,7 @@ export const casesApi = {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `aisoc-report-${runId}.pdf`;
+    a.download = `quarry-report-${runId}.pdf`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -4267,9 +4267,9 @@ export const feedbackApi = {
 // in the Settings → "Deployment & AI" panel cannot drift from runtime behaviour.
 
 export interface AirgapStatus {
-  /** True when AISOC_AIRGAPPED is set; the egress gate is enforcing. */
+  /** True when QUARRY_AIRGAPPED is set; the egress gate is enforcing. */
   enabled: boolean;
-  /** Operator-supplied AISOC_AIRGAP_ALLOWLIST entries. */
+  /** Operator-supplied QUARRY_AIRGAP_ALLOWLIST entries. */
   allowlist: string[];
   /** Always-allowed private/internal suffixes (.local, .internal, ...). */
   implicit_private_suffixes: string[];
@@ -4292,7 +4292,7 @@ export type LlmEffectivePath = 'live' | 'fallback';
 export interface LlmStatus {
   /** Stable provider id classified from the configured base URL. */
   provider: LlmProvider;
-  /** LLM_MODEL / OPENAI_MODEL / AISOC_LLM_MODEL — empty string when unset. */
+  /** LLM_MODEL / OPENAI_MODEL / QUARRY_LLM_MODEL — empty string when unset. */
   model: string;
   /** Configured base URL (LLM_BASE_URL or OPENAI_BASE_URL). Empty when unset. */
   base_url: string;
@@ -4731,7 +4731,7 @@ export const auditApi = {
     }
     const filename = parseFilenameFromContentDisposition(
       response.headers.get('Content-Disposition'),
-      `aisoc-audit-${timestampSlug()}.csv`,
+      `quarry-audit-${timestampSlug()}.csv`,
     );
     const body = await response.text();
     return { body, filename };
@@ -4759,7 +4759,7 @@ export const auditApi = {
     }
     const filename = parseFilenameFromContentDisposition(
       response.headers.get('Content-Disposition'),
-      `aisoc-audit-${timestampSlug()}.html`,
+      `quarry-audit-${timestampSlug()}.html`,
     );
     const html = await response.text();
     return { html, filename };

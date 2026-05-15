@@ -6,9 +6,9 @@ tier: stable
 description: >
   Cisco Umbrella DNS + secure web gateway activity. Surfaces blocked domains,
   malware verdicts, and proxy events.
-author: AiSOC Core Team
+author: Quarry Core Team
 tags: [network, cisco, umbrella, dns]
-homepage: https://github.com/beenuar/AiSOC/tree/main/services/connectors/app/connectors/cisco_umbrella.py
+homepage: https://github.com/beenuar/Quarry/tree/main/services/connectors/app/connectors/cisco_umbrella.py
 license: MIT
 min_aisoc_version: "4.0.0"
 config_schema:

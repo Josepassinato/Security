@@ -4,9 +4,9 @@ sidebar_position: 3
 
 # Detection Rules
 
-AiSOC ships detection content in a Sigma-inspired YAML format and arranges it
+Quarry ships detection content in a Sigma-inspired YAML format and arranges it
 into four **tiers** based on origin, the legal redistribution chain, and what
-the AiSOC engine can run as-is.
+the Quarry engine can run as-is.
 
 ## Tiers
 
@@ -17,10 +17,10 @@ the AiSOC engine can run as-is.
 | Quarantined | `detections/<source>-imports/_quarantine/<category>/`  | `enabled: false` | schema + provenance, plus a populated `quarantine_reason`            |
 | Community   | `detections/community/<category>/`                     | `enabled: false` | schema only (provenance encouraged)                                  |
 
-The native tier is the strict-quality, AiSOC-authored layer (currently 800
+The native tier is the strict-quality, Quarry-authored layer (currently 800
 fixture-tested rules with 1,200 positive/negative fixtures). Imported tiers are
-normalized into the AiSOC schema by
-the source-specific importers under [`tools/detection_import/`](https://github.com/beenuar/AiSOC/blob/main/tools/detection_import/README.md)
+normalized into the Quarry schema by
+the source-specific importers under [`tools/detection_import/`](https://github.com/Josepassinato/quarry/blob/main/tools/detection_import/README.md)
 and remain empty in a fresh checkout until you run them.
 
 ## Native rule format
@@ -49,7 +49,7 @@ false_positives:
   - Password manager retries during outages
 playbook: tpl-brute-force-response-v1
 enabled: true
-author: AiSOC
+author: Quarry
 created: "2026-04-01"
 modified: "2026-05-04"
 references:
@@ -106,7 +106,7 @@ provenance:
 ```
 
 The full attribution table for every redistributed corpus lives in the repo's
-[`LICENSES.md`](https://github.com/beenuar/AiSOC/blob/main/LICENSES.md).
+[`LICENSES.md`](https://github.com/Josepassinato/quarry/blob/main/LICENSES.md).
 
 ### Quarantine
 
@@ -119,7 +119,7 @@ are still indexed for coverage accounting and surfaced in the UI as
 
 ## CI validation
 
-The validator at [`scripts/validate_detections.py`](https://github.com/beenuar/AiSOC/blob/main/scripts/validate_detections.py)
+The validator at [`scripts/validate_detections.py`](https://github.com/Josepassinato/quarry/blob/main/scripts/validate_detections.py)
 classifies every rule by tier from its on-disk path and applies the right
 checks:
 
@@ -140,7 +140,7 @@ Validated 6913 rules — 6913 passed, 0 failed, 0 fixture warnings
 Counts move as importers refresh upstream sources; the line above is a
 sample from the November 2026 pull, not a hard target.
 
-CI integration is wired into the [`Validate Detection Rules`](https://github.com/beenuar/AiSOC/actions/workflows/validate-detections.yml)
+CI integration is wired into the [`Validate Detection Rules`](https://github.com/Josepassinato/quarry/actions/workflows/validate-detections.yml)
 workflow.
 
 ## MITRE coverage
@@ -177,8 +177,8 @@ curl -X POST http://localhost:8000/api/v1/marketplace/install \
 
 ## Importing third-party rules
 
-The importers under [`tools/detection_import/`](https://github.com/beenuar/AiSOC/blob/main/tools/detection_import/README.md)
-clone pinned upstream commits, normalize each rule into the AiSOC schema, and
+The importers under [`tools/detection_import/`](https://github.com/Josepassinato/quarry/blob/main/tools/detection_import/README.md)
+clone pinned upstream commits, normalize each rule into the Quarry schema, and
 emit them into the matching `detections/<source>-imports/` tree with
 provenance attached.
 
@@ -191,5 +191,5 @@ python3 -m tools.detection_import.import_orchestrator --source sigmahq
 ```
 
 Splunk SPL, Chronicle YARA-L, and MITRE CAR rules are written into the
-`_quarantine/` subdirectory by default because the AiSOC engine cannot execute
+`_quarantine/` subdirectory by default because the Quarry engine cannot execute
 those query languages as-is.

@@ -24,7 +24,7 @@ import httpx
 from app.core.config import get_settings
 from app.models.easm import ExternalAssetType
 
-logger = logging.getLogger("aisoc.easm.discovery")
+logger = logging.getLogger("quarry.easm.discovery")
 
 SHODAN_BASE = "https://api.shodan.io"
 CENSYS_HOSTS_BASE = "https://search.censys.io/api/v2"
@@ -189,10 +189,10 @@ async def run_discovery(
     all_assets: list[DiscoveredAsset] = []
 
     passive_tasks = []
-    if s.AISOC_EASM_SHODAN_API_KEY:
-        passive_tasks.append(_shodan_search(org_query, s.AISOC_EASM_SHODAN_API_KEY))
-    if s.AISOC_EASM_CENSYS_API_ID and s.AISOC_EASM_CENSYS_API_SECRET:
-        passive_tasks.append(_censys_search(org_query, s.AISOC_EASM_CENSYS_API_ID, s.AISOC_EASM_CENSYS_API_SECRET))
+    if s.QUARRY_EASM_SHODAN_API_KEY:
+        passive_tasks.append(_shodan_search(org_query, s.QUARRY_EASM_SHODAN_API_KEY))
+    if s.QUARRY_EASM_CENSYS_API_ID and s.QUARRY_EASM_CENSYS_API_SECRET:
+        passive_tasks.append(_censys_search(org_query, s.QUARRY_EASM_CENSYS_API_ID, s.QUARRY_EASM_CENSYS_API_SECRET))
 
     if passive_tasks:
         passive_results = await asyncio.gather(*passive_tasks, return_exceptions=True)
@@ -202,8 +202,8 @@ async def run_discovery(
             elif isinstance(res, BaseException):
                 logger.error("Passive discovery connector error: %s", res)
 
-    if s.AISOC_EASM_ACTIVE_SCAN_ENABLED and ip_targets:
-        active_assets = await _active_scan(ip_targets, s.AISOC_EASM_SCAN_PORTS)
+    if s.QUARRY_EASM_ACTIVE_SCAN_ENABLED and ip_targets:
+        active_assets = await _active_scan(ip_targets, s.QUARRY_EASM_SCAN_PORTS)
         all_assets.extend(active_assets)
 
     return all_assets

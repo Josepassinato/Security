@@ -1,6 +1,6 @@
 id: det-cloud-072
 name: AWS RDS Instance Modified To Publicly Accessible
-description: AiSOC v1 curated detection. Triggers on the cloud signal described by 'AWS RDS Instance Modified
+description: Quarry v1 curated detection. Triggers on the cloud signal described by 'AWS RDS Instance Modified
   To Publicly Accessible'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: critical
@@ -19,6 +19,6 @@ false_positives:
 - Lab/demo workload only
 playbook: tpl-data-exposure
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

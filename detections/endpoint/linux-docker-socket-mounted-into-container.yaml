@@ -1,6 +1,6 @@
 id: det-endpoint-165
 name: Docker Socket Mounted Into Container
-description: AiSOC v1 curated detection. Triggers on the endpoint signal described by 'Docker Socket Mounted
+description: Quarry v1 curated detection. Triggers on the endpoint signal described by 'Docker Socket Mounted
   Into Container'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: critical
@@ -19,6 +19,6 @@ false_positives:
 - Authorised CI runner pattern
 playbook: tpl-privilege-escalation
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

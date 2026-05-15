@@ -4,7 +4,7 @@ Sublime Security email-security connector.
 Sublime is an email-security platform that auto-triages inbound mail
 against a marketplace of detection rules. We poll its public REST API
 for **messages** that match high-confidence detection rules — these
-flow into AiSOC as alerts so the email-incident playbook has the same
+flow into Quarry as alerts so the email-incident playbook has the same
 shape regardless of which email-security vendor produced the verdict.
 
 API: ``GET /v1/messages?reviewed=false&query=...`` returns paginated

@@ -1,5 +1,5 @@
 /**
- * Tests for `aisoc-mcp install` host configuration.
+ * Tests for `quarry-mcp install` host configuration.
  *
  * These exercise:
  *
@@ -26,7 +26,7 @@ import { install } from "../src/installers/index.js";
 let tmpDir: string;
 
 beforeEach(() => {
-  tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "aisoc-mcp-test-"));
+  tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "quarry-mcp-test-"));
 });
 
 afterEach(() => {
@@ -34,15 +34,15 @@ afterEach(() => {
 });
 
 const baseCfg: ServerConfig = {
-  aisocUrl: "https://aisoc.example.com",
+  aisocUrl: "https://quarry.example.com",
   apiKey: "aisoc_test_key",
   timeoutMs: 20_000,
   verbose: false,
-  userAgent: "aisoc-mcp/0.1.0 test",
+  userAgent: "quarry-mcp/0.1.0 test",
 };
 
 describe("install (real write)", () => {
-  it("creates a brand-new config file with mcpServers.aisoc", () => {
+  it("creates a brand-new config file with mcpServers.quarry", () => {
     const configPath = path.join(tmpDir, "claude_desktop_config.json");
     const result = install({ host: "claude", cfg: baseCfg, configPath });
 
@@ -53,12 +53,12 @@ describe("install (real write)", () => {
     const written = JSON.parse(fs.readFileSync(configPath, "utf8"));
     expect(written).toEqual({
       mcpServers: {
-        aisoc: {
+        quarry: {
           command: "npx",
           args: ["-y", "@quarry/mcp", "serve"],
           env: {
-            AISOC_URL: "https://aisoc.example.com",
-            AISOC_API_KEY: "aisoc_test_key",
+            QUARRY_URL: "https://quarry.example.com",
+            QUARRY_API_KEY: "aisoc_test_key",
           },
         },
       },
@@ -92,7 +92,7 @@ describe("install (real write)", () => {
     const written = JSON.parse(fs.readFileSync(configPath, "utf8"));
     expect(written.editor).toEqual({ theme: "dark" });
     expect(written.mcpServers.someOther).toEqual({ command: "true" });
-    expect(written.mcpServers.aisoc.command).toBe("npx");
+    expect(written.mcpServers.quarry.command).toBe("npx");
   });
 
   it("is idempotent: a second identical install reports no change", () => {
@@ -105,13 +105,13 @@ describe("install (real write)", () => {
     expect(second.message).toMatch(/Already configured/);
   });
 
-  it("reports 'Updated' when an existing aisoc entry changes shape", () => {
+  it("reports 'Updated' when an existing quarry entry changes shape", () => {
     const configPath = path.join(tmpDir, "claude.json");
     fs.writeFileSync(
       configPath,
       JSON.stringify({
         mcpServers: {
-          aisoc: { command: "old", args: ["legacy"] },
+          quarry: { command: "old", args: ["legacy"] },
         },
       }),
     );
@@ -122,7 +122,7 @@ describe("install (real write)", () => {
     expect(result.message).not.toMatch(/^Wrote/);
   });
 
-  it("includes AISOC_TIMEOUT_MS only when it differs from the default", () => {
+  it("includes QUARRY_TIMEOUT_MS only when it differs from the default", () => {
     const cfgCustom: ServerConfig = { ...baseCfg, timeoutMs: 7500 };
     const cfgDefault: ServerConfig = { ...baseCfg, timeoutMs: 20_000 };
 
@@ -137,10 +137,10 @@ describe("install (real write)", () => {
       configPath: path.join(tmpDir, "b.json"),
     });
 
-    expect((a.snippet.env as Record<string, string>).AISOC_TIMEOUT_MS).toBe(
+    expect((a.snippet.env as Record<string, string>).QUARRY_TIMEOUT_MS).toBe(
       "7500",
     );
-    expect((b.snippet.env as Record<string, string>).AISOC_TIMEOUT_MS).toBeUndefined();
+    expect((b.snippet.env as Record<string, string>).QUARRY_TIMEOUT_MS).toBeUndefined();
   });
 
   it("omits the API key from env when none is configured", () => {
@@ -151,8 +151,8 @@ describe("install (real write)", () => {
       configPath: path.join(tmpDir, "mcp.json"),
     });
     const env = result.snippet.env as Record<string, string>;
-    expect(env.AISOC_URL).toBe("https://aisoc.example.com");
-    expect(env.AISOC_API_KEY).toBeUndefined();
+    expect(env.QUARRY_URL).toBe("https://quarry.example.com");
+    expect(env.QUARRY_API_KEY).toBeUndefined();
   });
 
   it("dry-run does not touch the filesystem", () => {
@@ -193,7 +193,7 @@ describe("install host=cody (no file write)", () => {
     expect(result.changed).toBe(false);
     expect(result.configPath).toBeUndefined();
     expect(result.message).toContain("cody.mcp.servers");
-    expect(result.message).toContain("aisoc");
+    expect(result.message).toContain("quarry");
     expect(fs.existsSync(configPath)).toBe(false);
   });
 });
@@ -210,7 +210,7 @@ describe("buildServerSnippet shape", () => {
     expect(result.snippet.args).toEqual(["-y", "@quarry/mcp", "serve"]);
   });
 
-  it("propagates the verbose flag into AISOC_VERBOSE", () => {
+  it("propagates the verbose flag into QUARRY_VERBOSE", () => {
     const cfgVerbose: ServerConfig = { ...baseCfg, verbose: true };
     const result = install({
       host: "claude",
@@ -218,7 +218,7 @@ describe("buildServerSnippet shape", () => {
       configPath: path.join(tmpDir, "claude.json"),
       dryRun: true,
     });
-    expect((result.snippet.env as Record<string, string>).AISOC_VERBOSE).toBe(
+    expect((result.snippet.env as Record<string, string>).QUARRY_VERBOSE).toBe(
       "1",
     );
   });

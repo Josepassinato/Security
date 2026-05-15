@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # =============================================================================
-# AiSOC Demo Lab — one-command full-stack setup
+# Quarry Demo Lab — one-command full-stack setup
 # =============================================================================
 # Usage:
-#   pnpm aisoc:lab              # start the full lab (default)
-#   pnpm aisoc:lab -- --reset   # wipe volumes and start fresh
-#   pnpm aisoc:lab -- --down    # tear down everything
-#   pnpm aisoc:lab -- --logs    # follow logs after startup
+#   pnpm quarry:lab              # start the full lab (default)
+#   pnpm quarry:lab -- --reset   # wipe volumes and start fresh
+#   pnpm quarry:lab -- --down    # tear down everything
+#   pnpm quarry:lab -- --logs    # follow logs after startup
 #
 # What it does:
 #   1. Starts the full Docker Compose stack (infra + API + agents + web)
@@ -47,7 +47,7 @@ fail()   { echo -e "  ${RED}fail${NC}  $*"; exit 1; }
 
 # ── Tear-down ──────────────────────────────────────────────────────────────────
 if $DOWN; then
-  banner "Tearing down AiSOC Demo Lab..."
+  banner "Tearing down Quarry Demo Lab..."
   docker compose -f "$COMPOSE_FILE" down --remove-orphans
   ok "All containers stopped"
   exit 0
@@ -55,7 +55,7 @@ fi
 
 # ── Reset (wipe volumes) ───────────────────────────────────────────────────────
 if $RESET; then
-  banner "Resetting AiSOC Demo Lab (wiping volumes)..."
+  banner "Resetting Quarry Demo Lab (wiping volumes)..."
   docker compose -f "$COMPOSE_FILE" down --volumes --remove-orphans || true
   ok "Volumes wiped"
 fi
@@ -70,7 +70,7 @@ command -v docker compose &>/dev/null 2>&1 || \
 ok "Docker OK"
 
 # ── Start the stack ────────────────────────────────────────────────────────────
-banner "Starting AiSOC Demo Lab..."
+banner "Starting Quarry Demo Lab..."
 echo -e "  Compose file: ${CYAN}${COMPOSE_FILE}${NC}\n"
 
 docker compose -f "$COMPOSE_FILE" up -d --remove-orphans
@@ -85,7 +85,7 @@ wait_healthy() {
   printf "  Waiting for %-20s" "$name..."
   while [ $i -lt $max ]; do
     local health
-    health=$(docker inspect --format='{{.State.Health.Status}}' "aisoc-${name}" 2>/dev/null || true)
+    health=$(docker inspect --format='{{.State.Health.Status}}' "quarry-${name}" 2>/dev/null || true)
     if [[ "$health" == "healthy" ]]; then
       echo -e " ${GREEN}healthy${NC}"
       return 0
@@ -141,7 +141,7 @@ else
 fi
 
 # ── Print service URLs ─────────────────────────────────────────────────────────
-banner "AiSOC Demo Lab is ready"
+banner "Quarry Demo Lab is ready"
 echo ""
 echo -e "  ${BOLD}Service URLs${NC}"
 echo -e "  ${CYAN}Web App           ${NC} http://localhost:3000"
@@ -153,9 +153,9 @@ echo -e "  ${CYAN}Kafka UI          ${NC} http://localhost:8080"
 echo -e "  ${CYAN}OpenSearch        ${NC} http://localhost:9200"
 echo ""
 echo -e "  ${BOLD}Quick commands${NC}"
-echo -e "  ${YELLOW}pnpm aisoc:lab -- --logs${NC}   Follow all container logs"
-echo -e "  ${YELLOW}pnpm aisoc:lab -- --reset${NC}  Wipe volumes and restart"
-echo -e "  ${YELLOW}pnpm aisoc:lab -- --down${NC}   Stop everything"
+echo -e "  ${YELLOW}pnpm quarry:lab -- --logs${NC}   Follow all container logs"
+echo -e "  ${YELLOW}pnpm quarry:lab -- --reset${NC}  Wipe volumes and restart"
+echo -e "  ${YELLOW}pnpm quarry:lab -- --down${NC}   Stop everything"
 echo ""
 
 # ── Optional: follow logs ──────────────────────────────────────────────────────

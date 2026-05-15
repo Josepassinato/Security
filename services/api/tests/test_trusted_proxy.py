@@ -9,7 +9,7 @@ write whatever source IP they like into a compliance-grade audit trail.
 
 This suite pins the security contract:
 
-1. Default (no ``AISOC_TRUSTED_PROXIES``) → never trust ``X-Forwarded-For``.
+1. Default (no ``QUARRY_TRUSTED_PROXIES``) → never trust ``X-Forwarded-For``.
 2. Direct peer not in trusted list → never trust ``X-Forwarded-For``.
 3. Direct peer is a trusted proxy → walk the header right-to-left and
    return the first untrusted hop (the closest the chain comes to the
@@ -127,7 +127,7 @@ class TestParseForwardedFor:
 
 
 class TestResolveClientIpDefaultDeny:
-    """Without ``AISOC_TRUSTED_PROXIES`` we must NEVER trust XFF."""
+    """Without ``QUARRY_TRUSTED_PROXIES`` we must NEVER trust XFF."""
 
     def test_no_env_ignores_xff(self, monkeypatch):
         monkeypatch.delenv(TRUSTED_PROXIES_ENV, raising=False)

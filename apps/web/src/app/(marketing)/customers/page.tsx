@@ -12,14 +12,14 @@ import { listCustomers } from '@/lib/customers';
  */
 
 export const metadata: Metadata = {
-  title: 'Customers — AiSOC',
+  title: 'Customers — Quarry',
   description:
-    'Reference customers running AiSOC in production: who they are, the security challenge, and the measurable outcome.',
+    'Reference customers running Quarry in production: who they are, the security challenge, and the measurable outcome.',
   alternates: { canonical: '/customers' },
   openGraph: {
-    title: 'Customers — AiSOC',
+    title: 'Customers — Quarry',
     description:
-      'Real-world AiSOC deployments and the before/after metrics each team reports.',
+      'Real-world Quarry deployments and the before/after metrics each team reports.',
     type: 'website',
   },
 };
@@ -41,7 +41,7 @@ export default function CustomersIndexPage() {
             Customers
           </span>
           <h1 className="mt-3 text-4xl font-bold tracking-tight text-white md:text-5xl">
-            Teams running AiSOC in production.
+            Teams running Quarry in production.
           </h1>
           <p className="mt-5 max-w-2xl text-lg leading-relaxed text-gray-400">
             Each case study below is a single MDX file in the repo. The
@@ -127,12 +127,12 @@ export default function CustomersIndexPage() {
 
           <div className="mt-12 rounded-2xl border border-brand-500/20 bg-brand-500/[0.04] p-6">
             <h3 className="text-base font-semibold tracking-tight text-white">
-              Running AiSOC in production?
+              Running Quarry in production?
             </h3>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-gray-300">
               We&apos;d love to publish your numbers. Open an issue on{' '}
               <a
-                href="https://github.com/beenuar/AiSOC/issues"
+                href="https://github.com/beenuar/Quarry/issues"
                 target="_blank"
                 rel="noreferrer"
                 className="text-brand-300 underline underline-offset-2 hover:text-brand-200"
@@ -141,10 +141,10 @@ export default function CustomersIndexPage() {
               </a>{' '}
               or reach out to{' '}
               <a
-                href="mailto:hello@aisoc.dev"
+                href="mailto:hello@quarry.dev"
                 className="text-brand-300 underline underline-offset-2 hover:text-brand-200"
               >
-                hello@aisoc.dev
+                hello@quarry.dev
               </a>
               .
             </p>

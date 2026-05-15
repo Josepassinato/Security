@@ -80,4 +80,4 @@ provenance:
   upstream_path: rules/community/network/high_risk_user_download_executable_from_macro.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

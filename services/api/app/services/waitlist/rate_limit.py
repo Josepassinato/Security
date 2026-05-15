@@ -17,12 +17,12 @@ Tuning
 Both are overridable via env vars so an operator running a marketing
 push can widen the bucket without a redeploy:
 
-* ``AISOC_WAITLIST_RATE_CAPACITY``  (default 20)
-* ``AISOC_WAITLIST_RATE_REFILL_PER_HOUR``  (default 10)
+* ``QUARRY_WAITLIST_RATE_CAPACITY``  (default 20)
+* ``QUARRY_WAITLIST_RATE_REFILL_PER_HOUR``  (default 10)
 
 The class is asyncio-safe and stores buckets in-process. A multi-replica
 deploy will get per-replica buckets — for v1 of T6.1 that is fine
-(``app.aisoc.dev`` runs single-replica at start). When we scale to
+(``app.quarry.dev`` runs single-replica at start). When we scale to
 multi-replica the limiter swaps to a Redis-backed implementation behind
 the same interface; the endpoint never changes.
 """
@@ -105,12 +105,12 @@ class SignupRateLimiter:
         refill_per_hour: float | None = None,
     ) -> None:
         cap = capacity if capacity is not None else _env_float(
-            "AISOC_WAITLIST_RATE_CAPACITY", _DEFAULT_CAPACITY
+            "QUARRY_WAITLIST_RATE_CAPACITY", _DEFAULT_CAPACITY
         )
         per_hour = (
             refill_per_hour
             if refill_per_hour is not None
-            else _env_float("AISOC_WAITLIST_RATE_REFILL_PER_HOUR", _DEFAULT_REFILL_PER_HOUR)
+            else _env_float("QUARRY_WAITLIST_RATE_REFILL_PER_HOUR", _DEFAULT_REFILL_PER_HOUR)
         )
         if cap <= 0:
             raise ValueError("capacity must be positive")

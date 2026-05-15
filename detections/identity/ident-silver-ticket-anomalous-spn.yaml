@@ -1,6 +1,6 @@
 id: det-identity-094
 name: 'Silver Ticket Indicator: TGS Without Matching TGT'
-description: 'AiSOC v1 curated detection. Triggers on the identity signal described by ''Silver Ticket
+description: 'Quarry v1 curated detection. Triggers on the identity signal described by ''Silver Ticket
   Indicator: TGS Without Matching TGT''. Watch the 1 documented false-positive case before tuning.'
 version: 1.0.0
 severity: high
@@ -19,6 +19,6 @@ false_positives:
 - Logging gap
 playbook: tpl-persistence
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

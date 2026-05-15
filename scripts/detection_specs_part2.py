@@ -1,5 +1,5 @@
 """
-AiSOC Detection Pack v1 - Rule Specifications (part 2 of 2)
+Quarry Detection Pack v1 - Rule Specifications (part 2 of 2)
 ============================================================
 
 Continuation of `scripts/detection_specs.py` covering:

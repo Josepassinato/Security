@@ -1,12 +1,12 @@
 ---
 sidebar_position: 5
 title: GCP Cloud Audit Logs
-description: Project-scope Admin Activity, Data Access, and System Event audit logs from Google Cloud into AiSOC.
+description: Project-scope Admin Activity, Data Access, and System Event audit logs from Google Cloud into Quarry.
 ---
 
 # GCP Cloud Audit Logs
 
-The GCP Cloud Audit connector streams **Cloud Logging audit log entries** from a single GCP project into AiSOC. This covers the three Google audit log types: **Admin Activity** (always on), **Data Access** (off by default for most services), and **System Event**.
+The GCP Cloud Audit connector streams **Cloud Logging audit log entries** from a single GCP project into Quarry. This covers the three Google audit log types: **Admin Activity** (always on), **Data Access** (off by default for most services), and **System Event**.
 
 ## What you get
 
@@ -31,7 +31,7 @@ Events are normalized with `category: cloud` and `cloud_provider: gcp`.
 ### 1. Create the service account
 
 1. Open the [GCP Console → IAM & Admin → Service Accounts](https://console.cloud.google.com/iam-admin/serviceaccounts) for your project.
-2. **Create service account** → name it `aisoc-cloud-audit-reader`. Skip the optional grant step inside the wizard.
+2. **Create service account** → name it `quarry-cloud-audit-reader`. Skip the optional grant step inside the wizard.
 3. Once created, on the project's IAM page, **Grant access** to the new service account email with role **Logs Viewer** (and **Private Logs Viewer** if you want Data Access).
 
 ### 2. Mint a JSON key
@@ -39,7 +39,7 @@ Events are normalized with `category: cloud` and `cloud_provider: gcp`.
 1. Open the service account → **Keys → Add key → Create new key → JSON**.
 2. Download the JSON file. Treat it like a password — anyone with this file can read your audit logs.
 
-### 3. Add the connector in AiSOC
+### 3. Add the connector in Quarry
 
 1. **Connectors → Add connector → GCP Cloud Audit Logs**.
 2. `project_id` = your Project ID (not the number).
@@ -55,7 +55,7 @@ Events are normalized with `category: cloud` and `cloud_provider: gcp`.
 
 ## Severity heuristics
 
-GCP audit logs do not carry a built-in severity; AiSOC infers from `methodName`:
+GCP audit logs do not carry a built-in severity; Quarry infers from `methodName`:
 
 | Pattern | Severity |
 |---|---|

@@ -6,7 +6,7 @@ Why this exists:
     (see ``Lib/asyncio/base_events.py``), so the listener only accepts IPv6
     connections. On Fly.io we need both:
 
-    * IPv6 — for 6PN private traffic (``aisoc-demo-api.internal:8000`` from
+    * IPv6 — for 6PN private traffic (``quarry-demo-api.internal:8000`` from
       sibling apps like the web Next.js rewriter), which routes via IPv6.
     * IPv4 — for ``fly-proxy``'s public health checks against
       ``api.tryaisoc.com/health``, which speak IPv4 to ``127.0.0.1:8000``.

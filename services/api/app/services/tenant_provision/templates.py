@@ -94,7 +94,7 @@ DEFAULT_INITIAL_RBAC_ROLES: tuple[dict[str, object], ...] = (
 
 DEFAULT_INITIAL_DETECTIONS: tuple[dict[str, object], ...] = (
     {
-        "rule_id": "aisoc-bootstrap-suspicious-powershell",
+        "rule_id": "quarry-bootstrap-suspicious-powershell",
         "title": "Suspicious PowerShell encoded command",
         "severity": "high",
         "tactic": "TA0002",
@@ -106,7 +106,7 @@ DEFAULT_INITIAL_DETECTIONS: tuple[dict[str, object], ...] = (
         ),
     },
     {
-        "rule_id": "aisoc-bootstrap-impossible-travel",
+        "rule_id": "quarry-bootstrap-impossible-travel",
         "title": "Impossible travel for a single user",
         "severity": "medium",
         "tactic": "TA0006",
@@ -118,7 +118,7 @@ DEFAULT_INITIAL_DETECTIONS: tuple[dict[str, object], ...] = (
         ),
     },
     {
-        "rule_id": "aisoc-bootstrap-okta-mfa-bombing",
+        "rule_id": "quarry-bootstrap-okta-mfa-bombing",
         "title": "Okta MFA push bombing",
         "severity": "high",
         "tactic": "TA0006",
@@ -130,7 +130,7 @@ DEFAULT_INITIAL_DETECTIONS: tuple[dict[str, object], ...] = (
         ),
     },
     {
-        "rule_id": "aisoc-bootstrap-aws-iam-privesc",
+        "rule_id": "quarry-bootstrap-aws-iam-privesc",
         "title": "AWS IAM privilege escalation primitive",
         "severity": "high",
         "tactic": "TA0004",
@@ -142,7 +142,7 @@ DEFAULT_INITIAL_DETECTIONS: tuple[dict[str, object], ...] = (
         ),
     },
     {
-        "rule_id": "aisoc-bootstrap-edr-defense-evasion",
+        "rule_id": "quarry-bootstrap-edr-defense-evasion",
         "title": "EDR / AV service tamper",
         "severity": "critical",
         "tactic": "TA0005",
@@ -154,7 +154,7 @@ DEFAULT_INITIAL_DETECTIONS: tuple[dict[str, object], ...] = (
         ),
     },
     {
-        "rule_id": "aisoc-bootstrap-mass-failed-login",
+        "rule_id": "quarry-bootstrap-mass-failed-login",
         "title": "Password spray — many users, single source",
         "severity": "medium",
         "tactic": "TA0006",

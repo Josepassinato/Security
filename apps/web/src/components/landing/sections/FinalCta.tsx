@@ -66,7 +66,7 @@ export function FinalCta() {
             />
           </Link>
           <Link
-            href="https://github.com/beenuar/AiSOC"
+            href="https://github.com/beenuar/Quarry"
             rel="noreferrer"
             target="_blank"
             className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-surface-border bg-surface-card/80 px-6 text-sm font-semibold text-fg-primary backdrop-blur-sm transition-colors duration-200 hover:border-brand-500/40 hover:text-brand-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-base"

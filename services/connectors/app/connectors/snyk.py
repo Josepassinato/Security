@@ -15,7 +15,7 @@ from app.connectors.base import BaseConnector, Capability, ConnectorSchema, Fiel
 
 logger = structlog.get_logger()
 
-# Snyk issues ship a native ``critical`` tier. AiSOC's 5-tier ladder
+# Snyk issues ship a native ``critical`` tier. Quarry's 5-tier ladder
 # preserves it end-to-end so P1 supply-chain findings keep their original
 # priority.
 _SEVERITY_MAP: dict[str, str] = {

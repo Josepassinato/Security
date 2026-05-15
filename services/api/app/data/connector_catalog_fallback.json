@@ -718,7 +718,7 @@
         "type": "string",
         "label": "Saved Search Name",
         "required": false,
-        "default": "AiSOC_Alerts"
+        "default": "Quarry_Alerts"
       },
       {
         "name": "ssl_verify",

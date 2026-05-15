@@ -58,4 +58,4 @@ provenance:
   upstream_path: rules/community/okta/okta_user_failed_number_challenge_during_push_notification.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

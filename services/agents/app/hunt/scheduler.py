@@ -20,7 +20,7 @@ Telemetry source resolution — in priority order:
   w3-fed) lands. This keeps the scheduler safe to leave running in
   production: it records an empty run rather than crashing.
 
-The scheduler is feature-flagged via ``AISOC_FEATURE_HUNT_AS_CODE``. The
+The scheduler is feature-flagged via ``QUARRY_FEATURE_HUNT_AS_CODE``. The
 caller (``app/main.py``) wires it into the FastAPI lifespan so it starts
 on app boot and stops cleanly on shutdown.
 """

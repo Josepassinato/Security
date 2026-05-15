@@ -165,7 +165,7 @@ class TestFunnelWindow:
 
         with patch(
             "app.api.v1.endpoints.metrics.settings",
-            SimpleNamespace(AISOC_DISABLE_CLICKHOUSE=True, AISOC_FUNNEL_MITRE_TOTAL=201),
+            SimpleNamespace(QUARRY_DISABLE_CLICKHOUSE=True, QUARRY_FUNNEL_MITRE_TOTAL=201),
         ):
             result = await _funnel_window(db, tenant, start, end, mitre_total=201)
 
@@ -206,7 +206,7 @@ class TestFunnelWindow:
 
         with patch(
             "app.api.v1.endpoints.metrics.settings",
-            SimpleNamespace(AISOC_DISABLE_CLICKHOUSE=True, AISOC_FUNNEL_MITRE_TOTAL=201),
+            SimpleNamespace(QUARRY_DISABLE_CLICKHOUSE=True, QUARRY_FUNNEL_MITRE_TOTAL=201),
         ):
             result = await _funnel_window(
                 db,
@@ -244,7 +244,7 @@ class TestFunnelWindow:
 
         with patch(
             "app.api.v1.endpoints.metrics.settings",
-            SimpleNamespace(AISOC_DISABLE_CLICKHOUSE=True, AISOC_FUNNEL_MITRE_TOTAL=201),
+            SimpleNamespace(QUARRY_DISABLE_CLICKHOUSE=True, QUARRY_FUNNEL_MITRE_TOTAL=201),
         ):
             result = await _funnel_window(
                 db,
@@ -277,7 +277,7 @@ class TestFunnelWindow:
 
         with patch(
             "app.api.v1.endpoints.metrics.settings",
-            SimpleNamespace(AISOC_DISABLE_CLICKHOUSE=True, AISOC_FUNNEL_MITRE_TOTAL=10),
+            SimpleNamespace(QUARRY_DISABLE_CLICKHOUSE=True, QUARRY_FUNNEL_MITRE_TOTAL=10),
         ):
             result = await _funnel_window(
                 db,
@@ -294,7 +294,7 @@ class TestFunnelWindow:
     @pytest.mark.asyncio
     async def test_mitre_coverage_ratio_clamps_to_one(self) -> None:
         # If the tenant has more techniques in scope than the configured
-        # ATT&CK total (operator misconfigured ``AISOC_FUNNEL_MITRE_TOTAL``),
+        # ATT&CK total (operator misconfigured ``QUARRY_FUNNEL_MITRE_TOTAL``),
         # we still clamp to 1.0 — the UI can't render "150% coverage".
         from app.api.v1.endpoints.metrics import _funnel_window
 
@@ -309,7 +309,7 @@ class TestFunnelWindow:
 
         with patch(
             "app.api.v1.endpoints.metrics.settings",
-            SimpleNamespace(AISOC_DISABLE_CLICKHOUSE=True, AISOC_FUNNEL_MITRE_TOTAL=10),
+            SimpleNamespace(QUARRY_DISABLE_CLICKHOUSE=True, QUARRY_FUNNEL_MITRE_TOTAL=10),
         ):
             result = await _funnel_window(
                 db,

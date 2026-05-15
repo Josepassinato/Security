@@ -16,7 +16,7 @@ This page documents the bucket model, the SLA timer, the action set, and the API
 ┌──────────────────────────────────────────────────────────────────────────┐
 │  Investigation Queue                          [Mine 3] [Unassigned 12] [All 15] │
 │  ──────────────────────────────────────────────────────────────────────  │
-│  ● CRIT  Impossible travel · analyst@aisoc.dev    SLA -2m 04s  [Open]    │
+│  ● CRIT  Impossible travel · analyst@quarry.dev    SLA -2m 04s  [Open]    │
 │  ● HIGH  Defender — credential dump · web-01      SLA  3m 41s  [Open]    │
 │  ● HIGH  GitHub PAT exfil · svc-deploy            SLA  9m 12s  [Open]    │
 │  ● MED   New OAuth grant · helpdesk@…             SLA  1h 22m  [Open]    │
@@ -208,15 +208,15 @@ All queue endpoints run under the existing `alerts:read` and `alerts:write` perm
 
 | Concern | File |
 |---|---|
-| Workbench page route | [`apps/web/src/app/(app)/queue/page.tsx`](https://github.com/beenuar/AiSOC/blob/main/apps/web/src/app/(app)/queue/page.tsx) |
-| Workbench component | [`apps/web/src/components/queue/QueueView.tsx`](https://github.com/beenuar/AiSOC/blob/main/apps/web/src/components/queue/QueueView.tsx) |
-| Sidebar live badge | [`apps/web/src/components/layout/LiveQueueBadge.tsx`](https://github.com/beenuar/AiSOC/blob/main/apps/web/src/components/layout/LiveQueueBadge.tsx) |
-| API client | [`apps/web/src/lib/api.ts`](https://github.com/beenuar/AiSOC/blob/main/apps/web/src/lib/api.ts) (search for `queueApi`) |
-| Queue endpoint + claim/snooze | [`services/api/app/api/v1/endpoints/alerts.py`](https://github.com/beenuar/AiSOC/blob/main/services/api/app/api/v1/endpoints/alerts.py) |
-| Queue builder, claim logic, SLA expression | [`services/api/app/services/alert_queue.py`](https://github.com/beenuar/AiSOC/blob/main/services/api/app/services/alert_queue.py) |
-| SLA targets (default + per-tenant resolution) | [`services/api/app/services/sla.py`](https://github.com/beenuar/AiSOC/blob/main/services/api/app/services/sla.py) |
-| Backend tests | [`services/api/tests/test_alert_queue.py`](https://github.com/beenuar/AiSOC/blob/main/services/api/tests/test_alert_queue.py) |
-| Frontend tests | [`apps/web/src/components/queue/QueueView.test.tsx`](https://github.com/beenuar/AiSOC/blob/main/apps/web/src/components/queue/QueueView.test.tsx) · [`apps/web/src/components/layout/LiveQueueBadge.test.tsx`](https://github.com/beenuar/AiSOC/blob/main/apps/web/src/components/layout/LiveQueueBadge.test.tsx) |
+| Workbench page route | [`apps/web/src/app/(app)/queue/page.tsx`](https://github.com/Josepassinato/quarry/blob/main/apps/web/src/app/(app)/queue/page.tsx) |
+| Workbench component | [`apps/web/src/components/queue/QueueView.tsx`](https://github.com/Josepassinato/quarry/blob/main/apps/web/src/components/queue/QueueView.tsx) |
+| Sidebar live badge | [`apps/web/src/components/layout/LiveQueueBadge.tsx`](https://github.com/Josepassinato/quarry/blob/main/apps/web/src/components/layout/LiveQueueBadge.tsx) |
+| API client | [`apps/web/src/lib/api.ts`](https://github.com/Josepassinato/quarry/blob/main/apps/web/src/lib/api.ts) (search for `queueApi`) |
+| Queue endpoint + claim/snooze | [`services/api/app/api/v1/endpoints/alerts.py`](https://github.com/Josepassinato/quarry/blob/main/services/api/app/api/v1/endpoints/alerts.py) |
+| Queue builder, claim logic, SLA expression | [`services/api/app/services/alert_queue.py`](https://github.com/Josepassinato/quarry/blob/main/services/api/app/services/alert_queue.py) |
+| SLA targets (default + per-tenant resolution) | [`services/api/app/services/sla.py`](https://github.com/Josepassinato/quarry/blob/main/services/api/app/services/sla.py) |
+| Backend tests | [`services/api/tests/test_alert_queue.py`](https://github.com/Josepassinato/quarry/blob/main/services/api/tests/test_alert_queue.py) |
+| Frontend tests | [`apps/web/src/components/queue/QueueView.test.tsx`](https://github.com/Josepassinato/quarry/blob/main/apps/web/src/components/queue/QueueView.test.tsx) · [`apps/web/src/components/layout/LiveQueueBadge.test.tsx`](https://github.com/Josepassinato/quarry/blob/main/apps/web/src/components/layout/LiveQueueBadge.test.tsx) |
 
 ## Author
 

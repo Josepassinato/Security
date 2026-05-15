@@ -31,7 +31,7 @@ def _actions(card: dict[str, Any]) -> list[dict[str, Any]]:
 def test_case_context_card_has_required_envelope():
     card = case_context_card(
         {"id": "case-1", "case_number": "CASE-0001", "title": "EDR detection"},
-        web_base="https://app.aisoc.test",
+        web_base="https://app.quarry.test",
     )
     assert card["$schema"].startswith("http://adaptivecards.io")
     assert card["type"] == "AdaptiveCard"
@@ -46,7 +46,7 @@ def test_approval_card_has_three_signed_submit_buttons():
         action={"id": "act-1", "action_type": "isolate_host", "target": "h-1"},
         case={"id": "case-1", "case_number": "CASE-0001"},
         requested_by="user@example.com",
-        web_base="https://app.aisoc.test",
+        web_base="https://app.quarry.test",
         signing_secret=SECRET,
         issued_at=int(time.time()),
     )
@@ -71,7 +71,7 @@ def test_approval_card_timeout_footer_present():
         action={"id": "act-1", "action_type": "block_ip", "target": "1.2.3.4"},
         case={"id": "case-1"},
         requested_by="alice@example.com",
-        web_base="https://app.aisoc.test",
+        web_base="https://app.quarry.test",
         signing_secret=SECRET,
         timeout_seconds=600,
         safe_default="rejected",
@@ -86,7 +86,7 @@ def test_approval_card_no_timeout_footer_when_disabled():
         action={"id": "act-1", "action_type": "block_ip", "target": "1.2.3.4"},
         case={"id": "case-1"},
         requested_by="alice@example.com",
-        web_base="https://app.aisoc.test",
+        web_base="https://app.quarry.test",
         signing_secret=SECRET,
     )
     assert "Auto-" not in str(card)

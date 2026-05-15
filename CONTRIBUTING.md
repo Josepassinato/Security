@@ -1,6 +1,6 @@
-# Contributing to AiSOC
+# Contributing to Quarry
 
-Thank you for your interest in contributing to AiSOC! This document provides guidelines for contributing to the project.
+Thank you for your interest in contributing to Quarry! This document provides guidelines for contributing to the project.
 
 ## Code of Conduct
 
@@ -9,8 +9,8 @@ By participating in this project, you agree to abide by our Code of Conduct. Ple
 ## Getting Started
 
 1. Fork the repository on GitHub
-2. Clone your fork: `git clone https://github.com/YOUR_USERNAME/AiSOC.git`
-3. Add the upstream remote: `git remote add upstream https://github.com/beenuar/AiSOC.git`
+2. Clone your fork: `git clone https://github.com/YOUR_USERNAME/Quarry.git`
+3. Add the upstream remote: `git remote add upstream https://github.com/Josepassinato/quarry.git`
 4. Create a feature branch: `git checkout -b feature/my-feature`
 
 ## Development Setup
@@ -200,7 +200,7 @@ matches yours and copy from there.
 
 ## Community Marketplace
 
-The AiSOC marketplace is content-as-code. Anything in
+The Quarry marketplace is content-as-code. Anything in
 [`detections/`](detections/), [`playbooks/`](playbooks/), and
 [`plugins/`](plugins/) is automatically picked up by
 [`scripts/build_marketplace.py`](scripts/build_marketplace.py) and surfaced in
@@ -218,7 +218,7 @@ contributors:
 - Plugins → `plugins/community/<your-plugin-id>/`
 
 These show up in the Marketplace with a **Community** badge (versus the
-**Verified** badge on AiSOC-authored content). Core content lives directly
+**Verified** badge on Quarry-authored content). Core content lives directly
 under `detections/<category>/`, `playbooks/packs/v1/<category>/`, and
 `plugins/<plugin-id>/`.
 
@@ -260,7 +260,7 @@ under `detections/<category>/`, `playbooks/packs/v1/<category>/`, and
 ## Reporting Bugs
 
 Please use the GitHub issue tracker. Include:
-- AiSOC version
+- Quarry version
 - OS and environment
 - Steps to reproduce
 - Expected vs actual behavior

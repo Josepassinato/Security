@@ -19,7 +19,7 @@ field is independent — a plugin can be `enabled` and `unsigned`, or
 
 | State | Meaning | Reachable from |
 |---|---|---|
-| **Discovered** | A directory with a valid `plugin.yaml` (or legacy `aisoc-plugin.json`) was found in `AISOC_PLUGINS_DIR`. | `POST /plugins/discover`, startup auto-discovery |
+| **Discovered** | A directory with a valid `plugin.yaml` (or legacy `quarry-plugin.json`) was found in `QUARRY_PLUGINS_DIR`. | `POST /plugins/discover`, startup auto-discovery |
 | **Loaded** | The Python module imported successfully and the manifest schema validated. | Discovered → Loaded (automatic) |
 | **Enabled** | Loaded **and** invocations are accepted. The default for newly discovered plugins. | Loaded, Disabled |
 | **Disabled** | Loaded **but** `run` calls are blocked at the manager. Useful for "keep it warm but stop traffic." | Enabled |
@@ -56,7 +56,7 @@ state is preserved across the reload.
 `PLUGIN_TRUST_MODE` is the single switch that decides what the loader does
 on signature failure. The default in production is `strict` for a reason —
 plugins execute arbitrary Python via `importlib.exec_module`, so an
-unsigned/invalid plugin is a remote code execution vector if `AISOC_PLUGINS_DIR`
+unsigned/invalid plugin is a remote code execution vector if `QUARRY_PLUGINS_DIR`
 is writable by anyone other than the operator.
 
 | Mode | On unsigned | On invalid signature | On valid + trusted | Use for |
@@ -73,9 +73,9 @@ ship `disabled` to a non-dev `ENVIRONMENT`. Listen to it.
 
 Two ways a plugin gets discovered:
 
-### 1. Filesystem (`AISOC_PLUGINS_DIR`)
+### 1. Filesystem (`QUARRY_PLUGINS_DIR`)
 
-On startup the API scans `AISOC_PLUGINS_DIR` (default `/opt/aisoc/plugins`)
+On startup the API scans `QUARRY_PLUGINS_DIR` (default `/opt/quarry/plugins`)
 for any subdirectory containing a manifest. Anything new is loaded; anything
 that disappeared is left behind in memory until the operator calls
 `DELETE /plugins/{id}`.
@@ -83,7 +83,7 @@ that disappeared is left behind in memory until the operator calls
 To trigger a re-scan without a restart:
 
 ```bash
-curl -X POST "$AISOC_API/api/v1/plugins/discover" \
+curl -X POST "$QUARRY_API/api/v1/plugins/discover" \
   -H "Authorization: Bearer $TOKEN"
 # → { "discovered": ["wazuh-connector", "shodan-enricher"] }
 ```
@@ -97,14 +97,14 @@ plugin from an OCI registry via the [ORAS](https://oras.land) CLI:
 
 ```python
 plugin_id = await plugin_manager.install_from_oci(
-    "ghcr.io/myorg/aisoc-plugins/shodan-enricher:1.2.0",
+    "ghcr.io/myorg/quarry-plugins/shodan-enricher:1.2.0",
 )
 ```
 
-The image's primary layer is extracted into `AISOC_PLUGINS_DIR/<plugin_id>`
+The image's primary layer is extracted into `QUARRY_PLUGINS_DIR/<plugin_id>`
 and then loaded through the same discovery path. Signature checks still
 apply — packing a `plugin.sig` into the OCI artifact is part of your CI
-build, not something AiSOC fakes for you.
+build, not something Quarry fakes for you.
 
 ## Operator API
 
@@ -116,33 +116,33 @@ shared `aisoc_*` API key holding `plugins:admin` in production.
 |---|---|---|
 | `GET /api/v1/plugins` | `plugins:read` | List all loaded plugins. Optional `?plugin_type=connector` filter. |
 | `GET /api/v1/plugins/{id}` | `plugins:read` | Single-plugin detail incl. `signature_status` and `error`. |
-| `POST /api/v1/plugins/discover` | `plugins:admin` | Re-scan `AISOC_PLUGINS_DIR`. |
+| `POST /api/v1/plugins/discover` | `plugins:admin` | Re-scan `QUARRY_PLUGINS_DIR`. |
 | `POST /api/v1/plugins/{id}/enable` | `plugins:admin` | Move `Disabled` → `Enabled`. |
 | `POST /api/v1/plugins/{id}/disable` | `plugins:admin` | Move `Enabled` → `Disabled`. Keeps it loaded. |
 | `POST /api/v1/plugins/{id}/reload` | `plugins:admin` | Re-import the module from disk. Preserves `enabled` state. |
 | `DELETE /api/v1/plugins/{id}` | `plugins:admin` | Unload from memory. Files on disk are untouched. |
-| `POST /api/v1/plugins/{id}/run` | `plugins:execute` | Direct invocation. Useful for one-off enrichment, smoke tests, and `aisoc-cli`. |
+| `POST /api/v1/plugins/{id}/run` | `plugins:execute` | Direct invocation. Useful for one-off enrichment, smoke tests, and `quarry-cli`. |
 
 A typical operator pipeline:
 
 ```bash
 # 1. Author publishes a new version → CI uploads to OCI registry.
 # 2. Operator pulls and loads it:
-curl -X POST "$AISOC_API/api/v1/plugins/install_from_oci" \
+curl -X POST "$QUARRY_API/api/v1/plugins/install_from_oci" \
   -H "Authorization: Bearer $TOKEN" \
-  -d '{"oci_ref": "ghcr.io/myorg/aisoc-plugins/shodan-enricher:1.2.0"}'
+  -d '{"oci_ref": "ghcr.io/myorg/quarry-plugins/shodan-enricher:1.2.0"}'
 
 # 3. Smoke-test it with a real input:
-curl -X POST "$AISOC_API/api/v1/plugins/shodan-enricher/run" \
+curl -X POST "$QUARRY_API/api/v1/plugins/shodan-enricher/run" \
   -H "Authorization: Bearer $TOKEN" \
   -d '{"payload": {"ip": "1.1.1.1"}}'
 
 # 4. If the smoke test looks bad, disable without unloading:
-curl -X POST "$AISOC_API/api/v1/plugins/shodan-enricher/disable" \
+curl -X POST "$QUARRY_API/api/v1/plugins/shodan-enricher/disable" \
   -H "Authorization: Bearer $TOKEN"
 
 # 5. Roll a hot-fix → push new commits to the plugin directory → reload:
-curl -X POST "$AISOC_API/api/v1/plugins/shodan-enricher/reload" \
+curl -X POST "$QUARRY_API/api/v1/plugins/shodan-enricher/reload" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -150,13 +150,13 @@ curl -X POST "$AISOC_API/api/v1/plugins/shodan-enricher/reload" \
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `AISOC_PLUGINS_DIR` | `/opt/aisoc/plugins` | Where the loader looks for plugin directories. |
+| `QUARRY_PLUGINS_DIR` | `/opt/quarry/plugins` | Where the loader looks for plugin directories. |
 | `PLUGIN_TRUST_MODE` | `strict` | One of `strict`, `warn`, `disabled`. |
-| `PLUGIN_TRUSTED_KEYS_DIR` | `/opt/aisoc/plugin-keys` | Directory of PEM-encoded Ed25519 public keys. **All** PEMs in it are tried per signature; one match is enough. |
+| `PLUGIN_TRUSTED_KEYS_DIR` | `/opt/quarry/plugin-keys` | Directory of PEM-encoded Ed25519 public keys. **All** PEMs in it are tried per signature; one match is enough. |
 
 Mount these the way you mount any other piece of trust:
 
-- `AISOC_PLUGINS_DIR` — typically a Persistent Volume (k8s) or a host-bind mount (Docker Compose). It must **not** be writable by anyone other than the operator role that pulls plugins.
+- `QUARRY_PLUGINS_DIR` — typically a Persistent Volume (k8s) or a host-bind mount (Docker Compose). It must **not** be writable by anyone other than the operator role that pulls plugins.
 - `PLUGIN_TRUSTED_KEYS_DIR` — read-only mount, owned by root, mode `0444` per file.
 
 ## Versioning, upgrades, and rollback
@@ -164,7 +164,7 @@ Mount these the way you mount any other piece of trust:
 The loader's identity is `manifest.id`, **not** the directory name. That means:
 
 - Upgrading is "drop a new version of the same `id` into a new directory, reload, delete the old directory, re-discover." A reload is not enough on its own to switch versions because the previous module is what gets re-imported — you need the new files on disk, then the operator decides whether to swap.
-- Rollback is the reverse: drop the previous version back into `AISOC_PLUGINS_DIR`, run discovery, run reload. The platform never deletes plugin files — that is always the operator's call.
+- Rollback is the reverse: drop the previous version back into `QUARRY_PLUGINS_DIR`, run discovery, run reload. The platform never deletes plugin files — that is always the operator's call.
 - Two plugins with the same `manifest.id` is a **load-time error**. The first one wins; the second is reported as `Failed` with a clear duplicate-id message in `error`.
 
 ## Observability
@@ -185,5 +185,5 @@ forwarding to it. The events worth alerting on:
 
 - [Plugin Overview](./overview) — types, marketplace, and high-level model.
 - [Publishing Plugins](./publishing) — Ed25519 signing flow and trust setup.
-- [Plugin CLI](./cli) — `aisoc plugin {new,validate,sign,package}` commands.
+- [Plugin CLI](./cli) — `quarry plugin {new,validate,sign,package}` commands.
 - [Live Actions](../concepts/live-actions) — how a `LiveActionExecutor` plugin is discovered and dispatched at run time.

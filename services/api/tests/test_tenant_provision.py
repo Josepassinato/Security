@@ -80,7 +80,7 @@ def _admin_user(*, allow: bool = True) -> SimpleNamespace:
         user_id=uuid.uuid4(),
         tenant_id=uuid.uuid4(),
         role="tenant_admin",
-        email="admin@aisoc.dev",
+        email="admin@quarry.dev",
         has_permission_db=_check,
     )
 
@@ -301,7 +301,7 @@ class TestAdminInviteBuilder:
     def test_invite_url_contains_tenant_slug(self) -> None:
         invite = _build_admin_invite(
             tenant_slug="acme",
-            invite_base_url="https://app.aisoc.dev",
+            invite_base_url="https://app.quarry.dev",
         )
         assert "acme" in invite.url
         assert "/invite/" in invite.url
@@ -310,7 +310,7 @@ class TestAdminInviteBuilder:
     def test_expires_after_one_week_by_default(self) -> None:
         invite = _build_admin_invite(
             tenant_slug="acme",
-            invite_base_url="https://app.aisoc.dev",
+            invite_base_url="https://app.quarry.dev",
         )
         delta = invite.expires_at - datetime.now(UTC).replace(microsecond=0)
         assert delta.total_seconds() > 6 * 24 * 3600
@@ -319,10 +319,10 @@ class TestAdminInviteBuilder:
     def test_base_url_trailing_slash_normalized(self) -> None:
         invite = _build_admin_invite(
             tenant_slug="acme",
-            invite_base_url="https://app.aisoc.dev///",
+            invite_base_url="https://app.quarry.dev///",
         )
-        assert "https://app.aisoc.dev/invite/" in invite.url
-        assert "https://app.aisoc.dev////invite/" not in invite.url
+        assert "https://app.quarry.dev/invite/" in invite.url
+        assert "https://app.quarry.dev////invite/" not in invite.url
 
     def test_zero_ttl_rejected(self) -> None:
         with pytest.raises(ValueError):
@@ -346,7 +346,7 @@ class TestProvisionFromWaitlist:
             provision_from_waitlist(
                 session,  # type: ignore[arg-type]
                 waitlist_entry_id=entry.id,
-                actor_email="ops@aisoc.dev",
+                actor_email="ops@quarry.dev",
                 seed_demo=False,
             )
         )
@@ -379,7 +379,7 @@ class TestProvisionFromWaitlist:
             provision_from_waitlist(
                 session,  # type: ignore[arg-type]
                 waitlist_entry_id=entry.id,
-                actor_email="ops@aisoc.dev",
+                actor_email="ops@quarry.dev",
                 seed_demo=False,
             )
         )
@@ -416,7 +416,7 @@ class TestProvisionFromWaitlist:
             provision_from_waitlist(
                 session,  # type: ignore[arg-type]
                 waitlist_entry_id=entry.id,
-                actor_email="ops@aisoc.dev",
+                actor_email="ops@quarry.dev",
                 seed_demo=False,
                 shard_factory=lambda: "abc123",
             )
@@ -449,7 +449,7 @@ class TestProvisionFromWaitlist:
                 provision_from_waitlist(
                     session,  # type: ignore[arg-type]
                     waitlist_entry_id=entry.id,
-                    actor_email="ops@aisoc.dev",
+                    actor_email="ops@quarry.dev",
                     seed_demo=False,
                     shard_factory=lambda: next(shards),
                 )
@@ -462,7 +462,7 @@ class TestProvisionFromWaitlist:
                 provision_from_waitlist(
                     session,  # type: ignore[arg-type]
                     waitlist_entry_id=uuid.uuid4(),
-                    actor_email="ops@aisoc.dev",
+                    actor_email="ops@quarry.dev",
                     seed_demo=False,
                 )
             )
@@ -476,7 +476,7 @@ class TestProvisionFromWaitlist:
                 provision_from_waitlist(
                     session,  # type: ignore[arg-type]
                     waitlist_entry_id=entry.id,
-                    actor_email="ops@aisoc.dev",
+                    actor_email="ops@quarry.dev",
                     seed_demo=False,
                 )
             )
@@ -520,7 +520,7 @@ class TestProvisionFromWaitlist:
             provision_from_waitlist(
                 session,  # type: ignore[arg-type]
                 waitlist_entry_id=entry.id,
-                actor_email="ops@aisoc.dev",
+                actor_email="ops@quarry.dev",
                 seed_demo=False,
             )
         )
@@ -546,7 +546,7 @@ class TestProvisionFromWaitlist:
             provision_from_waitlist(
                 session,  # type: ignore[arg-type]
                 waitlist_entry_id=entry.id,
-                actor_email="ops@aisoc.dev",
+                actor_email="ops@quarry.dev",
                 seed_demo=True,
                 demo_seeder=_stub_seeder,
             )
@@ -567,7 +567,7 @@ class TestProvisionFromWaitlist:
             provision_from_waitlist(
                 session,  # type: ignore[arg-type]
                 waitlist_entry_id=entry.id,
-                actor_email="ops@aisoc.dev",
+                actor_email="ops@quarry.dev",
                 seed_demo=True,
                 demo_seeder=_broken_seeder,
             )
@@ -600,7 +600,7 @@ class TestProvisionEndpoint:
         )
         assert response.tenant_slug == "acme-inc"
         assert response.admin_user.email == entry.email
-        assert response.admin_invite.url.startswith("https://app.aisoc.dev/invite/")
+        assert response.admin_invite.url.startswith("https://app.quarry.dev/invite/")
         assert response.aisoc_credential_key_fingerprint != ""
         assert session.commit_calls == 1
 
@@ -666,14 +666,14 @@ class TestProvisionEndpoint:
                 endpoint.TenantProvisionRequest(
                     waitlist_entry_id=entry.id,
                     seed_demo=False,
-                    invite_base_url="https://staging.aisoc.dev",
+                    invite_base_url="https://staging.quarry.dev",
                 ),
                 session,  # type: ignore[arg-type]
                 user,
             )
         )
         assert response.admin_invite.url.startswith(
-            "https://staging.aisoc.dev/invite/"
+            "https://staging.quarry.dev/invite/"
         )
 
 

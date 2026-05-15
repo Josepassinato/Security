@@ -52,7 +52,7 @@ class AWSSecurityGroupsClient:
         session_token: str | None = None,
         security_group_id: str | None = None,
         role_arn: str | None = None,
-        session_name: str = "aisoc-actions",
+        session_name: str = "quarry-actions",
         # Legacy aliases retained for backward compatibility.
         assume_role_arn: str | None = None,
         sg_id: str | None = None,
@@ -179,7 +179,7 @@ class AWSSecurityGroupsClient:
                         "IpProtocol": protocol,
                         "FromPort": from_port,
                         "ToPort": to_port,
-                        "IpRanges": [{"CidrIp": cidr, "Description": "AiSOC block"}],
+                        "IpRanges": [{"CidrIp": cidr, "Description": "Quarry block"}],
                     }
                 ],
             )

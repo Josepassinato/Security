@@ -1,6 +1,6 @@
 """Detection drift snapshotting + delta computation.
 
-Wave 1 of the AiSOC v6 capability roadmap (`w1-drift`) — turns the existing
+Wave 1 of the Quarry v6 capability roadmap (`w1-drift`) — turns the existing
 ATT&CK coverage heatmap from a point-in-time view into a tracked time series
 so the console can surface "delta vs. last week" on the MITRE heatmap.
 

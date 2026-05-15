@@ -59,4 +59,4 @@ provenance:
   upstream_path: rules/community/aws/guardduty/aws_guardduty_malicious_or_suspicious_file_executed.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

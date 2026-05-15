@@ -36,12 +36,12 @@ export function DemoBanner() {
         |
       </span>
       <a
-        href="https://github.com/beenuar/AiSOC#quickstart"
+        href="https://github.com/beenuar/Quarry#quickstart"
         target="_blank"
         rel="noopener noreferrer"
         className="underline underline-offset-2 hover:text-amber-100 transition-colors"
       >
-        Self-host AiSOC
+        Self-host Quarry
       </a>
     </div>
   );

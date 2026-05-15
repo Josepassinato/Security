@@ -4,7 +4,7 @@ sidebar_position: 1
 
 # REST API Reference
 
-AiSOC exposes a fully documented OpenAPI 3.1 REST API.
+Quarry exposes a fully documented OpenAPI 3.1 REST API.
 
 ## Base URL
 
@@ -22,7 +22,7 @@ AiSOC exposes a fully documented OpenAPI 3.1 REST API.
 # Obtain a token
 curl -X POST http://localhost:8000/api/v1/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"admin@aisoc.local","password":"changeme"}'
+  -d '{"email":"admin@quarry.local","password":"changeme"}'
 
 # Use the token
 curl http://localhost:8000/api/v1/cases \
@@ -46,7 +46,7 @@ When running locally, interactive Swagger UI is available at:
 - **ReDoc**: [http://localhost:8000/redoc](http://localhost:8000/redoc)
 - **OpenAPI JSON**: [http://localhost:8000/openapi.json](http://localhost:8000/openapi.json)
 
-The full spec is also committed at [`docs/openapi.yaml`](https://github.com/beenuar/AiSOC/blob/main/docs/openapi.yaml).
+The full spec is also committed at [`docs/openapi.yaml`](https://github.com/Josepassinato/quarry/blob/main/docs/openapi.yaml).
 
 ## Endpoint Groups
 
@@ -72,7 +72,7 @@ The full spec is also committed at [`docs/openapi.yaml`](https://github.com/been
 | Method | Path | Description |
 |--------|------|-------------|
 | `GET/POST` | `/alerts` | List / ingest alerts |
-| `POST` | `/alerts/submit` | **Founder-flow direct-write submit** — synthesises an `Alert` row directly from a batch of OCSF events, bypassing Kafka / `services/ingest` / `services/fusion`. Powers `aisoc submit` and the fresh-clone demo so the console at `/alerts` lights up immediately. See [`packages/aisoc-cli`](https://github.com/aisoc-community/aisoc/tree/main/packages/aisoc-cli) and [`examples/alerts/lateral-movement.json`](https://github.com/aisoc-community/aisoc/tree/main/examples/alerts/lateral-movement.json) for the canonical payload. |
+| `POST` | `/alerts/submit` | **Founder-flow direct-write submit** — synthesises an `Alert` row directly from a batch of OCSF events, bypassing Kafka / `services/ingest` / `services/fusion`. Powers `quarry submit` and the fresh-clone demo so the console at `/alerts` lights up immediately. See [`packages/quarry-cli`](https://github.com/quarry-community/quarry/tree/main/packages/quarry-cli) and [`examples/alerts/lateral-movement.json`](https://github.com/quarry-community/quarry/tree/main/examples/alerts/lateral-movement.json) for the canonical payload. |
 | `GET/PATCH/DELETE` | `/alerts/{id}` | Alert detail / update / delete |
 | `POST` | `/alerts/{id}/assign` | Assign to analyst |
 | `GET/POST` | `/rules` | Detection rule catalog |
@@ -165,7 +165,7 @@ the data model and rationale.
 ### Marketplace
 
 The marketplace surface is backed by the JSON index at
-[`marketplace/index.json`](https://github.com/beenuar/AiSOC/blob/main/marketplace/index.json)
+[`marketplace/index.json`](https://github.com/Josepassinato/quarry/blob/main/marketplace/index.json)
 and re-published to the web app at `/marketplace/index.json`.
 
 | Method | Path | Description |
@@ -274,9 +274,9 @@ Response includes `"next_cursor"` when more pages exist.
 
 | Language | Package | Notes |
 |----------|---------|-------|
-| Python | [`packages/sdk-py`](https://github.com/beenuar/AiSOC/tree/main/packages/sdk-py) | Async client built on `httpx` |
-| TypeScript | [`packages/sdk-ts`](https://github.com/beenuar/AiSOC/tree/main/packages/sdk-ts) | Browser + Node, fetch-based |
-| Go | [`packages/sdk-go`](https://github.com/beenuar/AiSOC/tree/main/packages/sdk-go) | Typed models + thin client helpers |
+| Python | [`packages/sdk-py`](https://github.com/Josepassinato/quarry/tree/main/packages/sdk-py) | Async client built on `httpx` |
+| TypeScript | [`packages/sdk-ts`](https://github.com/Josepassinato/quarry/tree/main/packages/sdk-ts) | Browser + Node, fetch-based |
+| Go | [`packages/sdk-go`](https://github.com/Josepassinato/quarry/tree/main/packages/sdk-go) | Typed models + thin client helpers |
 
 In addition, the [Model Context Protocol server](../integrations/mcp)
 (`@quarry/mcp`) exposes 11 of these endpoints as IDE-side tools for

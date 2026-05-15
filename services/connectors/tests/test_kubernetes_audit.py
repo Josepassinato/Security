@@ -7,7 +7,7 @@ enough to bubble up. The tests are grouped accordingly:
 * ``test_schema`` / ``test_capabilities`` — surface-area contract.
 * ``test_severity_*``                       — the heuristic itself.
 * ``test_normalize_*``                      — the audit.k8s.io/v1
-                                               -> AiSOC shape mapping.
+                                               -> Quarry shape mapping.
 * ``test_webhook_mode_*``                   — webhook test_connection
                                                + fetch_alerts contract.
 * ``test_file_tail_*``                      — file_tail cursor behaviour,
@@ -90,7 +90,7 @@ def test_capabilities_advertises_pull_audit_and_alerts():
 
 def test_severity_pod_exec_is_critical():
     # Interactive shell into a pod is functionally equivalent to a
-    # P1 incident on that pod — map to AiSOC's ``critical`` tier.
+    # P1 incident on that pod — map to Quarry's ``critical`` tier.
     event = {
         "verb": "create",
         "objectRef": {"resource": "pods", "subresource": "exec"},
@@ -464,7 +464,7 @@ async def test_file_tail_test_connection_success(tmp_path: Path):
     assert result["mode"] == "file_tail"
     assert result["audit_log_path"] == str(audit_log)
     # Default cursor path is right next to the audit log.
-    assert result["cursor_path"].endswith(".aisoc-cursor")
+    assert result["cursor_path"].endswith(".quarry-cursor")
 
 
 @pytest.mark.asyncio
@@ -651,7 +651,7 @@ async def test_file_tail_respects_custom_cursor_path(tmp_path: Path):
 @pytest.mark.asyncio
 async def test_file_tail_corrupt_cursor_starts_from_zero(tmp_path: Path):
     audit_log = tmp_path / "audit.log"
-    cursor = tmp_path / "audit.log.aisoc-cursor"
+    cursor = tmp_path / "audit.log.quarry-cursor"
     _write_audit_events(audit_log, [{"auditID": "a", "verb": "get"}])
     cursor.write_text("not-an-integer")
     conn = KubernetesAuditConnector(

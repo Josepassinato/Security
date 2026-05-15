@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Export, validate, and regenerate the AiSOC security knowledge graph schema.
+"""Export, validate, and regenerate the Quarry security knowledge graph schema.
 
 This script is the drift gate that keeps three representations of the schema
 in lockstep:
@@ -13,8 +13,8 @@ Modes
 -----
 
 Default (no flags)
-    Connect to Neo4j (env: ``AISOC_NEO4J_URI`` / ``AISOC_NEO4J_USER`` /
-    ``AISOC_NEO4J_PASSWORD``, falling back to ``NEO4J_URI`` etc.) and write
+    Connect to Neo4j (env: ``QUARRY_NEO4J_URI`` / ``QUARRY_NEO4J_USER`` /
+    ``QUARRY_NEO4J_PASSWORD``, falling back to ``NEO4J_URI`` etc.) and write
     the materialised schema to ``schemas/graph-schema-current.yaml``. When
     Neo4j is unreachable, fall back to parsing the Go enums and dumping
     those.
@@ -183,9 +183,9 @@ def parse_go_source(path: Path) -> tuple[set[str], set[str]] | None:
 
 
 def _neo4j_credentials() -> tuple[str, str, str] | None:
-    uri = os.environ.get("AISOC_NEO4J_URI") or os.environ.get("NEO4J_URI")
-    user = os.environ.get("AISOC_NEO4J_USER") or os.environ.get("NEO4J_USER")
-    password = os.environ.get("AISOC_NEO4J_PASSWORD") or os.environ.get("NEO4J_PASSWORD")
+    uri = os.environ.get("QUARRY_NEO4J_URI") or os.environ.get("NEO4J_URI")
+    user = os.environ.get("QUARRY_NEO4J_USER") or os.environ.get("NEO4J_USER")
+    password = os.environ.get("QUARRY_NEO4J_PASSWORD") or os.environ.get("NEO4J_PASSWORD")
     if not uri or not user or password is None:
         return None
     return uri, user, password
@@ -418,7 +418,7 @@ def regenerate_yaml_from_go(go_parsed: tuple[set[str], set[str]], out_path: Path
 def _parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
-            "Export, validate, and regenerate the AiSOC graph schema. "
+            "Export, validate, and regenerate the Quarry graph schema. "
             "Default mode: dump the currently materialised schema to "
             "schemas/graph-schema-current.yaml."
         ),

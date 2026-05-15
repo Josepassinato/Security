@@ -1,7 +1,7 @@
 """
 Playbook Engine — Pillar 2
 ==========================
-Executes an AiSOC Playbook against a trigger context (alert/case dict).
+Executes an Quarry Playbook against a trigger context (alert/case dict).
 
 Design goals:
 - Async, step-by-step execution with per-step structured logging.
@@ -27,7 +27,7 @@ from .bounds import clamp_timeout
 from .models import Playbook, PlaybookStep, StepCondition, StepType
 from .ssrf_guard import SSRFError, validate_outbound_url
 
-logger = logging.getLogger("aisoc.playbook.engine")
+logger = logging.getLogger("quarry.playbook.engine")
 
 _REALTIME_URL = os.getenv("REALTIME_URL", "http://realtime:3001")
 # Internal token used to authenticate the agents service to the realtime
@@ -357,7 +357,7 @@ async def _handle_investigate(step: PlaybookStep, context: dict[str, Any], http:
 async def _handle_notify(step: PlaybookStep, context: dict[str, Any], http: httpx.AsyncClient) -> dict:
     channel = step.params.get("channel", "webhook")
     url = step.params.get("url", "")
-    message = step.params.get("message", "AiSOC playbook notification")
+    message = step.params.get("message", "Quarry playbook notification")
     # Simple template substitution
     for k, v in context.items():
         message = message.replace(f"{{{{{k}}}}}", str(v))
@@ -417,7 +417,7 @@ async def _handle_close_case(step: PlaybookStep, context: dict[str, Any], http: 
 
 
 async def _handle_osquery_live_query(step: PlaybookStep, context: dict[str, Any], http: httpx.AsyncClient) -> dict:
-    """Dispatch a distributed osquery live query via osctrl, FleetDM, or aisoc-direct.
+    """Dispatch a distributed osquery live query via osctrl, FleetDM, or quarry-direct.
 
     Expected ``step.params`` keys
     ------------------------------
@@ -435,7 +435,7 @@ async def _handle_osquery_live_query(step: PlaybookStep, context: dict[str, Any]
         How long to wait for all hosts to respond (default: 60).
     """
     # Import clients here to avoid circular imports at module load time.
-    from app.clients.aisoc_direct_client import AiSOCDirectClient  # noqa: PLC0415
+    from app.clients.aisoc_direct_client import QuarryDirectClient  # noqa: PLC0415
     from app.clients.fleetdm_client import FleetDMClient  # noqa: PLC0415
     from app.clients.osctrl_client import OsctrlClient  # noqa: PLC0415
     from app.clients.osquery_allowlist import AllowlistError  # noqa: PLC0415
@@ -487,7 +487,7 @@ async def _handle_osquery_live_query(step: PlaybookStep, context: dict[str, Any]
             return await client_fleet.live_query(target_hosts, template, template_params, timeout_seconds)
 
         if backend == "aisoc_direct":
-            client_direct = AiSOCDirectClient(
+            client_direct = QuarryDirectClient(
                 base_url=creds.get("base_url") or step.params.get("base_url", ""),
                 api_token=creds.get("api_token") or step.params.get("api_token", ""),
             )

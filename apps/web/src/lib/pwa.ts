@@ -31,7 +31,7 @@ export interface ServiceWorkerStatus {
 }
 
 /**
- * Register the AiSOC service worker. Safe to call multiple times — the
+ * Register the Quarry service worker. Safe to call multiple times — the
  * browser dedupes by `scriptUrl` + `scope`. Only runs in the browser.
  */
 export async function registerServiceWorker(
@@ -241,7 +241,7 @@ export async function showInstallPrompt(): Promise<'accepted' | 'dismissed' | 'u
 // payload in IndexedDB and ask the SW to replay it via Background Sync. The
 // SW reads the same store; this client-side helper writes into it.
 
-const DB_NAME = 'aisoc-responder';
+const DB_NAME = 'quarry-responder';
 const DB_VERSION = 1;
 const STORE_APPROVALS = 'pending-approvals';
 

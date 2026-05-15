@@ -6,9 +6,9 @@ tier: stable
 description: >
   Google Chronicle SecOps SIEM. Pulls detections and supports UDM searches.
   Auth is via a Google Cloud service account JSON key with chronicle.* roles.
-author: AiSOC Core Team
+author: Quarry Core Team
 tags: [siem, google, chronicle, secops]
-homepage: https://github.com/beenuar/AiSOC/tree/main/services/connectors/app/connectors/chronicle.py
+homepage: https://github.com/beenuar/Quarry/tree/main/services/connectors/app/connectors/chronicle.py
 license: MIT
 min_aisoc_version: "4.0.0"
 config_schema:

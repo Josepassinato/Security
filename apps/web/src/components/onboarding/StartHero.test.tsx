@@ -89,7 +89,7 @@ describe('StartHero', () => {
       /Detect\.\s*Triage\.\s*Hunt\.\s*Respond/i,
     );
 
-    const strip = screen.getByLabelText(/four AiSOC agents/i);
+    const strip = screen.getByLabelText(/four Quarry agents/i);
     for (const name of ['Detect', 'Triage', 'Hunt', 'Respond']) {
       expect(strip).toHaveTextContent(new RegExp(name, 'i'));
     }

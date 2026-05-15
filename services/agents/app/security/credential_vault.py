@@ -8,7 +8,7 @@ back-channel "please decrypt this for me" RPC (which would just push the
 secret across the wire in plaintext anyway and add a failure surface).
 
 Both services agree on a single deployment-level secret,
-``AISOC_CREDENTIAL_KEY``, mounted via the same secrets store (Fly secrets,
+``QUARRY_CREDENTIAL_KEY``, mounted via the same secrets store (Fly secrets,
 k8s secret, vault, etc.). As long as the two services see the same key
 material, ciphertexts written by one decrypt cleanly in the other.
 
@@ -24,7 +24,7 @@ Differences vs. the API copy:
   future re-encrypt maintenance job could run from either side.
 
 Differences vs. the connectors copy: :func:`get_vault` here returns ``None``
-when ``AISOC_CREDENTIAL_KEY`` is missing instead of raising. The agents
+when ``QUARRY_CREDENTIAL_KEY`` is missing instead of raising. The agents
 service must keep generating deterministic explanations even when no BYOK
 infrastructure is configured — tenant overrides simply degrade to env-only
 in that case.
@@ -40,7 +40,7 @@ from typing import Any, Final
 
 from cryptography.fernet import Fernet, InvalidToken, MultiFernet
 
-logger = logging.getLogger("aisoc.agents.credential_vault")
+logger = logging.getLogger("quarry.agents.credential_vault")
 
 # Tag every value we write so we can distinguish ciphertext from legacy
 # plaintext on the decrypt path. Must match the API service's prefix
@@ -74,7 +74,7 @@ class CredentialVault:
         try:
             primary = Fernet(primary_key)
         except (TypeError, ValueError) as exc:
-            raise CredentialVaultError(f"AISOC_CREDENTIAL_KEY is not a valid Fernet key: {exc}") from exc
+            raise CredentialVaultError(f"QUARRY_CREDENTIAL_KEY is not a valid Fernet key: {exc}") from exc
 
         keyring: list[Fernet] = [primary]
         for k in historical_keys or []:
@@ -103,7 +103,7 @@ class CredentialVault:
             return self._fernet.decrypt(token).decode("utf-8")
         except InvalidToken as exc:
             raise CredentialVaultError(
-                "ciphertext failed integrity check — likely AISOC_CREDENTIAL_KEY mismatch between API and agents services"
+                "ciphertext failed integrity check — likely QUARRY_CREDENTIAL_KEY mismatch between API and agents services"
             ) from exc
 
     def encrypt_dict(
@@ -155,7 +155,7 @@ def get_vault() -> CredentialVault | None:
     """Return the process-wide vault, lazily constructed from env vars.
 
     Returns ``None`` (with a single warning log line per process) when
-    ``AISOC_CREDENTIAL_KEY`` is missing. Callers should treat that as
+    ``QUARRY_CREDENTIAL_KEY`` is missing. Callers should treat that as
     "BYOK decryption not configured" and fall through to the environment
     baseline rather than failing the request.
     """
@@ -164,17 +164,17 @@ def get_vault() -> CredentialVault | None:
     with _vault_lock:
         if _vault_state["singleton"] is not None:  # pragma: no cover - racing init
             return _vault_state["singleton"]  # type: ignore[return-value]
-        primary = (os.getenv("AISOC_CREDENTIAL_KEY") or "").strip().encode("ascii")
+        primary = (os.getenv("QUARRY_CREDENTIAL_KEY") or "").strip().encode("ascii")
         if not primary:
             if not _vault_state["warned_missing_key"]:
                 logger.warning(
-                    "AISOC_CREDENTIAL_KEY not set; tenant LLM BYOK overrides "
+                    "QUARRY_CREDENTIAL_KEY not set; tenant LLM BYOK overrides "
                     "will be ignored and explain will use the environment "
                     "baseline only"
                 )
                 _vault_state["warned_missing_key"] = True
             return None
-        rotation = _split_keys(os.getenv("AISOC_CREDENTIAL_KEY_ROTATION_FROM") or "")
+        rotation = _split_keys(os.getenv("QUARRY_CREDENTIAL_KEY_ROTATION_FROM") or "")
         _vault_state["singleton"] = CredentialVault(primary, historical_keys=rotation)
         return _vault_state["singleton"]  # type: ignore[return-value]
 

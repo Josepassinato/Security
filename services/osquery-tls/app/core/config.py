@@ -1,7 +1,7 @@
-"""Configuration settings for the AiSOC osquery TLS service.
+"""Configuration settings for the Quarry osquery TLS service.
 
 All settings are read from environment variables prefixed with
-``AISOC_OSQUERY_TLS_``, with sane defaults for local dev.
+``QUARRY_OSQUERY_TLS_``, with sane defaults for local dev.
 """
 
 from __future__ import annotations
@@ -11,14 +11,14 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_prefix="AISOC_OSQUERY_TLS_",
+        env_prefix="QUARRY_OSQUERY_TLS_",
         env_file=".env",
         extra="ignore",
     )
 
     # --- Database -------------------------------------------------------
     # Reuses the main API Postgres; all tables live in the `osquery_tls` schema.
-    database_url: str = "postgresql+asyncpg://aisoc:aisoc@localhost:5432/aisoc"
+    database_url: str = "postgresql+asyncpg://quarry:aisoc@localhost:5432/quarry"
 
     # --- Ingest service -------------------------------------------------
     # Where normalised osquery rows are forwarded to.
@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     # --- Enrollment auth ------------------------------------------------
     # The enroll secret that osqueryd must present. In production this should
     # be a long random string stored in a secrets manager and rotated
-    # periodically.  Per-tenant secrets are looked up by the ``X-AiSOC-Tenant``
+    # periodically.  Per-tenant secrets are looked up by the ``X-Quarry-Tenant``
     # request header; this value is used as the fallback single-tenant secret.
     enroll_secret: str = "change-me-in-production"
 

@@ -10,17 +10,17 @@ modern Linux distribution. Almost every detection rule under
 
 Why ``file_tail`` only (no host-agent)?
 
-    AiSOC is deliberately host-agent-free in v1. Operators who want
+    Quarry is deliberately host-agent-free in v1. Operators who want
     auditd telemetry already pay for ``auditd`` itself — it's a
     standard package on every server distro. The path of least
     deployment friction is:
 
-      1. Install AiSOC's ``audit.rules`` profile (ships at
-         ``profiles/auditd/aisoc.rules``) under
+      1. Install Quarry's ``audit.rules`` profile (ships at
+         ``profiles/auditd/quarry.rules``) under
          ``/etc/audit/rules.d/``.
       2. Reload with ``augenrules --load``.
       3. Mount ``/var/log/audit/audit.log`` read-only into the
-         AiSOC connector pod (or run the connector on the same
+         Quarry connector pod (or run the connector on the same
          host with a sidecar deployment).
 
     The connector pod tails the log file forward from a saved byte
@@ -52,9 +52,9 @@ Auditd log format (the parsing problem)
 What we don't do
 
     * No kernel-side rule evaluation (that's auditd's job — see
-      ``profiles/auditd/aisoc.rules``).
+      ``profiles/auditd/quarry.rules``).
     * No real-time push (the connector is poll-driven on the same
-      cadence as every other AiSOC connector — typically 60s).
+      cadence as every other Quarry connector — typically 60s).
     * No host-agent. The whole connector is a Python file_tail
       reader; if you want a real-time push agent the v2 ``host-agent``
       workstream covers it.
@@ -62,7 +62,7 @@ What we don't do
 Severity heuristic
 
     Audit records carry ``key=...`` strings set by the operator's
-    rules. The AiSOC ``audit.rules`` profile names every rule
+    rules. The Quarry ``audit.rules`` profile names every rule
     ``aisoc_<bucket>`` so the connector can derive a meaningful
     severity from the key alone:
 
@@ -74,7 +74,7 @@ Severity heuristic
         ``aisoc_audit_*``          → ``low``
       * everything else            → ``info``
 
-    Operators who don't use the AiSOC profile (e.g. they keep a
+    Operators who don't use the Quarry profile (e.g. they keep a
     pre-existing audit.rules from CIS / STIG) still get useful
     coverage — we fall back to syscall-based heuristics
     (``execve`` from ``/dev/shm`` or ``/tmp`` → ``high``;
@@ -175,10 +175,10 @@ _HIGH_RISK_EXEC_DIRS: tuple[str, ...] = (
 
 
 def _severity_from_event(event: dict[str, Any]) -> str:
-    """Bucket a reassembled auditd event into AiSOC's 5-tier ladder.
+    """Bucket a reassembled auditd event into Quarry's 5-tier ladder.
 
     Priority order:
-      1. AiSOC-profile key prefix match (``aisoc_critical_*`` etc.).
+      1. Quarry-profile key prefix match (``aisoc_critical_*`` etc.).
       2. Path-based heuristic (writes to ``/etc/shadow`` etc.).
       3. Exec-from-temp heuristic.
       4. ``info`` floor.
@@ -361,7 +361,7 @@ def _assemble_events(
 
 
 # Minimal x86_64 syscall number → name table covering the syscalls
-# AiSOC's detection content actually pivots on. We deliberately do
+# Quarry's detection content actually pivots on. We deliberately do
 # *not* ship a full table — the long tail isn't useful and would
 # bloat this file. Operators on other architectures can override the
 # behaviour by setting ``--with-prefix`` audit rules that emit the
@@ -406,7 +406,7 @@ class AuditdConnector(BaseConnector):
     connector_name = "Linux Auditd"
     connector_category = "edr"
 
-    _DEFAULT_CURSOR_SUFFIX = ".aisoc-cursor"
+    _DEFAULT_CURSOR_SUFFIX = ".quarry-cursor"
 
     @classmethod
     def schema(cls) -> ConnectorSchema:
@@ -421,10 +421,10 @@ class AuditdConnector(BaseConnector):
                 "(SYSCALL + EXECVE + PATH + …) into flat documents, "
                 "and feeds the same execve / file-watch / kernel-module "
                 "primitives that detections/endpoint/linux-*.yaml "
-                "rules pivot on. Ship the AiSOC ``audit.rules`` "
-                "profile (profiles/auditd/aisoc.rules) for full "
+                "rules pivot on. Ship the Quarry ``audit.rules`` "
+                "profile (profiles/auditd/quarry.rules) for full "
                 "coverage; rules with ``aisoc_*`` keys auto-bucket "
-                "into AiSOC's severity tiers."
+                "into Quarry's severity tiers."
             ),
             docs_url="/docs/connectors/auditd",
             fields=[
@@ -449,7 +449,7 @@ class AuditdConnector(BaseConnector):
                     default="/var/log/audit/audit.log",
                     help_text=(
                         "Absolute path to ``audit.log`` inside the "
-                        "AiSOC connector pod. Mount the host's "
+                        "Quarry connector pod. Mount the host's "
                         "``/var/log/audit`` directory read-only into "
                         "the pod, or run the connector on the same "
                         "host as the auditd daemon."
@@ -461,9 +461,9 @@ class AuditdConnector(BaseConnector):
                     "Cursor file path",
                     required=False,
                     help_text=(
-                        "Optional override for where AiSOC stores "
+                        "Optional override for where Quarry stores "
                         "its byte-position cursor. Defaults to "
-                        "``<audit_log_path>.aisoc-cursor``. Use a "
+                        "``<audit_log_path>.quarry-cursor``. Use a "
                         "writeable path — the connector pod needs "
                         "to update this on every successful poll."
                     ),
@@ -649,7 +649,7 @@ class AuditdConnector(BaseConnector):
         return [self.normalize(e) for e in events]
 
     def normalize(self, raw: dict[str, Any]) -> dict[str, Any]:
-        """Map a reassembled auditd event to AiSOC's normalised shape.
+        """Map a reassembled auditd event to Quarry's normalised shape.
 
         The output dict is intentionally flat and uses the same field
         names every existing ``detections/endpoint/linux-*.yaml``

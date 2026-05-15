@@ -1,11 +1,11 @@
-// Package tables implements the five AiSOC virtual osquery tables.
+// Package tables implements the five Quarry virtual osquery tables.
 package tables
 
 import (
 	"context"
 	"log"
 
-	"github.com/beenuar/aisoc/osquery-extensions/internal/aisocapi"
+	"github.com/beenuar/quarry/osquery-extensions/internal/quarryapi"
 	"github.com/osquery/osquery-go/plugin/table"
 )
 
@@ -24,8 +24,8 @@ func PendingActionsColumns() []table.ColumnDefinition {
 }
 
 // PendingActionsGenerate satisfies osquery-go's Generate signature and fetches
-// pending HITL actions from the AiSOC API.
-func PendingActionsGenerate(client *aisocapi.Client) table.GenerateFunc {
+// pending HITL actions from the Quarry API.
+func PendingActionsGenerate(client *quarryapi.Client) table.GenerateFunc {
 	return func(ctx context.Context, queryContext table.QueryContext) ([]map[string]string, error) {
 		actions, err := client.GetPendingActions(ctx)
 		if err != nil {

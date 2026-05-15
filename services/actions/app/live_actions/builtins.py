@@ -397,7 +397,7 @@ class SplunkCreateNotable(_LegacyExecutorAdapter):
 class SplunkSyncDetectionRule(_LegacyExecutorAdapter):
     vendor_id = "splunk"
     capability = "sync_detection_rule"
-    description = "Create or update a Splunk saved search from an AiSOC detection."
+    description = "Create or update a Splunk saved search from an Quarry detection."
     requires_credentials = True
     _legacy_executor = SyncDetectionRuleExecutor()
     _legacy_action_type = ActionType.SYNC_DETECTION_RULE

@@ -1,6 +1,6 @@
 """Tests for ``POST /alerts/submit`` — the founder-flow direct-write path.
 
-The submit endpoint is the destination the ``aisoc submit <file>`` CLI POSTs
+The submit endpoint is the destination the ``quarry submit <file>`` CLI POSTs
 to. It deliberately bypasses the Kafka detect/correlate/fuse pipeline
 (which fresh clones don't run by default) and synthesises a single ``Alert``
 row directly from an OCSF/Okta-shaped event batch. This is what makes the
@@ -26,7 +26,7 @@ These tests pin three layers:
 If these tests break, the founder-flow demo silently regresses and the
 quickstart video desyncs from reality.
 
-AiSOC — open-source AI Security Operations Center (MIT License)
+Quarry — open-source AI Security Operations Center (MIT License)
 Author: Beenu Arora <beenu@cyble.com>
 """
 
@@ -330,7 +330,7 @@ class TestSynthesiseAlertFromEvents:
         assert "okta_system_log" in alert.tags
         # Raw event payload preserved for forensics.
         assert alert.raw_event["events"] == [_okta_event_serialised_match(alert)]
-        assert alert.raw_event["source"] == "aisoc-submit-api"
+        assert alert.raw_event["source"] == "quarry-submit-api"
 
     def test_picks_highest_severity_across_batch(self) -> None:
         """Multi-event batches collapse to one alert at the worst severity."""
@@ -466,7 +466,7 @@ class TestSynthesiseAlertFromEvents:
             override_severity=None,
             override_tags=None,
         )
-        assert alert.title == "AiSOC submitted alert"
+        assert alert.title == "Quarry submitted alert"
         assert alert.severity == "medium"
         # No connector_type → not an identity event
         assert alert.category is None
@@ -498,7 +498,7 @@ class TestSynthesiseAlertFromEvents:
             override_tags=None,
         )
         assert "3 event(s)" in (alert.description or "")
-        assert "Submitted via aisoc submit" in (alert.description or "")
+        assert "Submitted via quarry submit" in (alert.description or "")
 
 
 def _okta_event_serialised_match(alert: Any) -> dict[str, Any]:
@@ -522,7 +522,7 @@ class TestSubmitAlertEndpoint:
 
         payload = AlertSubmitRequest(
             events=[_okta_event(severity="HIGH")],
-            connector_id="aisoc-cli-submit",
+            connector_id="quarry-cli-submit",
             connector_type="okta_system_log",
             source_format="json",
         )

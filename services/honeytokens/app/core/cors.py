@@ -1,4 +1,4 @@
-"""Shared CORS configuration helper for AiSOC FastAPI services.
+"""Shared CORS configuration helper for Quarry FastAPI services.
 
 Goal: every FastAPI service in this repo lands at the same, safe CORS posture
 without each ``main.py`` re-implementing the parsing + production guard.
@@ -16,7 +16,7 @@ Configuration
 -------------
 The allow-list is resolved from environment variables, in priority order:
 
-  1. ``AISOC_CORS_ORIGINS`` — canonical, comma-separated.
+  1. ``QUARRY_CORS_ORIGINS`` — canonical, comma-separated.
   2. ``CORS_ORIGINS``       — legacy alias kept for backwards compatibility
                               (some Helm charts and dev scripts still set it).
   3. ``default`` argument   — service-supplied fallback, or
@@ -31,7 +31,7 @@ Production guard
 If the resolved allow-list contains ``*`` while ``allow_credentials`` is
 ``True``:
 
-  * In production (``AISOC_ENV`` / ``ENVIRONMENT`` / ``APP_ENV`` set to
+  * In production (``QUARRY_ENV`` / ``ENVIRONMENT`` / ``APP_ENV`` set to
     ``production`` or ``prod``) we raise :class:`CORSConfigurationError` at
     startup so the deploy fails loudly instead of silently exposing CSRF.
   * Outside production we log a warning and auto-disable credentials for this
@@ -57,7 +57,7 @@ DEFAULT_CORS_ORIGINS: tuple[str, ...] = (
 
 # Used when ``allow_credentials`` is True. The CORS spec refuses the response
 # if either of these is ``*`` while credentials are enabled, so we enumerate
-# the values the AiSOC frontends actually need. Services that don't carry
+# the values the Quarry frontends actually need. Services that don't carry
 # cookies/Authorization headers can still pass ``allow_methods=["*"]``.
 DEFAULT_ALLOW_METHODS: tuple[str, ...] = (
     "GET",
@@ -98,7 +98,7 @@ def _split_origins(raw: str | None) -> list[str]:
 
 def _is_production_environment() -> bool:
     """Return True if any well-known env var indicates a production deploy."""
-    env_value = (os.getenv("AISOC_ENV") or os.getenv("ENVIRONMENT") or os.getenv("APP_ENV") or "").strip().lower()
+    env_value = (os.getenv("QUARRY_ENV") or os.getenv("ENVIRONMENT") or os.getenv("APP_ENV") or "").strip().lower()
     return env_value in _PRODUCTION_ENV_VALUES
 
 
@@ -108,10 +108,10 @@ def resolve_cors_origins(
 ) -> list[str]:
     """Resolve the CORS allow-list from environment.
 
-    Priority: ``AISOC_CORS_ORIGINS`` > ``CORS_ORIGINS`` > ``default``
+    Priority: ``QUARRY_CORS_ORIGINS`` > ``CORS_ORIGINS`` > ``default``
     (or :data:`DEFAULT_CORS_ORIGINS`).
     """
-    for env_name in ("AISOC_CORS_ORIGINS", "CORS_ORIGINS"):
+    for env_name in ("QUARRY_CORS_ORIGINS", "CORS_ORIGINS"):
         origins = _split_origins(os.getenv(env_name))
         if origins:
             return origins
@@ -143,7 +143,7 @@ def build_cors_kwargs(
         do; honeytoken token-trip pixels do not.
     default_origins:
         Optional service-specific fallback when neither
-        ``AISOC_CORS_ORIGINS`` nor ``CORS_ORIGINS`` is set.
+        ``QUARRY_CORS_ORIGINS`` nor ``CORS_ORIGINS`` is set.
     allow_methods / allow_headers / expose_headers:
         Optional explicit lists. When ``allow_credentials`` is True and the
         caller passes ``None``, we substitute :data:`DEFAULT_ALLOW_METHODS`
@@ -164,13 +164,13 @@ def build_cors_kwargs(
         if _is_production_environment():
             raise CORSConfigurationError(
                 f"{service_name}: refusing to start with wildcard CORS origin "
-                "and allow_credentials=True. Set AISOC_CORS_ORIGINS to an "
+                "and allow_credentials=True. Set QUARRY_CORS_ORIGINS to an "
                 "explicit allow-list (e.g. https://app.example.com)."
             )
         logger.warning(
             "CORS wildcard origin combined with allow_credentials=True "
             "is unsafe; disabling credentials for service=%s. Set "
-            "AISOC_CORS_ORIGINS to an explicit allow-list.",
+            "QUARRY_CORS_ORIGINS to an explicit allow-list.",
             service_name,
         )
         allow_credentials = False

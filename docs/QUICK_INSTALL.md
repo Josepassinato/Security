@@ -1,11 +1,11 @@
 # Quick install — zero-prerequisite bootstrap
 
-AiSOC ships with two one-click bootstrap installers. They take a freshly-imaged
-machine to a running AiSOC dashboard in your browser, with **zero assumed
+Quarry ships with two one-click bootstrap installers. They take a freshly-imaged
+machine to a running Quarry dashboard in your browser, with **zero assumed
 prerequisites**, in a single command.
 
 If you already have Docker, Node 20, pnpm 8+, and git installed, you don't need
-these scripts — just run `pnpm aisoc:demo` from a clone. These installers exist
+these scripts — just run `pnpm quarry:demo` from a clone. These installers exist
 for the case where you don't (or you're handing the repo to someone who
 doesn't).
 
@@ -14,7 +14,7 @@ doesn't).
 ### Linux + macOS
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/beenuar/AiSOC/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/beenuar/Quarry/main/install.sh | bash
 ```
 
 ### Windows 10 / 11
@@ -22,28 +22,28 @@ curl -fsSL https://raw.githubusercontent.com/beenuar/AiSOC/main/install.sh | bas
 Open PowerShell **as Administrator** and run:
 
 ```powershell
-iwr -useb https://raw.githubusercontent.com/beenuar/AiSOC/main/install.ps1 | iex
+iwr -useb https://raw.githubusercontent.com/beenuar/Quarry/main/install.ps1 | iex
 ```
 
 When the script finishes, your default browser opens at
-`http://localhost:3000/cases/INC-RT-001?tab=ledger` with `demo@aisoc.dev`
+`http://localhost:3000/cases/INC-RT-001?tab=ledger` with `demo@quarry.dev`
 already auto-logged-in and a real LockBit 3.0 investigation mid-flight.
 
 ## What gets installed
 
-The installer is **surgical**. It installs only the four things AiSOC actually
+The installer is **surgical**. It installs only the four things Quarry actually
 needs, and only if they are missing or too old:
 
 | Tool                   | Linux / macOS source              | Windows source         | Why                              |
 | ---------------------- | --------------------------------- | ---------------------- | -------------------------------- |
 | `git`                  | distro package manager            | `winget Git.Git`       | clone the repo                   |
-| Docker Engine + Compose v2 | distro package manager (Linux), `brew install --cask docker` (macOS) | `winget Docker.DockerDesktop` (+ WSL2) | run the AiSOC stack |
-| Node.js 20 LTS         | NodeSource (Linux), `brew` (macOS) | `winget OpenJS.NodeJS.LTS` | drive `pnpm aisoc:demo` |
+| Docker Engine + Compose v2 | distro package manager (Linux), `brew install --cask docker` (macOS) | `winget Docker.DockerDesktop` (+ WSL2) | run the Quarry stack |
+| Node.js 20 LTS         | NodeSource (Linux), `brew` (macOS) | `winget OpenJS.NodeJS.LTS` | drive `pnpm quarry:demo` |
 | pnpm 8+                | `corepack enable` + `corepack prepare pnpm@latest` | same                  | install Node deps                |
 
 **It does not install:** Python, Go, Rust, Postgres, Redis, Kafka,
 ClickHouse, OpenSearch, Neo4j, Qdrant, or anything else. Those run inside
-Docker containers via `pnpm aisoc:demo`, never on your host.
+Docker containers via `pnpm quarry:demo`, never on your host.
 
 **It does not modify:** your dotfiles, your shell init, your existing Docker
 installation, your existing Node installation, or any system packages outside
@@ -92,11 +92,11 @@ the `docker` group to take effect.
 
 ```text
 --no-install        Skip the dependency-install phase (use what's on PATH).
---no-launch         Set everything up but don't run pnpm aisoc:demo at the end.
---no-pull           Forwarded to aisoc:demo to skip image pull.
---rebuild           Forwarded to aisoc:demo to build images from source.
+--no-launch         Set everything up but don't run pnpm quarry:demo at the end.
+--no-pull           Forwarded to quarry:demo to skip image pull.
+--rebuild           Forwarded to quarry:demo to build images from source.
 --clone-dir DIR     Where to clone the repo when running as a one-liner.
-                    Default: $HOME/aisoc
+                    Default: $HOME/quarry
 --branch BR         Git branch to clone. Default: main.
 --skip-preflight    Skip the up-front environment checks and dive straight in.
                     Use only if you know your machine is fine and preflight is
@@ -114,10 +114,10 @@ the `docker` group to take effect.
 
 ```text
 -NoInstall          Skip the dependency-install phase.
--NoLaunch           Set everything up but don't run pnpm aisoc:demo.
--NoPull             Forwarded to aisoc:demo.
--Rebuild            Forwarded to aisoc:demo.
--CloneDir PATH      Where to clone. Default: $env:USERPROFILE\aisoc
+-NoLaunch           Set everything up but don't run pnpm quarry:demo.
+-NoPull             Forwarded to quarry:demo.
+-Rebuild            Forwarded to quarry:demo.
+-CloneDir PATH      Where to clone. Default: $env:USERPROFILE\quarry
 -Branch NAME        Git branch. Default: main.
 -SkipPreflight      Skip the up-front environment checks.
 -Diagnose           Run preflight only and exit (no installs, no clone).
@@ -145,20 +145,20 @@ the installer into CI or wrapping it in a deployment script:
 ## Preflight: the "will this work?" check
 
 Before either installer touches your machine, it runs a **preflight** pass
-that checks the things most likely to make AiSOC unhappy after install:
+that checks the things most likely to make Quarry unhappy after install:
 
 - **CPU architecture** — must be x86_64 / amd64 / arm64. (32-bit ARM, MIPS,
   RISC-V etc. won't work; the Docker images aren't built for them.)
-- **RAM** — at least 4 GB free. AiSOC runs ~10 containers; less than 4 GB
+- **RAM** — at least 4 GB free. Quarry runs ~10 containers; less than 4 GB
   and Postgres or OpenSearch will OOM mid-investigation.
 - **Disk** — at least 10 GB free in the install target.
 - **Network** — can resolve and reach `github.com`, `ghcr.io`, and the
   appropriate package registry (`registry.npmjs.org`, `apt`/`dnf`/`brew`
   repos, etc.). Catches corp-proxy / firewall issues before you waste 10
   minutes pulling Docker images.
-- **Ports** — checks that the ports AiSOC binds to (`3000`, `5432`, `6379`,
+- **Ports** — checks that the ports Quarry binds to (`3000`, `5432`, `6379`,
   `8000`, `8001`, `8086`, `9092`) are either free or already owned by an
-  AiSOC container. If port 3000 is taken by another `next-server`, you'll
+  Quarry container. If port 3000 is taken by another `next-server`, you'll
   see it in preflight rather than in a confusing demo crash later.
 - **macOS Docker Desktop memory budget** — checks Docker Desktop has at
   least 4 GB allocated, and tells you exactly which menu to open if not.
@@ -186,10 +186,10 @@ their versions, and skips reinstalling. Re-running the script is always safe.
 clone that branch instead of `main`.
 
 **I want to put the clone somewhere specific.** `./install.sh --clone-dir
-~/code/aisoc` (default is `$HOME/aisoc`).
+~/code/quarry` (default is `$HOME/quarry`).
 
 **I want to build images from source instead of pulling from GHCR.**
-`./install.sh --rebuild` forwards `--rebuild` to `pnpm aisoc:demo`. This is
+`./install.sh --rebuild` forwards `--rebuild` to `pnpm quarry:demo`. This is
 slower (~10-15 min cold) but lets you run an unreleased branch without waiting
 for image publishing.
 
@@ -203,7 +203,7 @@ general-purpose tools you almost certainly use for other projects.
 
 ```bash
 ./uninstall.sh                  # stop the demo stack, drop volumes
-./uninstall.sh --images         # also remove ghcr.io/beenuar/aisoc-* images
+./uninstall.sh --images         # also remove ghcr.io/beenuar/quarry-* images
 ./uninstall.sh --node-modules   # also delete node_modules trees
 ./uninstall.sh --repo           # also delete the repo clone
 ./uninstall.sh --all            # all of the above
@@ -214,7 +214,7 @@ general-purpose tools you almost certainly use for other projects.
 
 ```powershell
 .\uninstall.ps1                 # stop the demo stack, drop volumes
-.\uninstall.ps1 -Images         # also remove ghcr.io/beenuar/aisoc-* images
+.\uninstall.ps1 -Images         # also remove ghcr.io/beenuar/quarry-* images
 .\uninstall.ps1 -NodeModules    # also delete node_modules trees
 .\uninstall.ps1 -Repo           # also delete the repo clone
 .\uninstall.ps1 -All            # all of the above
@@ -267,35 +267,35 @@ its job; you'll just lose the early warning.
 
 <a id="port-conflicts"></a>
 
-AiSOC binds these host ports by default:
+Quarry binds these host ports by default:
 
 | Port | Container | Override env var |
 | --- | --- | --- |
-| `3000` | `aisoc-web` (Next.js dashboard) | `AISOC_WEB_PORT` |
-| `5432` | `aisoc-postgres` | `AISOC_POSTGRES_PORT` |
-| `6379` | `aisoc-redis` | `AISOC_REDIS_PORT` |
-| `8000` | `aisoc-api` (FastAPI) | `AISOC_API_PORT` |
-| `8001` | `aisoc-realtime` (WebSocket fan-out) | `AISOC_REALTIME_PORT` |
-| `8086` | `aisoc-influx` (telemetry sink) | `AISOC_INFLUX_PORT` |
-| `9092` | `aisoc-kafka` | `AISOC_KAFKA_PORT` |
+| `3000` | `quarry-web` (Next.js dashboard) | `QUARRY_WEB_PORT` |
+| `5432` | `quarry-postgres` | `QUARRY_POSTGRES_PORT` |
+| `6379` | `quarry-redis` | `QUARRY_REDIS_PORT` |
+| `8000` | `quarry-api` (FastAPI) | `QUARRY_API_PORT` |
+| `8001` | `quarry-realtime` (WebSocket fan-out) | `QUARRY_REALTIME_PORT` |
+| `8086` | `quarry-influx` (telemetry sink) | `QUARRY_INFLUX_PORT` |
+| `9092` | `quarry-kafka` | `QUARRY_KAFKA_PORT` |
 
 If preflight flags one of these as in use:
 
 1. Find what's holding it:
    - Linux/macOS: `lsof -nP -iTCP:3000 -sTCP:LISTEN`
    - Windows: `Get-NetTCPConnection -LocalPort 3000 | Select OwningProcess; Get-Process -Id <pid>`
-2. Either stop that process, or set the matching `AISOC_*_PORT` env var
-   in `.env` (or in your shell) and re-run `pnpm aisoc:demo`.
+2. Either stop that process, or set the matching `QUARRY_*_PORT` env var
+   in `.env` (or in your shell) and re-run `pnpm quarry:demo`.
 
 Preflight only **warns** if a port is taken by a process that looks like
-an existing AiSOC container — re-running the installer on a machine that
+an existing Quarry container — re-running the installer on a machine that
 already has the demo running won't fail preflight.
 
 ### Linux: "permission denied" talking to Docker
 
 The installer adds you to the `docker` group, but the new membership only
 takes effect for new shells. The installer works around this for the same
-session by piping `pnpm aisoc:demo` through `sg docker -c`. If you open a
+session by piping `pnpm quarry:demo` through `sg docker -c`. If you open a
 fresh terminal afterwards and still see the error, log out and back in (or
 reboot) to pick up the new group.
 
@@ -375,9 +375,9 @@ configured (e.g. SSH session, headless CI), open
 `http://localhost:3000/cases/INC-RT-001?tab=ledger` in any browser on the
 host yourself.
 
-### `pnpm aisoc:demo` fails after a successful install
+### `pnpm quarry:demo` fails after a successful install
 
-Run `pnpm aisoc:doctor` from inside the clone — it pinpoints which container
+Run `pnpm quarry:doctor` from inside the clone — it pinpoints which container
 or port is unhealthy. Common causes:
 
 - One of the bound ports is already in use → see
@@ -387,8 +387,8 @@ or port is unhealthy. Common causes:
 - Corporate proxy blocking `ghcr.io` → either configure Docker's
   HTTP proxy or run `./install.sh --rebuild` to build from source.
 
-If `aisoc:demo` finishes "successfully" but no browser opens, that's
-usually an `AISOC_NO_BROWSER=1` env var leaking from a previous CI run, or
+If `quarry:demo` finishes "successfully" but no browser opens, that's
+usually an `QUARRY_NO_BROWSER=1` env var leaking from a previous CI run, or
 a headless environment (SSH session, no `$DISPLAY`). The URL is printed in
 the final banner — open it manually.
 
@@ -399,7 +399,7 @@ packages** — that means `sudo` on Linux/macOS and Administrator on Windows.
 
 If you're piping `curl | bash` from the internet, you're trusting that:
 
-1. The script at `https://raw.githubusercontent.com/beenuar/AiSOC/main/install.sh`
+1. The script at `https://raw.githubusercontent.com/beenuar/Quarry/main/install.sh`
    matches the script in this repo (you can inspect the source link).
 2. GitHub's TLS hasn't been MITM-ed.
 3. The repo's owner hasn't been compromised.
@@ -408,8 +408,8 @@ If any of those make you uneasy, the alternative is to clone first and
 inspect the script before running:
 
 ```bash
-git clone https://github.com/beenuar/AiSOC.git
-cd AiSOC
+git clone https://github.com/beenuar/Quarry.git
+cd Quarry
 less install.sh        # or your editor of choice
 ./install.sh
 ```

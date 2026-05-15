@@ -1,20 +1,20 @@
 ---
 sidebar_position: 5
 title: FAQ
-description: Frequently asked questions about AiSOC — what it is, how it deploys, how the agent and detection content work, and how teams actually adopt it.
+description: Frequently asked questions about Quarry — what it is, how it deploys, how the agent and detection content work, and how teams actually adopt it.
 ---
 
 # Frequently Asked Questions
 
-The questions on this page are the ones that come up most often in the [adoption consultation](./adoption-questions) — both from security leaders evaluating AiSOC and from analysts running it day-to-day. Skim the section headers; jump in.
+The questions on this page are the ones that come up most often in the [adoption consultation](./adoption-questions) — both from security leaders evaluating Quarry and from analysts running it day-to-day. Skim the section headers; jump in.
 
 ---
 
-## What AiSOC is
+## What Quarry is
 
-### What does AiSOC actually do?
+### What does Quarry actually do?
 
-AiSOC is an open-source AI Security Operations Center. It does three things:
+Quarry is an open-source AI Security Operations Center. It does three things:
 
 1. **Pulls security signal in** from your existing stack — EDR, SIEM, identity providers, cloud audit logs, SaaS, network — through a click-and-connect [connector catalog](../connectors/).
 2. **Runs detection, fusion, and AI investigation** on that signal — Sigma-shaped detection rules, ML-based fusion, a LangGraph multi-agent investigation that builds a case end-to-end with full evidence and reasoning recorded to a replayable [Investigation Ledger](../concepts/cases).
@@ -30,13 +30,13 @@ Second, **the substrate is gated by a public, reproducible eval harness on every
 
 Third, **everything is open source under MIT**. Self-host it, fork it, audit the code, embed it in an air-gapped network. There is no rug-pull because the only license is permissive.
 
-### Is AiSOC a SIEM, a SOAR, or an XDR?
+### Is Quarry a SIEM, a SOAR, or an XDR?
 
-AiSOC is a "what comes after" — it sits on top of your existing SIEM/EDR/cloud stack and replaces the analyst's workflow, not the data lake.
+Quarry is a "what comes after" — it sits on top of your existing SIEM/EDR/cloud stack and replaces the analyst's workflow, not the data lake.
 
-That said, it carries the building blocks: an OpenSearch + ClickHouse search tier, a Kafka spine, a fusion service, a detection engine, a playbook engine, an entity graph, an audit trail, a UEBA service, honeytokens, and a purple-team feedback loop. If you want to swap your SIEM for it, you can. Most teams start by pointing AiSOC *at* their existing SIEM.
+That said, it carries the building blocks: an OpenSearch + ClickHouse search tier, a Kafka spine, a fusion service, a detection engine, a playbook engine, an entity graph, an audit trail, a UEBA service, honeytokens, and a purple-team feedback loop. If you want to swap your SIEM for it, you can. Most teams start by pointing Quarry *at* their existing SIEM.
 
-### Who is AiSOC for?
+### Who is Quarry for?
 
 In rough order of best-fit:
 
@@ -45,23 +45,23 @@ In rough order of best-fit:
 - **Internal SOCs at regulated enterprises** that need an auditable AI loop with hard autonomy boundaries.
 - **Open-source security engineers** who want a working substrate to build their own detection tooling on.
 
-If you have one analyst handling 50 alerts a day with no automation, AiSOC will give you back time. If you have a 30-person tier-3 SOC with mature SOAR, AiSOC is a force multiplier on your tier-1 / tier-2.
+If you have one analyst handling 50 alerts a day with no automation, Quarry will give you back time. If you have a 30-person tier-3 SOC with mature SOAR, Quarry is a force multiplier on your tier-1 / tier-2.
 
 ---
 
 ## Deployment & operations
 
-### Can AiSOC run on my laptop?
+### Can Quarry run on my laptop?
 
-Yes. `pnpm aisoc:demo` brings up a slim demo stack from prebuilt images in 3-4 minutes on a warm Docker daemon. The full development stack — every microservice plus ClickHouse, OpenSearch, Neo4j, Qdrant — needs ~12 GB RAM and a few minutes more. See [Quickstart](../quickstart).
+Yes. `pnpm quarry:demo` brings up a slim demo stack from prebuilt images in 3-4 minutes on a warm Docker daemon. The full development stack — every microservice plus ClickHouse, OpenSearch, Neo4j, Qdrant — needs ~12 GB RAM and a few minutes more. See [Quickstart](../quickstart).
 
-### Can AiSOC run air-gapped?
+### Can Quarry run air-gapped?
 
 Yes. The air-gap deployment pre-stages every container image, every dependency, every rule pack, and the bundled MITRE ATT&CK STIX file. You can run it on a network with zero outbound internet. Trade-offs (hosted OAuth flows, external threat intel, LLM API providers) are documented in [Air-gap operations](./airgap).
 
 ### What does it cost to run?
 
-The AiSOC code is free (MIT). Real costs are:
+The Quarry code is free (MIT). Real costs are:
 
 | Component | Driver |
 |---|---|
@@ -85,7 +85,7 @@ Minimum, single-host Docker Compose:
 
 Production: scale `api`, `agents`, `fusion`, `realtime`, and `ingest` horizontally. Each is stateless. Postgres + Kafka + OpenSearch are the stateful tier — clustered as you'd expect. See [Kubernetes deployment](../deployment/kubernetes).
 
-### How does AiSOC scale?
+### How does Quarry scale?
 
 Horizontally where it matters. The hot path:
 
@@ -139,7 +139,7 @@ It's also what makes the analyst-override feedback loop work — a verdict overr
 
 Three tiers:
 
-1. **Native rules** — ~800 rules authored for AiSOC, in our Sigma-shaped YAML. Tagged `tier: stable`.
+1. **Native rules** — ~800 rules authored for Quarry, in our Sigma-shaped YAML. Tagged `tier: stable`.
 2. **Imported rules** — ~6,000 rules from SigmaHQ, Splunk Security Content, Chronicle, MITRE CAR. Each carries provenance and an upstream link. Tagged `tier: imported`.
 3. **Community contributions** — rules submitted via PR or installed from the marketplace. Tagged by author and license.
 
@@ -166,7 +166,7 @@ This is the same loop CI runs on every PR, so the rule you ship is the rule that
 
 ### Where is my data stored?
 
-Wherever you deploy. AiSOC is self-hosted; we don't run a hosted service that holds your security data. Inside an AiSOC deployment:
+Wherever you deploy. Quarry is self-hosted; we don't run a hosted service that holds your security data. Inside an Quarry deployment:
 
 | Data class | Where |
 |---|---|
@@ -180,16 +180,16 @@ Wherever you deploy. AiSOC is self-hosted; we don't run a hosted service that ho
 
 ### How long are events / cases retained?
 
-By default — forever, because most AiSOC users are running on disk they own. To bound retention:
+By default — forever, because most Quarry users are running on disk they own. To bound retention:
 
 - **Raw events** in OpenSearch / ClickHouse: configurable per-tenant ILM policy.
 - **Cases** in Postgres: archived to cold object storage after a configurable age, soft-deleted from the main DB.
 - **Investigation Ledger**: kept as long as the case is kept. It's the audit primitive.
 - **Audit log**: hash-chained, append-only. Truncating the audit log breaks the chain — by design.
 
-### Does AiSOC handle PII?
+### Does Quarry handle PII?
 
-It will *see* PII (usernames, emails, IPs, device names) by virtue of being a security tool. AiSOC:
+It will *see* PII (usernames, emails, IPs, device names) by virtue of being a security tool. Quarry:
 
 - Never logs plaintext credentials.
 - Redacts secret-typed connector fields before any log line.
@@ -206,7 +206,7 @@ Yes. `DELETE /api/v1/identity/{user_id}/data` tombstones every alert, case, and 
 
 ## Integration & ecosystem
 
-### Does AiSOC have an MCP server?
+### Does Quarry have an MCP server?
 
 Yes. `@quarry/mcp` exposes 11 Investigation Ledger tools to MCP-compatible LLM clients (Claude Desktop, Cursor, Continue, Cody) so analysts can replay agent decisions, query cases, and run detection / playbook actions directly from their IDE. See [MCP integration](../integrations/mcp).
 
@@ -214,9 +214,9 @@ Yes. `@quarry/mcp` exposes 11 Investigation Ledger tools to MCP-compatible LLM c
 
 Three:
 
-- **Python** — `pip install aisoc-sdk`. Async first, typed against the OpenAPI spec.
+- **Python** — `pip install quarry-sdk`. Async first, typed against the OpenAPI spec.
 - **TypeScript** — `pnpm add @quarry/sdk-ts`. Also typed against the OpenAPI spec.
-- **Go** — `go get github.com/beenuar/AiSOC/packages/sdk-go`.
+- **Go** — `go get github.com/Josepassinato/quarry/packages/sdk-go`.
 
 All three handle auth, retries, pagination, and backoff. See [Plugin SDK overview](../plugins/overview).
 
@@ -224,21 +224,21 @@ All three handle auth, retries, pagination, and backoff. See [Plugin SDK overvie
 
 Yes. Plugins are signed Python or Go packages that ship one or more of: a connector, an enrichment, a detection rule, a playbook, an action. Ed25519-signed publishing through the marketplace. See [Plugin SDK](../plugins/overview).
 
-### Does AiSOC integrate with Jira / ServiceNow?
+### Does Quarry integrate with Jira / ServiceNow?
 
-Yes. We treat ITSM as a *projection* of AiSOC, not the source of truth — the architectural model is documented in [ITSM as projection](../architecture/itsm-as-source-of-truth). In practice that means cases mirror to ITSM with two-way status sync, and ITSM can host approval workflows that gate AiSOC actions.
+Yes. We treat ITSM as a *projection* of Quarry, not the source of truth — the architectural model is documented in [ITSM as projection](../architecture/itsm-as-source-of-truth). In practice that means cases mirror to ITSM with two-way status sync, and ITSM can host approval workflows that gate Quarry actions.
 
 ---
 
 ## Project & community
 
-### Is AiSOC really free?
+### Is Quarry really free?
 
 The agent and the platform are MIT-licensed. There are no enterprise-edition feature flags. Hosted OAuth (planned) and a managed Cloud offering may have a paid tier in future, but the self-host package will continue to be free under MIT.
 
 ### Who maintains it?
 
-The AiSOC community. The project is hosted at [github.com/beenuar/AiSOC](https://github.com/beenuar/AiSOC). Contribution guidelines are in [contributing/guidelines](../contributing/guidelines). Security advisories are handled privately via GitHub Security Advisories.
+The Quarry community. The project is hosted at [github.com/Josepassinato/quarry](https://github.com/Josepassinato/quarry). Contribution guidelines are in [contributing/guidelines](../contributing/guidelines). Security advisories are handled privately via GitHub Security Advisories.
 
 ### How do I file a bug or feature request?
 

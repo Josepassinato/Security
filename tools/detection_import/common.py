@@ -1,6 +1,6 @@
 """Shared helpers for detection importers.
 
-Every importer in this directory emits AiSOC's internal Sigma-inspired YAML
+Every importer in this directory emits Quarry's internal Sigma-inspired YAML
 schema.  The shape we write is::
 
     id: <slug-id>                  # human-readable, prefixed by source
@@ -33,7 +33,7 @@ schema.  The shape we write is::
       imported_by: sigma_importer
       upstream_path: rules/cloud/aws/aws_root_login.yml
 
-The native AiSOC schema (``detections/cloud/...`` etc.) uses ``match_when``
+The native Quarry schema (``detections/cloud/...`` etc.) uses ``match_when``
 blocks tied to ``RawAlert`` fields and is fixture-tested.  Imported rules keep
 the upstream ``detection`` block untouched so we can advertise honest
 attribution; the engine evaluates them through a Sigma-compat interpreter at
@@ -88,7 +88,7 @@ class ImportedRule:
         """Render to the dict shape that gets dumped to YAML.
 
         Uses ``name`` (not ``title``) so imported rules match the native
-        AiSOC schema and pass ``scripts/validate_detections.py``.  The
+        Quarry schema and pass ``scripts/validate_detections.py``.  The
         upstream ``title`` is preserved verbatim under that key for human
         readability.
         """
@@ -125,7 +125,7 @@ def short_sha(sha: str) -> str:
 
 
 def stable_id(source: str, upstream_id: str) -> str:
-    """Build a deterministic AiSOC rule id from a source + upstream id.
+    """Build a deterministic Quarry rule id from a source + upstream id.
 
     Sigma uses UUIDs which are unfriendly in URLs; CAR uses ``CAR-YYYY-MM-NNN``
     which is fine.  We always prefix with the source name to make
@@ -138,7 +138,7 @@ def stable_id(source: str, upstream_id: str) -> str:
 
 
 def map_severity(value: str | None) -> str:
-    """Coerce upstream severity strings into AiSOC's enum."""
+    """Coerce upstream severity strings into Quarry's enum."""
     if not value:
         return "medium"
     return SEVERITY_MAP.get(str(value).strip().lower(), "medium")
@@ -201,7 +201,7 @@ def write_rule(rule: ImportedRule, output_root: Path) -> Path:
 
 
 def normalise_categories(category: str) -> str:
-    """Map upstream category buckets to AiSOC's six native folders."""
+    """Map upstream category buckets to Quarry's six native folders."""
     category = category.strip().lower()
     aliases = {
         "aws": "cloud",

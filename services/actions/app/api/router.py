@@ -154,7 +154,7 @@ def _chatops_response_html(headline: str, body: str, *, ok: bool = True) -> str:
     """Tiny self-contained response page rendered to the user's browser.
 
     Slack/Teams open the callback URL in a normal browser tab, so we can't
-    redirect into the AiSOC console (the user may not have one). A static
+    redirect into the Quarry console (the user may not have one). A static
     HTML acknowledgement is the smallest UX that confirms the click landed
     without leaking incident details into a URL the user might forward.
     """
@@ -162,7 +162,7 @@ def _chatops_response_html(headline: str, body: str, *, ok: bool = True) -> str:
     return (
         '<!doctype html><html lang="en"><head>'
         '<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
-        "<title>AiSOC verification</title>"
+        "<title>Quarry verification</title>"
         "<style>"
         "body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;"
         "background:#0b1220;color:#e6edf3;margin:0;padding:0;display:flex;min-height:100vh;"
@@ -193,7 +193,7 @@ async def chatops_callback(token: str = Query(..., min_length=8)):
     Slack/Teams' default browser tab.
     """
     settings = get_settings()
-    secret = settings.AISOC_CHATOPS_RESPONSE_SECRET
+    secret = settings.QUARRY_CHATOPS_RESPONSE_SECRET
 
     try:
         claims = verify_token(token, secret)
@@ -279,4 +279,4 @@ async def chatops_callback(token: str = Query(..., min_length=8)):
 
 @router.get("/health")
 async def health():
-    return {"status": "healthy", "service": "aisoc-actions"}
+    return {"status": "healthy", "service": "quarry-actions"}

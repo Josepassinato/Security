@@ -1,13 +1,13 @@
 ---
 sidebar_position: 18
 title: Lacework
-description: Lacework cloud security platform alerts and compliance findings into AiSOC via the Lacework v2 API.
+description: Lacework cloud security platform alerts and compliance findings into Quarry via the Lacework v2 API.
 ---
 
 # Lacework
 
 The Lacework connector pulls **alerts** (formerly "events") from a
-Lacework tenant into AiSOC. One connector instance covers every Lacework
+Lacework tenant into Quarry. One connector instance covers every Lacework
 surface — workload, container, cloud configuration, and identity — because
 the Lacework v2 `/Alerts` API is unified across all of them.
 
@@ -40,10 +40,10 @@ the secret once.
 ### 1. Create the API key
 
 1. In the Lacework console, **Settings → API Keys → Create New**.
-2. Name the key `aisoc-prod` (or similar) and submit.
+2. Name the key `quarry-prod` (or similar) and submit.
 3. Save the **Key ID** and **Secret** to a password manager.
 
-### 2. Add the connector in AiSOC
+### 2. Add the connector in Quarry
 
 1. **Connectors → Add connector → Lacework**.
 2. **Account subdomain** — first label of your console URL (e.g.
@@ -51,7 +51,7 @@ the secret once.
 3. **Subaccount (optional)** — leave blank unless you want to scope the
    poll to a Lacework subaccount.
 4. **Access Key ID** and **Secret Key** — paste from step 1.
-5. **Test connection** — AiSOC exchanges the key/secret for a 1-hour
+5. **Test connection** — Quarry exchanges the key/secret for a 1-hour
    bearer token via `POST /api/v2/access/tokens` and confirms a 200 on a
    1-row `/Alerts` query.
 6. **Save**.
@@ -67,10 +67,10 @@ the secret once.
 
 ## Severity mapping
 
-Lacework alerts use a numeric severity (1 = critical, 5 = info). AiSOC
+Lacework alerts use a numeric severity (1 = critical, 5 = info). Quarry
 maps these into the canonical 4-tier ladder:
 
-| Lacework severity | AiSOC severity |
+| Lacework severity | Quarry severity |
 |---|---|
 | `1` — Critical | `high` |
 | `2` — High | `high` |
@@ -83,7 +83,7 @@ The original numeric severity is preserved under `raw_event.severity`.
 ## Subaccount scoping
 
 If you operate multiple Lacework subaccounts (typical for MSSPs and
-multi-business-unit deployments), create **one AiSOC connector instance
+multi-business-unit deployments), create **one Quarry connector instance
 per subaccount** rather than rotating the same instance. This keeps
 per-tenant audit logs clean and lets you set different polling cadences
 per subaccount.
@@ -112,7 +112,7 @@ curl -X POST "https://YOUR_ACCOUNT.lacework.net/api/v2/access/tokens" \
 ```
 
 A 200 response with `{ "token": "..." }` confirms the credentials are
-good — the issue is then in the AiSOC field values.
+good — the issue is then in the Quarry field values.
 
 **`HTTP 403` on `/Alerts`** — the API key was created on the parent
 account but you set a **Subaccount** value the key cannot reach. Either

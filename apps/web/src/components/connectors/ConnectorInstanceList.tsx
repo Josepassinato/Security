@@ -8,7 +8,7 @@
  * place. This component only knows how to render a `Connector[]` and emit
  * action callbacks (test, delete) when the operator clicks a row.
  *
- * Layout follows the rest of the AiSOC dashboard: 3-up grid on wide
+ * Layout follows the rest of the Quarry dashboard: 3-up grid on wide
  * screens, with a trailing "Add Connector" tile that the parent wires to
  * the `AddConnectorModal`. Empty state replaces the grid entirely so a
  * fresh tenant gets a useful onboarding nudge instead of just the
@@ -405,7 +405,7 @@ export function ConnectorInstanceList({
           </svg>
         }
         title="No connectors yet"
-        description="Connect your first security tool to start ingesting alerts. Credentials are encrypted at rest with the AiSOC vault."
+        description="Connect your first security tool to start ingesting alerts. Credentials are encrypted at rest with the Quarry vault."
         action={
           <button
             type="button"

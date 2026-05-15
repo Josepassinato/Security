@@ -2,9 +2,9 @@
 
 Reference implementation for [apps/docs/docs/plugins/hello-plugin.md](../../../../apps/docs/docs/plugins/hello-plugin.md).
 
-A deterministic, offline AiSOC enricher that hashes indicator values with
+A deterministic, offline Quarry enricher that hashes indicator values with
 SHA-256 and returns the digest as enrichment metadata. No network calls, no
-credentials, no external dependencies beyond `aisoc-plugin-sdk` itself.
+credentials, no external dependencies beyond `quarry-plugin-sdk` itself.
 
 ## Why this lives under `_examples/`
 
@@ -23,7 +23,7 @@ marketplace builder will pick it up on the next `pnpm marketplace:build`.
 
 | Path                  | Purpose                                                   |
 | --------------------- | --------------------------------------------------------- |
-| `aisoc-plugin.yaml`   | Plugin manifest (id, name, version, plugin_type).         |
+| `quarry-plugin.yaml`   | Plugin manifest (id, name, version, plugin_type).         |
 | `plugin.py`           | Plugin entry point with `HelloPlugin` + `create_plugin()`. |
 | `README.md`           | This file.                                                |
 

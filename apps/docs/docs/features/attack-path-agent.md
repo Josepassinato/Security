@@ -1,7 +1,7 @@
 ---
 sidebar_position: 3
 title: Attack-path investigation agent
-description: How AiSOC's investigation graph adds an attack-path step that walks the knowledge graph, scores blast radius, and proposes containment actions on the highest-value pivots.
+description: How Quarry's investigation graph adds an attack-path step that walks the knowledge graph, scores blast radius, and proposes containment actions on the highest-value pivots.
 ---
 
 # Attack-path investigation agent

@@ -53,7 +53,7 @@ AWS lets you publish flow logs to either CloudWatch Logs or S3.
   separate parse / dedupe layer per object and has 5–10 minute
   publish latency.
 
-For an alert-pipeline connector AiSOC wants the lower-latency
+For an alert-pipeline connector Quarry wants the lower-latency
 CloudWatch path. If you need to bulk-analyse historical flow logs
 that already live in S3, run an offline batch job rather than
 trying to backfill through this connector.
@@ -84,7 +84,7 @@ your own NACL-management connector.
 - One of:
   - **Static access key** (`AccessKeyId` + `SecretAccessKey`) for a
     dedicated IAM user, **or**
-  - **No credentials at all** — AiSOC falls back to the **runtime IAM
+  - **No credentials at all** — Quarry falls back to the **runtime IAM
     role / instance profile** of the host running the `connectors`
     service.
 
@@ -120,7 +120,7 @@ If you cannot use an instance role, create a dedicated IAM user with
   "Version": "2012-10-17",
   "Statement": [
     {
-      "Sid": "AiSOCVPCFlowLogsRead",
+      "Sid": "QuarryVPCFlowLogsRead",
       "Effect": "Allow",
       "Action": [
         "logs:FilterLogEvents",
@@ -134,7 +134,7 @@ If you cannot use an instance role, create a dedicated IAM user with
 
 Tighten the resource ARN to the specific log group ARN from step 1.
 
-### 3. Add the connector in AiSOC
+### 3. Add the connector in Quarry
 
 1. **Connectors → Add connector → AWS VPC Flow Logs**.
 2. Set **AWS Region** (e.g. `us-east-1`).
@@ -148,7 +148,7 @@ Tighten the resource ARN to the specific log group ARN from step 1.
 6. Leave **Access Key ID** and **Secret Access Key** **blank** to
    use the runtime IAM role. Otherwise paste the static credentials
    from step 2.
-7. **Test connection** — AiSOC calls `DescribeLogGroups` to verify
+7. **Test connection** — Quarry calls `DescribeLogGroups` to verify
    auth and that the log group exists.
 8. **Save**.
 
@@ -167,10 +167,10 @@ Tighten the resource ARN to the specific log group ARN from step 1.
 
 ## Severity mapping
 
-VPC flow records do not carry intrinsic severity, so AiSOC labels
+VPC flow records do not carry intrinsic severity, so Quarry labels
 each record by action / log status:
 
-| Condition | Examples | AiSOC severity |
+| Condition | Examples | Quarry severity |
 |---|---|---|
 | `action = REJECT` | A blocked flow — the loud signal we publish this connector for | `medium` |
 | `action = ACCEPT` | An allowed flow — only ingested if the operator overrode the default filter | `low` |
@@ -180,7 +180,7 @@ each record by action / log status:
 ## Tuning the filter pattern
 
 The `filter_pattern` field is a CloudWatch Logs filter expression
-applied server-side, before AiSOC pays to fetch the record. Three
+applied server-side, before Quarry pays to fetch the record. Three
 common modes:
 
 - **`?REJECT`** (default) — surfaces only blocked flows. The right

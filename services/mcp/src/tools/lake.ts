@@ -1,7 +1,7 @@
 /**
  * Tenant lake tools — Workstream 7.
  *
- * Two tools forwarded to the AiSOC API's ``/api/v1/lake/...`` surface:
+ * Two tools forwarded to the Quarry API's ``/api/v1/lake/...`` surface:
  *
  *   - ``aisoc_lake_query``  → POST /api/v1/lake/sql
  *   - ``aisoc_lake_schema`` → GET  /api/v1/lake/schema
@@ -44,7 +44,7 @@ import { json } from "./types.js";
 // Shared types — keep field-by-field aligned with the server's
 // ``LakeQueryResponse`` and ``LakeSchemaResponse`` Pydantic models. We
 // don't generate these from OpenAPI for the same reason ``client.ts``
-// hand-rolls fetch: a deployed AiSOC may add fields in a future release
+// hand-rolls fetch: a deployed Quarry may add fields in a future release
 // and we'd rather pass them through than crash on parse.
 // ---------------------------------------------------------------------------
 
@@ -171,7 +171,7 @@ const LakeQuerySchema = z
       .describe(
         [
           "ClickHouse SQL SELECT statement to run against the warm tier of",
-          "the connected AiSOC tenant. The server enforces:",
+          "the connected Quarry tenant. The server enforces:",
           "  - Single SELECT (no DDL/DML/multi-statement).",
           "  - Allowlisted tables only (raw_events, alert_metrics,",
           "    ioc_enrichments). System and cluster tables are blocked.",

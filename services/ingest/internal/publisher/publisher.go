@@ -6,10 +6,10 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/beenuar/aisoc/services/ingest/internal/config"
-	"github.com/beenuar/aisoc/services/ingest/internal/enrichment"
-	"github.com/beenuar/aisoc/services/ingest/internal/graph"
-	"github.com/beenuar/aisoc/services/ingest/internal/normalizer"
+	"github.com/beenuar/quarry/services/ingest/internal/config"
+	"github.com/beenuar/quarry/services/ingest/internal/enrichment"
+	"github.com/beenuar/quarry/services/ingest/internal/graph"
+	"github.com/beenuar/quarry/services/ingest/internal/normalizer"
 	"github.com/rs/zerolog/log"
 	kafka "github.com/segmentio/kafka-go"
 )

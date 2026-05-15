@@ -26,25 +26,25 @@ const siteUrl = getPublicSiteUrl();
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  applicationName: 'AiSOC',
+  applicationName: 'Quarry',
   title: {
-    default: 'AiSOC — Open-Source AI Security Operations Center',
-    template: '%s | AiSOC',
+    default: 'Quarry — Open-Source AI Security Operations Center',
+    template: '%s | Quarry',
   },
   description:
-    'AiSOC is a free, self-hostable AI-powered Security Operations Center (SOC). Real-time threat detection, alert fusion, purple-team exercises, MITRE ATT&CK-aware autonomous investigation, and detection-as-code — MIT-licensed and community-driven.',
+    'Quarry is a free, self-hostable AI-powered Security Operations Center (SOC). Real-time threat detection, alert fusion, purple-team exercises, MITRE ATT&CK-aware autonomous investigation, and detection-as-code — MIT-licensed and community-driven.',
   keywords: [...DISCOVERY_KEYWORDS],
-  authors: [{ name: 'AiSOC Community', url: 'https://github.com/beenuar/AiSOC' }],
-  creator: 'AiSOC Community',
-  publisher: 'AiSOC',
+  authors: [{ name: 'Quarry Community', url: 'https://github.com/beenuar/Quarry' }],
+  creator: 'Quarry Community',
+  publisher: 'Quarry',
   category: 'cybersecurity',
   classification: 'Security Software',
   openGraph: {
-    title: 'AiSOC — Free, Open-Source AI Security Operations Center',
+    title: 'Quarry — Free, Open-Source AI Security Operations Center',
     description:
       'Self-hostable AI SOC with real-time threat detection, alert fusion, purple-team drills, MITRE ATT&CK investigation, and detection-as-code. MIT-licensed. Try the live demo at tryaisoc.com.',
     type: 'website',
-    siteName: 'AiSOC',
+    siteName: 'Quarry',
     url: siteUrl,
     locale: 'en_US',
     images: [
@@ -52,14 +52,14 @@ export const metadata: Metadata = {
         url: '/og-image.svg',
         width: 1200,
         height: 630,
-        alt: 'AiSOC — open-source AI SOC platform for security operations teams',
+        alt: 'Quarry — open-source AI SOC platform for security operations teams',
         type: 'image/svg+xml',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'AiSOC — Free Open-Source AI SOC Platform',
+    title: 'Quarry — Free Open-Source AI SOC Platform',
     description:
       'AI-powered SOC: threat detection, alert fusion, purple team, MITRE ATT&CK mapping, detection-as-code, and eval harness in CI. Self-host for free — tryaisoc.com.',
     site: '@aisoc_dev',
@@ -76,7 +76,7 @@ export const metadata: Metadata = {
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
-    title: 'AiSOC',
+    title: 'Quarry',
     statusBarStyle: 'black-translucent',
   },
   robots: { index: true, follow: true, googleBot: { index: true, follow: true } },
@@ -94,25 +94,25 @@ const jsonLd = {
   '@graph': [
     {
       '@type': 'Organization',
-      name: 'AiSOC',
+      name: 'Quarry',
       url: siteUrl,
       logo: `${siteUrl}/favicon.svg`,
       description:
         'Community-driven, MIT-licensed AI security operations platform with a public demo and self-host path.',
       sameAs: [
-        'https://github.com/beenuar/AiSOC',
+        'https://github.com/beenuar/Quarry',
         'https://tryaisoc.com',
       ],
       contactPoint: {
         '@type': 'ContactPoint',
         contactType: 'technical support',
-        url: 'https://github.com/beenuar/AiSOC/issues',
+        url: 'https://github.com/beenuar/Quarry/issues',
       },
     },
     {
       '@type': 'SoftwareApplication',
-      name: 'AiSOC',
-      alternateName: ['AI SOC', 'AiSOC Platform', 'Open Source SOC'],
+      name: 'Quarry',
+      alternateName: ['AI SOC', 'Quarry Platform', 'Open Source SOC'],
       applicationCategory: 'SecurityApplication',
       applicationSubCategory: 'Security Operations Center',
       operatingSystem: 'Linux, macOS, Docker',
@@ -124,9 +124,9 @@ const jsonLd = {
         description: 'Free, open-source, self-hostable',
       },
       url: siteUrl,
-      downloadUrl: 'https://github.com/beenuar/AiSOC',
-      installUrl: 'https://github.com/beenuar/AiSOC#quick-start',
-      releaseNotes: 'https://github.com/beenuar/AiSOC/releases',
+      downloadUrl: 'https://github.com/beenuar/Quarry',
+      installUrl: 'https://github.com/beenuar/Quarry#quick-start',
+      releaseNotes: 'https://github.com/beenuar/Quarry/releases',
       featureList: [
         'Click-and-connect 26 security sources (EDR, SIEM, cloud, IAM, SaaS) with encrypted credential vault',
         'Real-time threat detection and alert fusion',
@@ -150,7 +150,7 @@ const jsonLd = {
     },
     {
       '@type': 'WebSite',
-      name: 'AiSOC',
+      name: 'Quarry',
       url: siteUrl,
       description: 'Open-source AI-powered Security Operations Center — tryaisoc.com',
       potentialAction: {

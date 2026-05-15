@@ -7,7 +7,7 @@ import { ProofStrip } from '@/components/landing/sections/ProofStrip';
 import { Problem } from '@/components/landing/sections/Problem';
 
 /**
- * AiSOC root (`/`) — marketing landing page (T6.5).
+ * Quarry root (`/`) — marketing landing page (T6.5).
  *
  * 16-section narrative for the v8.0 GTM push. Above-the-fold sections
  * (StickyNav, Hero, ProofStrip, Problem) are eagerly imported because
@@ -71,19 +71,19 @@ const Footer = dynamic(
 const siteUrl = getPublicSiteUrl();
 
 export const metadata: Metadata = {
-  // Use `absolute` so the root layout's `template: '%s | AiSOC'` does not
-  // append a redundant " | AiSOC" to a title that already leads with the
+  // Use `absolute` so the root layout's `template: '%s | Quarry'` does not
+  // append a redundant " | Quarry" to a title that already leads with the
   // brand.
-  title: { absolute: 'AiSOC — open-source AI Security Operations Center' },
+  title: { absolute: 'Quarry — open-source AI Security Operations Center' },
   description:
-    'AiSOC is an MIT-licensed, agentic SOC: four specialised agents (Detect, Triage, Hunt, Respond), 69 first-party connectors, a 200-incident benchmark harness, and air-gap deploy on a single flag. Self-host in five minutes or join the managed waitlist.',
+    'Quarry is an MIT-licensed, agentic SOC: four specialised agents (Detect, Triage, Hunt, Respond), 69 first-party connectors, a 200-incident benchmark harness, and air-gap deploy on a single flag. Self-host in five minutes or join the managed waitlist.',
   alternates: { canonical: '/' },
   openGraph: {
-    title: 'AiSOC — open-source AI Security Operations Center',
+    title: 'Quarry — open-source AI Security Operations Center',
     description:
-      'Four agents, 69 connectors, a public benchmark, and air-gap on a flag. Self-host the full stack under MIT, or join the managed waitlist at app.aisoc.dev.',
+      'Four agents, 69 connectors, a public benchmark, and air-gap on a flag. Self-host the full stack under MIT, or join the managed waitlist at app.quarry.dev.',
     url: siteUrl,
-    siteName: 'AiSOC',
+    siteName: 'Quarry',
     type: 'website',
     locale: 'en_US',
     images: [
@@ -91,13 +91,13 @@ export const metadata: Metadata = {
         url: '/og-image.svg',
         width: 1200,
         height: 630,
-        alt: 'AiSOC — open-source AI SOC with four specialised agents and 69 connectors',
+        alt: 'Quarry — open-source AI SOC with four specialised agents and 69 connectors',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'AiSOC — open-source AI Security Operations Center',
+    title: 'Quarry — open-source AI Security Operations Center',
     description:
       'Four agents. 69 connectors. A public benchmark. Air-gap on a flag. MIT-licensed.',
     images: ['/og-image.svg'],
@@ -107,23 +107,23 @@ export const metadata: Metadata = {
 const productJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'SoftwareApplication',
-  name: 'AiSOC',
-  alternateName: ['AI SOC', 'AiSOC Platform', 'Agentic SOC'],
+  name: 'Quarry',
+  alternateName: ['AI SOC', 'Quarry Platform', 'Agentic SOC'],
   applicationCategory: 'SecurityApplication',
   applicationSubCategory: 'Security Operations Center',
   operatingSystem: 'Linux, macOS, Docker',
   license: 'https://opensource.org/licenses/MIT',
   url: siteUrl,
-  downloadUrl: 'https://github.com/beenuar/AiSOC',
-  installUrl: 'https://github.com/beenuar/AiSOC#quick-start',
-  releaseNotes: 'https://github.com/beenuar/AiSOC/releases',
+  downloadUrl: 'https://github.com/beenuar/Quarry',
+  installUrl: 'https://github.com/beenuar/Quarry#quick-start',
+  releaseNotes: 'https://github.com/beenuar/Quarry/releases',
   description:
-    'AiSOC is an MIT-licensed agentic Security Operations Center: four specialised agents (Detect, Triage, Hunt, Respond), 69 first-party connectors, a public 200-incident benchmark, and air-gap deploy on a single environment flag.',
+    'Quarry is an MIT-licensed agentic Security Operations Center: four specialised agents (Detect, Triage, Hunt, Respond), 69 first-party connectors, a public 200-incident benchmark, and air-gap deploy on a single environment flag.',
   featureList: [
     'Four specialised agents: Detect, Triage, Hunt, Respond',
     '69 first-party connectors across EDR, SIEM, cloud, IAM, SaaS, VCS, network',
     'Public 200-incident benchmark harness with substrate self-consistency gates',
-    'Air-gap mode (AISOC_AIRGAPPED=true) with local Ollama sidecar',
+    'Air-gap mode (QUARRY_AIRGAPPED=true) with local Ollama sidecar',
     'L0–L4 automation maturity ladder for human-in-the-loop guardrails',
     'Encrypted connector vault (Fernet AES-128-CBC + HMAC-SHA256)',
     'Self-host on Render, Docker Compose, Fly.io, Helm, or AWS Terraform',
@@ -142,7 +142,7 @@ const faqJsonLd = {
   mainEntity: [
     {
       '@type': 'Question',
-      name: 'Is AiSOC really open source?',
+      name: 'Is Quarry really open source?',
       acceptedAnswer: {
         '@type': 'Answer',
         text:
@@ -155,7 +155,7 @@ const faqJsonLd = {
       acceptedAnswer: {
         '@type': 'Answer',
         text:
-          'By default the Triage and Hunt agents call an LLM provider you configure (OpenAI, Anthropic, Azure, Bedrock, or a private LiteLLM gateway). Set AISOC_AIRGAPPED=true and the platform refuses every outbound call; an Ollama sidecar runs a local model in-cluster.',
+          'By default the Triage and Hunt agents call an LLM provider you configure (OpenAI, Anthropic, Azure, Bedrock, or a private LiteLLM gateway). Set QUARRY_AIRGAPPED=true and the platform refuses every outbound call; an Ollama sidecar runs a local model in-cluster.',
       },
     },
     {

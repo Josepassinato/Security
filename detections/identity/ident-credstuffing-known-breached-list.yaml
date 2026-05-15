@@ -1,6 +1,6 @@
 id: det-identity-043
 name: Credential Stuffing Pattern Against Login Endpoint
-description: AiSOC v1 curated detection. Triggers on the identity signal described by 'Credential Stuffing
+description: Quarry v1 curated detection. Triggers on the identity signal described by 'Credential Stuffing
   Pattern Against Login Endpoint'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: high
@@ -20,6 +20,6 @@ false_positives:
 - Load test (must be ticketed)
 playbook: tpl-credential-access
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

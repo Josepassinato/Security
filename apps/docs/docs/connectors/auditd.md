@@ -20,14 +20,14 @@ in `file_tail` mode.
 
 ## Why file_tail (and not a host-agent)
 
-AiSOC is deliberately host-agent-free in v1. Operators who want
+Quarry is deliberately host-agent-free in v1. Operators who want
 auditd telemetry already pay for `auditd` itself — it ships with
 every server distro. The path of least deployment friction is:
 
-1. Drop AiSOC's `audit.rules` profile under
+1. Drop Quarry's `audit.rules` profile under
    `/etc/audit/rules.d/`.
 2. Reload with `augenrules --load`.
-3. Mount `/var/log/audit/audit.log` read-only into the AiSOC
+3. Mount `/var/log/audit/audit.log` read-only into the Quarry
    `services/connectors` pod (or run the connector on the same
    host as the auditd daemon).
 
@@ -51,13 +51,13 @@ shape regardless of how many underlying records (`SYSCALL`,
 | `argv` | `EXECVE.a0`, `a1`, … (positional, until the first gap) | Reassembled into a list |
 | `path` / `paths` | `PATH.name` (first / all) | First path is promoted to `path` for the common single-target case |
 | `cwd` | `CWD.cwd` | Working directory at exec time |
-| `proctitle` | `PROCTITLE.proctitle` (hex-decoded if needed) | NUL-separated `argv` from the kernel; AiSOC replaces NULs with spaces |
+| `proctitle` | `PROCTITLE.proctitle` (hex-decoded if needed) | NUL-separated `argv` from the kernel; Quarry replaces NULs with spaces |
 | `comm` | `SYSCALL.comm` | Short command name (16 bytes) |
 | `actor_uid` / `actor_auid` / `actor_euid` / `actor_gid` | `SYSCALL.uid` / `auid` / `euid` / `gid` | Real, audit, effective uid + primary gid |
 | `actor_pid` / `actor_ppid` | `SYSCALL.pid` / `ppid` | Process + parent PID |
 | `tty` / `session` | `SYSCALL.tty` / `ses` | Useful for joining to login sessions |
 | `arch` | `SYSCALL.arch` | `c000003e` = x86_64, `40000028` = ARMv7, … |
-| `auditd_key` / `key` | `SYSCALL.key` | The `-k` value from the rule that fired — pivot field for AiSOC's profile-aware detections |
+| `auditd_key` / `key` | `SYSCALL.key` | The `-k` value from the rule that fired — pivot field for Quarry's profile-aware detections |
 | `success` / `exit` | `SYSCALL.success` / `exit` | `yes` / `no` and the syscall return code |
 | `event_id` | `<timestamp>:<serial>` | Composite ID from `msg=audit(<ts>:<serial>)`, stable across retries |
 | `raw_records` | Per-record-type breakdown | Preserved so detections can walk back to a specific record type |
@@ -107,11 +107,11 @@ contains NULs, newlines, or other unsafe bytes).
 ## Severity heuristic
 
 Audit records carry `key=...` strings set by the operator's
-rules. The AiSOC `audit.rules` profile names every rule
+rules. The Quarry `audit.rules` profile names every rule
 `aisoc_<bucket>` so the connector can derive a meaningful
 severity from the key alone:
 
-| Condition | AiSOC severity |
+| Condition | Quarry severity |
 |---|---|
 | `key` starts with `aisoc_critical_` (sudoers, identity, SSH config, exec from `/tmp` etc.) | `high` |
 | `key` starts with `aisoc_priv_esc_` (kernel module load, ptrace, mount) | `medium` |
@@ -123,11 +123,11 @@ severity from the key alone:
 | `syscall == execve` from `/dev/shm/`, `/tmp/`, `/var/tmp/`, `/run/shm/` (no key match) | `high` |
 | Everything else | `info` |
 
-**Operators not using the AiSOC profile** (e.g. you keep an existing
+**Operators not using the Quarry profile** (e.g. you keep an existing
 CIS / STIG ruleset) still get coverage — the path-based and
 exec-from-temp heuristics fire regardless of which keys your rules
 use. But pivoting on `auditd_key` only works if you ship our
-profile, because that field is opaque to AiSOC otherwise.
+profile, because that field is opaque to Quarry otherwise.
 
 ## Prerequisites
 
@@ -135,27 +135,27 @@ profile, because that field is opaque to AiSOC otherwise.
   CentOS, Ubuntu, Debian, Amazon Linux, Rocky, Alma).
 - Root access on that host once, to install the rules profile and
   reload the kernel ruleset.
-- The AiSOC `services/connectors` process able to read
+- The Quarry `services/connectors` process able to read
   `/var/log/audit/audit.log` (read-only mount in Kubernetes, or
   run the connector on the same host with appropriate file
   permissions).
 - A writeable directory for the byte cursor file (defaults to
-  `<audit_log_path>.aisoc-cursor`).
+  `<audit_log_path>.quarry-cursor`).
 
 ## Setup walkthrough
 
-### 1. Install the AiSOC audit.rules profile
+### 1. Install the Quarry audit.rules profile
 
 Copy the bundled profile into the host's audit rules directory:
 
 ```bash
-sudo cp profiles/auditd/aisoc.rules /etc/audit/rules.d/99-aisoc.rules
+sudo cp profiles/auditd/quarry.rules /etc/audit/rules.d/99-quarry.rules
 sudo augenrules --load
 sudo auditctl -l | head -n 20  # sanity check — rules should be loaded
 ```
 
 The profile uses `-k aisoc_*` keys for every rule so the connector
-can map events to AiSOC's severity tiers. Coverage targets, in
+can map events to Quarry's severity tiers. Coverage targets, in
 priority order:
 
 1. `execve` from `/tmp`, `/dev/shm`, `/var/tmp` (post-exploitation staging)
@@ -192,7 +192,7 @@ spec:
           mountPath: /var/log/audit
           readOnly: true
         - name: auditd-cursor
-          mountPath: /var/lib/aisoc/auditd
+          mountPath: /var/lib/quarry/auditd
   volumes:
     - name: auditd-log
       hostPath:
@@ -211,7 +211,7 @@ auditd daemon, no mount is needed — just make sure the connector
 process can read the audit log file (the `audit` group, or a
 sudoers/ACL grant).
 
-### 3. Add the connector in AiSOC
+### 3. Add the connector in Quarry
 
 1. **Connectors → Add connector → Linux Auditd**.
 2. **Host label**: a human-readable identifier for the host
@@ -219,10 +219,10 @@ sudoers/ACL grant).
    and investigations can filter by host without relying on the
    kernel's reported hostname.
 3. **Audit log path**: `/var/log/audit/audit.log` (default).
-4. **Cursor file path**: `/var/lib/aisoc/auditd/audit.cursor`
+4. **Cursor file path**: `/var/lib/quarry/auditd/audit.cursor`
    if you mounted a dedicated cursor volume. Defaults to
-   `<audit_log_path>.aisoc-cursor` if blank.
-5. **Test connection** — AiSOC confirms the audit log exists and
+   `<audit_log_path>.quarry-cursor` if blank.
+5. **Test connection** — Quarry confirms the audit log exists and
    is readable.
 6. **Save**.
 
@@ -246,7 +246,7 @@ ingest can attribute events correctly.
   wedge.
 - **Rotation handling**: if the file shrinks between polls
   (`logrotate copytruncate`, or auditd opened a new segment) the
-  cursor resets to `0` and AiSOC starts over from the top of the
+  cursor resets to `0` and Quarry starts over from the top of the
   current segment.
 - **Partial-line handling**: a final line without a trailing
   `\n` is left for the next poll, so the cursor never advances
@@ -261,7 +261,7 @@ a sliding window.
 
 These detection rules (under `detections/endpoint/`) pivot
 directly on the `auditd_key` field exposed by this connector and
-require the AiSOC profile from step 1:
+require the Quarry profile from step 1:
 
 | Rule | Pivots on | Severity |
 |---|---|---|
@@ -273,7 +273,7 @@ require the AiSOC profile from step 1:
 Plus the broader catalogue under `detections/endpoint/linux-*.yaml`
 that pivots on the flat `syscall` / `exe` / `argv` / `path`
 fields the connector emits — those work with **any** auditd
-ruleset, not just the AiSOC profile.
+ruleset, not just the Quarry profile.
 
 ## Troubleshooting
 
@@ -287,7 +287,7 @@ and that auditd is actually running on the host
 pod`** — the file exists but the connector process lacks read
 permission. On most distros `audit.log` is mode `0640` owned by
 `root:root` — either run the connector as root (in a constrained
-pod), grant it the `audit` group, or `setfacl -m u:aisoc:r
+pod), grant it the `audit` group, or `setfacl -m u:quarry:r
 /var/log/audit/audit.log` if you have ACL support.
 
 **No events in the inbox even though auditd is running** — most
@@ -295,12 +295,12 @@ commonly the connector is reading the file fine, but no rules
 have fired yet. Generate a test event:
 
 ```bash
-sudo touch /etc/sudoers.d/aisoc-test
-sudo rm /etc/sudoers.d/aisoc-test
+sudo touch /etc/sudoers.d/quarry-test
+sudo rm /etc/sudoers.d/quarry-test
 ```
 
 …and wait one poll interval (default 60s). If still nothing,
-check `auditctl -l | grep aisoc` on the host — the rules may
+check `auditctl -l | grep quarry` on the host — the rules may
 not have loaded.
 
 **Connector logs `auditd.cursor_reset_after_rotation`** — this is

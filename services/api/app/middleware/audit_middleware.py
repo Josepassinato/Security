@@ -30,7 +30,7 @@ from app.db.database import AsyncSessionLocal
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 
-logger = logging.getLogger("aisoc.audit.middleware")
+logger = logging.getLogger("quarry.audit.middleware")
 
 _MUTATING = {"POST", "PUT", "PATCH", "DELETE"}
 

@@ -1,7 +1,7 @@
-# AiSOC Terraform — AWS infrastructure
+# Quarry Terraform — AWS infrastructure
 
-This directory provisions the AWS infrastructure that the AiSOC Helm chart
-(`infra/helm/aisoc/`) deploys onto. It is the path the production deployment
+This directory provisions the AWS infrastructure that the Quarry Helm chart
+(`infra/helm/quarry/`) deploys onto. It is the path the production deployment
 docs (`apps/docs/docs/deployment/kubernetes.md`) reference.
 
 ```
@@ -32,7 +32,7 @@ A 3-AZ deployment in a single AWS region with:
 
 - VPC: 10.0.0.0/16 by default (public, private, db subnet tiers per AZ).
 - EKS 1.28 with two managed node groups:
-  - `general` — `m6i.xlarge`, 2–10 nodes, runs the bulk of AiSOC services.
+  - `general` — `m6i.xlarge`, 2–10 nodes, runs the bulk of Quarry services.
   - `compute` — `c6i.2xlarge`, 0–5 nodes, taint `workload=compute:NO_SCHEDULE`
     for ML/agent workloads.
 - RDS PostgreSQL on `db.r6g.large` (override via `rds_instance_class`).
@@ -49,24 +49,24 @@ you must create:
 ```hcl
 # main.tf:29
 backend "s3" {
-  bucket         = "aisoc-terraform-state"
+  bucket         = "quarry-terraform-state"
   key            = "infra/terraform.tfstate"
   region         = "us-east-1"
   encrypt        = true
-  dynamodb_table = "aisoc-terraform-locks"
+  dynamodb_table = "quarry-terraform-locks"
 }
 ```
 
 Bootstrap once per AWS account:
 
 ```bash
-aws s3 mb s3://aisoc-terraform-state --region us-east-1
+aws s3 mb s3://quarry-terraform-state --region us-east-1
 aws s3api put-bucket-versioning \
-  --bucket aisoc-terraform-state \
+  --bucket quarry-terraform-state \
   --versioning-configuration Status=Enabled
 
 aws dynamodb create-table \
-  --table-name aisoc-terraform-locks \
+  --table-name quarry-terraform-locks \
   --attribute-definitions AttributeName=LockID,AttributeType=S \
   --key-schema AttributeName=LockID,KeyType=HASH \
   --billing-mode PAY_PER_REQUEST \
@@ -109,7 +109,7 @@ terraform output -raw kafka_bootstrap_servers   # canonical name; matches KAFKA_
 terraform output -raw eks_cluster_endpoint
 ```
 
-Feed these into a Kubernetes `Secret` consumed by the AiSOC chart — see
+Feed these into a Kubernetes `Secret` consumed by the Quarry chart — see
 `apps/docs/docs/deployment/env-vars.md` for the canonical environment-variable
 contract.
 
@@ -118,7 +118,7 @@ contract.
 | Variable | Default | Notes |
 |---|---|---|
 | `aws_region` | `us-east-1` | Single-region deployment. |
-| `environment` | `prod` | One of `dev`, `staging`, `prod`. Drives the `aisoc-${environment}` name prefix. |
+| `environment` | `prod` | One of `dev`, `staging`, `prod`. Drives the `quarry-${environment}` name prefix. |
 | `vpc_cidr` | `10.0.0.0/16` | Pick something that doesn't collide with your peering. |
 | `eks_cluster_version` | `1.28` | Bump in lockstep with addon compatibility. |
 | `rds_instance_class` | `db.r6g.large` | Down-size to `db.t4g.medium` for dev. |

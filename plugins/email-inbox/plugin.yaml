@@ -6,9 +6,9 @@ description: >
   Polls a mailbox over IMAP and ingests each forwarded alert email as an event.
   Last-resort path for vendors that can't push to /v1/inbox/email but can email
   alerts to a dedicated mailbox. Pairs with the email-forwarded ingest template.
-author: AiSOC Core Team
+author: Quarry Core Team
 tags: [email, imap, inbox, universal-capture, connector]
-homepage: https://github.com/beenuar/AiSOC/tree/main/plugins/email-inbox
+homepage: https://github.com/beenuar/Quarry/tree/main/plugins/email-inbox
 license: MIT
 min_aisoc_version: "4.0.0"
 config_schema:
@@ -24,7 +24,7 @@ config_schema:
       description: "IMAP port — defaults to 993 (IMAPS)"
     username:
       type: string
-      description: "Mailbox login (e.g., aisoc-alerts@example.com)"
+      description: "Mailbox login (e.g., quarry-alerts@example.com)"
     password:
       type: string
       description: "App-specific password — never the primary account password"

@@ -1,6 +1,6 @@
 id: det-application-048
 name: Build Artifact Signing Key Rotated Outside Maintenance Window
-description: AiSOC v1 curated detection. Triggers on the application signal described by 'Build Artifact
+description: Quarry v1 curated detection. Triggers on the application signal described by 'Build Artifact
   Signing Key Rotated Outside Maintenance Window'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: high
@@ -19,6 +19,6 @@ false_positives:
 - Emergency key rotation (must be ticketed)
 playbook: tpl-supply-chain
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

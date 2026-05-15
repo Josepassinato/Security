@@ -9,38 +9,38 @@
 
 /** No API key was wired into the process. */
 export class MissingApiKeyError extends Error {
-  readonly code = "AISOC_MISSING_API_KEY";
+  readonly code = "QUARRY_MISSING_API_KEY";
   constructor() {
     super(
-      "AiSOC API key is not configured. Pass --api-key or set AISOC_API_KEY. " +
-        "Generate one in your AiSOC console under Settings → API Keys.",
+      "Quarry API key is not configured. Pass --api-key or set QUARRY_API_KEY. " +
+        "Generate one in your Quarry console under Settings → API Keys.",
     );
     this.name = "MissingApiKeyError";
   }
 }
 
-/** Network/timeout failure reaching AiSOC. */
+/** Network/timeout failure reaching Quarry. */
 export class TransportError extends Error {
-  readonly code = "AISOC_TRANSPORT_ERROR";
+  readonly code = "QUARRY_TRANSPORT_ERROR";
   constructor(
     public readonly url: string,
     cause: unknown,
   ) {
-    super(`Could not reach AiSOC at ${url}: ${formatCause(cause)}`);
+    super(`Could not reach Quarry at ${url}: ${formatCause(cause)}`);
     this.name = "TransportError";
     if (cause instanceof Error) this.cause = cause;
   }
 }
 
-/** AiSOC returned a non-2xx HTTP response. */
+/** Quarry returned a non-2xx HTTP response. */
 export class ApiError extends Error {
-  readonly code = "AISOC_API_ERROR";
+  readonly code = "QUARRY_API_ERROR";
   constructor(
     public readonly status: number,
     public readonly endpoint: string,
     public readonly detail: string,
   ) {
-    super(`AiSOC API ${status} on ${endpoint}: ${detail}`);
+    super(`Quarry API ${status} on ${endpoint}: ${detail}`);
     this.name = "ApiError";
   }
 
@@ -52,7 +52,7 @@ export class ApiError extends Error {
 
 /** A tool was called with malformed arguments. */
 export class InvalidArgumentsError extends Error {
-  readonly code = "AISOC_INVALID_ARGS";
+  readonly code = "QUARRY_INVALID_ARGS";
   constructor(public readonly tool: string, public readonly issues: string[]) {
     super(`Invalid arguments to ${tool}: ${issues.join("; ")}`);
     this.name = "InvalidArgumentsError";

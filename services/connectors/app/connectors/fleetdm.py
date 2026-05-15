@@ -35,7 +35,7 @@ logger = structlog.get_logger()
 
 
 # ---------------------------------------------------------------------------
-# FleetDM host status -> AiSOC severity
+# FleetDM host status -> Quarry severity
 #
 # FleetDM does not stream "alerts" in the traditional sense — its primary
 # signal at the host level is the ``status`` field (online / offline /
@@ -163,7 +163,7 @@ class FleetDMConnector(BaseConnector):
         return {
             "Authorization": f"Bearer {self._api_token}",
             "Accept": "application/json",
-            "User-Agent": "AiSOC/connectors-fleetdm",
+            "User-Agent": "Quarry/connectors-fleetdm",
         }
 
     # ---- runtime ------------------------------------------------------
@@ -306,7 +306,7 @@ class FleetDMConnector(BaseConnector):
         host_name = row.get("host_hostname") or row.get("hostname")
 
         # Flatten osquery row columns to the top level so detection
-        # rules can match on them directly. AiSOC-canonical fields
+        # rules can match on them directly. Quarry-canonical fields
         # (source/category/severity/...) win on collision.
         event: dict[str, Any] = {}
         if isinstance(row, dict):

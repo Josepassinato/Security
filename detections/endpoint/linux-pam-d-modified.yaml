@@ -1,6 +1,6 @@
 id: det-endpoint-140
 name: /etc/pam.d/ Configuration Modified
-description: AiSOC v1 curated detection. Triggers on the endpoint signal described by '/etc/pam.d/ Configuration
+description: Quarry v1 curated detection. Triggers on the endpoint signal described by '/etc/pam.d/ Configuration
   Modified'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: high
@@ -20,6 +20,6 @@ false_positives:
 - Sanctioned automation/IaC pipeline
 playbook: tpl-credential-access
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

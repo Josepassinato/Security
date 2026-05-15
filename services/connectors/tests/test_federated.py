@@ -228,7 +228,7 @@ async def test_splunk_query_assembles_post_body(monkeypatch):
     connector = SplunkConnector(
         base_url="https://splunk.example.com:8089",
         token="fake-token",
-        saved_search="AiSOC_Alerts",
+        saved_search="Quarry_Alerts",
     )
 
     rows = await connector.query(_SAMPLE_QUERY)

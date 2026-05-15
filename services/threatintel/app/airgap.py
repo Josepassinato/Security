@@ -9,18 +9,18 @@ service.
 Design notes
 ------------
 The threat-intel service is the single largest source of outbound HTTP
-in the AiSOC stack — by default it polls AlienVault OTX, CISA KEV, one
+in the Quarry stack — by default it polls AlienVault OTX, CISA KEV, one
 or more TAXII servers, and (optionally) MISP / OpenCTI. In an
 air-gapped deployment those public feeds must not be contacted at all,
 not even to fail closed at request time, because (a) failed DNS to
-``otx.alienvault.com`` still leaks the fact that an AiSOC instance
+``otx.alienvault.com`` still leaks the fact that an Quarry instance
 exists, and (b) repeated 30-minute polls produce a steady network
 signal even if every request is rejected by an egress proxy.
 
 So the contract here is intentionally stricter than the API service
 contract: feeds whose configured URL is public are *refused at
-registration time* when ``AISOC_AIRGAPPED=1``. Internal mirrors hosted
-on private RFC1918 networks or on suffixes in ``AISOC_AIRGAP_ALLOWLIST``
+registration time* when ``QUARRY_AIRGAPPED=1``. Internal mirrors hosted
+on private RFC1918 networks or on suffixes in ``QUARRY_AIRGAP_ALLOWLIST``
 are still allowed, so customers running an internal CISA KEV mirror or
 their own MISP instance can use those without flipping any per-feed
 flag.
@@ -90,7 +90,7 @@ def _is_private_address(host: str) -> bool:
 def _allowlist() -> list[str]:
     """Return the configured allowlist, normalized to lowercase."""
 
-    raw = settings.AISOC_AIRGAP_ALLOWLIST or []
+    raw = settings.QUARRY_AIRGAP_ALLOWLIST or []
     return [item.strip().lower().lstrip(".") for item in raw if item and item.strip()]
 
 
@@ -108,7 +108,7 @@ def is_host_allowed_for_airgap(host: str, allowlist: list[str] | None = None) ->
       covers ``mirror.example.com`` too)
     """
 
-    if not settings.AISOC_AIRGAPPED:
+    if not settings.QUARRY_AIRGAPPED:
         return True
 
     if not host:
@@ -139,7 +139,7 @@ def enforce_airgap_for_url(url: str) -> None:
     polling loops.
     """
 
-    if not settings.AISOC_AIRGAPPED:
+    if not settings.QUARRY_AIRGAPPED:
         return
 
     parsed = urlparse(url)
@@ -157,6 +157,6 @@ def airgap_status() -> dict[str, object]:
     """
 
     return {
-        "enabled": bool(settings.AISOC_AIRGAPPED),
+        "enabled": bool(settings.QUARRY_AIRGAPPED),
         "allowlist": _allowlist(),
     }

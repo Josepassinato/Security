@@ -38,7 +38,7 @@ export function PwaBootstrap(): null {
             // A new SW is waiting. Fire a custom event so any UI surface
             // (e.g. a toast in AppShell) can prompt for reload.
             window.dispatchEvent(
-              new CustomEvent('aisoc:sw:update-available', {
+              new CustomEvent('quarry:sw:update-available', {
                 detail: { registration: reg },
               }),
             );

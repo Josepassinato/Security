@@ -1,7 +1,7 @@
 # `docs/design/` — landing page kickoff bundle
 
-This folder is the design-team handoff for the AiSOC marketing landing
-page on `aisoc.dev`. Six documents, in order of importance:
+This folder is the design-team handoff for the Quarry marketing landing
+page on `quarry.dev`. Six documents, in order of importance:
 
 1. **`landing-page-brief.md`** — the product brief. Seventeen sections,
    from positioning and personas through information architecture,

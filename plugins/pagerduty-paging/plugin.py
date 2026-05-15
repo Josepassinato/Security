@@ -1,4 +1,4 @@
-"""PagerDuty paging action plugin for AiSOC."""
+"""PagerDuty paging action plugin for Quarry."""
 from __future__ import annotations
 
 from typing import Any
@@ -35,7 +35,7 @@ class Plugin:
 
         try:
             if action == "trigger_incident":
-                summary = payload.get("summary") or "AiSOC alert"
+                summary = payload.get("summary") or "Quarry alert"
                 severity = (
                     payload.get("severity")
                     or config.get("default_severity")
@@ -48,7 +48,7 @@ class Plugin:
                     "payload": {
                         "summary": summary,
                         "severity": severity,
-                        "source": payload.get("source") or "aisoc",
+                        "source": payload.get("source") or "quarry",
                         "component": payload.get("component"),
                         "group": payload.get("group"),
                         "class": payload.get("class"),

@@ -35,14 +35,14 @@ describe("parseArgs", () => {
   });
 
   it("accepts known long flags with a separate value", () => {
-    const out = parseArgs(["serve", "--aisoc-url", "https://aisoc.example.com"]);
+    const out = parseArgs(["serve", "--quarry-url", "https://quarry.example.com"]);
     expect(out.command).toBe("serve");
-    expect(out.flags.aisocUrl).toBe("https://aisoc.example.com");
+    expect(out.flags.aisocUrl).toBe("https://quarry.example.com");
   });
 
   it("accepts known long flags with --key=value syntax", () => {
-    const out = parseArgs(["--aisoc-url=https://aisoc.example.com", "--api-key=aisoc_test"]);
-    expect(out.flags.aisocUrl).toBe("https://aisoc.example.com");
+    const out = parseArgs(["--quarry-url=https://quarry.example.com", "--api-key=aisoc_test"]);
+    expect(out.flags.aisocUrl).toBe("https://quarry.example.com");
     expect(out.flags.apiKey).toBe("aisoc_test");
   });
 
@@ -76,7 +76,7 @@ describe("parseArgs", () => {
   });
 
   it("throws when a known value-taking flag is missing its value", () => {
-    expect(() => parseArgs(["--aisoc-url"])).toThrow(/requires a value/);
+    expect(() => parseArgs(["--quarry-url"])).toThrow(/requires a value/);
   });
 
   it("collects extra positional args after the command", () => {
@@ -98,41 +98,41 @@ describe("resolveConfig", () => {
   });
 
   it("prefers the CLI flag over the environment variable", () => {
-    const args = parseArgs(["--aisoc-url", "https://flag.example"]);
-    const cfg = resolveConfig(args, { AISOC_URL: "https://env.example" } as NodeJS.ProcessEnv);
+    const args = parseArgs(["--quarry-url", "https://flag.example"]);
+    const cfg = resolveConfig(args, { QUARRY_URL: "https://env.example" } as NodeJS.ProcessEnv);
     expect(cfg.aisocUrl).toBe("https://flag.example");
   });
 
-  it("uses AISOC_URL when no flag is given", () => {
+  it("uses QUARRY_URL when no flag is given", () => {
     const cfg = resolveConfig(parseArgs([]), {
-      AISOC_URL: "https://env.example",
+      QUARRY_URL: "https://env.example",
     } as NodeJS.ProcessEnv);
     expect(cfg.aisocUrl).toBe("https://env.example");
   });
 
-  it("falls back to AISOC_API_URL alias", () => {
+  it("falls back to QUARRY_API_URL alias", () => {
     const cfg = resolveConfig(parseArgs([]), {
-      AISOC_API_URL: "https://alias.example",
+      QUARRY_API_URL: "https://alias.example",
     } as NodeJS.ProcessEnv);
     expect(cfg.aisocUrl).toBe("https://alias.example");
   });
 
   it("strips a single trailing slash from the URL", () => {
-    const args = parseArgs(["--aisoc-url", "https://aisoc.example/"]);
+    const args = parseArgs(["--quarry-url", "https://quarry.example/"]);
     const cfg = resolveConfig(args, baseEnv);
-    expect(cfg.aisocUrl).toBe("https://aisoc.example");
+    expect(cfg.aisocUrl).toBe("https://quarry.example");
   });
 
-  it("resolves the API key from AISOC_API_KEY", () => {
+  it("resolves the API key from QUARRY_API_KEY", () => {
     const cfg = resolveConfig(parseArgs([]), {
-      AISOC_API_KEY: "aisoc_env_key",
+      QUARRY_API_KEY: "aisoc_env_key",
     } as NodeJS.ProcessEnv);
     expect(cfg.apiKey).toBe("aisoc_env_key");
   });
 
-  it("resolves the API key from AISOC_TOKEN as fallback", () => {
+  it("resolves the API key from QUARRY_TOKEN as fallback", () => {
     const cfg = resolveConfig(parseArgs([]), {
-      AISOC_TOKEN: "jwt_value",
+      QUARRY_TOKEN: "jwt_value",
     } as NodeJS.ProcessEnv);
     expect(cfg.apiKey).toBe("jwt_value");
   });
@@ -140,8 +140,8 @@ describe("resolveConfig", () => {
   it("prefers --api-key flag over both env aliases", () => {
     const args = parseArgs(["--api-key", "from_flag"]);
     const cfg = resolveConfig(args, {
-      AISOC_API_KEY: "from_env",
-      AISOC_TOKEN: "also_env",
+      QUARRY_API_KEY: "from_env",
+      QUARRY_TOKEN: "also_env",
     } as NodeJS.ProcessEnv);
     expect(cfg.apiKey).toBe("from_flag");
   });
@@ -152,32 +152,32 @@ describe("resolveConfig", () => {
     expect(cfg.timeoutMs).toBe(5000);
   });
 
-  it("parses a numeric timeout from AISOC_TIMEOUT_MS", () => {
+  it("parses a numeric timeout from QUARRY_TIMEOUT_MS", () => {
     const cfg = resolveConfig(parseArgs([]), {
-      AISOC_TIMEOUT_MS: "7500",
+      QUARRY_TIMEOUT_MS: "7500",
     } as NodeJS.ProcessEnv);
     expect(cfg.timeoutMs).toBe(7500);
   });
 
   it("rejects non-positive timeouts", () => {
     expect(() =>
-      resolveConfig(parseArgs([]), { AISOC_TIMEOUT_MS: "0" } as NodeJS.ProcessEnv),
+      resolveConfig(parseArgs([]), { QUARRY_TIMEOUT_MS: "0" } as NodeJS.ProcessEnv),
     ).toThrow(/Invalid timeout/);
     expect(() =>
-      resolveConfig(parseArgs([]), { AISOC_TIMEOUT_MS: "abc" } as NodeJS.ProcessEnv),
+      resolveConfig(parseArgs([]), { QUARRY_TIMEOUT_MS: "abc" } as NodeJS.ProcessEnv),
     ).toThrow(/Invalid timeout/);
   });
 
   it("turns on verbose logging via flag or env", () => {
     expect(resolveConfig(parseArgs(["--verbose"]), baseEnv).verbose).toBe(true);
     expect(
-      resolveConfig(parseArgs([]), { AISOC_MCP_VERBOSE: "1" } as NodeJS.ProcessEnv).verbose,
+      resolveConfig(parseArgs([]), { QUARRY_MCP_VERBOSE: "1" } as NodeJS.ProcessEnv).verbose,
     ).toBe(true);
   });
 
   it("includes the package version in the User-Agent string", () => {
     const cfg = resolveConfig(parseArgs([]), baseEnv);
-    expect(cfg.userAgent).toMatch(/^aisoc-mcp\/\d+\.\d+\.\d+/);
+    expect(cfg.userAgent).toMatch(/^quarry-mcp\/\d+\.\d+\.\d+/);
   });
 });
 

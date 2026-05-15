@@ -1,5 +1,5 @@
 """
-Slack Block Kit builders for the AiSOC bot.
+Slack Block Kit builders for the Quarry bot.
 
 Every Slack response in the bot — slash command output, approval prompts,
 post-decision confirmations — flows through one of these helpers. Centralising
@@ -86,7 +86,7 @@ def case_list_blocks(
     title: str = "Open cases",
 ) -> list[dict[str, Any]]:
     """
-    Render the response to ``/aisoc list``.
+    Render the response to ``/quarry list``.
 
     We render at most ten cases (Slack performance + screen-real-estate) and
     add a footer that prompts the analyst to filter further if the result was
@@ -133,7 +133,7 @@ def case_list_blocks(
                 "elements": [
                     {
                         "type": "mrkdwn",
-                        "text": (f"Showing {len(visible)} of {len(cases)} open cases — use `/aisoc list <severity>` to narrow."),
+                        "text": (f"Showing {len(visible)} of {len(cases)} open cases — use `/quarry list <severity>` to narrow."),
                     }
                 ],
             }
@@ -149,7 +149,7 @@ def case_card_blocks(
 ) -> list[dict[str, Any]]:
     """
     Render a single-case detail card used as the parent message for
-    ``/aisoc investigate`` and ``/aisoc explain``.
+    ``/quarry investigate`` and ``/quarry explain``.
     """
     case_id = str(case.get("id") or "")
     case_number = case.get("case_number") or case_id[:8]
@@ -183,7 +183,7 @@ def case_card_blocks(
             "text": {"type": "mrkdwn", "text": f"*{title}*"},
             "accessory": {
                 "type": "button",
-                "text": {"type": "plain_text", "text": "Open in AiSOC"},
+                "text": {"type": "plain_text", "text": "Open in Quarry"},
                 "url": url,
                 "action_id": "case_open_link",
             },
@@ -203,7 +203,7 @@ def investigation_started_blocks(
     web_base: str,
 ) -> list[dict[str, Any]]:
     """
-    Confirmation message after ``/aisoc investigate`` succeeds.
+    Confirmation message after ``/quarry investigate`` succeeds.
 
     We include the run id and a deep-link so the analyst can hop straight to
     the live timeline in the web app.
@@ -240,7 +240,7 @@ def case_explanation_blocks(
     web_base: str,
 ) -> list[dict[str, Any]]:
     """
-    Render a case auto-summary as Slack blocks (``/aisoc explain``).
+    Render a case auto-summary as Slack blocks (``/quarry explain``).
 
     The summary endpoint returns a JSON payload with at minimum a ``summary``
     or ``narrative`` field; we surface both that and any structured
@@ -499,25 +499,25 @@ def error_blocks(message: str) -> list[dict[str, Any]]:
 
 def help_blocks() -> list[dict[str, Any]]:
     """
-    Static help text rendered for ``/aisoc help`` and as a fallback for
+    Static help text rendered for ``/quarry help`` and as a fallback for
     unknown subcommands.
     """
     return [
         {
             "type": "header",
-            "text": {"type": "plain_text", "text": "AiSOC Slack commands"},
+            "text": {"type": "plain_text", "text": "Quarry Slack commands"},
         },
         {
             "type": "section",
             "text": {
                 "type": "mrkdwn",
                 "text": (
-                    "*`/aisoc list [severity]`* — list open cases\n"
-                    "*`/aisoc investigate <case_id>`* — launch an investigation\n"
-                    "*`/aisoc explain <case_id>`* — show the AI auto-summary\n"
-                    "*`/aisoc isolate <host> <case_id> [reason]`* — request host isolation (approval required)\n"
-                    "*`/aisoc block <ip|domain> <case_id> [reason]`* — request a network block (approval required)\n"
-                    "*`/aisoc help`* — show this message"
+                    "*`/quarry list [severity]`* — list open cases\n"
+                    "*`/quarry investigate <case_id>`* — launch an investigation\n"
+                    "*`/quarry explain <case_id>`* — show the AI auto-summary\n"
+                    "*`/quarry isolate <host> <case_id> [reason]`* — request host isolation (approval required)\n"
+                    "*`/quarry block <ip|domain> <case_id> [reason]`* — request a network block (approval required)\n"
+                    "*`/quarry help`* — show this message"
                 ),
             },
         },

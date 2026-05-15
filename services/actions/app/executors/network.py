@@ -36,7 +36,7 @@ def _aws_client(params: dict) -> AWSSecurityGroupsClient | None:
         secret_access_key=secret_key,
         region=params.get("aws_region", "us-east-1"),
         role_arn=params.get("aws_role_arn"),
-        session_name=params.get("aws_session_name", "aisoc-action"),
+        session_name=params.get("aws_session_name", "quarry-action"),
     )
 
 

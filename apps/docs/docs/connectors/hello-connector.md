@@ -1,18 +1,18 @@
 ---
 sidebar_position: 2
-title: Hello, connector — write your first AiSOC integration
-description: A walkthrough that builds a real, runnable AiSOC connector against httpbin.org. No vendor account, no API key, just the BaseConnector contract front to back.
+title: Hello, connector — write your first Quarry integration
+description: A walkthrough that builds a real, runnable Quarry connector against httpbin.org. No vendor account, no API key, just the BaseConnector contract front to back.
 ---
 
 # Hello, connector
 
-This tutorial walks you end-to-end through the work of adding a new data source to AiSOC. By the end you will have:
+This tutorial walks you end-to-end through the work of adding a new data source to Quarry. By the end you will have:
 
 - A subclass of `BaseConnector` that implements every method the platform calls.
 - A self-describing schema that the connector wizard renders into a configuration form.
 - A `test_connection()` path that the wizard hits before it lets you save.
 - A `fetch_alerts()` path that the polling scheduler hits every five minutes.
-- A `normalize()` step that converts vendor JSON into AiSOC's common alert shape.
+- A `normalize()` step that converts vendor JSON into Quarry's common alert shape.
 - A smoke test that pins all of the above against mocked HTTP traffic.
 
 Everything points at [httpbin.org](https://httpbin.org), a free, no-auth HTTP testing service. The point isn't to ingest httpbin events into your SOC — the point is to walk every line of the connector contract against a backend that:
@@ -31,7 +31,7 @@ The reference implementation lives at:
 services/connectors/app/connectors/_examples/hello_connector.py
 ```
 
-The `_examples/` directory is **deliberately not** registered in [`services/connectors/app/connectors/__init__.py`](https://github.com/beenuar/AiSOC/blob/main/services/connectors/app/connectors/__init__.py). Anything under `_examples/` exists for documentation only and never appears in the connector catalog, the polling scheduler, or the marketplace index. There is a smoke test ([`tests/test_hello_connector_example.py`](https://github.com/beenuar/AiSOC/blob/main/services/connectors/tests/test_hello_connector_example.py)) that pins this invariant — if someone accidentally promotes the example into the live registry, CI fails.
+The `_examples/` directory is **deliberately not** registered in [`services/connectors/app/connectors/__init__.py`](https://github.com/Josepassinato/quarry/blob/main/services/connectors/app/connectors/__init__.py). Anything under `_examples/` exists for documentation only and never appears in the connector catalog, the polling scheduler, or the marketplace index. There is a smoke test ([`tests/test_hello_connector_example.py`](https://github.com/Josepassinato/quarry/blob/main/services/connectors/tests/test_hello_connector_example.py)) that pins this invariant — if someone accidentally promotes the example into the live registry, CI fails.
 
 ## Step 1 — Pick identity attributes
 
@@ -192,7 +192,7 @@ Keep the `since_seconds` parameter in the signature even if your vendor doesn't 
 
 ## Step 7 — `normalize()`
 
-`normalize()` maps vendor JSON to AiSOC's common alert shape:
+`normalize()` maps vendor JSON to Quarry's common alert shape:
 
 ```python
 def normalize(self, raw: dict[str, Any]) -> dict[str, Any]:
@@ -224,13 +224,13 @@ The contract for the returned dict is documented in `services/ingest` and includ
 
 A few patterns worth copying:
 
-- **`severity` is hard-coded `info`** in the example because httpbin doesn't carry a severity signal. Real connectors derive severity from the vendor's risk score, status code, anomaly flag, etc. — see the [Auth0 connector](https://github.com/beenuar/AiSOC/blob/main/services/connectors/app/connectors/auth0.py) for an example of a simple rule-based mapping.
+- **`severity` is hard-coded `info`** in the example because httpbin doesn't carry a severity signal. Real connectors derive severity from the vendor's risk score, status code, anomaly flag, etc. — see the [Auth0 connector](https://github.com/Josepassinato/quarry/blob/main/services/connectors/app/connectors/auth0.py) for an example of a simple rule-based mapping.
 - **`alert_id` should be stable across re-fetches** when the vendor exposes a unique ID. httpbin doesn't, so the example cheats: it uses `origin + url` as a poor-but-stable hash. If you do this, document it — the next person to look will assume you forgot.
 - **`raw` is forensics**. Don't summarise it, don't truncate it, don't drop fields you didn't recognise. The detection layer and the explain endpoint both treat it as the source of truth for "what actually happened".
 
 ## Step 8 — Pin the contract with a smoke test
 
-The example is paired with a smoke test at [`services/connectors/tests/test_hello_connector_example.py`](https://github.com/beenuar/AiSOC/blob/main/services/connectors/tests/test_hello_connector_example.py). It uses [`respx`](https://lundberg.github.io/respx/) (already a dev dependency in `services/connectors/pyproject.toml`) to mock httpx and exercise every method end-to-end:
+The example is paired with a smoke test at [`services/connectors/tests/test_hello_connector_example.py`](https://github.com/Josepassinato/quarry/blob/main/services/connectors/tests/test_hello_connector_example.py). It uses [`respx`](https://lundberg.github.io/respx/) (already a dev dependency in `services/connectors/pyproject.toml`) to mock httpx and exercise every method end-to-end:
 
 ```python
 @respx.mock
@@ -265,9 +265,9 @@ When you're ready to ship a real connector, here is the exact checklist:
 
 1. **Move the file.** From `services/connectors/app/connectors/_examples/<your_connector>.py` to `services/connectors/app/connectors/<your_connector>.py`.
 2. **Register it.** Add the class to `_CONNECTOR_CLASSES` in `services/connectors/app/connectors/__init__.py`. Keep the tuple alphabetised by `connector_id` to keep diffs predictable. Add the class name to the `__all__` list at the bottom of the same file.
-3. **Add a marketplace manifest.** Create `plugins/<connector-id>/plugin.yaml` mirroring your `schema()`. The fields and secret flags must match. Use [`plugins/auth0/plugin.yaml`](https://github.com/beenuar/AiSOC/blob/main/plugins/auth0/plugin.yaml) as a template.
+3. **Add a marketplace manifest.** Create `plugins/<connector-id>/plugin.yaml` mirroring your `schema()`. The fields and secret flags must match. Use [`plugins/auth0/plugin.yaml`](https://github.com/Josepassinato/quarry/blob/main/plugins/auth0/plugin.yaml) as a template.
 4. **Sync the marketplace.** Run `pnpm marketplace:sync` from the repo root. This regenerates the static catalog under `apps/web/public/marketplace/` so the catalog grid in the UI picks up the new entry.
-5. **Write a docs page.** Add `apps/docs/docs/connectors/<your-connector>.md` and wire it into `apps/docs/sidebars.ts` under the `Connectors` category. Use [`apps/docs/docs/connectors/cloudflare.md`](https://github.com/beenuar/AiSOC/blob/main/apps/docs/docs/connectors/cloudflare.md) as a template — `What you get` table → `Prerequisites` → `Setup walkthrough` → `Polling details` → `Severity heuristics` → `Troubleshooting`.
+5. **Write a docs page.** Add `apps/docs/docs/connectors/<your-connector>.md` and wire it into `apps/docs/sidebars.ts` under the `Connectors` category. Use [`apps/docs/docs/connectors/cloudflare.md`](https://github.com/Josepassinato/quarry/blob/main/apps/docs/docs/connectors/cloudflare.md) as a template — `What you get` table → `Prerequisites` → `Setup walkthrough` → `Polling details` → `Severity heuristics` → `Troubleshooting`.
 6. **Add real tests.** Use `respx` to mock the vendor API. At minimum, exercise `test_connection()` (success + auth failure + network failure), `fetch_alerts()` (happy path + empty + 5xx + auth expiry), and `normalize()` (every severity branch).
 7. **Open a PR.** The code review will check that schema fields are wizard-renderable, that secrets are marked `secret=True`, that the category fits the existing taxonomy, that polling failures are non-terminal, and that the docs page exists.
 

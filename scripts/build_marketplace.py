@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the AiSOC marketplace index from on-disk content.
+"""Build the Quarry marketplace index from on-disk content.
 
 This script walks the canonical content directories and emits a single
 authoritative ``marketplace/index.json`` describing every detection,
@@ -7,7 +7,7 @@ playbook, and plugin shipped with this repo.
 
 Sources walked:
 
-- ``detections/<category>/*.yaml``        - curated AiSOC detection rules
+- ``detections/<category>/*.yaml``        - curated Quarry detection rules
 - ``playbooks/packs/v1/<category>/*.json`` - production playbook pack v1
 - ``plugins/<plugin-id>/plugin.yaml``     - reference plugin manifests
 
@@ -271,7 +271,7 @@ def build_detection_item(
         "name": data.get("name") or data.get("id") or path.stem,
         "description": (data.get("description") or "").strip(),
         "version": data.get("version", "1.0.0"),
-        "author": data.get("author", "AiSOC"),
+        "author": data.get("author", "Quarry"),
         "tags": [t for t in tags if not t.lower().startswith("mitre.")],
         "severity": data.get("severity"),
         "category": category,
@@ -287,7 +287,7 @@ def build_detection_item(
     if quarantined:
         item["quarantine_reason"] = data.get("quarantine_reason") or (
             "imported rule; upstream query language not directly executable "
-            "by the AiSOC engine yet"
+            "by the Quarry engine yet"
         )
     provenance = data.get("provenance")
     if isinstance(provenance, dict):
@@ -335,7 +335,7 @@ def build_playbook_item(
         "name": data.get("name") or path.stem,
         "description": (data.get("description") or "").strip(),
         "version": data.get("version", "1.0.0"),
-        "author": data.get("author", "AiSOC"),
+        "author": data.get("author", "Quarry"),
         "tags": [t for t in tags if not t.lower().startswith("mitre.")],
         "severity": severity,
         "trigger": trigger,
@@ -393,7 +393,7 @@ def build_plugin_item(
         "name": data.get("name") or plugin_dir.name,
         "description": (data.get("description") or "").strip(),
         "version": data.get("version", "1.0.0"),
-        "author": data.get("author", "AiSOC"),
+        "author": data.get("author", "Quarry"),
         "tags": tags,
         "plugin_type": data.get("plugin_type"),
         "license": data.get("license"),

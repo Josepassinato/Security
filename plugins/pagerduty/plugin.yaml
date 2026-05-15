@@ -8,9 +8,9 @@ description: >
   (triggered / acknowledged / resolved) and tenant audit records (role
   changes, integration edits, API key issuance) via the REST API. Requires
   a read-only REST API key.
-author: AiSOC Core Team
+author: Quarry Core Team
 tags: [saas, oncall, paging, incidents, audit, pagerduty]
-homepage: https://github.com/beenuar/AiSOC/tree/main/services/connectors/app/connectors/pagerduty.py
+homepage: https://github.com/beenuar/Quarry/tree/main/services/connectors/app/connectors/pagerduty.py
 license: MIT
 min_aisoc_version: "4.0.0"
 config_schema:

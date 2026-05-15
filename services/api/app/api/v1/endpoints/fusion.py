@@ -105,7 +105,7 @@ async def fusion_health() -> dict[str, Any]:
         return upstream
     return {
         "status": "stub",
-        "service": "aisoc-fusion-gateway",
+        "service": "quarry-fusion-gateway",
         "upstream_configured": bool(_FUSION_URL),
     }
 

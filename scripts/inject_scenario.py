@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-inject_scenario.py — AiSOC Demo Lab scenario injector
+inject_scenario.py — Quarry Demo Lab scenario injector
 
-Injects a Conti-style ransomware multi-stage alert sequence into the AiSOC
+Injects a Conti-style ransomware multi-stage alert sequence into the Quarry
 alert stream via the REST API, creating a realistic investigation scenario.
 
 Stages:
@@ -136,8 +136,8 @@ def _post(url: str, payload: dict, timeout: int = 10) -> dict:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Inject Conti ransomware scenario into AiSOC")
-    parser.add_argument("--api-url", default="http://localhost:8000", help="AiSOC API base URL")
+    parser = argparse.ArgumentParser(description="Inject Conti ransomware scenario into Quarry")
+    parser.add_argument("--api-url", default="http://localhost:8000", help="Quarry API base URL")
     parser.add_argument("--delay", type=float, default=0.5, help="Delay between alerts (seconds)")
     args = parser.parse_args()
 

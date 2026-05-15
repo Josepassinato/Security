@@ -1,7 +1,7 @@
 """
 MISP client for fetching threat intelligence events and attributes.
 
-AiSOC — open-source AI Security Operations Center (MIT License)
+Quarry — open-source AI Security Operations Center (MIT License)
 """
 
 from __future__ import annotations

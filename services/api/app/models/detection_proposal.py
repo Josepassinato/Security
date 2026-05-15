@@ -45,7 +45,7 @@ class DetectionRuleProposal(Base):
     decided_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     # WS-B4: git PR path — URL of the GitHub Pull Request created on promotion.
-    # NULL when AISOC_GITHUB_TOKEN is not configured or the deploy doesn't use GitHub.
+    # NULL when QUARRY_GITHUB_TOKEN is not configured or the deploy doesn't use GitHub.
     github_pr_url: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(UTC))

@@ -1,4 +1,4 @@
-"""Natural language → query translation for AiSOC.
+"""Natural language → query translation for Quarry.
 
 This module ships a deterministic, offline-friendly translator that converts
 plain-English security questions into ES|QL (OpenSearch / Elasticsearch),

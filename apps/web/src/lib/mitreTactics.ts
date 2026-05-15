@@ -2,7 +2,7 @@
  * MITRE ATT&CK tactic mapping for technique IDs.
  *
  * The full ATT&CK Enterprise corpus is large; this file maintains a curated
- * map covering the techniques AiSOC ships rules for today, plus the parent
+ * map covering the techniques Quarry ships rules for today, plus the parent
  * technique for every sub-technique we know about. Anything outside the map
  * falls back to the "Other" bucket so the coverage view still degrades
  * gracefully if upstream importers introduce a technique we haven't mapped

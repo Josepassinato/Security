@@ -2,7 +2,7 @@
 # 
 # fly-demo-deploy.sh
 #
-# Deploys the full AiSOC live demo stack to Fly.io behind tryaisoc.com.
+# Deploys the full Quarry live demo stack to Fly.io behind tryaisoc.com.
 # Idempotent: safe to re-run after partial failures.
 #
 # Usage:
@@ -18,15 +18,15 @@
 #
 # Architecture:
 #
-#   tryaisoc.com       aisoc-demo-web      (Next.js UI)
-#   api.tryaisoc.com   aisoc-demo-api      (FastAPI; /health, /docs, /api/v1/*)
-#   ws.tryaisoc.com    aisoc-demo-realtime (WebSocket fanout)
+#   tryaisoc.com       quarry-demo-web      (Next.js UI)
+#   api.tryaisoc.com   quarry-demo-api      (FastAPI; /health, /docs, /api/v1/*)
+#   ws.tryaisoc.com    quarry-demo-realtime (WebSocket fanout)
 #
 #   web  api, agents, realtime (over Fly's *.internal 6PN DNS)
 #   api  agents, realtime, Postgres, Redis
 #
-#   Postgres = Fly managed (aisoc-demo-postgres)
-#   Redis    = Upstash via Fly (aisoc-demo-redis)
+#   Postgres = Fly managed (quarry-demo-postgres)
+#   Redis    = Upstash via Fly (quarry-demo-redis)
 #
 # Time-to-first-investigation budget: <60s from the tryaisoc.com click.
 # The seed job pre-warms a running investigation so the deeplink lands
@@ -78,9 +78,9 @@ require git
 REDIS_URL_CAPTURED=""
 
 if $PROVISION; then
-  log "provisioning aisoc-demo-postgres (Fly managed Postgres, dev plan)"
+  log "provisioning quarry-demo-postgres (Fly managed Postgres, dev plan)"
   flyctl postgres create \
-    --name aisoc-demo-postgres \
+    --name quarry-demo-postgres \
     --org "$ORG" \
     --region "$REGION" \
     --vm-size shared-cpu-1x \
@@ -116,7 +116,7 @@ if $PROVISION; then
   # being explicit makes the intent obvious to anyone reading the script.
   log "provisioning Upstash Redis (Pay-as-you-go, eviction enabled)"
   REDIS_CREATE_OUT="$(printf 'n\n' | flyctl redis create \
-    --name aisoc-demo-redis \
+    --name quarry-demo-redis \
     --org "$ORG" \
     --region "$REGION" \
     --no-replicas \
@@ -132,8 +132,8 @@ if $PROVISION; then
     log "(redis already provisioned or URL not in output; will skip secret"
     log " propagation this run  assume REDIS_URL was set on a prior run)"
     log "If this is a fresh redis with no secrets set yet, run:"
-    log "  flyctl redis status aisoc-demo-redis  # then copy the redis:// URL"
-    log "  flyctl secrets set REDIS_URL= --app aisoc-demo-{api,agents,realtime}"
+    log "  flyctl redis status quarry-demo-redis  # then copy the redis:// URL"
+    log "  flyctl secrets set REDIS_URL= --app quarry-demo-{api,agents,realtime}"
   fi
 fi
 
@@ -196,8 +196,8 @@ deploy_app() {
 # but returns non-zero on the second call (already attached), which we swallow.
 attach_pg() {
   local name="$1"
-  log "attaching aisoc-demo-postgres  $name (sets DATABASE_URL secret)"
-  flyctl postgres attach aisoc-demo-postgres --app "$name" --yes 2>/dev/null \
+  log "attaching quarry-demo-postgres  $name (sets DATABASE_URL secret)"
+  flyctl postgres attach quarry-demo-postgres --app "$name" --yes 2>/dev/null \
     || log "($name already attached to postgres)"
 }
 
@@ -245,26 +245,26 @@ stage_marketplace_index() {
 }
 stage_marketplace_index
 
-ensure_app   aisoc-demo-api
-attach_pg    aisoc-demo-api
-attach_redis aisoc-demo-api
-deploy_app   aisoc-demo-api       api       services/api
+ensure_app   quarry-demo-api
+attach_pg    quarry-demo-api
+attach_redis quarry-demo-api
+deploy_app   quarry-demo-api       api       services/api
 
 # 2. agents  build context = services/agents/
-ensure_app   aisoc-demo-agents
-attach_pg    aisoc-demo-agents
-attach_redis aisoc-demo-agents
-deploy_app   aisoc-demo-agents    agents    services/agents
+ensure_app   quarry-demo-agents
+attach_pg    quarry-demo-agents
+attach_redis quarry-demo-agents
+deploy_app   quarry-demo-agents    agents    services/agents
 
 # 3. realtime  build context = services/realtime/
-ensure_app   aisoc-demo-realtime
-attach_redis aisoc-demo-realtime
-deploy_app   aisoc-demo-realtime  realtime  services/realtime
+ensure_app   quarry-demo-realtime
+attach_redis quarry-demo-realtime
+deploy_app   quarry-demo-realtime  realtime  services/realtime
 
 # 4. web (public)  build context = repo root (Next.js Dockerfile pulls
 #    pnpm-workspace.yaml + packages/* from there).
-ensure_app   aisoc-demo-web
-deploy_app   aisoc-demo-web       web       .
+ensure_app   quarry-demo-web
+deploy_app   quarry-demo-web       web       .
 
 # 4b. attach tryaisoc.com certs across the three public hostnames.
 #
@@ -286,16 +286,16 @@ ensure_cert() {
   flyctl certs add "$hostname" --app "$app" 2>/dev/null \
     || log "  (cert already requested for $hostname)"
 }
-ensure_cert tryaisoc.com     aisoc-demo-web
-ensure_cert api.tryaisoc.com aisoc-demo-api
-ensure_cert ws.tryaisoc.com  aisoc-demo-realtime
+ensure_cert tryaisoc.com     quarry-demo-web
+ensure_cert api.tryaisoc.com quarry-demo-api
+ensure_cert ws.tryaisoc.com  quarry-demo-realtime
 
 # 5. seed (in-process on the api app)
 #
 # Two execution paths:
 #   - post-deploy bootstrap (now): SSH into a running api machine and run
 #     the seeder once so the demo lands hot for the very next visitor.
-#   - daily refresh (cron):        a scheduled Fly machine on aisoc-demo-api
+#   - daily refresh (cron):        a scheduled Fly machine on quarry-demo-api
 #     boots from the same image, runs the seeder, exits.
 #
 # Both paths execute `python -m app.scripts.seed_demo`; the canonical
@@ -309,17 +309,17 @@ ensure_cert ws.tryaisoc.com  aisoc-demo-realtime
 # suspenders for first-time deploys. seed_demo.py is fully idempotent —
 # repeated runs against an already-seeded volume are a cheap no-op.
 if ! $SKIP_SEED; then
-  log "running seed bootstrap inside aisoc-demo-api (one-shot via ssh)"
+  log "running seed bootstrap inside quarry-demo-api (one-shot via ssh)"
   # `ssh console -C` runs a single command on a live machine and exits. We
   # accept the slight CPU cost on the traffic-serving machine because (a)
   # the seed is mostly I/O-bound, (b) it's a 30s burst, and (c) it lets us
   # reuse a fully-warm container instead of cold-booting another machine.
   flyctl ssh console \
-    --app aisoc-demo-api \
+    --app quarry-demo-api \
     --command "python -m app.scripts.seed_demo" \
     || err "(seed bootstrap failed; demo will be cold until daily cron runs)"
 
-  log "ensuring daily seed cron at 00:00 UTC on aisoc-demo-api"
+  log "ensuring daily seed cron at 00:00 UTC on quarry-demo-api"
   # Fly scheduled machines fire on the chosen interval and exit cleanly.
   # `--schedule daily` runs once per UTC day. Without an explicit image arg
   # flyctl resolves to the app's currently-deployed image (i.e. the api
@@ -328,43 +328,43 @@ if ! $SKIP_SEED; then
   # machine already exists, we silently skip (Fly returns non-zero on a
   # name collision).
   flyctl machine run \
-    --app aisoc-demo-api \
+    --app quarry-demo-api \
     --region "$REGION" \
     --schedule daily \
     --vm-size shared-cpu-1x \
     --vm-memory 512 \
-    --name aisoc-demo-seed-cron \
+    --name quarry-demo-seed-cron \
     -- python -m app.scripts.seed_demo \
     2>/dev/null || log "(daily seed cron already configured)"
 fi
 
 log "deploy complete."
 log ""
-log "  Public UI:    https://tryaisoc.com           (CNAME  aisoc-demo-web.fly.dev)"
-log "  Public API:   https://api.tryaisoc.com       (CNAME  aisoc-demo-api.fly.dev)"
-log "  Public WS:    wss://ws.tryaisoc.com          (CNAME  aisoc-demo-realtime.fly.dev)"
+log "  Public UI:    https://tryaisoc.com           (CNAME  quarry-demo-web.fly.dev)"
+log "  Public API:   https://api.tryaisoc.com       (CNAME  quarry-demo-api.fly.dev)"
+log "  Public WS:    wss://ws.tryaisoc.com          (CNAME  quarry-demo-realtime.fly.dev)"
 log ""
 log "  Direct (Fly):"
-log "    Web:        https://aisoc-demo-web.fly.dev"
-log "    API:        https://aisoc-demo-api.fly.dev/docs"
-log "    Realtime:   wss://aisoc-demo-realtime.fly.dev"
+log "    Web:        https://quarry-demo-web.fly.dev"
+log "    API:        https://quarry-demo-api.fly.dev/docs"
+log "    Realtime:   wss://quarry-demo-realtime.fly.dev"
 log ""
 log "DNS setup (add these CNAMEs at your DNS provider before certs validate):"
-log "  tryaisoc.com.       CNAME  aisoc-demo-web.fly.dev."
-log "  api.tryaisoc.com.   CNAME  aisoc-demo-api.fly.dev."
-log "  ws.tryaisoc.com.    CNAME  aisoc-demo-realtime.fly.dev."
+log "  tryaisoc.com.       CNAME  quarry-demo-web.fly.dev."
+log "  api.tryaisoc.com.   CNAME  quarry-demo-api.fly.dev."
+log "  ws.tryaisoc.com.    CNAME  quarry-demo-realtime.fly.dev."
 log ""
 log "  Note: tryaisoc.com is an apex/root record. If your provider doesn't"
 log "  support CNAME at apex, use ALIAS/ANAME, or follow Fly's instructions"
-log "  from \`flyctl certs show tryaisoc.com --app aisoc-demo-web\` (returns"
+log "  from \`flyctl certs show tryaisoc.com --app quarry-demo-web\` (returns"
 log "  the A/AAAA records to use instead)."
 log ""
 log "Smoke test:"
-log "  curl -sf https://aisoc-demo-api.fly.dev/health"
+log "  curl -sf https://quarry-demo-api.fly.dev/health"
 log "  curl -sf https://api.tryaisoc.com/health     # after DNS propagates"
 log "  open https://tryaisoc.com/cases/INC-RT-001?tab=ledger"
 log ""
 log "Cert status (run after DNS is live):"
-log "  flyctl certs show tryaisoc.com     --app aisoc-demo-web"
-log "  flyctl certs show api.tryaisoc.com --app aisoc-demo-api"
-log "  flyctl certs show ws.tryaisoc.com  --app aisoc-demo-realtime"
+log "  flyctl certs show tryaisoc.com     --app quarry-demo-web"
+log "  flyctl certs show api.tryaisoc.com --app quarry-demo-api"
+log "  flyctl certs show ws.tryaisoc.com  --app quarry-demo-realtime"

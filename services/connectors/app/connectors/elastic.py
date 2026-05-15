@@ -1,11 +1,11 @@
 """
 Elastic SIEM connector.
 
-Federated-search-first: the Elastic deployments most AiSOC customers run today
+Federated-search-first: the Elastic deployments most Quarry customers run today
 already have their own native dashboards and pipelines for alert ingestion, so
 this connector exists primarily to give the federated layer a way to run ES|QL
 against the customer's existing Elasticsearch cluster without exfiltrating logs
-into AiSOC's own data plane.
+into Quarry's own data plane.
 
 ``fetch_alerts`` is intentionally a thin wrapper over ES|QL on the
 ``.alerts-security.alerts-*`` index pattern so a tenant who *does* want
@@ -184,7 +184,7 @@ class ElasticConnector(BaseConnector):
 
     def normalize(self, raw: dict[str, Any]) -> dict[str, Any]:
         # Elastic ships a native ``critical`` tier on detection rules; preserve
-        # it end-to-end so the AiSOC 5-tier ladder (info | low | medium | high
+        # it end-to-end so the Quarry 5-tier ladder (info | low | medium | high
         # | critical) stays faithful to the source-of-truth severity rather
         # than silently downgrading P1 rules into ``high``.
         severity_map = {

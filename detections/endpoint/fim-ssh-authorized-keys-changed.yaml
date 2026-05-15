@@ -33,7 +33,7 @@ false_positives:
   - CI/CD runners that add deployment keys to service accounts
 playbook: tpl-persistence
 enabled: true
-author: AiSOC
+author: Quarry
 references:
   - https://attack.mitre.org/techniques/T1098/004/
   - https://www.openssh.com/manual.html

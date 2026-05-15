@@ -7,9 +7,9 @@ description: >
   retrieves compliance posture, locks compromised endpoints, wipes lost
   devices, and pulls inventory metadata for case enrichment — all via the
   Jamf Pro Classic and Pro REST APIs.
-author: AiSOC Core Team
+author: Quarry Core Team
 tags: [mdm, jamf, endpoint, apple, identity]
-homepage: https://github.com/beenuar/AiSOC/tree/main/plugins/jamf-mdm
+homepage: https://github.com/beenuar/Quarry/tree/main/plugins/jamf-mdm
 license: MIT
 min_aisoc_version: "4.0.0"
 config_schema:

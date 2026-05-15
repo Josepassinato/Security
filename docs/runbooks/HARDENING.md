@@ -1,8 +1,8 @@
 # Production Hardening Runbook
 
-This runbook is the operator's checklist for taking an AiSOC deployment from "it boots" to "I would put real customer telemetry through it." It assumes you are running the platform from official images on Kubernetes via the Helm chart in [`infra/helm/aisoc/`](../../infra/helm/aisoc/), or via the production Compose profile.
+This runbook is the operator's checklist for taking an Quarry deployment from "it boots" to "I would put real customer telemetry through it." It assumes you are running the platform from official images on Kubernetes via the Helm chart in [`infra/helm/quarry/`](../../infra/helm/quarry/), or via the production Compose profile.
 
-If you only need a quick local demo, use [`pnpm aisoc:demo`](../../README.md#quickstart) instead — that flow intentionally skips most of the controls below.
+If you only need a quick local demo, use [`pnpm quarry:demo`](../../README.md#quickstart) instead — that flow intentionally skips most of the controls below.
 
 ---
 
@@ -45,18 +45,18 @@ If you only need a quick local demo, use [`pnpm aisoc:demo`](../../README.md#qui
 
 ## 4. Container and supply chain
 
-- [ ] Pull only signed images from `ghcr.io/beenuar/aisoc-*` and verify Cosign signatures in your admission controller.
+- [ ] Pull only signed images from `ghcr.io/beenuar/quarry-*` and verify Cosign signatures in your admission controller.
 - [ ] Keep `securityContext.runAsNonRoot: true` and `readOnlyRootFilesystem: true` for every workload — these are the chart defaults; do not override unless you genuinely need to.
 - [ ] Run images with a read-only root filesystem and the minimum capability set (`drop: ["ALL"]`).
-- [ ] Enable `PodSecurityAdmission` in `restricted` mode on the namespace AiSOC runs in.
-- [ ] Subscribe to GitHub Security Advisories for [`beenuar/AiSOC`](https://github.com/beenuar/AiSOC/security/advisories) and patch within the SLA window in [`SECURITY.md`](../../SECURITY.md).
+- [ ] Enable `PodSecurityAdmission` in `restricted` mode on the namespace Quarry runs in.
+- [ ] Subscribe to GitHub Security Advisories for [`beenuar/Quarry`](https://github.com/beenuar/Quarry/security/advisories) and patch within the SLA window in [`SECURITY.md`](../../SECURITY.md).
 
 ## 5. Observability and audit
 
 - [ ] Forward audit logs to an immutable sink (S3 Object Lock, GCS Bucket Lock, or a SIEM with WORM storage).
 - [ ] Verify the Investigation Ledger periodically:
   ```bash
-  curl -fsSL "$AISOC_API/api/v1/ledger/verify?case_id=$CASE_ID" \
+  curl -fsSL "$QUARRY_API/api/v1/ledger/verify?case_id=$CASE_ID" \
     -H "Authorization: Bearer $TOKEN"
   ```
   Add this to a synthetic check that pages on a non-200 response.

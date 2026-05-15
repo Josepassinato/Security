@@ -72,7 +72,7 @@ func TestExtractFromOCSF_GitHub(t *testing.T) {
 			"user": map[string]interface{}{"name": "carol"},
 		},
 		"repo": map[string]interface{}{
-			"full_name": "aisoc/aisoc",
+			"full_name": "quarry/aisoc",
 		},
 		"action": "push",
 	}

@@ -1,10 +1,10 @@
 ---
 sidebar_position: 4
 title: Public Eval Harness
-description: AiSOC's open, deterministic regression harness. 200 synthetic incidents drawn from 55 distinct templates with backing telemetry (Sysmon, M365, CloudTrail, Azure sign-in, Linux auditd, …). Per-case and per-template CI gates over the substrate, plus operational coverage gates (synthetic telemetry corpus, playbook completion rate). Honest about what it measures — and what it doesn't.
+description: Quarry's open, deterministic regression harness. 200 synthetic incidents drawn from 55 distinct templates with backing telemetry (Sysmon, M365, CloudTrail, Azure sign-in, Linux auditd, …). Per-case and per-template CI gates over the substrate, plus operational coverage gates (synthetic telemetry corpus, playbook completion rate). Honest about what it measures — and what it doesn't.
 ---
 
-# AiSOC Public Eval Harness
+# Quarry Public Eval Harness
 
 <!-- BEGIN: north-star performance (T5.1 scaffold; T2.4 fills in once telemetry lands) -->
 
@@ -29,16 +29,16 @@ keep them visually separate so they're never confused:
 
 | Class | What it measures | Suites on this page |
 |-------|------------------|---------------------|
-| **Substrate self-check** | Determines whether AiSOC's deterministic substrate (extractors, fusion logic, report and plan templates, judges) is internally consistent. Runs in milliseconds, no LLM, no DB. CI gates every PR on it. | `mitre_accuracy`, `investigation_completeness`, `response_quality`, `playbook_completion_rate`, synthetic-telemetry coverage |
+| **Substrate self-check** | Determines whether Quarry's deterministic substrate (extractors, fusion logic, report and plan templates, judges) is internally consistent. Runs in milliseconds, no LLM, no DB. CI gates every PR on it. | `mitre_accuracy`, `investigation_completeness`, `response_quality`, `playbook_completion_rate`, synthetic-telemetry coverage |
 | **Wet eval** (live agent) | Drives the live `services/agents` LangGraph orchestrator end-to-end against the same 200-incident corpus, with real LLM calls. Measures latency, token usage, USD cost, and (with an LLM-as-judge variant) live agent accuracy. Runs weekly, not per-PR. | latency p50 / p95 / p99, tokens per investigation, USD per investigation |
 
 Workspace rule we follow: **never present a substrate self-check as live
 agent performance**. Every table below is labelled with its class.
 
-> **An open, deterministic regression harness over the AiSOC substrate.**
+> **An open, deterministic regression harness over the Quarry substrate.**
 >
 > This page is _not_ a leaderboard for AI SOC agents. It is a CI-gated harness
-> that exercises the deterministic substrate underneath AiSOC — the keyword
+> that exercises the deterministic substrate underneath Quarry — the keyword
 > extractors, the in-harness fusion grouping (a faithful re-implementation of
 > the production Tier 1/2/3 logic in `services/fusion`, minus the DB-backed
 > dedup and ML scoring), the report and response templates, and the offline
@@ -52,7 +52,7 @@ agent performance**. Every table below is labelled with its class.
 >    corpus** — Sysmon / Windows Security / M365 audit / Azure sign-in /
 >    CloudTrail / Linux auditd / journald / EDR / DNS / web access /
 >    Kubernetes audit / GitHub audit / VPN / DB audit events — written to
->    [`synthetic_telemetry.jsonl`](https://github.com/beenuar/AiSOC/blob/main/services/agents/tests/eval_data/synthetic_telemetry.jsonl).
+>    [`synthetic_telemetry.jsonl`](https://github.com/Josepassinato/quarry/blob/main/services/agents/tests/eval_data/synthetic_telemetry.jsonl).
 >    Connector and Sigma PRs now have something concrete to wire against. See
 >    [Synthetic telemetry corpus](#5-synthetic-telemetry-corpus) below.
 > 2. Each of the substrate suites now reports a **per-template macro** alongside
@@ -62,10 +62,10 @@ agent performance**. Every table below is labelled with its class.
 >    regression signal that doesn't dilute when the dataset is enlarged. See
 >    [Per-case vs. per-template metrics](#per-case-vs-per-template-metrics).
 
-[![MITRE Accuracy](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fbeenuar%2FAiSOC%2Feval-results%2Feval%2Fresults%2Fbadge-mitre.json)](#latest-results)
-[![Alert Reduction](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fbeenuar%2FAiSOC%2Feval-results%2Feval%2Fresults%2Fbadge-reduction.json)](#latest-results)
-[![Investigation Completeness](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fbeenuar%2FAiSOC%2Feval-results%2Feval%2Fresults%2Fbadge-completeness.json)](#latest-results)
-[![Response Quality](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fbeenuar%2FAiSOC%2Feval-results%2Feval%2Fresults%2Fbadge-quality.json)](#latest-results)
+[![MITRE Accuracy](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fbeenuar%2FQuarry%2Feval-results%2Feval%2Fresults%2Fbadge-mitre.json)](#latest-results)
+[![Alert Reduction](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fbeenuar%2FQuarry%2Feval-results%2Feval%2Fresults%2Fbadge-reduction.json)](#latest-results)
+[![Investigation Completeness](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fbeenuar%2FQuarry%2Feval-results%2Feval%2Fresults%2Fbadge-completeness.json)](#latest-results)
+[![Response Quality](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fbeenuar%2FQuarry%2Feval-results%2Feval%2Fresults%2Fbadge-quality.json)](#latest-results)
 
 :::warning Read this first
 This harness does **not** exercise the live LLM agent (`services/agents`
@@ -83,15 +83,15 @@ not agent accuracy. We explain exactly what each suite measures — and doesn't
 
 Vendor claims about AI SOC performance — alert reduction percentages, MITRE
 coverage, analyst throughput — are typically not reproducible by buyers. The
-dataset, the baseline, and the rubric are not published. AiSOC takes the
+dataset, the baseline, and the rubric are not published. Quarry takes the
 opposite approach: ship a small harness, label which metrics are real
 measurements and which are substrate self-checks, and let anyone reproduce
 the numbers.
 
-1. **The dataset is in the repo** — [`services/agents/tests/eval_data/synthetic_incidents.json`](https://github.com/beenuar/AiSOC/blob/main/services/agents/tests/eval_data/synthetic_incidents.json) (200 cases, deterministic, drawn from 55 distinct templates) plus its companion [`synthetic_telemetry.jsonl`](https://github.com/beenuar/AiSOC/blob/main/services/agents/tests/eval_data/synthetic_telemetry.jsonl) (361 backing events across 14 log sources). Both are regenerable from `scripts/generate_eval_incidents.py`. Three of the four offline suites use the incident dataset; the alert-reduction suite uses a separately generated 1 000-alert stream produced by `generate_noisy_alert_stream` in the test file.
-2. **The harness is in the repo** — five pytest suites under [`services/agents/tests/`](https://github.com/beenuar/AiSOC/tree/main/services/agents/tests) (four scoring suites + a synthetic-telemetry schema/coverage gate).
-3. **The CI gate runs on every PR targeting `main` / `develop`** — [latest run](https://github.com/beenuar/AiSOC/actions/workflows/ci.yml). (CI is currently scoped to those two branches; PRs to long-lived feature branches are not gated.)
-4. **Historical numbers are queryable** — every successful build pushes its report (written by `scripts/run_evals.py --out`) to the [`eval-results`](https://github.com/beenuar/AiSOC/tree/eval-results) branch as `eval/results/<commit_sha>.json`.
+1. **The dataset is in the repo** — [`services/agents/tests/eval_data/synthetic_incidents.json`](https://github.com/Josepassinato/quarry/blob/main/services/agents/tests/eval_data/synthetic_incidents.json) (200 cases, deterministic, drawn from 55 distinct templates) plus its companion [`synthetic_telemetry.jsonl`](https://github.com/Josepassinato/quarry/blob/main/services/agents/tests/eval_data/synthetic_telemetry.jsonl) (361 backing events across 14 log sources). Both are regenerable from `scripts/generate_eval_incidents.py`. Three of the four offline suites use the incident dataset; the alert-reduction suite uses a separately generated 1 000-alert stream produced by `generate_noisy_alert_stream` in the test file.
+2. **The harness is in the repo** — five pytest suites under [`services/agents/tests/`](https://github.com/Josepassinato/quarry/tree/main/services/agents/tests) (four scoring suites + a synthetic-telemetry schema/coverage gate).
+3. **The CI gate runs on every PR targeting `main` / `develop`** — [latest run](https://github.com/Josepassinato/quarry/actions/workflows/ci.yml). (CI is currently scoped to those two branches; PRs to long-lived feature branches are not gated.)
+4. **Historical numbers are queryable** — every successful build pushes its report (written by `scripts/run_evals.py --out`) to the [`eval-results`](https://github.com/Josepassinato/quarry/tree/eval-results) branch as `eval/results/<commit_sha>.json`.
 
 ## Latest results
 
@@ -129,7 +129,7 @@ every PR targeting `main` or `develop`.
 > dataset includes documented v1 coverage gaps. See [section 7](#7-playbook-completion-rate).
 
 These numbers move with the codebase. The current snapshot lives at
-[`eval-results/eval/results/latest.json`](https://github.com/beenuar/AiSOC/blob/eval-results/eval/results/latest.json).
+[`eval-results/eval/results/latest.json`](https://github.com/Josepassinato/quarry/blob/eval-results/eval/results/latest.json).
 
 > **Weekly history:** the row above is the latest snapshot only. The full
 > append-only weekly history (date, agent version, MITRE accuracy, MTC
@@ -241,7 +241,7 @@ will dominate end-to-end latency too.
 The three tables in the next subsection are a **wet eval** measurement
 — they require the live `services/agents` LangGraph orchestrator and
 real LLM calls, which is populated by the weekly wet-eval CI job
-([`.github/workflows/wet-eval.yml`](https://github.com/beenuar/AiSOC/blob/main/.github/workflows/wet-eval.yml),
+([`.github/workflows/wet-eval.yml`](https://github.com/Josepassinato/quarry/blob/main/.github/workflows/wet-eval.yml),
 landed by T5.5). T2.4's deterministic-substrate budget projection lives
 directly above and in the JSON report, but is **not** substituted into
 the wet-eval tables below because substrate timings would not be honest
@@ -252,9 +252,9 @@ The workflow runs every Monday at 07:00 UTC, dispatches the
 USD / latency metrics from the LLM provider's response metadata, then
 opens a PR titled `chore(bench): weekly wet-eval YYYY-MM-DD` with the
 refreshed numbers. Forks without billing configured see a clean
-no-op via the [preflight check](https://github.com/beenuar/AiSOC/blob/main/scripts/wet_eval_check.py).
+no-op via the [preflight check](https://github.com/Josepassinato/quarry/blob/main/scripts/wet_eval_check.py).
 The two CI secrets that drive it (`WET_EVAL_OPENAI_KEY` and
-`AISOC_BENCH_BOT_TOKEN`) are documented on the
+`QUARRY_BENCH_BOT_TOKEN`) are documented on the
 [Secrets and CI tokens](./operations/secrets.md) page; setup is a
 one-time configuration in the GitHub repo settings.
 :::
@@ -366,7 +366,7 @@ macro is exactly the metric that surfaces them.
 You don't have to take our word for it. From a fresh clone:
 
 ```bash
-git clone https://github.com/beenuar/AiSOC && cd AiSOC
+git clone https://github.com/Josepassinato/quarry && cd Quarry
 python3 scripts/run_evals.py
 ```
 
@@ -374,7 +374,7 @@ That's it. No Docker, no API key, no GPU, no LLM. Expected output:
 
 ```text
 ==============================================================================
-  AiSOC Pillar-1 Eval - 200-incident synthetic benchmark
+  Quarry Pillar-1 Eval - 200-incident synthetic benchmark
 ==============================================================================
   [PASS] mitre_accuracy                accuracy               0.970  (target >= 0.80)
          per-template macro            0.964  (target >= 0.80, n=55 templates) [PASS]
@@ -417,7 +417,7 @@ python3 scripts/run_evals.py --ci --out report.json
 
 ### 1. Alert reduction ratio — `Real measurement`
 
-**Source:** [`services/agents/tests/test_alert_reduction.py`](https://github.com/beenuar/AiSOC/blob/main/services/agents/tests/test_alert_reduction.py)
+**Source:** [`services/agents/tests/test_alert_reduction.py`](https://github.com/Josepassinato/quarry/blob/main/services/agents/tests/test_alert_reduction.py)
 
 A 1 000-alert noisy stream — pure duplicates, near-duplicates within a
 30-minute host window, multi-host rule storms, and benign low-score chatter —
@@ -441,7 +441,7 @@ this fixed dataset. It is not tuned to match a marketing number.
 
 ### 2. MITRE ATT&CK tactic accuracy — `Substrate self-consistency`
 
-**Source:** [`services/agents/tests/test_mitre_accuracy.py`](https://github.com/beenuar/AiSOC/blob/main/services/agents/tests/test_mitre_accuracy.py)
+**Source:** [`services/agents/tests/test_mitre_accuracy.py`](https://github.com/Josepassinato/quarry/blob/main/services/agents/tests/test_mitre_accuracy.py)
 
 Each synthetic incident is generated with a labeled MITRE tactic and a
 description that is, by design, written to include keywords the **hand-curated
@@ -465,7 +465,7 @@ Treat it as a regression sentinel for the substrate, not a leaderboard score.
 
 ### 3. Investigation completeness — `Substrate self-consistency`
 
-**Source:** [`services/agents/tests/test_investigation_completeness.py`](https://github.com/beenuar/AiSOC/blob/main/services/agents/tests/test_investigation_completeness.py)
+**Source:** [`services/agents/tests/test_investigation_completeness.py`](https://github.com/Josepassinato/quarry/blob/main/services/agents/tests/test_investigation_completeness.py)
 
 Each synthetic incident ships with a list of `evidence_keywords`. A
 deterministic report **simulator** wraps the incident's `description` field
@@ -484,7 +484,7 @@ real value of this suite is catching template breakage — not LLM quality.
 
 ### 4. Response-plan quality — `Substrate self-consistency`
 
-**Source:** [`services/agents/tests/test_response_quality.py`](https://github.com/beenuar/AiSOC/blob/main/services/agents/tests/test_response_quality.py)
+**Source:** [`services/agents/tests/test_response_quality.py`](https://github.com/Josepassinato/quarry/blob/main/services/agents/tests/test_response_quality.py)
 
 A deterministic response-plan **synthesizer** produces a containment plan for
 each incident. By construction, the synthesizer embeds:
@@ -510,8 +510,8 @@ references from the synthesizer, or the rubric stops matching) — it is
 
 ### 5. Synthetic telemetry corpus — `Schema and coverage gate` {#5-synthetic-telemetry-corpus}
 
-**Source:** [`services/agents/tests/test_synthetic_telemetry.py`](https://github.com/beenuar/AiSOC/blob/main/services/agents/tests/test_synthetic_telemetry.py)
-· **Output:** [`synthetic_telemetry.jsonl`](https://github.com/beenuar/AiSOC/blob/main/services/agents/tests/eval_data/synthetic_telemetry.jsonl)
+**Source:** [`services/agents/tests/test_synthetic_telemetry.py`](https://github.com/Josepassinato/quarry/blob/main/services/agents/tests/test_synthetic_telemetry.py)
+· **Output:** [`synthetic_telemetry.jsonl`](https://github.com/Josepassinato/quarry/blob/main/services/agents/tests/eval_data/synthetic_telemetry.jsonl)
 
 Every synthetic incident now ships with at least one backing telemetry event
 written to a companion JSONL file. This addresses a real ask from the
@@ -539,7 +539,7 @@ Each event has its `{user}/{host}/{ip}/{campaign}` placeholders resolved
 against the parent incident, so an event for `INC-EVAL-044` carries the same
 user and host as the incident itself.
 
-The schema/coverage gate ([`test_synthetic_telemetry.py`](https://github.com/beenuar/AiSOC/blob/main/services/agents/tests/test_synthetic_telemetry.py))
+The schema/coverage gate ([`test_synthetic_telemetry.py`](https://github.com/Josepassinato/quarry/blob/main/services/agents/tests/test_synthetic_telemetry.py))
 checks five things on every CI run:
 
 1. **No unresolved placeholders** — every event survives a recursive walk
@@ -571,9 +571,9 @@ Each line is a self-contained event with `incident_id`, `template_id`,
 
 ### 6. AI-vs-AI adversary eval — `Graceful-degradation gate`
 
-**Source:** [`services/agents/tests/test_adversary_eval.py`](https://github.com/beenuar/AiSOC/blob/main/services/agents/tests/test_adversary_eval.py)
-· **Dataset:** [`eval_data/adversary_incidents.json`](https://github.com/beenuar/AiSOC/blob/main/services/agents/tests/eval_data/adversary_incidents.json)
-· **Generator:** [`scripts/generate_adversary_incidents.py`](https://github.com/beenuar/AiSOC/blob/main/scripts/generate_adversary_incidents.py)
+**Source:** [`services/agents/tests/test_adversary_eval.py`](https://github.com/Josepassinato/quarry/blob/main/services/agents/tests/test_adversary_eval.py)
+· **Dataset:** [`eval_data/adversary_incidents.json`](https://github.com/Josepassinato/quarry/blob/main/services/agents/tests/eval_data/adversary_incidents.json)
+· **Generator:** [`scripts/generate_adversary_incidents.py`](https://github.com/Josepassinato/quarry/blob/main/scripts/generate_adversary_incidents.py)
 
 A deterministic attacker-LLM **mutator** rewrites every defender keyword in
 the 200-incident dataset into evasive synonyms, character obfuscation, and
@@ -608,9 +608,9 @@ python3 scripts/generate_adversary_incidents.py
 
 ### 7. Playbook completion rate — `Operational coverage gate` {#7-playbook-completion-rate}
 
-**Source:** [`services/agents/tests/test_playbook_completion_rate.py`](https://github.com/beenuar/AiSOC/blob/main/services/agents/tests/test_playbook_completion_rate.py)
-· **Dataset:** [`eval_data/synthetic_incidents.json`](https://github.com/beenuar/AiSOC/blob/main/services/agents/tests/eval_data/synthetic_incidents.json)
-· **Pack under test:** [`playbooks/packs/v1/`](https://github.com/beenuar/AiSOC/tree/main/playbooks/packs/v1)
+**Source:** [`services/agents/tests/test_playbook_completion_rate.py`](https://github.com/Josepassinato/quarry/blob/main/services/agents/tests/test_playbook_completion_rate.py)
+· **Dataset:** [`eval_data/synthetic_incidents.json`](https://github.com/Josepassinato/quarry/blob/main/services/agents/tests/eval_data/synthetic_incidents.json)
+· **Pack under test:** [`playbooks/packs/v1/`](https://github.com/Josepassinato/quarry/tree/main/playbooks/packs/v1)
 
 This suite is **not** a quality measurement of playbook execution — it is a
 coverage gate over the v1 playbook pack itself. For every one of the 200
@@ -661,7 +661,7 @@ python3 scripts/run_evals.py --json --out report.json
 ```
 
 Submissions go through a structured GitHub issue template
-([`.github/ISSUE_TEMPLATE/benchmark_submission.yml`](https://github.com/beenuar/AiSOC/blob/main/.github/ISSUE_TEMPLATE/benchmark_submission.yml)).
+([`.github/ISSUE_TEMPLATE/benchmark_submission.yml`](https://github.com/Josepassinato/quarry/blob/main/.github/ISSUE_TEMPLATE/benchmark_submission.yml)).
 Accepted entries are rendered on the [benchmark scoreboard](https://tryaisoc.com/benchmark) in the
 web console. Submission rules:
 
@@ -672,7 +672,7 @@ web console. Submission rules:
 
 ## Comparison to other AI SOC offerings
 
-| Capability                                     | AiSOC | Wazuh | Splunk | Closed-source AI SOC |
+| Capability                                     | Quarry | Wazuh | Splunk | Closed-source AI SOC |
 |-----------------------------------------------|:-----:|:-----:|:------:|:---------------------:|
 | Open-source (MIT)                              |  yes  |  yes  |   no   |          no           |
 | Self-hostable                                  |  yes  |  yes  |  yes   |          no           |
@@ -724,7 +724,7 @@ A few caveats:
 
 ## Historical results
 
-Every CI run on `main` writes a snapshot into the [`eval-results`](https://github.com/beenuar/AiSOC/tree/eval-results) branch:
+Every CI run on `main` writes a snapshot into the [`eval-results`](https://github.com/Josepassinato/quarry/tree/eval-results) branch:
 
 ```text
 eval/results/<commit_sha>.json   # one snapshot per commit
@@ -733,7 +733,7 @@ eval/results/badge-*.json        # shields.io endpoints
 ```
 
 You can `git clone -b eval-results` to graph the trend yourself, or open the
-[Actions tab](https://github.com/beenuar/AiSOC/actions/workflows/ci.yml) for
+[Actions tab](https://github.com/Josepassinato/quarry/actions/workflows/ci.yml) for
 per-run job summaries.
 
 ## Help us harden the harness
@@ -751,7 +751,7 @@ Pull requests welcome. The fastest ways to make this harness honestly stronger:
   matching `INC-EVAL-*` cases. The corpus is exactly the contract you can
   develop against without provisioning a real tenant.
 - **Add a new template with backing telemetry.** Drop a new entry into
-  `_TEMPLATES` in [`scripts/generate_eval_incidents.py`](https://github.com/beenuar/AiSOC/blob/main/scripts/generate_eval_incidents.py)
+  `_TEMPLATES` in [`scripts/generate_eval_incidents.py`](https://github.com/Josepassinato/quarry/blob/main/scripts/generate_eval_incidents.py)
   with a unique `template_id` and a tuple of telemetry events. Re-run the
   generator and the per-template gate will keep us honest about whether the
   substrate handles the new class.
@@ -764,7 +764,7 @@ Pull requests welcome. The fastest ways to make this harness honestly stronger:
   are intentionally permissive in v1. PRs that add stricter evidence-grounding
   or that decouple the synthesizer from the judge keywords are highly welcome.
 
-See [`CONTRIBUTING.md`](https://github.com/beenuar/AiSOC/blob/main/CONTRIBUTING.md) for the full path.
+See [`CONTRIBUTING.md`](https://github.com/Josepassinato/quarry/blob/main/CONTRIBUTING.md) for the full path.
 
 ## Provenance {#provenance}
 
@@ -790,8 +790,8 @@ Until then, the cells are placeholders rather than imputed values — see the
 Reproduce these numbers locally:
 
 ```bash
-git clone https://github.com/beenuar/AiSOC.git
-cd AiSOC
+git clone https://github.com/Josepassinato/quarry.git
+cd Quarry
 pnpm eval:public        # runs run_evals.py + render_eval_charts.py
 ```
 

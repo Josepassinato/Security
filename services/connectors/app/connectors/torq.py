@@ -114,7 +114,7 @@ class TorqConnector(BaseConnector):
         return {
             "Authorization": f"Bearer {self._token}",
             "Accept": "application/json",
-            "User-Agent": "AiSOC-Connector/1.0",
+            "User-Agent": "Quarry-Connector/1.0",
         }
 
     # ------------------------- contract -------------------------
@@ -199,7 +199,7 @@ class TorqConnector(BaseConnector):
 
     # ----------------------- normalize --------------------------
 
-    # Workflow execution outcome → AiSOC severity per the wave-1 rule.
+    # Workflow execution outcome → Quarry severity per the wave-1 rule.
     _EXECUTION_SEVERITY = {
         "success": "info",
         "completed": "info",

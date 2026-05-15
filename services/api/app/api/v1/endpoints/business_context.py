@@ -36,7 +36,7 @@ Feature flag
 ------------
 
 The hot-path hook (post-fusion → pre-triage) is gated by
-``AISOC_BUSINESS_CONTEXT_ENABLED`` (default on, tenant-overridable
+``QUARRY_BUSINESS_CONTEXT_ENABLED`` (default on, tenant-overridable
 via the ``business_context_enabled`` column on ``tenants``). The CRUD
 endpoints themselves are *always* enabled — operators need to be able
 to author rules even on a tenant where the hook is disabled.

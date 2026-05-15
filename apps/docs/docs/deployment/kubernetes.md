@@ -4,18 +4,18 @@ sidebar_position: 2
 
 # Kubernetes Deployment
 
-The supported way to run AiSOC on Kubernetes is the Helm chart shipped at [`infra/helm/aisoc/`](https://github.com/beenuar/AiSOC/tree/main/infra/helm/aisoc) in the repo. It deploys every service (api, agents, realtime, mcp, ingest, enrichment, web) plus optional bundled Postgres, Redis, NATS, and OpenSearch via subcharts.
+The supported way to run Quarry on Kubernetes is the Helm chart shipped at [`infra/helm/quarry/`](https://github.com/Josepassinato/quarry/tree/main/infra/helm/quarry) in the repo. It deploys every service (api, agents, realtime, mcp, ingest, enrichment, web) plus optional bundled Postgres, Redis, NATS, and OpenSearch via subcharts.
 
 ## Helm chart (in-repo)
 
 ```bash
-git clone https://github.com/beenuar/AiSOC.git
-cd AiSOC
+git clone https://github.com/Josepassinato/quarry.git
+cd Quarry
 
-helm dependency update infra/helm/aisoc
+helm dependency update infra/helm/quarry
 
-helm install aisoc infra/helm/aisoc \
-  --namespace aisoc --create-namespace \
+helm install quarry infra/helm/quarry \
+  --namespace quarry --create-namespace \
   --set api.image.tag=v5.2.0 \
   --set agents.image.tag=v5.2.0 \
   --set realtime.image.tag=v5.2.0 \
@@ -25,37 +25,37 @@ helm install aisoc infra/helm/aisoc \
   --set postgresql.auth.password=changeme
 ```
 
-Override any of the defaults in [`infra/helm/aisoc/values.yaml`](https://github.com/beenuar/AiSOC/blob/main/infra/helm/aisoc/values.yaml). For production deployments, walk through the [Hardening Runbook](https://github.com/beenuar/AiSOC/blob/main/docs/runbooks/HARDENING.md) before exposing the platform on the public internet.
+Override any of the defaults in [`infra/helm/quarry/values.yaml`](https://github.com/Josepassinato/quarry/blob/main/infra/helm/quarry/values.yaml). For production deployments, walk through the [Hardening Runbook](https://github.com/Josepassinato/quarry/blob/main/docs/runbooks/HARDENING.md) before exposing the platform on the public internet.
 
 ## Container images
 
 All images are published to GHCR and Cosign-signed:
 
 ```
-ghcr.io/beenuar/aisoc-api:v5.2.0
-ghcr.io/beenuar/aisoc-agents:v5.2.0
-ghcr.io/beenuar/aisoc-realtime:v5.2.0
-ghcr.io/beenuar/aisoc-mcp:v5.2.0
-ghcr.io/beenuar/aisoc-ingest:v5.2.0
-ghcr.io/beenuar/aisoc-enrichment:v5.2.0
-ghcr.io/beenuar/aisoc-web:v5.2.0
+ghcr.io/beenuar/quarry-api:v5.2.0
+ghcr.io/beenuar/quarry-agents:v5.2.0
+ghcr.io/beenuar/quarry-realtime:v5.2.0
+ghcr.io/beenuar/quarry-mcp:v5.2.0
+ghcr.io/beenuar/quarry-ingest:v5.2.0
+ghcr.io/beenuar/quarry-enrichment:v5.2.0
+ghcr.io/beenuar/quarry-web:v5.2.0
 ```
 
 Verify a signature before deploying:
 
 ```bash
 cosign verify \
-  --certificate-identity-regexp '^https://github.com/beenuar/AiSOC' \
+  --certificate-identity-regexp '^https://github.com/Josepassinato/quarry' \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com \
-  ghcr.io/beenuar/aisoc-api:v5.2.0
+  ghcr.io/beenuar/quarry-api:v5.2.0
 ```
 
 ## Scaling
 
 ```bash
-kubectl scale deployment aisoc-agents --replicas=3 -n aisoc
-kubectl scale deployment aisoc-api --replicas=2 -n aisoc
-kubectl scale deployment aisoc-mcp --replicas=2 -n aisoc
+kubectl scale deployment quarry-agents --replicas=3 -n quarry
+kubectl scale deployment quarry-api --replicas=2 -n quarry
+kubectl scale deployment quarry-mcp --replicas=2 -n quarry
 ```
 
 Horizontal Pod Autoscaler manifests are included in the chart — enable them with `--set api.autoscaling.enabled=true` (and similarly for `agents`, `realtime`, `mcp`).
@@ -71,21 +71,21 @@ ingress:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
   hosts:
-    - host: aisoc.example.com         # web (Next.js, port 3000)
+    - host: quarry.example.com         # web (Next.js, port 3000)
       paths: [ "/" ]
-    - host: api.aisoc.example.com     # api (FastAPI, port 8000)
+    - host: api.quarry.example.com     # api (FastAPI, port 8000)
       paths: [ "/api", "/healthz" ]
-    - host: ws.aisoc.example.com      # realtime (WebSocket + push, port 8002)
+    - host: ws.quarry.example.com      # realtime (WebSocket + push, port 8002)
       paths: [ "/ws" ]
-    - host: mcp.aisoc.example.com     # MCP server (port 8003) — optional
+    - host: mcp.quarry.example.com     # MCP server (port 8003) — optional
       paths: [ "/mcp" ]
   tls:
-    - secretName: aisoc-tls
+    - secretName: quarry-tls
       hosts:
-        - aisoc.example.com
-        - api.aisoc.example.com
-        - ws.aisoc.example.com
-        - mcp.aisoc.example.com
+        - quarry.example.com
+        - api.quarry.example.com
+        - ws.quarry.example.com
+        - mcp.quarry.example.com
 ```
 
 ## Network policies

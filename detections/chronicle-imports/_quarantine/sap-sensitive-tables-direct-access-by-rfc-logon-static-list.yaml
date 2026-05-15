@@ -45,4 +45,4 @@ provenance:
   upstream_path: rules/community/sap/sap_sensitive_tables_direct_access_by_rfc_logon_static_list.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

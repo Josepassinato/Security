@@ -1,4 +1,4 @@
-"""Normalise an osquery result row into an AiSOC event dict.
+"""Normalise an osquery result row into an Quarry event dict.
 
 Mirrors the severity heuristics used by the osctrl and FleetDM connectors
 (PR1) so that direct-TLS agents produce identically shaped events.
@@ -42,7 +42,7 @@ def normalize_row(
     query_name: str,
     log_type: str = "result",
 ) -> dict:
-    """Convert a single osquery result row into an AiSOC normalised event.
+    """Convert a single osquery result row into an Quarry normalised event.
 
     Parameters
     ----------
@@ -51,7 +51,7 @@ def normalize_row(
     host_identifier:
         The node's stable host_identifier (UUID or hostname).
     tenant_id:
-        AiSOC tenant this node belongs to.
+        Quarry tenant this node belongs to.
     query_name:
         The name of the scheduled or distributed query that produced the row.
     log_type:

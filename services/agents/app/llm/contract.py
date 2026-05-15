@@ -21,7 +21,7 @@ Forbidden inputs (the call MUST be aborted with
 
 The validator is intentionally heuristic — false positives are far less
 costly than false negatives. Operators who need to disable the gate for
-a debugging session can flip ``AISOC_AGENTS_LLM_CONTRACT_ENFORCED=0``;
+a debugging session can flip ``QUARRY_AGENTS_LLM_CONTRACT_ENFORCED=0``;
 in production this stays on by default.
 """
 
@@ -38,7 +38,7 @@ import structlog
 logger = structlog.get_logger()
 
 
-AGENTS_LLM_CONTRACT_ENFORCED_ENV = "AISOC_AGENTS_LLM_CONTRACT_ENFORCED"
+AGENTS_LLM_CONTRACT_ENFORCED_ENV = "QUARRY_AGENTS_LLM_CONTRACT_ENFORCED"
 
 _OCSF_KEYS = frozenset(
     {
@@ -91,7 +91,7 @@ _SECRET_PATTERNS = (
     re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),
 )
 
-_MAX_MESSAGE_CHARS = int(os.getenv("AISOC_AGENTS_LLM_CONTRACT_MAX_CHARS", "60000"))
+_MAX_MESSAGE_CHARS = int(os.getenv("QUARRY_AGENTS_LLM_CONTRACT_MAX_CHARS", "60000"))
 _MAX_JSON_LINE_KEYS = 6  # tuple-of-keys threshold for "looks like a log line"
 
 

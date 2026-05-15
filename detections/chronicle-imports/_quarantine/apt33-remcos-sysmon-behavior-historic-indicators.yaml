@@ -51,4 +51,4 @@ provenance:
   upstream_path: rules/_deprecated/soc_prime_rules/threat_hunting/sysmon/apt33_remcos__sysmon_behavior___historic_indicators.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

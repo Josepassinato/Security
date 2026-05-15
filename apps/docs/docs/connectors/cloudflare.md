@@ -1,7 +1,7 @@
 ---
 sidebar_position: 9
 title: Cloudflare Audit Logs
-description: Account-scope audit log entries from Cloudflare — admin actions, API token usage, edge config changes — into AiSOC.
+description: Account-scope audit log entries from Cloudflare — admin actions, API token usage, edge config changes — into Quarry.
 ---
 
 # Cloudflare Audit Logs
@@ -29,7 +29,7 @@ Events are normalized with `source: cloudflare`, `category: saas`.
   - (Optional) **Account → Account Settings → Read** for member resolution
 - The token must be **account-scoped**, not user-scoped, so it survives if the creating user leaves the team.
 
-We strongly recommend creating a dedicated `aisoc-readonly` token with only the audit-log scope. Do not reuse your global API key.
+We strongly recommend creating a dedicated `quarry-readonly` token with only the audit-log scope. Do not reuse your global API key.
 
 ## Setup walkthrough
 
@@ -51,7 +51,7 @@ Any zone's **Overview** page shows the account ID in the right-hand sidebar (32-
 curl -H "Authorization: Bearer $TOKEN" https://api.cloudflare.com/client/v4/accounts | jq -r '.result[].id'
 ```
 
-### 3. Add the connector in AiSOC
+### 3. Add the connector in Quarry
 
 1. **Connectors → Add connector → Cloudflare**.
 2. `account_id` = the 32-character hex string.

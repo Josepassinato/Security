@@ -1,13 +1,13 @@
 # ──────────────────────────────────────────────────────────────────────────────
-# AiSOC Demo - Web (Next.js)
+# Quarry Demo - Web (Next.js)
 #
-# Deployed at:    https://aisoc-demo-web.fly.dev
-# Public domain:  https://tryaisoc.com  (CNAME → aisoc-demo-web.fly.dev)
+# Deployed at:    https://quarry-demo-web.fly.dev
+# Public domain:  https://tryaisoc.com  (CNAME → quarry-demo-web.fly.dev)
 #
 # Three public hostnames front this stack:
-#   tryaisoc.com      → aisoc-demo-web      (this app, Next.js UI)
-#   api.tryaisoc.com  → aisoc-demo-api      (FastAPI, /health, /docs, /api/v1/*)
-#   ws.tryaisoc.com   → aisoc-demo-realtime (WebSocket fanout, wss://)
+#   tryaisoc.com      → quarry-demo-web      (this app, Next.js UI)
+#   api.tryaisoc.com  → quarry-demo-api      (FastAPI, /health, /docs, /api/v1/*)
+#   ws.tryaisoc.com   → quarry-demo-realtime (WebSocket fanout, wss://)
 #
 # Why three subdomains instead of routing everything through the web app's
 # Next.js rewrites: the realtime service speaks raw WebSocket, which Next's
@@ -16,7 +16,7 @@
 # explicit.
 # ──────────────────────────────────────────────────────────────────────────────
 
-app = "aisoc-demo-web"
+app = "quarry-demo-web"
 primary_region = "iad"
 kill_signal    = "SIGINT"
 kill_timeout   = "5s"
@@ -52,8 +52,8 @@ kill_timeout   = "5s"
     NEXT_PUBLIC_DEMO_MODE              = "true"
     NEXT_PUBLIC_DEMO_DEEPLINK          = "/cases/INC-RT-001?tab=ledger"
     NEXT_PUBLIC_DEMO_BANNER            = "Demo data resets daily at 00:00 UTC. All write actions are disabled."
-    NEXT_PUBLIC_DEMO_AUTOLOGIN_EMAIL    = "demo@aisoc.dev"
-    NEXT_PUBLIC_DEMO_AUTOLOGIN_PASSWORD = "aisoc-demo"
+    NEXT_PUBLIC_DEMO_AUTOLOGIN_EMAIL    = "demo@quarry.dev"
+    NEXT_PUBLIC_DEMO_AUTOLOGIN_PASSWORD = "quarry-demo"
     # Server-side proxy targets MUST be passed at build time, not just runtime.
     # next.config.js evaluates `process.env.API_URL` when the config module
     # loads, and the resulting rewrite destinations are written into
@@ -63,9 +63,9 @@ kill_timeout   = "5s"
     # that doesn't exist in Fly's 6PN DNS — the browser sees `Internal Server
     # Error` from the same-origin /api/v1/* routes even though api.tryaisoc.com
     # is healthy.
-    API_URL      = "http://aisoc-demo-api.internal:8000"
-    AGENTS_URL   = "http://aisoc-demo-agents.internal:8084"
-    REALTIME_URL = "http://aisoc-demo-realtime.internal:4000"
+    API_URL      = "http://quarry-demo-api.internal:8000"
+    AGENTS_URL   = "http://quarry-demo-agents.internal:8084"
+    REALTIME_URL = "http://quarry-demo-realtime.internal:4000"
 
 [env]
   NODE_ENV               = "production"
@@ -89,8 +89,8 @@ kill_timeout   = "5s"
   # session as the read-only analyst the seeder provisions. Email + password
   # MUST stay in sync with services/api/app/scripts/seed_demo.py and
   # services/api/app/api/v1/dev_auth.py:DEMO_USER_EMAIL.
-  NEXT_PUBLIC_DEMO_AUTOLOGIN_EMAIL    = "demo@aisoc.dev"
-  NEXT_PUBLIC_DEMO_AUTOLOGIN_PASSWORD = "aisoc-demo"
+  NEXT_PUBLIC_DEMO_AUTOLOGIN_EMAIL    = "demo@quarry.dev"
+  NEXT_PUBLIC_DEMO_AUTOLOGIN_PASSWORD = "quarry-demo"
   # Server-side rewrite targets for next.config.js. Only some paths flow
   # through the Next proxy:
   #   /api/v1/contextual/*  → agents (apps/web/src/lib/api.ts uses an empty
@@ -105,9 +105,9 @@ kill_timeout   = "5s"
   # Without these set, the Dockerfile defaults (`http://agents:8084` etc.) leak
   # through and the Next process tries to resolve them in Fly's DNS, which
   # has no `agents` record. Use the full *.internal:port form for 6PN.
-  AGENTS_URL    = "http://aisoc-demo-agents.internal:8084"
-  API_URL       = "http://aisoc-demo-api.internal:8000"
-  REALTIME_URL  = "http://aisoc-demo-realtime.internal:4000"
+  AGENTS_URL    = "http://quarry-demo-agents.internal:8084"
+  API_URL       = "http://quarry-demo-api.internal:8000"
+  REALTIME_URL  = "http://quarry-demo-realtime.internal:4000"
 
 [http_service]
   internal_port       = 3000

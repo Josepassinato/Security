@@ -2,7 +2,7 @@
 
 These pin the contract used by ``services/threatintel/app/main.py`` at
 feed-registration time. The threat-intel service is the largest source
-of outbound HTTP in the AiSOC stack (OTX, CISA KEV, TAXII, MISP/OpenCTI),
+of outbound HTTP in the Quarry stack (OTX, CISA KEV, TAXII, MISP/OpenCTI),
 so the cost of a regression here is high: an air-gapped customer would
 silently start phoning home as soon as the scheduler comes up.
 """
@@ -22,16 +22,16 @@ from app.airgap import (
 @pytest.fixture
 def airgapped(monkeypatch: pytest.MonkeyPatch):
     """Force-enable air-gap mode for the duration of a test."""
-    monkeypatch.setattr(airgap.settings, "AISOC_AIRGAPPED", True)
-    monkeypatch.setattr(airgap.settings, "AISOC_AIRGAP_ALLOWLIST", [])
+    monkeypatch.setattr(airgap.settings, "QUARRY_AIRGAPPED", True)
+    monkeypatch.setattr(airgap.settings, "QUARRY_AIRGAP_ALLOWLIST", [])
     yield
 
 
 @pytest.fixture
 def airgap_off(monkeypatch: pytest.MonkeyPatch):
     """Pin air-gap mode OFF so disabled-mode invariants are tested."""
-    monkeypatch.setattr(airgap.settings, "AISOC_AIRGAPPED", False)
-    monkeypatch.setattr(airgap.settings, "AISOC_AIRGAP_ALLOWLIST", [])
+    monkeypatch.setattr(airgap.settings, "QUARRY_AIRGAPPED", False)
+    monkeypatch.setattr(airgap.settings, "QUARRY_AIRGAP_ALLOWLIST", [])
     yield
 
 
@@ -51,7 +51,7 @@ class TestAirgapDisabled:
 
 
 class TestPublicFeedsBlocked:
-    """When AISOC_AIRGAPPED=1 the canonical public threat-intel feeds
+    """When QUARRY_AIRGAPPED=1 the canonical public threat-intel feeds
     must all refuse to register."""
 
     @pytest.mark.parametrize(
@@ -94,7 +94,7 @@ class TestAllowlist:
     def test_exact_host_match(self, airgapped, monkeypatch):
         monkeypatch.setattr(
             airgap.settings,
-            "AISOC_AIRGAP_ALLOWLIST",
+            "QUARRY_AIRGAP_ALLOWLIST",
             ["mirror.example.com"],
         )
         # Exact host listed: must pass.
@@ -106,7 +106,7 @@ class TestAllowlist:
     def test_suffix_match_covers_subdomains(self, airgapped, monkeypatch):
         monkeypatch.setattr(
             airgap.settings,
-            "AISOC_AIRGAP_ALLOWLIST",
+            "QUARRY_AIRGAP_ALLOWLIST",
             ["intel.example.com"],
         )
         # Same semantics as the API service: an entry covers itself and
@@ -120,7 +120,7 @@ class TestAllowlist:
     def test_status_includes_allowlist(self, airgapped, monkeypatch):
         monkeypatch.setattr(
             airgap.settings,
-            "AISOC_AIRGAP_ALLOWLIST",
+            "QUARRY_AIRGAP_ALLOWLIST",
             ["intel-mirror.example.com", "kev.example.org"],
         )
         status = airgap_status()
@@ -142,7 +142,7 @@ class TestEdgeCases:
     def test_case_insensitive_host(self, airgapped, monkeypatch):
         monkeypatch.setattr(
             airgap.settings,
-            "AISOC_AIRGAP_ALLOWLIST",
+            "QUARRY_AIRGAP_ALLOWLIST",
             ["Mirror.Example.COM"],
         )
         # Allowlist entries and inbound URL hosts may differ in case;

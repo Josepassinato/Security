@@ -1,13 +1,13 @@
-# AiSOC Helm chart
+# Quarry Helm chart
 
-This directory ships a Helm chart that deploys AiSOC onto a Kubernetes cluster.
+This directory ships a Helm chart that deploys Quarry onto a Kubernetes cluster.
 It is the deployment path the production docs (`apps/docs/docs/deployment/kubernetes.md`)
 point at.
 
 ```
 infra/helm/
-├── aisoc/                     # The chart itself
-│   ├── Chart.yaml             # appVersion tracks the AiSOC release
+├── quarry/                     # The chart itself
+│   ├── Chart.yaml             # appVersion tracks the Quarry release
 │   ├── values.yaml            # All knobs live here
 │   ├── templates/             # Service deployments, HPA, PDB, ingress, etc.
 │   └── charts/                # Reserved for vendored sub-charts (currently empty)
@@ -20,12 +20,12 @@ infra/helm/
 matching `Service`, `HorizontalPodAutoscaler`, `PodDisruptionBudget`, and a
 shared `Ingress`. The default `services` map covers:
 
-- `api` — FastAPI core API (`ghcr.io/beenuar/aisoc-core-api`)
-- `ingest` — Go ingest service (`ghcr.io/beenuar/aisoc-ingest`)
-- `enrichment` — Go enrichment service (`ghcr.io/beenuar/aisoc-enrichment`)
-- `agents` — Python AI agents (`ghcr.io/beenuar/aisoc-agents`)
-- `web` — Next.js UI (`ghcr.io/beenuar/aisoc-web`)
-- `realtime` — WebSocket service (`ghcr.io/beenuar/aisoc-realtime`)
+- `api` — FastAPI core API (`ghcr.io/beenuar/quarry-core-api`)
+- `ingest` — Go ingest service (`ghcr.io/beenuar/quarry-ingest`)
+- `enrichment` — Go enrichment service (`ghcr.io/beenuar/quarry-enrichment`)
+- `agents` — Python AI agents (`ghcr.io/beenuar/quarry-agents`)
+- `web` — Next.js UI (`ghcr.io/beenuar/quarry-web`)
+- `realtime` — WebSocket service (`ghcr.io/beenuar/quarry-realtime`)
 
 Three feature services have their own templates rather than the generic
 deployment because their pod specs differ:
@@ -50,20 +50,20 @@ and `redis.enabled=true` to bring up the bundled Bitnami sub-charts.
 ```bash
 # 1. Add Bitnami (only needed if you turn the bundled deps on)
 helm repo add bitnami https://charts.bitnami.com/bitnami
-helm dependency update infra/helm/aisoc
+helm dependency update infra/helm/quarry
 
 # 2. Render the chart
-helm template aisoc infra/helm/aisoc -n aisoc --create-namespace
+helm template quarry infra/helm/quarry -n quarry --create-namespace
 
 # 3. Install (production layout: managed data plane, no bundled deps)
-helm install aisoc infra/helm/aisoc \
-  -n aisoc --create-namespace \
-  --set ingress.hosts[0].host=aisoc.your-domain.com \
+helm install quarry infra/helm/quarry \
+  -n quarry --create-namespace \
+  --set ingress.hosts[0].host=quarry.your-domain.com \
   --set global.environment=production \
   --set global.otelEndpoint=http://otel-collector:4317
 
 # 4. Upgrade
-helm upgrade aisoc infra/helm/aisoc -n aisoc -f your-overrides.yaml
+helm upgrade quarry infra/helm/quarry -n quarry -f your-overrides.yaml
 ```
 
 ## Common overrides
@@ -76,7 +76,7 @@ services:
   api:
     replicaCount: 4               # explicit replicas (HPA still applies)
     image:
-      repository: my-registry/aisoc-core-api
+      repository: my-registry/quarry-core-api
       tag: "5.2.0"
     env:                           # extra env vars merged into the pod
       LOG_LEVEL: debug
@@ -99,8 +99,8 @@ alias.
 ## Releasing a new chart version
 
 1. Bump `Chart.yaml::version` (chart version) and `Chart.yaml::appVersion`
-   (AiSOC release) in lockstep with the Git tag.
-2. `helm lint infra/helm/aisoc`
+   (Quarry release) in lockstep with the Git tag.
+2. `helm lint infra/helm/quarry`
 3. `helm template ...` and diff against the previous render before publishing.
 
 ## Related docs

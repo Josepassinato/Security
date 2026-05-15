@@ -1,6 +1,6 @@
 id: det-cloud-050
 name: AWS IAM CreateUser Burst
-description: AiSOC v1 curated detection. Triggers on the cloud signal described by 'AWS IAM CreateUser
+description: Quarry v1 curated detection. Triggers on the cloud signal described by 'AWS IAM CreateUser
   Burst'. Watch the 2 documented false-positive cases before tuning.
 version: 1.0.0
 severity: medium
@@ -20,6 +20,6 @@ false_positives:
 - Sanctioned automation/IaC pipeline
 playbook: tpl-persistence
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

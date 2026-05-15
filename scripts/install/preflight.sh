@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 ###############################################################################
-# AiSOC — Preflight checks (Linux + macOS).
+# Quarry — Preflight checks (Linux + macOS).
 #
 # This is a sourced library, not a standalone script. It's loaded by
 # install.sh before any prerequisite work begins, and is also runnable on
@@ -8,7 +8,7 @@
 #
 #   bash scripts/install/preflight.sh
 #
-# Goal: catch the things that will make `pnpm aisoc:demo` fail four minutes
+# Goal: catch the things that will make `pnpm quarry:demo` fail four minutes
 # from now — *before* we download a gigabyte of Docker images and ask the
 # user to type their sudo password.
 #
@@ -19,9 +19,9 @@
 #   3. Free disk space at the install root and at $HOME/.docker
 #      (≥ 10 GB hard fail, ≥ 20 GB recommended)
 #   4. Internet reachability (DNS resolves + HTTPS to ghcr.io / github.com)
-#   5. Required ports are free, OR already used by an AiSOC container we can
+#   5. Required ports are free, OR already used by an Quarry container we can
 #      reuse — anything else is a conflict the user has to resolve
-#   6. No leftover/conflicting AiSOC containers from a previous run that
+#   6. No leftover/conflicting Quarry containers from a previous run that
 #      would refuse to start cleanly
 #   7. macOS-specific: Docker Desktop is installed *and* has at least 4 GB
 #      RAM allocated to the VM (smaller and the api crashes mid-boot)
@@ -33,7 +33,7 @@
 #   FAIL — prints a red line, increments fail count
 #
 # At the end we print a summary. If any FAILs were recorded we exit 1
-# *unless* the caller passed AISOC_PREFLIGHT_SOFT=1 (which install.sh sets
+# *unless* the caller passed QUARRY_PREFLIGHT_SOFT=1 (which install.sh sets
 # when re-running preflight after a fix, so we don't bail twice).
 #
 # Exit codes (when run standalone):
@@ -42,18 +42,18 @@
 #   2  preflight itself failed (couldn't gather data)
 #
 # Reads (no writes):
-#   AISOC_PREFLIGHT_SOFT  if set to 1, return non-zero count instead of exit
-#   AISOC_REPO_ROOT       if set, used as the install location for disk-space
+#   QUARRY_PREFLIGHT_SOFT  if set to 1, return non-zero count instead of exit
+#   QUARRY_REPO_ROOT       if set, used as the install location for disk-space
 #                         checks. Otherwise we use $PWD when sourced or
-#                         $HOME/aisoc when run standalone.
-#   AISOC_SKIP_NETWORK    if 1, skip the connectivity probes (for air-gapped
+#                         $HOME/quarry when run standalone.
+#   QUARRY_SKIP_NETWORK    if 1, skip the connectivity probes (for air-gapped
 #                         testing — preflight will WARN, not FAIL).
 ###############################################################################
 
 # Don't `set -e` because we need to inspect the exit code of each check and
 # keep going. The caller (install.sh) sets it; we explicitly disable it on
 # entry and restore it at the end so we don't surprise sourced callers.
-_AISOC_PREFLIGHT_PREV_E="$(set +o | grep errexit)"
+_QUARRY_PREFLIGHT_PREV_E="$(set +o | grep errexit)"
 set +e
 
 # ─── Config ──────────────────────────────────────────────────────────────────
@@ -69,7 +69,7 @@ readonly _PF_DISK_MIN_GB=10
 readonly _PF_DISK_REC_GB=20
 
 # Ports the demo stack exposes on the host. We probe each one and (a)
-# tolerate it being free, (b) tolerate it being held by an aisoc-* container
+# tolerate it being free, (b) tolerate it being held by an quarry-* container
 # from a previous run, but (c) fail if it's held by anything else. The list
 # is kept in lockstep with docker-compose.demo.yml — when a port is added
 # there, add it here too.
@@ -187,7 +187,7 @@ _pf_port_listener() {
 }
 
 # Print the friendly label of whatever process is holding $1, or "" if we
-# can't tell. Examples: "docker (aisoc-api-1)", "postgres (system)", "node".
+# can't tell. Examples: "docker (quarry-api-1)", "postgres (system)", "node".
 _pf_port_owner() {
   local port="$1" pid cmd container
   if _pf_have lsof; then
@@ -213,10 +213,10 @@ _pf_port_owner() {
   echo ""
 }
 
-# Returns 0 if the given port-owner string indicates an AiSOC container —
+# Returns 0 if the given port-owner string indicates an Quarry container —
 # i.e. a previous demo run we can safely reuse / restart. The names come
 # from docker-compose.demo.yml + the project's compose project name
-# (defaults to the directory name, usually "aisoc").
+# (defaults to the directory name, usually "quarry").
 #
 # We can't use ${var,,} (bash 4+) here because macOS still ships bash 3.2
 # by default. Pipe through tr instead — works everywhere.
@@ -224,7 +224,7 @@ _pf_owner_is_aisoc() {
   local lc
   lc="$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')"
   case "$lc" in
-    *aisoc*) return 0 ;;
+    *quarry*) return 0 ;;
     *) return 1 ;;
   esac
 }
@@ -238,7 +238,7 @@ _pf_check_arch() {
       ;;
     armv7*|armv6*|i?86)
       _pf_fail "CPU architecture $(uname -m) is not supported." \
-        "AiSOC images are amd64 + arm64 only. 32-bit ARM and i386 won't work."
+        "Quarry images are amd64 + arm64 only. 32-bit ARM and i386 won't work."
       ;;
     *)
       _pf_warn "CPU architecture $(uname -m) is unrecognised — proceed at your own risk."
@@ -265,7 +265,7 @@ _pf_check_ram() {
 }
 
 _pf_check_disk() {
-  local install_root="${AISOC_REPO_ROOT:-${PWD:-/}}"
+  local install_root="${QUARRY_REPO_ROOT:-${PWD:-/}}"
   local install_gb
   install_gb="$(_pf_free_disk_gb "$install_root")"
   if [ -z "$install_gb" ]; then install_gb=0; fi
@@ -301,8 +301,8 @@ _pf_check_disk() {
 }
 
 _pf_check_network() {
-  if [ "${AISOC_SKIP_NETWORK:-0}" = "1" ]; then
-    _pf_warn "Skipping network checks (AISOC_SKIP_NETWORK=1)."
+  if [ "${QUARRY_SKIP_NETWORK:-0}" = "1" ]; then
+    _pf_warn "Skipping network checks (QUARRY_SKIP_NETWORK=1)."
     return
   fi
   if ! _pf_have curl; then
@@ -340,8 +340,8 @@ _pf_check_ports() {
     fi
     owner="$(_pf_port_owner "$port")"
     if _pf_owner_is_aisoc "$owner"; then
-      _pf_warn "Port $port ($name) is held by an existing AiSOC container ($owner)." \
-        "We'll reuse it — but if a previous demo crashed, run 'pnpm aisoc:demo:down' first."
+      _pf_warn "Port $port ($name) is held by an existing Quarry container ($owner)." \
+        "We'll reuse it — but if a previous demo crashed, run 'pnpm quarry:demo:down' first."
       reused=$((reused + 1))
     else
       _pf_fail "Port $port ($name) is in use by ${owner:-an unknown process}." \
@@ -361,14 +361,14 @@ _pf_check_stale_containers() {
   if ! docker info >/dev/null 2>&1; then
     return
   fi
-  # Look for stopped/exited aisoc-* containers from a previous failed run.
+  # Look for stopped/exited quarry-* containers from a previous failed run.
   # `docker compose up` will sometimes refuse to recreate these depending on
   # the volume state, so we surface them up-front.
   local stale
-  stale="$(docker ps -a --filter "name=aisoc-" --filter "status=exited" --format '{{.Names}}' 2>/dev/null | head -5)"
+  stale="$(docker ps -a --filter "name=quarry-" --filter "status=exited" --format '{{.Names}}' 2>/dev/null | head -5)"
   if [ -n "$stale" ]; then
-    _pf_warn "Stale AiSOC containers from a previous run:" \
-      "Run 'pnpm aisoc:demo:down' (in the AiSOC clone) to clear them. Listed: $(echo "$stale" | tr '\n' ' ')"
+    _pf_warn "Stale Quarry containers from a previous run:" \
+      "Run 'pnpm quarry:demo:down' (in the Quarry clone) to clear them. Listed: $(echo "$stale" | tr '\n' ' ')"
   fi
 }
 
@@ -424,7 +424,7 @@ run_aisoc_preflight() {
       "$_PF_BOLD" "$_PF_RED" "$_PF_RESET"
     printf '%sFull troubleshooting:%s docs/QUICK_INSTALL.md#troubleshooting\n\n' \
       "$_PF_DIM" "$_PF_RESET"
-    if [ "${AISOC_PREFLIGHT_SOFT:-0}" = "1" ]; then
+    if [ "${QUARRY_PREFLIGHT_SOFT:-0}" = "1" ]; then
       return 1
     fi
     exit 1
@@ -438,9 +438,9 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
   run_aisoc_preflight
   rc=$?
   # Restore the caller's errexit setting before returning.
-  eval "$_AISOC_PREFLIGHT_PREV_E"
+  eval "$_QUARRY_PREFLIGHT_PREV_E"
   exit $rc
 fi
 
 # Sourced — restore errexit and let the caller decide when to run.
-eval "$_AISOC_PREFLIGHT_PREV_E"
+eval "$_QUARRY_PREFLIGHT_PREV_E"

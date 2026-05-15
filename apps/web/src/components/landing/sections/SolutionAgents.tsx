@@ -194,7 +194,7 @@ export function SolutionAgents() {
             One agent for each stage of an incident.
           </h2>
           <p className="mt-4 text-base leading-relaxed text-fg-secondary sm:text-lg">
-            AiSOC ships exactly four named agents — Detect, Triage, Hunt, and
+            Quarry ships exactly four named agents — Detect, Triage, Hunt, and
             Respond. Each one has a fixed job, a published capability list,
             and a replayable audit trail. Sub-agents (phishing, identity,
             cloud, insider) are capabilities of Triage, never separate brands.

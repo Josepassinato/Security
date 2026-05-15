@@ -1,4 +1,4 @@
-"""Cryptographic primitives for the AiSOC osquery TLS service.
+"""Cryptographic primitives for the Quarry osquery TLS service.
 
 Kept in a separate module (rather than security.py) to avoid the cyclic
 import that would arise if security.py imported from node_registry.py and

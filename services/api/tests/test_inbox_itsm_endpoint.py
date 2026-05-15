@@ -20,7 +20,7 @@ itself via mocked DB sessions instead of spinning up the FastAPI app
 * ``_parse_servicenow_payload`` — accepts both the canonical ``incident``
   shape and the ``{"current": {...}}`` wrapper that ServiceNow Business
   Rules emit when the operator forwards ``current`` directly.
-* ``_map_inbound_status`` — vendor → AiSOC enum, intentionally lossy.
+* ``_map_inbound_status`` — vendor → Quarry enum, intentionally lossy.
   Anything we can't map returns None and the caller treats that as
   "no status change".
 * ``inbound_itsm_webhook`` — happy path, HMAC enforcement, JSON parse
@@ -87,7 +87,7 @@ def test_verify_hmac_missing_signature_when_secret_set_raises_401() -> None:
 def test_verify_hmac_blank_signature_when_secret_set_raises_401() -> None:
     """An all-whitespace header is treated as missing.
 
-    Vendors occasionally emit ``X-AiSOC-Signature: `` when their secret
+    Vendors occasionally emit ``X-Quarry-Signature: `` when their secret
     isn't templated correctly. We refuse it explicitly so the operator
     notices.
     """
@@ -493,7 +493,7 @@ async def test_fetch_token_and_connector_unsupported_vendor_raises_422() -> None
 
 
 # ---------------------------------------------------------------------------
-# _apply_status_to_case — the writes that actually mutate AiSOC state.
+# _apply_status_to_case — the writes that actually mutate Quarry state.
 #
 # We verify the SHAPE of the writes (correct table + bound parameters)
 # rather than running them against a real DB. The migration tests are
@@ -814,7 +814,7 @@ async def test_endpoint_missing_external_id_returns_200_with_note() -> None:
 
 @pytest.mark.asyncio
 async def test_endpoint_unlinked_external_id_returns_200_with_note() -> None:
-    """ITSM ticket exists but isn't linked to any AiSOC case → soft-200."""
+    """ITSM ticket exists but isn't linked to any Quarry case → soft-200."""
     tenant_id = uuid.uuid4()
     connector_id = uuid.uuid4()
     token_row = SimpleNamespace(
@@ -830,7 +830,7 @@ async def test_endpoint_unlinked_external_id_returns_200_with_note() -> None:
         connector_type="jira",
         is_enabled=True,
     )
-    # ref_row=None means the JOIN found no AiSOC link.
+    # ref_row=None means the JOIN found no Quarry link.
     db = _build_db_for_endpoint(token_row=token_row, connector_row=connector_row, ref_row=None)
     body = json.dumps(
         {
@@ -913,7 +913,7 @@ async def test_endpoint_idempotent_when_case_already_in_target_status() -> None:
 
 @pytest.mark.asyncio
 async def test_endpoint_unmapped_status_bumps_last_synced_only() -> None:
-    """Vendor status that doesn't map to AiSOC → ``status_changed=False``.
+    """Vendor status that doesn't map to Quarry → ``status_changed=False``.
 
     Operators occasionally configure custom Jira workflows with statuses
     we've never heard of ("Awaiting Customer", "Released to QA"). The
@@ -970,7 +970,7 @@ async def test_endpoint_unmapped_status_bumps_last_synced_only() -> None:
 
 @pytest.mark.asyncio
 async def test_endpoint_real_status_change_writes_and_returns_changed() -> None:
-    """Vendor 'Done' → AiSOC 'resolved' mirrors the status onto the case."""
+    """Vendor 'Done' → Quarry 'resolved' mirrors the status onto the case."""
     tenant_id = uuid.uuid4()
     connector_id = uuid.uuid4()
     case_id = uuid.uuid4()

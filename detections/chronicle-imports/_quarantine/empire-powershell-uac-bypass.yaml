@@ -36,4 +36,4 @@ provenance:
   upstream_path: rules/_deprecated/soc_prime_rules/threat_hunting/process_creation/empire_powershell_uac_bypass.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

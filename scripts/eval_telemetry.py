@@ -1,4 +1,4 @@
-"""Per-investigation token / USD / latency telemetry for the AiSOC eval harness.
+"""Per-investigation token / USD / latency telemetry for the Quarry eval harness.
 
 This module is **stdlib-only** so it can run in CI / dev shells that don't
 have the full agent dependency stack (pydantic, langgraph, langchain, ...).

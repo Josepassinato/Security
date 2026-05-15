@@ -21,7 +21,7 @@ from cryptography.fernet import Fernet, InvalidToken, MultiFernet
 
 from app.core.config import get_settings
 
-logger = logging.getLogger("aisoc.actions.credential_vault")
+logger = logging.getLogger("quarry.actions.credential_vault")
 
 # Tag every value we write so we can distinguish ciphertext from legacy
 # plaintext on the decrypt path. Must match the API service's prefix byte-for-byte.
@@ -45,7 +45,7 @@ class CredentialVault:
         try:
             primary = Fernet(primary_key)
         except (TypeError, ValueError) as exc:
-            raise CredentialVaultError(f"AISOC_CREDENTIAL_KEY is not a valid Fernet key: {exc}") from exc
+            raise CredentialVaultError(f"QUARRY_CREDENTIAL_KEY is not a valid Fernet key: {exc}") from exc
 
         keyring: list[Fernet] = [primary]
         for k in historical_keys or []:
@@ -74,7 +74,7 @@ class CredentialVault:
             return self._fernet.decrypt(token).decode("utf-8")
         except InvalidToken as exc:
             raise CredentialVaultError(
-                "ciphertext failed integrity check — likely AISOC_CREDENTIAL_KEY mismatch between API and actions services"
+                "ciphertext failed integrity check — likely QUARRY_CREDENTIAL_KEY mismatch between API and actions services"
             ) from exc
 
     def encrypt_dict(self, payload: Mapping[str, Any], *, secret_keys: set[str] | None = None) -> dict[str, Any]:
@@ -114,7 +114,7 @@ _vault_lock = Lock()
 def get_vault() -> CredentialVault:
     """Return the process-wide vault, lazily constructed from settings.
 
-    Raises ``CredentialVaultError`` if ``AISOC_CREDENTIAL_KEY`` is missing —
+    Raises ``CredentialVaultError`` if ``QUARRY_CREDENTIAL_KEY`` is missing —
     the actions service should never silently invent an ephemeral key, since
     that would break decryption of any Slack/Teams token persisted by the API
     service.
@@ -126,13 +126,13 @@ def get_vault() -> CredentialVault:
         if _vault_singleton is not None:  # pragma: no cover - racing init
             return _vault_singleton
         settings = get_settings()
-        primary = (settings.AISOC_CREDENTIAL_KEY or "").strip().encode("ascii")
+        primary = (settings.QUARRY_CREDENTIAL_KEY or "").strip().encode("ascii")
         if not primary:
             raise CredentialVaultError(
-                "AISOC_CREDENTIAL_KEY is required for the actions service to decrypt "
+                "QUARRY_CREDENTIAL_KEY is required for the actions service to decrypt "
                 "stored ChatOps credentials. Mount the same key the API service uses."
             )
-        rotation = _split_keys(settings.AISOC_CREDENTIAL_KEY_ROTATION_FROM)
+        rotation = _split_keys(settings.QUARRY_CREDENTIAL_KEY_ROTATION_FROM)
         _vault_singleton = CredentialVault(primary, historical_keys=rotation)
         return _vault_singleton
 

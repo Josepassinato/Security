@@ -1,9 +1,9 @@
 {
   "name": "@quarry/mcp",
   "version": "0.1.0",
-  "description": "MCP server that exposes AiSOC (alerts, cases, agent investigations, the decision ledger) to Claude Desktop, Cursor, Cody, Continue, and any MCP-aware agent.",
+  "description": "MCP server that exposes Quarry (alerts, cases, agent investigations, the decision ledger) to Claude Desktop, Cursor, Cody, Continue, and any MCP-aware agent.",
   "keywords": [
-    "aisoc",
+    "quarry",
     "mcp",
     "model-context-protocol",
     "claude",
@@ -14,15 +14,15 @@
     "siem"
   ],
   "license": "MIT",
-  "author": "AiSOC contributors",
-  "homepage": "https://github.com/beenuar/AiSOC/tree/main/services/mcp",
+  "author": "Quarry contributors",
+  "homepage": "https://github.com/Josepassinato/quarry/tree/main/services/mcp",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/beenuar/AiSOC.git",
+    "url": "git+https://github.com/Josepassinato/quarry.git",
     "directory": "services/mcp"
   },
   "bugs": {
-    "url": "https://github.com/beenuar/AiSOC/issues"
+    "url": "https://github.com/Josepassinato/quarry/issues"
   },
   "type": "module",
   "main": "./dist/index.js",
@@ -34,7 +34,7 @@
     }
   },
   "bin": {
-    "aisoc-mcp": "./dist/index.js"
+    "quarry-mcp": "./dist/index.js"
   },
   "files": [
     "dist",

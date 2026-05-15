@@ -6,12 +6,12 @@ tier: stable
 description: >
   Google Cloud Security Command Center findings (misconfigurations, threats,
   vulnerabilities) at the organization scope. Streams ACTIVE findings into
-  AiSOC for unified cloud-posture and runtime-threat triage. Requires a
+  Quarry for unified cloud-posture and runtime-threat triage. Requires a
   service account with roles/securitycenter.findingsViewer on the
   organization.
-author: AiSOC Core Team
+author: Quarry Core Team
 tags: [cloud, gcp, google, scc, posture, vuln, findings]
-homepage: https://github.com/beenuar/AiSOC/tree/main/services/connectors/app/connectors/gcp_scc.py
+homepage: https://github.com/beenuar/Quarry/tree/main/services/connectors/app/connectors/gcp_scc.py
 license: MIT
 min_aisoc_version: "4.0.0"
 config_schema:

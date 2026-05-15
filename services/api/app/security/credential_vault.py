@@ -12,9 +12,9 @@ than rolling our own AES-GCM:
 * Authenticated encryption out of the box — tampering raises
   :class:`InvalidToken`, never a silent partial decrypt.
 * Built-in support for **multi-key rotation** via :class:`MultiFernet`. We use
-  it so operators can rotate ``AISOC_CREDENTIAL_KEY`` without a downtime
+  it so operators can rotate ``QUARRY_CREDENTIAL_KEY`` without a downtime
   migration: new writes use the primary key, old reads still resolve through
-  any key listed in ``AISOC_CREDENTIAL_KEY_ROTATION_FROM``.
+  any key listed in ``QUARRY_CREDENTIAL_KEY_ROTATION_FROM``.
 * Battle-tested and audited; we'd rather lean on the upstream than ship a
   hand-rolled crypto module in an open-source SOC product.
 
@@ -45,7 +45,7 @@ from cryptography.fernet import Fernet, InvalidToken, MultiFernet
 
 from app.core.config import is_dev_env, settings
 
-logger = logging.getLogger("aisoc.credential_vault")
+logger = logging.getLogger("quarry.credential_vault")
 
 # Sentinel prefix that marks a string value as already-encrypted ciphertext.
 # We tag every value we write so the decrypt path can distinguish "this is
@@ -76,8 +76,8 @@ class CredentialVault:
     The historical keys are only used for *decryption* via :class:`MultiFernet`
     so that a rotation is a two-step process:
 
-    1. Add the old key to ``AISOC_CREDENTIAL_KEY_ROTATION_FROM`` and the new
-       key to ``AISOC_CREDENTIAL_KEY``. Restart. All new writes use the new
+    1. Add the old key to ``QUARRY_CREDENTIAL_KEY_ROTATION_FROM`` and the new
+       key to ``QUARRY_CREDENTIAL_KEY``. Restart. All new writes use the new
        key, all old rows still decrypt.
     2. Run a maintenance job that re-saves every connector instance, which
        re-encrypts under the new primary. Once that's done, drop the old key
@@ -94,7 +94,7 @@ class CredentialVault:
         try:
             primary = Fernet(primary_key)
         except (TypeError, ValueError) as exc:
-            raise CredentialVaultError(f"AISOC_CREDENTIAL_KEY is not a valid Fernet key: {exc}") from exc
+            raise CredentialVaultError(f"QUARRY_CREDENTIAL_KEY is not a valid Fernet key: {exc}") from exc
 
         keyring: list[Fernet] = [primary]
         for k in historical_keys or []:
@@ -191,7 +191,7 @@ def get_vault() -> CredentialVault:
     """Return the process-wide :class:`CredentialVault`.
 
     On the first call we resolve the primary key from
-    ``settings.AISOC_CREDENTIAL_KEY``. If unset:
+    ``settings.QUARRY_CREDENTIAL_KEY``. If unset:
 
     * In development we auto-generate an **ephemeral** key (logged as a
       warning) so localhost demos work without ceremony. The key is *not*
@@ -207,22 +207,22 @@ def get_vault() -> CredentialVault:
     with _vault_lock:
         if _vault_singleton is not None:  # pragma: no cover - racing init
             return _vault_singleton
-        primary = (settings.AISOC_CREDENTIAL_KEY or "").strip().encode("ascii")
+        primary = (settings.QUARRY_CREDENTIAL_KEY or "").strip().encode("ascii")
         if not primary:
             # NB: vault startup is a boot-time decision so we read from the
             # cached ``settings`` (the same value our env warnings used),
             # not from the live process env. If an operator monkey-patches
             # the env post-boot, the vault key check has already happened.
             if not is_dev_env(settings.ENVIRONMENT):
-                raise CredentialVaultError("AISOC_CREDENTIAL_KEY is required outside development; refusing to start credential vault.")
+                raise CredentialVaultError("QUARRY_CREDENTIAL_KEY is required outside development; refusing to start credential vault.")
             primary = Fernet.generate_key()
             logger.warning(
-                "AISOC_CREDENTIAL_KEY is not set; using ephemeral process-local key. Connector secrets will not survive a restart. "
+                "QUARRY_CREDENTIAL_KEY is not set; using ephemeral process-local key. Connector secrets will not survive a restart. "
                 "Generate a key with "
                 '`python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"`'
-                " and set AISOC_CREDENTIAL_KEY."
+                " and set QUARRY_CREDENTIAL_KEY."
             )
-        rotation = _split_keys(settings.AISOC_CREDENTIAL_KEY_ROTATION_FROM or "")
+        rotation = _split_keys(settings.QUARRY_CREDENTIAL_KEY_ROTATION_FROM or "")
         _vault_singleton = CredentialVault(primary, historical_keys=rotation)
         return _vault_singleton
 

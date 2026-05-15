@@ -1,5 +1,5 @@
 /**
- * Realtime WebSocket client for AiSOC.
+ * Realtime WebSocket client for Quarry.
  *
  * Wraps the `realtime` service (port 8086) with a small typed hook that
  * handles automatic reconnection, JSON parsing, and channel subscription.

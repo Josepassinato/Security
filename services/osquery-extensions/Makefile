@@ -1,5 +1,5 @@
-BINARY     := aisoc-extension
-MODULE     := github.com/beenuar/aisoc/osquery-extensions
+BINARY     := quarry-extension
+MODULE     := github.com/beenuar/quarry/osquery-extensions
 GOFLAGS    := -trimpath -ldflags "-s -w"
 PLATFORMS  := linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 windows/amd64
 

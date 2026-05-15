@@ -2,7 +2,7 @@
 
 The lake exposes ``POST /api/v1/lake/sql`` and ``GET /api/v1/lake/schema``,
 both of which can be expensive — a single ClickHouse query against
-``aisoc.raw_events`` can scan billions of rows. Without a per-tenant
+``quarry.raw_events`` can scan billions of rows. Without a per-tenant
 soft cap, one noisy tenant or one runaway agent loop can starve every
 other caller in the cluster.
 

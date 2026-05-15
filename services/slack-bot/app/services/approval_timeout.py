@@ -58,7 +58,7 @@ class ApprovalTimeoutScheduler:
 
     Callbacks are *async*: ``approve_fn(action_id) -> dict`` and
     ``reject_fn(action_id) -> dict``. They typically wrap
-    :class:`app.services.aisoc_clients.AisocActionsClient` but the
+    :class:`app.services.aisoc_clients.QuarryActionsClient` but the
     scheduler doesn't care — anything awaitable that records the
     decision upstream works, which is what makes the timeout test
     hermetic.

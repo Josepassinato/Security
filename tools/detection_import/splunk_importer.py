@@ -1,8 +1,8 @@
-"""Splunk Security Content → AiSOC importer.
+"""Splunk Security Content → Quarry importer.
 
 Pulls detections from
 `splunk/security_content <https://github.com/splunk/security_content>`_ at a
-pinned commit and converts each YAML detection into AiSOC's internal
+pinned commit and converts each YAML detection into Quarry's internal
 Sigma-inspired schema with a populated ``provenance`` block.
 
 Splunk's content ships SPL search strings (and often a Splunk Common
@@ -52,7 +52,7 @@ SPLUNK_LICENSE_URL = "https://github.com/splunk/security_content/blob/develop/LI
 SPLUNK_DETECTIONS_DIR = "detections"
 
 # Splunk uses ``status`` values like ``production``, ``experimental``,
-# ``deprecated``. We map them to AiSOC's enabled/quarantine states.
+# ``deprecated``. We map them to Quarry's enabled/quarantine states.
 SPLUNK_SKIP_STATUSES = {"deprecated"}
 SPLUNK_QUARANTINE_STATUSES = {"experimental", "validation", "draft"}
 
@@ -74,7 +74,7 @@ def _extract_techniques(tags: dict | None) -> list[str]:
 
 
 def _category_for(upstream_path: Path) -> str:
-    """Pick an AiSOC category from the path
+    """Pick an Quarry category from the path
     (``detections/cloud/foo.yml`` -> ``cloud``)."""
     parts = upstream_path.parts
     if SPLUNK_DETECTIONS_DIR in parts:
@@ -139,7 +139,7 @@ def _convert_rule(
     quarantine_reason = (
         f"upstream status: {status}"
         if status in SPLUNK_QUARANTINE_STATUSES
-        else "raw SPL — needs translation to AiSOC detection schema"
+        else "raw SPL — needs translation to Quarry detection schema"
     )
 
     return ImportedRule(
@@ -147,7 +147,7 @@ def _convert_rule(
         title=title,
         description=description,
         severity=severity,
-        # Always disabled: SPL doesn't run on AiSOC's pipeline as-is.
+        # Always disabled: SPL doesn't run on Quarry's pipeline as-is.
         enabled=False,
         tags={"mitre": techniques, "categories": [category]},
         references=references,

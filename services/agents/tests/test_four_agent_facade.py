@@ -15,7 +15,7 @@ Locks down the public contract we promise to buyers and to the docs site:
 
 These tests deliberately avoid running real LLMs or HTTP calls — every
 async path is exercised against monkeypatched runners so the suite stays
-deterministic and offline-safe (CI gate per AISOC v8 progress doc).
+deterministic and offline-safe (CI gate per QUARRY v8 progress doc).
 """
 
 from __future__ import annotations

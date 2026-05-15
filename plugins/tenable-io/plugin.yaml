@@ -6,9 +6,9 @@ tier: stable
 description: >
   Tenable.io / Tenable Vulnerability Management. Pulls vulnerability findings
   as alerts and exposes asset and vulnerability enrichment for the agent.
-author: AiSOC Core Team
+author: Quarry Core Team
 tags: [vuln, tenable, vulnerability-management]
-homepage: https://github.com/beenuar/AiSOC/tree/main/services/connectors/app/connectors/tenable.py
+homepage: https://github.com/beenuar/Quarry/tree/main/services/connectors/app/connectors/tenable.py
 license: MIT
 min_aisoc_version: "4.0.0"
 config_schema:

@@ -1,6 +1,6 @@
 id: det-cloud-085
 name: AWS ECR Repository Policy Public
-description: AiSOC v1 curated detection. Triggers on the cloud signal described by 'AWS ECR Repository
+description: Quarry v1 curated detection. Triggers on the cloud signal described by 'AWS ECR Repository
   Policy Public'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: high
@@ -19,6 +19,6 @@ false_positives:
 - Public images repo
 playbook: tpl-supply-chain
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

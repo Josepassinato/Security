@@ -1,6 +1,6 @@
 id: det-application-017
 name: Internal Repository Made Public
-description: AiSOC v1 curated detection. Triggers on the application signal described by 'Internal Repository
+description: Quarry v1 curated detection. Triggers on the application signal described by 'Internal Repository
   Made Public'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: critical
@@ -19,6 +19,6 @@ false_positives:
 - OSS publication (must reference release ticket)
 playbook: tpl-data-exposure
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

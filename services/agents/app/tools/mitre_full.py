@@ -10,7 +10,7 @@ On startup, this module:
 3. Builds in-memory indexes for O(1) lookups.
 4. Optionally embeds technique descriptions into Qdrant for semantic RAG.
 
-AiSOC — open-source AI Security Operations Center (MIT License)
+Quarry — open-source AI Security Operations Center (MIT License)
 """
 
 from __future__ import annotations

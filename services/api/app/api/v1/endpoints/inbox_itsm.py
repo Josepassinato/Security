@@ -3,18 +3,18 @@
 Public-facing counterpart to the *outbound* fan-out implemented in
 ``app.services.case_fanout``. The flow it closes is:
 
-1. AiSOC case is created or its status changes →
+1. Quarry case is created or its status changes →
 2. ``case_fanout`` POSTs to ``services/connectors`` →
 3. Connector creates / updates a Jira issue or ServiceNow incident →
 4. Operator works the ticket *in their existing ITSM*, eventually
    transitioning it to "In Progress" / "Done" / "Resolved" / "Closed".
 5. Their ITSM fires a webhook at THIS endpoint →
-6. We resolve the inbound ticket back to its AiSOC case via
+6. We resolve the inbound ticket back to its Quarry case via
    ``case_external_refs`` and mirror the status onto ``aisoc_cases``.
 
 This is what makes ITSM "the source of truth" — operators never have
-to log into AiSOC to change a ticket status; the ITSM they already
-live in keeps AiSOC in sync.
+to log into Quarry to change a ticket status; the ITSM they already
+live in keeps Quarry in sync.
 
 Why this lives in a separate module from ``inbox.py``
 -----------------------------------------------------
@@ -43,7 +43,7 @@ where:
   paired with a connector from tenant B.
 
 Optional second factor: if the operator set ``hmac_secret`` on the
-inbox token, we verify ``X-AiSOC-Signature: sha256=<hex>`` against
+inbox token, we verify ``X-Quarry-Signature: sha256=<hex>`` against
 ``HMAC(secret, raw_body)`` and reject mismatches.
 
 Idempotency
@@ -52,13 +52,13 @@ Vendor webhooks retry aggressively (Jira up to 5×, ServiceNow until
 the destination 200s). Every code path here is structured so that
 re-delivering the same payload is a no-op — we look up the case by
 ``(connector_instance_id, external_id)``, compare the inbound status
-to the current AiSOC status, and only write when they actually differ.
+to the current Quarry status, and only write when they actually differ.
 A redelivered "Done" event after we've already closed the case bumps
 ``case_external_refs.last_synced_at`` and nothing else.
 
 What we explicitly do NOT do
 ----------------------------
-* We do not let the ITSM transition the AiSOC case into states that
+* We do not let the ITSM transition the Quarry case into states that
   don't exist in our enum (``new``, ``triaged``, ``investigating``,
   ``contained``, ``resolved``, ``closed``). Anything we can't map
   cleanly is treated as "no status change" and the case stays put —
@@ -66,11 +66,11 @@ What we explicitly do NOT do
   webhook is alive.
 * We do not delete cases when an ITSM ticket is deleted. That's
   destructive and irreversible; the operator must close the case
-  through AiSOC's own UI.
+  through Quarry's own UI.
 * We do not honour assignment / priority changes. They're trivially
   reversible if we ever want them later, but for now ITSM is only the
   source of truth for *status*. Comments, custom fields, etc. are
-  one-way (AiSOC → ITSM only).
+  one-way (Quarry → ITSM only).
 """
 
 from __future__ import annotations
@@ -98,8 +98,8 @@ router = APIRouter(prefix="/inbox", tags=["inbox-itsm"])
 
 
 # ---------------------------------------------------------------------------
-# Status reverse maps. Inbound (vendor → AiSOC) is intentionally lossy and
-# canonicalising — multiple vendor states collapse onto a single AiSOC state.
+# Status reverse maps. Inbound (vendor → Quarry) is intentionally lossy and
+# canonicalising — multiple vendor states collapse onto a single Quarry state.
 # We keep the maps narrow on purpose:
 #
 #   * Lower-case the vendor token before lookup, so "DONE", "Done", and
@@ -183,7 +183,7 @@ class InboundResult(BaseModel):
     """Response body for the inbound webhook."""
 
     case_id: uuid.UUID | None
-    """AiSOC case the inbound event mapped to. ``None`` means the external
+    """Quarry case the inbound event mapped to. ``None`` means the external
     ID wasn't found — the webhook is acknowledged with 200 anyway, because
     Jira/ServiceNow will retry forever on non-2xx and we don't want one
     stale ticket to block the queue."""
@@ -198,10 +198,10 @@ class InboundResult(BaseModel):
     malformed and we logged the parse failure."""
 
     old_status: str | None
-    """AiSOC status before this webhook. None when ``case_id`` is None."""
+    """Quarry status before this webhook. None when ``case_id`` is None."""
 
     new_status: str | None
-    """AiSOC status after applying the inbound transition. Equal to
+    """Quarry status after applying the inbound transition. Equal to
     ``old_status`` when the inbound vendor state didn't map to anything
     actionable, or when the case was already in the target state."""
 
@@ -328,11 +328,11 @@ def _parse_servicenow_payload(
 
 
 def _map_inbound_status(vendor: str, raw_status: str | None) -> str | None:
-    """Look up the AiSOC equivalent of a vendor status, or None.
+    """Look up the Quarry equivalent of a vendor status, or None.
 
     Returns None for both "vendor returned no status" and "we don't know
     how to map it" — they're the same outcome from the caller's point of
-    view (don't change the AiSOC status).
+    view (don't change the Quarry status).
     """
     if raw_status is None:
         return None
@@ -472,13 +472,13 @@ async def _apply_status_to_case(
     1. ``aisoc_cases``: status, updated_at, plus the timeline columns
        (``triaged_at`` / ``resolved_at`` / ``closed_at``) the appropriate
        transition implies. Mirrors the logic in
-       ``cases.update_case`` so AiSOC's own audit math stays consistent.
+       ``cases.update_case`` so Quarry's own audit math stays consistent.
     2. ``case_external_refs``: ``external_status`` + ``last_synced_at``.
        This is what makes the *next* outbound ``push_status_change`` a
        no-op — the connector compares ``external_status`` to the desired
        state and short-circuits when they already match.
     3. ``aisoc_case_comments``: a system note ("ServiceNow set state to
-       Resolved → AiSOC case marked resolved") so the timeline view shows
+       Resolved → Quarry case marked resolved") so the timeline view shows
        the inbound transition with its provenance.
 
     The caller has already verified ``new_status`` is in the allowed set,
@@ -528,7 +528,7 @@ async def _apply_status_to_case(
         )
     )
 
-    note_body = f"{vendor.title()} ticket {external_id} transitioned. AiSOC case marked '{new_status}' via inbound webhook."
+    note_body = f"{vendor.title()} ticket {external_id} transitioned. Quarry case marked '{new_status}' via inbound webhook."
     await db.execute(
         text(
             """
@@ -555,19 +555,19 @@ async def _apply_status_to_case(
 @router.post(
     "/itsm/{tenant_token}/{connector_instance_id}",
     response_model=InboundResult,
-    summary="Inbound ITSM webhook (Jira / ServiceNow → AiSOC case)",
+    summary="Inbound ITSM webhook (Jira / ServiceNow → Quarry case)",
 )
 async def inbound_itsm_webhook(
     tenant_token: str,
     connector_instance_id: uuid.UUID,
     request: Request,
     db: DBSession,
-    x_aisoc_signature: str | None = Header(default=None, alias="X-AiSOC-Signature"),
+    x_aisoc_signature: str | None = Header(default=None, alias="X-Quarry-Signature"),
 ) -> InboundResult:
-    """Receive a Jira / ServiceNow webhook and mirror status onto AiSOC.
+    """Receive a Jira / ServiceNow webhook and mirror status onto Quarry.
 
     Public-facing — the only authenticator is the ``tenant_token`` in the
-    URL (and an optional ``X-AiSOC-Signature`` HMAC). Rate limiting and
+    URL (and an optional ``X-Quarry-Signature`` HMAC). Rate limiting and
     DDoS protection are expected to live at the edge (Cloudflare /
     upstream LB), not here — the vendor's source IPs are stable enough
     that the ops team can configure WAF rules.
@@ -649,7 +649,7 @@ async def inbound_itsm_webhook(
             note=f"{vendor} payload missing required fields",
         )
 
-    # Resolve external_id → AiSOC case via case_external_refs. The unique
+    # Resolve external_id → Quarry case via case_external_refs. The unique
     # constraint on (connector_instance_id, external_id) guarantees at
     # most one row.
     ref_row = (
@@ -672,7 +672,7 @@ async def inbound_itsm_webhook(
 
     if ref_row is None:
         # ITSM ticket exists on the vendor side but we don't have it
-        # linked to any AiSOC case. This is normal during onboarding
+        # linked to any Quarry case. This is normal during onboarding
         # (operator imported pre-existing tickets) — bump nothing, log,
         # and 200 the vendor.
         logger.info(
@@ -691,7 +691,7 @@ async def inbound_itsm_webhook(
             old_status=None,
             new_status=None,
             status_changed=False,
-            note=(f"No AiSOC case linked to {vendor} {external_id}. The ticket may pre-date the integration."),
+            note=(f"No Quarry case linked to {vendor} {external_id}. The ticket may pre-date the integration."),
         )
 
     # Update last_used_at on the inbox token regardless of whether the
@@ -722,7 +722,7 @@ async def inbound_itsm_webhook(
             old_status=ref_row.status,
             new_status=ref_row.status,
             status_changed=False,
-            note=(f"{vendor} status '{raw_status}' has no AiSOC equivalent; last_synced_at bumped."),
+            note=(f"{vendor} status '{raw_status}' has no Quarry equivalent; last_synced_at bumped."),
         )
 
     if new_status == ref_row.status:

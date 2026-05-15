@@ -1,6 +1,6 @@
 """
-Neo4j driver singleton for AiSOC graph layer.
-AiSOC — open-source AI Security Operations Center (MIT License)
+Neo4j driver singleton for Quarry graph layer.
+Quarry — open-source AI Security Operations Center (MIT License)
 """
 
 from __future__ import annotations

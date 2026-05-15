@@ -1,12 +1,12 @@
--- AiSOC ClickHouse init: raw events + metrics
+-- Quarry ClickHouse init: raw events + metrics
 -- Runs at container start via /docker-entrypoint-initdb.d
 
-CREATE DATABASE IF NOT EXISTS aisoc;
+CREATE DATABASE IF NOT EXISTS quarry;
 
 -- ──────────────────────────────────────────────────────────────────────────────
 -- Raw OCSF events (hot tier - 30 days MergeTree)
 -- ──────────────────────────────────────────────────────────────────────────────
-CREATE TABLE IF NOT EXISTS aisoc.raw_events (
+CREATE TABLE IF NOT EXISTS quarry.raw_events (
     event_id        UUID DEFAULT generateUUIDv4(),
     tenant_id       UUID,
     event_time      DateTime64(3, 'UTC'),
@@ -42,7 +42,7 @@ SETTINGS index_granularity = 8192;
 -- ──────────────────────────────────────────────────────────────────────────────
 -- Alert metrics for dashboards
 -- ──────────────────────────────────────────────────────────────────────────────
-CREATE TABLE IF NOT EXISTS aisoc.alert_metrics (
+CREATE TABLE IF NOT EXISTS quarry.alert_metrics (
     ts              DateTime DEFAULT now(),
     tenant_id       UUID,
     severity        String,
@@ -58,7 +58,7 @@ TTL ts + INTERVAL 365 DAY;
 -- ──────────────────────────────────────────────────────────────────────────────
 -- IOC lookup table (append-only enrichment cache)
 -- ──────────────────────────────────────────────────────────────────────────────
-CREATE TABLE IF NOT EXISTS aisoc.ioc_enrichments (
+CREATE TABLE IF NOT EXISTS quarry.ioc_enrichments (
     ioc_value       String,
     ioc_type        String,
     tenant_id       UUID,

@@ -1,6 +1,6 @@
 # Community Plugins
 
-This directory holds plugins contributed by the AiSOC community.
+This directory holds plugins contributed by the Quarry community.
 
 Each plugin is a self-contained directory with `plugin.yaml` plus at least
 one SDK implementation (`plugin.py` and/or `go/main.go`). They are
@@ -27,12 +27,12 @@ field. Convention for community plugins:
 
 - Implement the right SDK interface for the plugin type:
   - Connector: ingests events from a third-party source. Implements
-    `aisoc.Connector` (Go) or `aisoc_plugin_sdk.Connector` (Python).
+    `quarry.Connector` (Go) or `aisoc_plugin_sdk.Connector` (Python).
   - Enricher: augments alerts and cases with extra context. Implements
-    `aisoc.Enricher` / `aisoc_plugin_sdk.Enricher`.
+    `quarry.Enricher` / `aisoc_plugin_sdk.Enricher`.
   - Action: performs an external action (page, message, contain, etc.).
-    Implements `aisoc.Action` / `aisoc_plugin_sdk.Action`.
-  - Widget: renders a dashboard tile. Implements `aisoc.Widget` /
+    Implements `quarry.Action` / `aisoc_plugin_sdk.Action`.
+  - Widget: renders a dashboard tile. Implements `quarry.Widget` /
     `aisoc_plugin_sdk.Widget`.
 - Required `plugin.yaml` fields: `id`, `name`, `version`, `author`,
   `description`, `plugin_type`, `license`, `min_aisoc_version`, `homepage`.

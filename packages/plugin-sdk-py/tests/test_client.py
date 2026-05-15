@@ -1,11 +1,11 @@
-"""Tests for AiSOCClient using httpx mock transport."""
+"""Tests for QuarryClient using httpx mock transport."""
 
 from __future__ import annotations
 
 import pytest
 import httpx
 
-from aisoc_plugin_sdk import AiSOCClient, AiSOCClientError, PluginContext
+from quarry_plugin_sdk import QuarryClient, QuarryClientError, PluginContext
 
 
 @pytest.fixture
@@ -35,7 +35,7 @@ async def test_get_case(ctx: PluginContext) -> None:
     transport = _make_transport({
         "GET /api/v1/cases/case-1": (200, {"id": "case-1", "title": "Test Case"}),
     })
-    async with AiSOCClient(ctx) as client:
+    async with QuarryClient(ctx) as client:
         client._http = httpx.AsyncClient(
             base_url=ctx.api_base_url,
             headers={"Authorization": f"Bearer {ctx.api_token}"},
@@ -51,7 +51,7 @@ async def test_add_case_note(ctx: PluginContext) -> None:
     transport = _make_transport({
         "POST /api/v1/cases/case-1/notes": (201, {"id": "note-1", "content": "hello"}),
     })
-    async with AiSOCClient(ctx) as client:
+    async with QuarryClient(ctx) as client:
         client._http = httpx.AsyncClient(
             base_url=ctx.api_base_url,
             headers={"Authorization": f"Bearer {ctx.api_token}"},
@@ -66,7 +66,7 @@ async def test_patch_indicator(ctx: PluginContext) -> None:
     transport = _make_transport({
         "PATCH /api/v1/indicators/ind-1": (200, {"id": "ind-1", "enrichments": {"geo": "US"}}),
     })
-    async with AiSOCClient(ctx) as client:
+    async with QuarryClient(ctx) as client:
         client._http = httpx.AsyncClient(
             base_url=ctx.api_base_url,
             headers={"Authorization": f"Bearer {ctx.api_token}"},
@@ -80,13 +80,13 @@ async def test_patch_indicator(ctx: PluginContext) -> None:
 async def test_client_raises_on_error(ctx: PluginContext) -> None:
     transport = _make_transport({})  # returns 404 for everything
 
-    async with AiSOCClient(ctx) as client:
+    async with QuarryClient(ctx) as client:
         client._http = httpx.AsyncClient(
             base_url=ctx.api_base_url,
             headers={"Authorization": f"Bearer {ctx.api_token}"},
             transport=transport,
         )
-        with pytest.raises(AiSOCClientError) as exc_info:
+        with pytest.raises(QuarryClientError) as exc_info:
             await client.get_case("missing")
 
     assert exc_info.value.status_code == 404
@@ -94,6 +94,6 @@ async def test_client_raises_on_error(ctx: PluginContext) -> None:
 
 @pytest.mark.asyncio
 async def test_client_context_manager_required(ctx: PluginContext) -> None:
-    client = AiSOCClient(ctx)
+    client = QuarryClient(ctx)
     with pytest.raises(RuntimeError, match="context manager"):
         await client.get_case("x")

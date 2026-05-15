@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/beenuar/aisoc/blob/main/playbook.schema.json",
-  "title": "AiSOC Playbook",
-  "description": "JSON Schema 2020-12 for AiSOC playbook definitions (Pillar 2, v4.0). Portable across file format (YAML / JSON) and CI-lintable.",
+  "$id": "https://github.com/beenuar/quarry/blob/main/playbook.schema.json",
+  "title": "Quarry Playbook",
+  "description": "JSON Schema 2020-12 for Quarry playbook definitions (Pillar 2, v4.0). Portable across file format (YAML / JSON) and CI-lintable.",
   "type": "object",
   "required": ["id", "name", "version", "trigger", "steps"],
   "additionalProperties": false,
@@ -217,7 +217,7 @@
       "name": "Phishing Email Triage",
       "description": "Enrich sender, notify SOC, auto-close low-risk.",
       "version": "1.0.0",
-      "author": "AiSOC Core Team",
+      "author": "Quarry Core Team",
       "tags": ["phishing", "email", "triage"],
       "trigger": { "on": "alert", "severity": ["low", "medium"] },
       "steps": [

@@ -1,4 +1,4 @@
-"""GitHub Audit Log connector for AiSOC.
+"""GitHub Audit Log connector for Quarry.
 
 Pulls org audit log events, secret-scanning alerts, and user activity from
 the GitHub REST API for use in identity / supply-chain investigations.

@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to AiSOC will be documented in this file.
+All notable changes to Quarry will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 `services/agents/tests/test_llm_contract.py` exercises `classify_message` /
 `LLMInputContract.validate` / `validate_messages`: raw OCSF-shaped JSON in a
-user message fails closed when `AISOC_AGENTS_LLM_CONTRACT_ENFORCED=1`
+user message fails closed when `QUARRY_AGENTS_LLM_CONTRACT_ENFORCED=1`
 (default), and prose plus `summarize_structure_for_llm` output passes. Tests
 use `{"role", "content"}` dict messages so they run without importing
 `langchain_core` (the contract already coerces LangChain `BaseMessage` and
@@ -22,7 +22,7 @@ dicts the same way).
 Closes the v8.0 loop between the ingest-side graph writer (T1.1) and the
 operator console. `services/realtime` now exposes a `graph` WebSocket
 channel reachable at `/ws/graph` (or piggy-backed on `/ws/all`) and runs a
-dedicated `aisoc-realtime-graph` Kafka consumer group against the
+dedicated `quarry-realtime-graph` Kafka consumer group against the
 `security.graph_updates` topic that the Go ingest writer publishes to
 (`services/ingest/internal/graph/writer.go`). Each `GraphUpdate` envelope
 (`entity_id`, `change_type`, `ts`, `label`, `rel_type`, `from`, `to`,
@@ -32,7 +32,7 @@ deploys without explicit tenant tagging still light up live. The new
 consumer is wired alongside the existing fused-alerts consumer in
 non-blocking mode: a missing or unreachable graph topic logs at `warn` and
 never blocks the higher-priority alerts/cases/agents/insights fan-out. The
-topic name honours both `AISOC_GRAPH_UPDATES_TOPIC` and
+topic name honours both `QUARRY_GRAPH_UPDATES_TOPIC` and
 `KAFKA_TOPIC_GRAPH_UPDATES` envs (defaults to `security.graph_updates` so
 it matches the Go writer's default in
 `services/ingest/internal/config/config.go` without manual plumbing), and
@@ -60,7 +60,7 @@ weekly CI workflow lands.
 
 ### Connectors — Wazuh Indexer ingest (Stage 2)
 
-New first-class endpoint connector for Wazuh deployments. AiSOC now polls the
+New first-class endpoint connector for Wazuh deployments. Quarry now polls the
 Wazuh Indexer API directly (no agent rewrite required) and normalizes alerts
 into the platform's OCSF-aligned schema, collapsing Wazuh's native severity
 ladder into the four-tier `info | low | medium | high` set used everywhere
@@ -83,18 +83,18 @@ else.
   cover schema, auth headers, time-window query shape, retry policy, every
   documented severity bucket, and the empty/error paths.
 
-### CLI — `aisoc plugin new` per-type templates
+### CLI — `quarry plugin new` per-type templates
 
 Replaces the old hard-coded `plugin scaffold` with a real templated generator
 keyed on plugin kind (`enricher | connector | responder | detection | widget`).
-Templates ship inside the `aisoc-cli` wheel via `importlib.resources` so the
-CLI works unchanged after `pip install aisoc-cli`.
+Templates ship inside the `quarry-cli` wheel via `importlib.resources` so the
+CLI works unchanged after `pip install quarry-cli`.
 
-- **`packages/aisoc-cli/src/aisoc_cli/main.py`** — `aisoc plugin new <NAME>
+- **`packages/quarry-cli/src/aisoc_cli/main.py`** — `quarry plugin new <NAME>
   --type <kind>` loads the template tree from
   `src/aisoc_cli/templates/<kind>/`, runs `string.Template` substitution for
   `${slug}`, `${name}`, `${author}`, and writes a project that already
-  validates against the manifest schema. `aisoc plugin scaffold` is preserved
+  validates against the manifest schema. `quarry plugin scaffold` is preserved
   as an alias for backwards compatibility.
 - `pyproject.toml` — `force-include` ships the templates tree in the wheel.
 - Tests parameterize across all five plugin types and assert the manifest
@@ -106,7 +106,7 @@ CLI works unchanged after `pip install aisoc-cli`.
 
 ### Infrastructure — GCP Cloud Run + Cloud SQL Terraform skeleton
 
-Adds a serverless-first BYOC equivalent of the existing AWS module so AiSOC
+Adds a serverless-first BYOC equivalent of the existing AWS module so Quarry
 can be stood up on Google Cloud with one `terraform apply`. Stage 2 #15.
 
 - **`infra/terraform/gcp/`** — Cloud Run for `api`/`web`/`ingest`, Cloud SQL
@@ -150,7 +150,7 @@ of seeing a 500.
   (full actions suite: 99 passed).
 - **`apps/docs/docs/concepts/live-actions.md`** + sidebar slot.
 - Drive-by: fixed two pre-existing broken doc links flagged by the
-  Docusaurus build (osctrl → aisoc-direct stub, `air-gapped` → `env-vars`).
+  Docusaurus build (osctrl → quarry-direct stub, `air-gapped` → `env-vars`).
 
 ### Agents — deterministic NL→ES|QL translator + 50-pair eval set (Stage 2 #16)
 
@@ -171,7 +171,7 @@ air-gapped story keeps working and the eval harness stays reproducible.
 - Pre-existing services/agents tests still green (162 passed) when ignoring
   the asyncpg-dependent suites that fail on a fresh checkout.
 
-### Connectors — auditd file_tail + AiSOC audit.rules profile
+### Connectors — auditd file_tail + Quarry audit.rules profile
 
 Replaces the host-agent dependency for Linux endpoint visibility with a
 file-tail connector that consumes `audit.log` directly, plus an opinionated
@@ -182,7 +182,7 @@ auditctl ruleset whose `-k` keys map 1:1 to detection rules.
   decodes hex `proctitle`/`argv` blobs, and normalizes via
   `_severity_from_event` using `aisoc_*` keys baked into the audit rules
   profile. Cursor is `(inode, byte_offset)` so log rotation is handled.
-- **`profiles/auditd/aisoc.rules`** + `profiles/auditd/README.md` — ships an
+- **`profiles/auditd/quarry.rules`** + `profiles/auditd/README.md` — ships an
   opinionated auditctl ruleset and documents install + reload.
 - **`detections/`** — 4 new detection rules pivot off `auditd_key` for
   sudoers / SSH config tampering, kernel module load, and systemd
@@ -200,8 +200,8 @@ auditctl ruleset whose `-k` keys map 1:1 to detection rules.
 Two new operator-facing docs pages, both registered in the Docusaurus sidebar:
 
 - **`apps/docs/docs/operations/notifications.md`** — complete inventory of
-  every notification surface in AiSOC: Web Push to the responder PWA (VAPID,
-  Redis, topic routing), Slack ChatOps via `/aisoc`, Slack/Teams ChatOps
+  every notification surface in Quarry: Web Push to the responder PWA (VAPID,
+  Redis, topic routing), Slack ChatOps via `/quarry`, Slack/Teams ChatOps
   verification, one-shot `notify_slack` from playbooks, `create_ticket`
   simulation + recommended plugin path, honeytoken first-touch webhooks,
   connector freshness alerts, on-call gating, suppression / quiet-hours, and
@@ -267,9 +267,9 @@ configured MISP instance as a native event with one or more attributes.
     becomes one MISP event.
   - `GET /stix/misp/health` — calls MISP `/users/view/me`, never echoes the
     API key back.
-  - `POST /stix/misp/dry-run` — returns the exact MISP event payload AiSOC
+  - `POST /stix/misp/dry-run` — returns the exact MISP event payload Quarry
     *would* send, plus an `airgap_blocked` flag for air-gapped audits.
-  - Push failures are intentionally non-fatal: the AiSOC store is the source
+  - Push failures are intentionally non-fatal: the Quarry store is the source
     of truth, the MISP mirror is best-effort and surfaces the structured
     error on the same response.
 - **`services/api/app/core/config.py`** — new MISP push settings:
@@ -413,7 +413,7 @@ Track 1 + Track 2 of the docker-compose hardening work that began in
 a clean clone; this release attacks the *time* dimension. The previous
 behaviour — `docker compose up -d` on a fresh checkout building all 15
 services from source — took 10–20 minutes on a typical laptop and was the
-single largest source of "I tried AiSOC and gave up" reports. With this
+single largest source of "I tried Quarry and gave up" reports. With this
 release, the same command pulls 12 prebuilt images from GHCR and is
 healthy in roughly 90 seconds.
 
@@ -425,19 +425,19 @@ gate that proves both still work.
 
 - **`docker-compose.yml`**: Every service that previously had a `build:`
   directive now also has an `image:` and `pull_policy: missing`. Compose
-  will pull the prebuilt image from `ghcr.io/aisoc-platform/aisoc-<svc>`
+  will pull the prebuilt image from `ghcr.io/quarry-platform/quarry-<svc>`
   if it exists locally or in the registry; only if the pull fails does it
   fall back to building from source. The 12 backend services that publish
   images (api, agents, realtime, web, ingest, enrichment, fusion, actions,
   connectors, threatintel, ueba, slack-bot) are tagged via the
-  `${AISOC_VERSION:-latest}` interpolation so the same compose file works
+  `${QUARRY_VERSION:-latest}` interpolation so the same compose file works
   for `latest`, `main`, a release tag (`v7.2.0`), or a local override.
   The three deferred services (osquery-tls, honeytokens, purple-team) are
   marked with a `# TODO(publish)` comment and continue to build locally.
-- **`.env.example`**: Added a new top-of-file `AISOC_VERSION=latest`
+- **`.env.example`**: Added a new top-of-file `QUARRY_VERSION=latest`
   block that documents how to pin the entire backend to a release tag for
-  reproducible deploys (`AISOC_VERSION=v7.2.0`), or track the bleeding
-  edge (`AISOC_VERSION=main`).
+  reproducible deploys (`QUARRY_VERSION=v7.2.0`), or track the bleeding
+  edge (`QUARRY_VERSION=main`).
 - **`.github/workflows/publish-images.yml`**: Extended the build matrix
   from 4 services to 12 by adding ingest, enrichment, fusion, actions,
   connectors, threatintel, ueba, and slack-bot. These are the backend
@@ -446,7 +446,7 @@ gate that proves both still work.
   "build from source" for two-thirds of the stack and the change would be
   cosmetic.
 - **`.github/workflows/release.yml`**: Mirrored the same 12-service
-  matrix on tagged-release builds so that `AISOC_VERSION=v7.2.0` resolves
+  matrix on tagged-release builds so that `QUARRY_VERSION=v7.2.0` resolves
   to a real published image for every service in the compose file, not
   just the demo subset.
 
@@ -470,7 +470,7 @@ regressions that nobody catches until release day.
 - **`.github/workflows/compose-smoke.yml`** (new): On every PR that
   touches `docker-compose.yml`, `docker-compose.demo.yml`, any service
   Dockerfile, `.env.example`, or the workflow itself, GitHub Actions now
-  boots the full stack from a clean checkout and asserts `aisoc-postgres`
+  boots the full stack from a clean checkout and asserts `quarry-postgres`
   is healthy, `api` returns 200 on `/health`, and `web` returns 200 on
   `/` — all within a 10-minute budget. Pull-by-default by design (so the
   CI run mirrors what the user sees), with automatic detection of
@@ -499,7 +499,7 @@ None for users on 7.1.1. The compose file is backwards-compatible —
 (it tries the registry before building); existing local images are
 honoured. If you want the new fast path explicitly, run `docker compose
 pull` once after upgrading. To pin a deploy to this release rather than
-tracking `latest`, set `AISOC_VERSION=v7.2.0` in `.env`.
+tracking `latest`, set `QUARRY_VERSION=v7.2.0` in `.env`.
 
 If you skipped 7.1.1, also read its [migration note](#711--2026-05-10)
 about the `osquery-tls` host-port change (`8007` → `8091`).
@@ -530,7 +530,7 @@ fix is in the boot path, the boot documentation, or the pre-flight check.
   Without these caps, a 4 GB Docker Desktop allocation (the default on macOS)
   would silently OOM-kill OpenSearch or Neo4j during JVM warmup, leaving the
   rest of the stack running but the alert/case feeds permanently empty.
-- **`docker-compose.yml`** (`osquery-tls` service): Fixed `AISOC_INGEST_BASE_URL`
+- **`docker-compose.yml`** (`osquery-tls` service): Fixed `QUARRY_INGEST_BASE_URL`
   pointing at the non-existent `ingest:8080` (the actual service is named
   `ingest-worker`). Also remapped the host port from `8007` to `8091` to
   resolve a host-port collision with the `ueba` service. Both bugs only
@@ -541,7 +541,7 @@ fix is in the boot path, the boot documentation, or the pre-flight check.
 
 #### README rewrite
 
-- **`README.md`** — *Quick start*: Restructured so `pnpm aisoc:demo` is the
+- **`README.md`** — *Quick start*: Restructured so `pnpm quarry:demo` is the
   canonical first-touch path (4 prebuilt images, ~90s to a working SOC
   console) and `docker compose up -d` is explicitly labelled the
   "developer-build path" (22 services, 10–20 min cold build, requires Docker
@@ -553,11 +553,11 @@ fix is in the boot path, the boot documentation, or the pre-flight check.
   above.
 - **`README.md`** — *Boot section*: Added explicit timing expectations
   ("~5 GB of base image pulls + 10–20 min of build on a typical laptop"), a
-  recommendation to run `pnpm aisoc:doctor` before kicking off the build, and
+  recommendation to run `pnpm quarry:doctor` before kicking off the build, and
   a troubleshooting note pointing under-provisioned Docker Desktop installs
   at *Settings → Resources*.
 
-#### `aisoc:doctor` hardening
+#### `quarry:doctor` hardening
 
 The pre-flight check that the user is now told to run before
 `docker compose up -d` was previously useless to first-time users — its
@@ -577,9 +577,9 @@ the stack. This release fixes both:
   build succeeds but `docker compose ps` shows half my containers in a
   restart loop" reported to date.
 - **Cross-compose-project container discovery**: Replaced `docker compose ps`
-  with `docker ps -a --format json --filter name=aisoc-`. The doctor now
-  detects whether the user is on the demo stack (`aisoc-demo-*` containers)
-  or full stack (`aisoc-*` containers) and accepts either as a valid boot,
+  with `docker ps -a --format json --filter name=quarry-`. The doctor now
+  detects whether the user is on the demo stack (`quarry-demo-*` containers)
+  or full stack (`quarry-*` containers) and accepts either as a valid boot,
   so demo users no longer see false `FAIL` rows for services the demo
   intentionally omits (kafka-ui, neo4j, etc.).
 - **Exit-code aware container reporting**: When a container exists but is
@@ -600,7 +600,7 @@ the stack. This release fixes both:
 
 None. This is a docker-compose hygiene release — no service code,
 no database schema, no API surface area changed. Pull, re-run
-`pnpm aisoc:doctor`, and re-run `docker compose up -d` (the
+`pnpm quarry:doctor`, and re-run `docker compose up -d` (the
 `osquery-tls` port change means existing deployments need to update any
 osquery-agent `tls_hostname:tls_port` config from `localhost:8007` to
 `localhost:8091`, but no one was using that interface yet).
@@ -659,7 +659,7 @@ clusters.
   `AWSGuardDutyConnector` mirroring `AWSSecurityHubConnector`'s shape:
   boto3-based, supports IAM-role or static-key auth, calls
   `guardduty.list_findings` + `get_findings` per detector. Normalises
-  GuardDuty's continuous numeric severity scale (`0.1`–`10.0`) into AiSOC's
+  GuardDuty's continuous numeric severity scale (`0.1`–`10.0`) into Quarry's
   four-tier `info|low|medium|high` ladder (`>= 7.0 → high`, `>= 4.0 → medium`,
   `>= 1.0 → low`, else `info`). Capability: `PULL_ALERTS`.
 - **`services/connectors/app/connectors/aws_cloudtrail.py`** —
@@ -691,14 +691,14 @@ clusters.
   `KubernetesAuditConnector` shipping with two delivery modes selected via the
   `mode` config field:
   - **`webhook` (recommended)** — Kubernetes API server pushes audit events
-    to AiSOC's new dedicated `POST /v1/ingest/k8s-audit/{tenant_id}` route,
-    authenticated with a shared secret in the `X-AiSOC-K8s-Token` header
+    to Quarry's new dedicated `POST /v1/ingest/k8s-audit/{tenant_id}` route,
+    authenticated with a shared secret in the `X-Quarry-K8s-Token` header
     (compared in constant time so partial-prefix matches still fail). The
     legacy `/v1/inbox/{token}` path with the `k8s-audit` template is kept
     around as a fallback for control planes that cannot inject custom
     headers into the audit-webhook kubeconfig.
-  - **`file_tail`** — AiSOC's connector pod tails a local `audit.log` file
-    using a byte-position cursor (atomically written to a `.aisoc-cursor`
+  - **`file_tail`** — Quarry's connector pod tails a local `audit.log` file
+    using a byte-position cursor (atomically written to a `.quarry-cursor`
     sidecar), with rotation/truncation detection and a hard per-poll byte cap
     so a backlog can't blow up a single poll cycle.
 - **`services/ingest/internal/handler/k8s_audit.go`** — New Go handler for
@@ -717,7 +717,7 @@ clusters.
   info`) into OCSF integer severities (5/4/3/2/1).
 - **`services/ingest/internal/normalizer/templates/k8s-audit.yaml`** — New
   inbox template (legacy path) that maps Kubernetes apiserver `Event`
-  payloads (`apiVersion: audit.k8s.io/v1`) onto AiSOC's normalised event
+  payloads (`apiVersion: audit.k8s.io/v1`) onto Quarry's normalised event
   shape:
   - `external_id ← auditID`
   - `vendor ← "Kubernetes"`, `product ← "apiserver-audit"`,
@@ -745,7 +745,7 @@ clusters.
 - **`apps/docs/docs/connectors/kubernetes-audit.md`** — Includes a complete
   sample `AuditPolicy` (omitStages on RequestReceived for verbosity control;
   Metadata level for routine reads, RequestResponse for writes on Secret /
-  ConfigMap / ClusterRoleBinding) and a sample `AuditSink` pointing at AiSOC's
+  ConfigMap / ClusterRoleBinding) and a sample `AuditSink` pointing at Quarry's
   inbox URL.
 
 #### Cross-cutting
@@ -865,7 +865,7 @@ clusters.
 > `live_action` interface (Issue #8) on `main` directly rather than
 > assuming this section's primitives are in place.
 
-### Added — osctrl, FleetDM, aisoc-osquery-tls, aisoc-direct, native osquery detections, live-query playbook step, FIM, custom virtual tables
+### Added — osctrl, FleetDM, quarry-osquery-tls, quarry-direct, native osquery detections, live-query playbook step, FIM, custom virtual tables
 
 Six-PR wave that closes [#44](https://github.com/beenuar/AiSOC/issues/44)
 ("osctrl connector for fleet-wide osquery telemetry") and significantly extends
@@ -910,7 +910,7 @@ v7.0.0 baseline and the v7.0.1 hardening patch.
   `services/agents/app/playbook/models.py` as `StepType.OSQUERY_LIVE_QUERY` and
   dispatched from the `STEP_HANDLERS` table at the bottom of `engine.py`.
   Pushes allowlisted distributed queries to a single host or fleet-wide via
-  osctrl / FleetDM / aisoc-direct with HMAC-signed ChatOps approval before
+  osctrl / FleetDM / quarry-direct with HMAC-signed ChatOps approval before
   execution. Tests live in
   `services/agents/tests/test_osquery_live_query_step.py`.
 
@@ -920,7 +920,7 @@ v7.0.0 baseline and the v7.0.1 hardening patch.
   > to keep the playbook engine's dispatch table in one place. The behaviour,
   > tests, and CLI surface are identical to the originally documented design.
 
-#### PR4 — `aisoc-osquery-tls` FastAPI service + `aisoc-direct` connector
+#### PR4 — `quarry-osquery-tls` FastAPI service + `quarry-direct` connector
 
 - **`services/osquery-tls/`** — New first-party FastAPI service exposing
   `/api/v1/enroll`, `/api/v1/config`, `/api/v1/log`, `/api/v1/distributed/read`,
@@ -929,14 +929,14 @@ v7.0.0 baseline and the v7.0.1 hardening patch.
   off-the-shelf osquery agent can enroll without a third-party SaaS hop.
   Uses dedicated SQLite + Alembic migrations under `services/osquery-tls/db/`.
 - **`services/osquery-tls/app/api/v1/endpoints/log.py`** + matching
-  `plugins/aisoc-direct/plugin.yaml` and
+  `plugins/quarry-direct/plugin.yaml` and
   `services/actions/app/clients/aisoc_direct_client.py` — Direct-from-agent
   ingest path that consumes the osquery-tls log stream and normalises into
   the standard alert schema; bypasses third-party SaaS entirely. The
-  `aisoc-direct` connector is implemented as a **virtual connector**: agents
+  `quarry-direct` connector is implemented as a **virtual connector**: agents
   push events directly into `/api/v1/log` on the osquery-tls service, which
   fans them out to the same ingest pipeline the polled connectors use. The
-  marketplace manifest lives at `plugins/aisoc-direct/plugin.yaml`; the
+  marketplace manifest lives at `plugins/quarry-direct/plugin.yaml`; the
   outbound client (used by playbooks to drive distributed queries) lives at
   `services/actions/app/clients/aisoc_direct_client.py`.
 
@@ -962,7 +962,7 @@ v7.0.0 baseline and the v7.0.1 hardening patch.
 - **`apps/web/src/components/dashboard/FimDashboard.tsx`** — New dashboard
   panel grouping FIM events by host, file, and severity.
 
-#### PR6 — AiSOC osquery extensions (custom virtual tables)
+#### PR6 — Quarry osquery extensions (custom virtual tables)
 
 - **`services/osquery-extensions/tables/`** — 5 custom Go-based virtual tables
   shipping with the agent for richer endpoint visibility plus a bidirectional
@@ -1004,8 +1004,8 @@ Beenu Arora <beenu@cyble.com>.
 #### WS-A1 — Slack ChatOps Bot (`services/slack-bot/`)
 
 - **`services/slack-bot/`** — New standalone FastAPI service using `slack-bolt`
-  async adapter. Ships `/aisoc triage <case_id>`, `/aisoc approve <action_id>`,
-  `/aisoc status <case_id>`, and `/aisoc summary <case_id>` slash commands.
+  async adapter. Ships `/quarry triage <case_id>`, `/quarry approve <action_id>`,
+  `/quarry status <case_id>`, and `/quarry summary <case_id>` slash commands.
   Interactive approval buttons route back through the API approval endpoint so
   human-in-the-loop gates work from Slack without opening the console.
 - 61 pytest cases cover the slash-command handlers, interactive payloads, API
@@ -1181,12 +1181,12 @@ Tracked as a known limitation in the docs.
 
 ### Configuration
 
-- `AISOC_ATTRIBUTION_THRESHOLD` — Override the default confidence
+- `QUARRY_ATTRIBUTION_THRESHOLD` — Override the default confidence
   threshold (`0.30`). Clamped to `[0.0, 1.0]`; invalid values fall back
   to the default and emit a warning.
-- `AISOC_THREATINTEL_URL` — Base URL the agent uses to reach the
+- `QUARRY_THREATINTEL_URL` — Base URL the agent uses to reach the
   `threatintel` service. Default: `http://threatintel:8083`.
-- `AISOC_ATTRIBUTION_TIMEOUT_SECONDS` — HTTP timeout the agent uses for
+- `QUARRY_ATTRIBUTION_TIMEOUT_SECONDS` — HTTP timeout the agent uses for
   attribution calls. Default: `10`.
 
 ### Observability
@@ -1412,8 +1412,8 @@ Okta / Microsoft Sentinel set.
 - **`CredentialVault`** (`services/api/app/security/credential_vault.py`,
   `services/connectors/app/security/credential_vault.py`) — Fernet
   (AES-128-CBC + HMAC-SHA256) wrapper for `auth_config` JSON, keyed off the
-  new `AISOC_CREDENTIAL_KEY` env var. Supports `MultiFernet` rotation via
-  `AISOC_CREDENTIAL_KEY_ROTATION_FROM`. The `services/connectors`
+  new `QUARRY_CREDENTIAL_KEY` env var. Supports `MultiFernet` rotation via
+  `QUARRY_CREDENTIAL_KEY_ROTATION_FROM`. The `services/connectors`
   read-path mirror decrypts only; writes always go through the API
   service. Documented in [docs/operations/credentials](apps/docs/docs/operations/credentials.md).
 - **Self-describing connector schemas** (`services/connectors/app/connectors/base.py`)
@@ -1439,7 +1439,7 @@ Okta / Microsoft Sentinel set.
   decrypts via the read-path vault, normalizes events through the
   connector's `normalize()` method, and pushes the batch to
   `services/ingest/v1/ingest/batch` via the new `IngestClient`. Set
-  `AISOC_CONNECTORS_DISABLE_SCHEDULER=1` to skip wiring the scheduler in
+  `QUARRY_CONNECTORS_DISABLE_SCHEDULER=1` to skip wiring the scheduler in
   tests.
 - **Nine new connectors** in `services/connectors/app/connectors/`:
   `azure_entra` (Microsoft Graph audit logs), `azure_activity` (ARM
@@ -1481,8 +1481,8 @@ Okta / Microsoft Sentinel set.
 
 #### Changed
 
-- **`services/api/app/core/config.py`** — added `AISOC_CREDENTIAL_KEY`,
-  `AISOC_CREDENTIAL_KEY_ROTATION_FROM`, `CONNECTORS_SERVICE_URL`,
+- **`services/api/app/core/config.py`** — added `QUARRY_CREDENTIAL_KEY`,
+  `QUARRY_CREDENTIAL_KEY_ROTATION_FROM`, `CONNECTORS_SERVICE_URL`,
   `CONNECTORS_SERVICE_TIMEOUT_SECONDS`. Documented in `.env.example`.
 - **`services/api/app/main.py`** — the new `/api/v1/connectors` router is
   mounted alongside the existing v1 router set.
@@ -1492,7 +1492,7 @@ Okta / Microsoft Sentinel set.
   unauthenticated dry-run `test_connection()` for the wizard's
   pre-save Test step.
 - **`services/connectors/app/main.py`** — the FastAPI lifespan now wires
-  the scheduler, with `AISOC_CONNECTORS_DISABLE_SCHEDULER` honored for
+  the scheduler, with `QUARRY_CONNECTORS_DISABLE_SCHEDULER` honored for
   tests and CI.
 
 #### Why this matters
@@ -1620,7 +1620,7 @@ hosted on `tryaisoc.com` via Cloudflare Tunnel.
   cross-tenant reads return 0 rows.
 - **Plugin signature gate** (`services/api/app/services/plugin_manager.py`,
   `packages/plugin-sdk-py/src/aisoc_plugin_sdk/loader.py`,
-  `packages/plugin-sdk-go/aisoc/loader.go`) — Ed25519 signature
+  `packages/plugin-sdk-go/quarry/loader.go`) — Ed25519 signature
   verification is required before loading any plugin. `PLUGIN_TRUST_MODE`
   controls policy: `strict` (default, signed only), `permissive` (warn
   + load), `dev` (skip). Publisher signing flow is documented in
@@ -1664,10 +1664,10 @@ hosted on `tryaisoc.com` via Cloudflare Tunnel.
 
 #### DX (P3)
 
-- **`aisoc-doctor` probes fixed** (`tools/aisoc-doctor/`) — checks
+- **`quarry-doctor` probes fixed** (`tools/quarry-doctor/`) — checks
   match the actual ports, env var names, and service URLs.
 - **CLI consistency** (`packages/cli/`, `README.md`,
-  `apps/docs/docs/`) — `npx aisoc` and `aisoc` resolve identically;
+  `apps/docs/docs/`) — `npx quarry` and `quarry` resolve identically;
   package names, missing pnpm scripts, and the `mcp` service
   reference are corrected; branching/tooling and env var names match
   across docs.
@@ -1689,7 +1689,7 @@ hosted on `tryaisoc.com` via Cloudflare Tunnel.
   `tools/detection_import/{sigma,splunk,chronicle,car}_importer.py`
   for SigmaHQ, Splunk Security Content, Chronicle, and MITRE CAR.
   Each imported rule is tagged with its source, license, and original
-  ID; rules whose mappings cannot be replayed against AiSOC fixtures
+  ID; rules whose mappings cannot be replayed against Quarry fixtures
   are quarantined under `detections/<source>-imports/quarantine/`
   (~5,937 quarantined, ~6,113 active).
 - **Title → name migration** — imported YAMLs now use the canonical
@@ -1724,7 +1724,7 @@ hosted on `tryaisoc.com` via Cloudflare Tunnel.
   vars; defaults publish apex + `api.`, `ws.`, `docs.` subdomains.
 - **`pnpm demo:public` script** (`scripts/demo-public.sh`) — boots
   `docker-compose.demo.yml` (read-only demo profile with seeded
-  incidents) via `pnpm aisoc:demo --no-open`, then brings up the
+  incidents) via `pnpm quarry:demo --no-open`, then brings up the
   Cloudflare Tunnel that maps `tryaisoc.com` → web (`:3000`),
   `api.tryaisoc.com` → api (`:8000`), `ws.tryaisoc.com` → realtime
   (`:4000`), and `docs.tryaisoc.com` → Docusaurus (`:3001`).
@@ -1845,7 +1845,7 @@ demo profile. Details below.
 #### MCP server — first-class IDE / chat integration
 
 - **`@quarry/mcp`** (`services/mcp/`) — Model Context Protocol server
-  exposing 11 AiSOC tools to Claude Desktop, Cursor, Cody, and Continue.
+  exposing 11 Quarry tools to Claude Desktop, Cursor, Cody, and Continue.
 - **Discovery tools** — `aisoc_list_alerts`, `aisoc_list_cases`,
   `aisoc_query_detections`.
 - **Deep-dive tools** — `aisoc_get_case`, `aisoc_get_investigation`,
@@ -1854,19 +1854,19 @@ demo profile. Details below.
   `aisoc_replay_decision`, `aisoc_explain_step`, `aisoc_create_case`,
   `aisoc_assign_alert`. The replay set walks the Investigation Ledger
   step-by-step inside the IDE / chat.
-- **Install command** — `npx -y @quarry/mcp install --host claude --aisoc-url … --api-key …`.
+- **Install command** — `npx -y @quarry/mcp install --host claude --quarry-url … --api-key …`.
 - **Documentation** — `apps/docs/docs/integrations/mcp.md`,
   `services/mcp/README.md`.
 
-#### Hosted demo — `pnpm aisoc:demo`
+#### Hosted demo — `pnpm quarry:demo`
 
 - **Slim demo profile** (`docker-compose.demo.yml`) — postgres + redis +
   kafka + api + agents + realtime + web. ClickHouse, OpenSearch, Neo4j,
   and Qdrant are gated behind compose profiles for production.
-- **Prebuilt images** — `ghcr.io/beenuar/aisoc-{api,agents,realtime,web,…}`
+- **Prebuilt images** — `ghcr.io/beenuar/quarry-{api,agents,realtime,web,…}`
   built and published by `.github/workflows/publish-images.yml` on every
   release tag.
-- **One-shot orchestrator** (`scripts/aisoc-demo.ts`) — pulls images,
+- **One-shot orchestrator** (`scripts/quarry-demo.ts`) — pulls images,
   brings up the stack, waits on healthchecks, seeds canonical demo data,
   kicks off an agent investigation against a seeded case, and opens the
   browser at `/cases/<uuid>` with the live ledger view selected.
@@ -1876,8 +1876,8 @@ demo profile. Details below.
   `services/api/tests/test_demo_mode.py`.
 - **Target time-to-first-investigation:** roughly 3–5 minutes on a warm
   Docker daemon, depending on image cache state.
-- **Cleanup** — `pnpm aisoc:demo:down` removes the volumes; logs at
-  `pnpm aisoc:demo:logs`.
+- **Cleanup** — `pnpm quarry:demo:down` removes the volumes; logs at
+  `pnpm quarry:demo:logs`.
 
 #### Deployment — one-click everywhere
 
@@ -1922,14 +1922,14 @@ demo profile. Details below.
 #### Plugin & client SDKs
 
 - **`packages/plugin-sdk-go`** — Go plugin SDK
-  (`module github.com/beenuar/aisoc/plugin-sdk-go`) with action,
+  (`module github.com/beenuar/quarry/plugin-sdk-go`) with action,
   connector, enricher, registry, widget, and loader primitives.
   Examples under `packages/plugin-sdk-go/examples/`.
 - **`packages/plugin-sdk-py`** — Python plugin SDK with the matching
   primitives, decorators, and a registry. Tests under
   `packages/plugin-sdk-py/tests/`.
-- **`packages/sdk-py`** (PyPI: `aisoc-sdk`) — async Python client SDK
-  for the AiSOC API.
+- **`packages/sdk-py`** (PyPI: `quarry-sdk`) — async Python client SDK
+  for the Quarry API.
 - **`packages/sdk-ts`** (npm: `@quarry/sdk`) — TypeScript client SDK
   with auto-generated types.
 - **`packages/sdk-go`** — Go client SDK with OpenAPI-generated models.
@@ -1949,12 +1949,12 @@ demo profile. Details below.
 
 ### Changed
 
-- **Repository home** — all `cyble-inc/AiSOC` and `aisoc-os/aisoc` URLs
-  updated to `beenuar/AiSOC` across docs, README, SDKs, and benchmark
+- **Repository home** — all `cyble-inc/Quarry` and `quarry-os/quarry` URLs
+  updated to `beenuar/Quarry` across docs, README, SDKs, and benchmark
   badges.
-- **`packages/sdk-go` module path** is now `github.com/beenuar/aisoc/sdk-go`
+- **`packages/sdk-go` module path** is now `github.com/beenuar/quarry/sdk-go`
   for the API client SDK; the plugin SDK is at
-  `github.com/beenuar/aisoc/plugin-sdk-go`.
+  `github.com/beenuar/quarry/plugin-sdk-go`.
 - **`alerts` API** (`services/api/app/api/v1/endpoints/alerts.py`,
   `services/api/app/models/alert.py`) — surfaces copilot context
   (suggested next actions) inline on the alert detail response.
@@ -2046,10 +2046,10 @@ demo profile. Details below.
 
 ### Added
 
-- **AiSOC CLI** (`packages/aisoc-cli`) — `scaffold`, `validate`, `publish` commands for plugins and detections
-  - `aisoc scaffold plugin <name>` — generate plugin skeleton
-  - `aisoc validate detection <file>` — Sigma/YAML schema validation
-  - `aisoc publish plugin <path>` — submit to community registry with Ed25519 signing
+- **Quarry CLI** (`packages/quarry-cli`) — `scaffold`, `validate`, `publish` commands for plugins and detections
+  - `quarry scaffold plugin <name>` — generate plugin skeleton
+  - `quarry validate detection <file>` — Sigma/YAML schema validation
+  - `quarry publish plugin <path>` — submit to community registry with Ed25519 signing
 - **Plugin publishing flow**
   - `community_plugins` table with signature, author, review state
   - `POST /api/v1/plugins/publish` — signed submission
@@ -2076,13 +2076,13 @@ demo profile. Details below.
   - Commercial: Cyble Vision, Recorded Future, Mandiant, Crowdstrike Intel, Anomali, IBM X-Force, Flashpoint, Intel 471, DomainTools, RiskIQ
   - New enrichment types: `DarkWebContext`, `VulnerabilityRef`, `BrandRisk`
   - Concurrent fan-out enrichment engine in Go
-- **Go module path migration** — all services updated from `github.com/cyble/aisoc` to `github.com/beenuar/aisoc`
+- **Go module path migration** — all services updated from `github.com/cyble/quarry` to `github.com/beenuar/quarry`
 - **SECURITY.md** — vulnerability disclosure policy and security contacts
 - `services/enrichment/README.md` — full enrichment service documentation
 
 ### Changed
 - All GitHub repository references updated to `https://github.com/beenuar/AiSOC`
-- Helm chart container images updated from `ghcr.io/cyble/aisoc-*` to `ghcr.io/beenuar/aisoc-*`
+- Helm chart container images updated from `ghcr.io/cyble/quarry-*` to `ghcr.io/beenuar/quarry-*`
 - `.env.example` expanded with API keys for all commercial TI providers
 
 ---
@@ -2116,14 +2116,14 @@ demo profile. Details below.
 ## [1.0.0] — 2026-04-30
 
 ### Added
-- Initial release of AiSOC — AI Security Operations Center
+- Initial release of Quarry — AI Security Operations Center
 - FastAPI backend (`services/api`) with alert ingestion, case management, detection rules
 - Next.js 14 frontend (`apps/web`) with dashboard, alerts, cases, connectors, threat-intel pages
 - Real-time service (`services/realtime`) using WebSockets
 - Ingest service (`services/ingest`) in Go for high-throughput event ingestion
 - Enrichment service (`services/enrichment`) in Go
 - Docker Compose stack for local development
-- Helm chart for Kubernetes deployment (`infra/helm/aisoc/`)
+- Helm chart for Kubernetes deployment (`infra/helm/quarry/`)
 - MIT License
 
 [Unreleased]: https://github.com/beenuar/AiSOC/compare/v5.2.0...HEAD

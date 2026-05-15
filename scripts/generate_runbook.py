@@ -62,14 +62,14 @@ RUNBOOK_SPECS: list[RunbookSpec] = [
         slug="api-high-latency",
         title="API High Latency",
         trigger="http_request_duration_p99 > 500 ms for 3 minutes",
-        service_filter="aisoc-api",
+        service_filter="quarry-api",
         operation_filter="GET /api",
         impact="End-user requests are slow; SLO breach imminent.",
         escalation="If not resolved in 30 min, page Engineering Lead.",
         extra_steps=[
-            "Check recent deployments: `helm history aisoc --namespace aisoc`",
-            "Inspect DB query latency in Grafana (dashboard: aisoc-postgres).",
-            "Review `kubectl top pods -n aisoc` for CPU/memory saturation.",
+            "Check recent deployments: `helm history quarry --namespace quarry`",
+            "Inspect DB query latency in Grafana (dashboard: quarry-postgres).",
+            "Review `kubectl top pods -n quarry` for CPU/memory saturation.",
         ],
     ),
     RunbookSpec(
@@ -77,7 +77,7 @@ RUNBOOK_SPECS: list[RunbookSpec] = [
         slug="postgres-replica-lag",
         title="PostgreSQL Replica Lag",
         trigger="Streaming replication lag > 30 seconds",
-        service_filter="aisoc-api",
+        service_filter="quarry-api",
         operation_filter="sqlalchemy",
         impact="Read queries may return stale data; failover risk.",
         escalation="If lag > 2 min page DBA on-call.",
@@ -92,14 +92,14 @@ RUNBOOK_SPECS: list[RunbookSpec] = [
         slug="region-failover",
         title="Region Failover",
         trigger="Regional health-check failure for > 3 consecutive checks (30 s)",
-        service_filter="aisoc-api",
+        service_filter="quarry-api",
         operation_filter="GET /api/health",
         impact="All traffic in affected region is unavailable.",
         escalation="Immediate — follow CRIT escalation path.",
         extra_steps=[
-            "Promote Postgres replica: `patronictl -c /etc/patroni.yml failover aisoc`",
-            "Update DATABASE_URL secret: `kubectl create secret generic aisoc-db --from-literal=...`",
-            "Restart API: `kubectl rollout restart deployment -n aisoc -l app=api`",
+            "Promote Postgres replica: `patronictl -c /etc/patroni.yml failover quarry`",
+            "Update DATABASE_URL secret: `kubectl create secret generic quarry-db --from-literal=...`",
+            "Restart API: `kubectl rollout restart deployment -n quarry -l app=api`",
             "Confirm LB health-check passes before announcing recovery.",
         ],
     ),
@@ -108,14 +108,14 @@ RUNBOOK_SPECS: list[RunbookSpec] = [
         slug="ingest-pipeline-stall",
         title="Ingest Pipeline Stall",
         trigger="Kafka consumer lag > 10 000 events or ingest_lag_p99 > 30 s",
-        service_filter="aisoc-ingest",
+        service_filter="quarry-ingest",
         operation_filter="kafka.consume",
         impact="Security events are delayed; detection latency increases.",
         escalation="Page on-call if lag grows for > 10 min.",
         extra_steps=[
-            "Check consumer group: `kafka-consumer-groups.sh --describe --group aisoc-ingest`",
-            "Look for poison-pill messages: `kubectl logs -n aisoc -l app=ingest --tail=100`",
-            "Scale ingest replicas: `kubectl scale deploy ingest -n aisoc --replicas=6`",
+            "Check consumer group: `kafka-consumer-groups.sh --describe --group quarry-ingest`",
+            "Look for poison-pill messages: `kubectl logs -n quarry -l app=ingest --tail=100`",
+            "Scale ingest replicas: `kubectl scale deploy ingest -n quarry --replicas=6`",
         ],
     ),
     RunbookSpec(
@@ -123,7 +123,7 @@ RUNBOOK_SPECS: list[RunbookSpec] = [
         slug="agent-runner-oom",
         title="Agent Runner OOMKilled",
         trigger="OOMKilled exit code on `agents` pods",
-        service_filter="aisoc-agents",
+        service_filter="quarry-agents",
         operation_filter="agent.run",
         impact="AI-driven triage and enrichment is unavailable.",
         escalation="Notify product engineering if recurring.",
@@ -138,14 +138,14 @@ RUNBOOK_SPECS: list[RunbookSpec] = [
         slug="cert-expiry",
         title="TLS Certificate Near Expiry",
         trigger="Certificate expires in < 14 days",
-        service_filter="aisoc-api",
+        service_filter="quarry-api",
         operation_filter="tls",
         impact="HTTPS will fail after expiry; user access blocked.",
         escalation="Renew immediately; page if auto-renewal fails.",
         extra_steps=[
-            "Check cert: `kubectl get cert -n aisoc`",
-            "Force renewal: `kubectl delete secret aisoc-tls -n aisoc` (cert-manager will re-issue).",
-            "Verify: `kubectl describe certificate aisoc-tls -n aisoc | grep -A5 Status`",
+            "Check cert: `kubectl get cert -n quarry`",
+            "Force renewal: `kubectl delete secret quarry-tls -n quarry` (cert-manager will re-issue).",
+            "Verify: `kubectl describe certificate quarry-tls -n quarry | grep -A5 Status`",
         ],
     ),
 ]
@@ -257,9 +257,9 @@ _RUNBOOK_TEMPLATE = """\
 ## Verification steps
 
 1. Confirm the triggering alert is resolved in Prometheus / AlertManager.
-2. Check service status: `kubectl get pods -n aisoc -l app={service}`.
+2. Check service status: `kubectl get pods -n quarry -l app={service}`.
 3. Run smoke test: `curl -sf https://<YOUR_HOST>/api/health | jq .`
-4. Verify in the AiSOC SLA dashboard that MTTD/MTTR metrics are back within SLO.
+4. Verify in the Quarry SLA dashboard that MTTD/MTTR metrics are back within SLO.
 
 ## Escalation
 
@@ -302,9 +302,9 @@ def _build_diagnosis(
 
     lines.append("### General diagnosis checklist\n")
     lines.append("1. Confirm the alert is genuine (not a monitoring flap).")
-    lines.append("2. Check `kubectl get events -n aisoc --sort-by=lastTimestamp | tail -20`.")
-    lines.append(f"3. Inspect pod logs: `kubectl logs -n aisoc -l app={spec.service_filter} --tail=100 --previous`.")
-    lines.append("4. Review recent deploys: `helm history aisoc -n aisoc`.")
+    lines.append("2. Check `kubectl get events -n quarry --sort-by=lastTimestamp | tail -20`.")
+    lines.append(f"3. Inspect pod logs: `kubectl logs -n quarry -l app={spec.service_filter} --tail=100 --previous`.")
+    lines.append("4. Review recent deploys: `helm history quarry -n quarry`.")
 
     return "\n".join(lines)
 

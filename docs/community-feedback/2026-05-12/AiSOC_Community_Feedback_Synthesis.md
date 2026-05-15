@@ -1,8 +1,8 @@
-# AiSOC Community Feedback Synthesis — 2026-05-12
+# Quarry Community Feedback Synthesis — 2026-05-12
 
 This is the canonical, ID-stable themed log of community feedback that
-informed the [Now / Next / Later roadmap](./AiSOC_ROADMAP.md) and the
-[implementation tickets](./AiSOC_Proposed_Issues.md). Every theme has a
+informed the [Now / Next / Later roadmap](./Quarry_ROADMAP.md) and the
+[implementation tickets](./Quarry_Proposed_Issues.md). Every theme has a
 stable `Fxxx` ID — never renumber, append-only.
 
 ---
@@ -11,7 +11,7 @@ stable `Fxxx` ID — never renumber, append-only.
 
 Sources sampled (last 60 days as of 2026-05-12):
 
-- GitHub issues + discussions on `beenuar/AiSOC`.
+- GitHub issues + discussions on `beenuar/Quarry`.
 - Open PR threads (notably `#43` threat-actor attribution v0).
 - Maintainer-collated DMs and email feedback (paraphrased here, no PII).
 - Public mentions on adjacent OSS forums (paraphrased).
@@ -34,7 +34,7 @@ broad / mid / narrow), and **Effort** (S/M/L/XL).
 OSS-leaning adopters (homelabs, small MSSPs, public-sector pilots) report
 that the v6.x connector matrix tilts heavily toward commercial EDRs
 (CrowdStrike, SentinelOne, Defender). They want a credible OSS-native
-endpoint coverage path before they can run AiSOC in production.
+endpoint coverage path before they can run Quarry in production.
 
 **Roadmap response:** Now-bucket items #1 (Wazuh), #2 (host-agent), #3
 (audit.d).
@@ -156,7 +156,7 @@ feed of IOCs. They also want push-to-MISP for the IOCs that matter.
 
 **Severity:** S3  **Reach:** mid  **Effort:** S
 
-Adopters evaluating AiSOC ask "which endpoint stack should I pick?" and
+Adopters evaluating Quarry ask "which endpoint stack should I pick?" and
 there is no published guidance comparing OSS (Wazuh/audit.d/host-agent)
 to commercial vendors on coverage, cost, and operational effort.
 
@@ -168,7 +168,7 @@ to commercial vendors on coverage, cost, and operational effort.
 
 **Severity:** S3  **Reach:** broad  **Effort:** M
 
-Plugin authors want `aisoc-cli plugin new <type>` to scaffold a working
+Plugin authors want `quarry-cli plugin new <type>` to scaffold a working
 plugin in seconds, mirroring `cargo new` / `npx create-*`. Today they
 copy-paste from another connector and fix what breaks.
 
@@ -283,5 +283,5 @@ themes append at the next free ID, never reuse.
 
 ## Cross-references
 
-- [Strategic roadmap (Now / Next / Later)](./AiSOC_ROADMAP.md)
-- [Implementation tickets](./AiSOC_Proposed_Issues.md)
+- [Strategic roadmap (Now / Next / Later)](./Quarry_ROADMAP.md)
+- [Implementation tickets](./Quarry_Proposed_Issues.md)

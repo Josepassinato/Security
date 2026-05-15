@@ -79,4 +79,4 @@ provenance:
   upstream_path: rules/community/threat_intel/safebrowsing_process_creation_hashes_seen_more_than_7_days.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

@@ -15,7 +15,7 @@
 
 ### Type of contribution
 
-- [ ] New detection rule (original Sigma / AiSOC-native YAML)
+- [ ] New detection rule (original Sigma / Quarry-native YAML)
 - [ ] Translation of existing rule to a new platform (SPL / KQL / ES|QL / YARA-L2)
 - [ ] Improvement to existing rule (tuning, FP reduction, new conditions)
 - [ ] Detection rule fix (broken logic, wrong severity, incorrect MITRE mapping)
@@ -71,7 +71,7 @@
 - [ ] `severity` is one of: `critical`, `high`, `medium`, `low`
 - [ ] `category` matches the parent directory name
 - [ ] No secrets, API keys, or PII in the rule file
-- [ ] I have read the [Contributing Guide](https://github.com/beenuar/AiSOC/blob/main/CONTRIBUTING.md)
+- [ ] I have read the [Contributing Guide](https://github.com/Josepassinato/quarry/blob/main/CONTRIBUTING.md)
 
 ### References
 

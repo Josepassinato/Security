@@ -1,10 +1,10 @@
--- AiSOC WS-B4: Detection-as-Code git PR path
+-- Quarry WS-B4: Detection-as-Code git PR path
 -- Author: Beenu - beenu@cyble.com
 --
 -- Adds `github_pr_url` to `detection_rule_proposals` so the promote
 -- endpoint can link each promoted proposal to the GitHub Pull Request
 -- that carries the Sigma/YARA rule file into the detections/ directory.
--- The URL is optional — deployments without AISOC_GITHUB_TOKEN configured
+-- The URL is optional — deployments without QUARRY_GITHUB_TOKEN configured
 -- will leave it NULL and the UI omits the link.
 
 ALTER TABLE detection_rule_proposals

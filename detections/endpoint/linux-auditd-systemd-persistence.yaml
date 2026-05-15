@@ -1,7 +1,7 @@
 id: det-endpoint-304
 name: Systemd Unit Persistence Via auditd Watch
 description: |
-  Triggers when the AiSOC auditd profile records a write under
+  Triggers when the Quarry auditd profile records a write under
   /etc/systemd/system/ or /lib/systemd/system/. Pivots on auditd_key so the
   rule fires for any modify-class syscall on a unit file without a per-syscall
   companion rule. Dropping a .service or .timer file under these directories is
@@ -28,6 +28,6 @@ false_positives:
 - Sanctioned config-management agent (Ansible, Chef, Puppet) writing units
 playbook: tpl-persistence
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-12'
 modified: '2026-05-12'

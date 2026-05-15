@@ -30,7 +30,7 @@ from app.blocks import (
     rich_approval_card_blocks,
 )
 
-WEB_BASE = "https://app.aisoc.test"
+WEB_BASE = "https://app.quarry.test"
 
 
 def _all_have_type(blocks: list[dict[str, Any]]) -> bool:
@@ -53,14 +53,14 @@ def test_case_list_blocks_renders_each_case_with_deep_link():
     cases = [
         {
             "id": "c-1",
-            "case_number": "AISOC-1",
+            "case_number": "QUARRY-1",
             "title": "Suspicious login burst",
             "severity": "high",
             "status": "investigating",
         },
         {
             "id": "c-2",
-            "case_number": "AISOC-2",
+            "case_number": "QUARRY-2",
             "title": "Phish mail flagged",
             "severity": "medium",
             "status": "new",
@@ -69,8 +69,8 @@ def test_case_list_blocks_renders_each_case_with_deep_link():
     blocks = case_list_blocks(cases, web_base=WEB_BASE)
     assert _all_have_type(blocks)
     rendered = "\n".join(b["text"]["text"] for b in blocks if b["type"] == "section" and isinstance(b.get("text"), dict))
-    assert "AISOC-1" in rendered and "Suspicious login burst" in rendered
-    assert "AISOC-2" in rendered
+    assert "QUARRY-1" in rendered and "Suspicious login burst" in rendered
+    assert "QUARRY-2" in rendered
     assert f"{WEB_BASE}/cases/c-1" in rendered
     assert f"{WEB_BASE}/cases/c-2" in rendered
 
@@ -79,7 +79,7 @@ def test_case_list_blocks_caps_at_ten_and_shows_overflow_hint():
     cases = [
         {
             "id": f"c-{i}",
-            "case_number": f"AISOC-{i}",
+            "case_number": f"QUARRY-{i}",
             "title": f"Case {i}",
             "severity": "low",
             "status": "new",
@@ -102,7 +102,7 @@ def test_case_list_blocks_caps_at_ten_and_shows_overflow_hint():
 def test_case_card_blocks_includes_open_in_aisoc_button():
     case = {
         "id": "abc",
-        "case_number": "AISOC-42",
+        "case_number": "QUARRY-42",
         "title": "Possible ransomware",
         "severity": "critical",
         "status": "containment",
@@ -118,7 +118,7 @@ def test_case_card_blocks_includes_open_in_aisoc_button():
 def test_case_card_blocks_truncates_long_titles_and_descriptions():
     case = {
         "id": "abc",
-        "case_number": "AISOC-99",
+        "case_number": "QUARRY-99",
         "title": "x" * 200,
         "description": "y" * 1000,
         "severity": "low",
@@ -137,7 +137,7 @@ def test_case_card_blocks_truncates_long_titles_and_descriptions():
 
 
 def test_investigation_started_blocks_surfaces_run_id():
-    case = {"id": "c-1", "case_number": "AISOC-1"}
+    case = {"id": "c-1", "case_number": "QUARRY-1"}
     investigation = {"run_id": "run-abcdef"}
     blocks = investigation_started_blocks(case, investigation, web_base=WEB_BASE)
     assert _all_have_type(blocks)
@@ -148,7 +148,7 @@ def test_investigation_started_blocks_surfaces_run_id():
 def test_case_explanation_blocks_renders_summary_and_recommendations():
     case = {
         "id": "c-1",
-        "case_number": "AISOC-1",
+        "case_number": "QUARRY-1",
         "title": "Outbound DNS spike",
         "severity": "high",
         "status": "investigating",
@@ -166,7 +166,7 @@ def test_case_explanation_blocks_renders_summary_and_recommendations():
 
 
 def test_case_explanation_blocks_handles_empty_summary_gracefully():
-    case = {"id": "c-1", "case_number": "AISOC-1", "title": "t", "severity": "low", "status": "new"}
+    case = {"id": "c-1", "case_number": "QUARRY-1", "title": "t", "severity": "low", "status": "new"}
     blocks = case_explanation_blocks(case, {}, web_base=WEB_BASE)
     assert _all_have_type(blocks)
     # No "AI summary" header should be added when the model returned nothing.
@@ -186,7 +186,7 @@ def test_approval_card_includes_approve_and_deny_buttons_with_routing_value():
         "blast_radius": "high",
         "rationale": "confirmed beacon",
     }
-    case = {"id": "case-7", "case_number": "AISOC-7"}
+    case = {"id": "case-7", "case_number": "QUARRY-7"}
     blocks = approval_card_blocks(
         action=action,
         case=case,
@@ -249,7 +249,7 @@ def test_help_blocks_lists_every_supported_subcommand():
     assert _all_have_type(blocks)
     rendered = str(blocks)
     for cmd in ("list", "investigate", "explain", "isolate", "block", "help"):
-        assert f"`/aisoc {cmd}" in rendered or f"/aisoc {cmd}" in rendered
+        assert f"`/quarry {cmd}" in rendered or f"/quarry {cmd}" in rendered
 
 
 def test_error_blocks_truncate_and_carry_x_emoji():

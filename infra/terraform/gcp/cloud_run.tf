@@ -1,5 +1,5 @@
 /**
- * AiSOC — GCP serverless skeleton
+ * Quarry — GCP serverless skeleton
  *
  * Cloud Run v2 services for the three customer-visible workloads:
  *
@@ -81,7 +81,7 @@ resource "google_cloud_run_v2_service" "api" {
 
       # ── Static config ──────────────────────────────────────────────────────
       env {
-        name  = "AISOC_DEPLOYMENT"
+        name  = "QUARRY_DEPLOYMENT"
         value = "gcp-cloudrun"
       }
       env {
@@ -133,7 +133,7 @@ resource "google_cloud_run_v2_service" "api" {
         }
       }
       env {
-        name = "AISOC_CREDENTIAL_KEY"
+        name = "QUARRY_CREDENTIAL_KEY"
         value_source {
           secret_key_ref {
             secret  = google_secret_manager_secret.credential_key.secret_id
@@ -174,7 +174,7 @@ resource "google_cloud_run_v2_service" "api" {
   depends_on = [
     google_project_service.enabled,
     google_secret_manager_secret_iam_member.api,
-    google_sql_user.aisoc,
+    google_sql_user.quarry,
   ]
 }
 
@@ -211,7 +211,7 @@ resource "google_cloud_run_v2_service" "web" {
       }
 
       env {
-        name  = "AISOC_DEPLOYMENT"
+        name  = "QUARRY_DEPLOYMENT"
         value = "gcp-cloudrun"
       }
       env {
@@ -283,7 +283,7 @@ resource "google_cloud_run_v2_service" "ingest" {
       }
 
       env {
-        name  = "AISOC_DEPLOYMENT"
+        name  = "QUARRY_DEPLOYMENT"
         value = "gcp-cloudrun"
       }
       env {
@@ -345,6 +345,6 @@ resource "google_cloud_run_v2_service" "ingest" {
   depends_on = [
     google_project_service.enabled,
     google_secret_manager_secret_iam_member.ingest,
-    google_sql_user.aisoc,
+    google_sql_user.quarry,
   ]
 }

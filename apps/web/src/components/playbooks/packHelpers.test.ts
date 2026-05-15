@@ -25,7 +25,7 @@ function makePlaybook(overrides: Partial<Playbook> = {}): Playbook {
     tags: [],
     trigger: { on: 'manual' },
     steps: [],
-    author: 'AiSOC',
+    author: 'Quarry',
     enabled: true,
     created_at: '',
     updated_at: '',
@@ -34,7 +34,7 @@ function makePlaybook(overrides: Partial<Playbook> = {}): Playbook {
 }
 
 describe('isShippedPack', () => {
-  it('classifies AiSOC-authored kebab-case ids as packs', () => {
+  it('classifies Quarry-authored kebab-case ids as packs', () => {
     expect(isShippedPack(makePlaybook({ id: 'supply-vendor-breach-v1' }))).toBe(true);
   });
 
@@ -44,11 +44,11 @@ describe('isShippedPack', () => {
     ).toBe(false);
   });
 
-  it('rejects AiSOC-authored playbooks with UUID ids (treated as user copies)', () => {
+  it('rejects Quarry-authored playbooks with UUID ids (treated as user copies)', () => {
     // PlaybookStore.create() generates UUIDs for forks/new playbooks.
     expect(
       isShippedPack(
-        makePlaybook({ id: 'a3bb189e-8bf9-3888-9912-ace4e6543002', author: 'AiSOC' }),
+        makePlaybook({ id: 'a3bb189e-8bf9-3888-9912-ace4e6543002', author: 'Quarry' }),
       ),
     ).toBe(false);
   });

@@ -1,21 +1,21 @@
 /**
- * @quarry/sdk — TypeScript client for AiSOC
+ * @quarry/sdk — TypeScript client for Quarry
  *
  * Auto-generated types from docs/openapi.yaml; hand-written client wrapper.
  *
  * @example
  * ```ts
- * import { AiSOCClient } from "@quarry/sdk";
+ * import { QuarryClient } from "@quarry/sdk";
  *
- * const client = new AiSOCClient({
- *   baseUrl: "https://your-aisoc.example.com",
- *   token: process.env.AISOC_API_TOKEN,
+ * const client = new QuarryClient({
+ *   baseUrl: "https://your-quarry.example.com",
+ *   token: process.env.QUARRY_API_TOKEN,
  * });
  *
  * const alerts = await client.alerts.list({ severity: "critical" });
  * ```
  */
 
-export { AiSOCClient } from "./client.js";
-export type { AiSOCClientOptions } from "./client.js";
+export { QuarryClient } from "./client.js";
+export type { QuarryClientOptions } from "./client.js";
 export * from "./types.js";

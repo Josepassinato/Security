@@ -1,5 +1,5 @@
 """
-AiSOC Action Execution Service entry point.
+Quarry Action Execution Service entry point.
 
 Wires the legacy ``ActionType``-keyed router and the new ``(vendor_id,
 capability)``-keyed live-actions router under ``/api/v1``. The two
@@ -28,7 +28,7 @@ from app.live_actions import register_builtin_executors
 logger = structlog.get_logger(__name__)
 
 app = FastAPI(
-    title="AiSOC Action Execution Service",
+    title="Quarry Action Execution Service",
     description=(
         "Blast-radius gated response action execution with human-in-the-loop "
         "approvals (legacy router) and the generic (vendor_id, capability) "
@@ -56,4 +56,4 @@ async def _register_builtin_live_actions() -> None:
 
 @app.get("/health")
 async def health() -> dict[str, str]:
-    return {"status": "healthy", "service": "aisoc-actions"}
+    return {"status": "healthy", "service": "quarry-actions"}

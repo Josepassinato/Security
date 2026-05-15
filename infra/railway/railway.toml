@@ -1,4 +1,4 @@
-# AiSOC on Railway — service manifest
+# Quarry on Railway — service manifest
 #
 # Why this exists:
 #   The "Deploy on Railway" button in README.md uses Railway's template
@@ -77,17 +77,17 @@ ENVIRONMENT = "demo"
 PORT = "8000"
 
 # Demo gates — same flags as Render and Fly. Self-hosters running for
-# real should set AISOC_DEMO_MODE=false in the dashboard after deploy.
-AISOC_DEMO_MODE = "true"
-AISOC_DEMO_TENANT = "demo"
+# real should set QUARRY_DEMO_MODE=false in the dashboard after deploy.
+QUARRY_DEMO_MODE = "true"
+QUARRY_DEMO_TENANT = "demo"
 
 # Disable optional integrations. Railway plugins exist for Postgres and
 # Redis, not for Kafka/ClickHouse/OpenSearch/Neo4j/Qdrant — and shipping
 # them as raw services on Railway would balloon the project's resource
 # usage past the free credit. The api degrades gracefully when these are
 # off, so the demo profile works fine without them.
-AISOC_DISABLE_KAFKA = "true"
-AISOC_DISABLE_CLICKHOUSE = "true"
-AISOC_DISABLE_OPENSEARCH = "true"
-AISOC_DISABLE_NEO4J = "true"
-AISOC_DISABLE_QDRANT = "true"
+QUARRY_DISABLE_KAFKA = "true"
+QUARRY_DISABLE_CLICKHOUSE = "true"
+QUARRY_DISABLE_OPENSEARCH = "true"
+QUARRY_DISABLE_NEO4J = "true"
+QUARRY_DISABLE_QDRANT = "true"

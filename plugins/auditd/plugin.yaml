@@ -3,7 +3,7 @@ name: Linux Auditd
 version: 1.0.0
 category: edr
 vendor: Linux Audit Subsystem
-publisher: AiSOC Community
+publisher: Quarry Community
 description: >
   Linux ``auditd`` connector — file_tail mode, no host-agent dependency.
   Tails ``/var/log/audit/audit.log`` forward from a saved byte cursor,
@@ -11,10 +11,10 @@ description: >
   CWD + PROCTITLE) into flat normalised documents, and feeds the
   same ``syscall`` / ``exe`` / ``argv`` / ``path`` / ``actor_uid`` /
   ``auditd_key`` primitives that detection content under
-  ``detections/endpoint/linux-*.yaml`` pivots on. Ship the AiSOC
-  ``audit.rules`` profile (``profiles/auditd/aisoc.rules``) for
+  ``detections/endpoint/linux-*.yaml`` pivots on. Ship the Quarry
+  ``audit.rules`` profile (``profiles/auditd/quarry.rules``) for
   full coverage; rules with ``aisoc_*`` keys auto-bucket into
-  AiSOC's four-tier severity ladder.
+  Quarry's four-tier severity ladder.
 homepage: https://github.com/linux-audit/audit-userspace
 docs_url: /docs/connectors/auditd
 license: MIT
@@ -37,7 +37,7 @@ config_schema:
     required: true
     default: /var/log/audit/audit.log
     help_text: >
-      Absolute path to ``audit.log`` inside the AiSOC connector pod.
+      Absolute path to ``audit.log`` inside the Quarry connector pod.
       Mount the host's ``/var/log/audit`` directory read-only into
       the pod, or run the connector on the same host as the auditd
       daemon. The connector needs read access to this path.
@@ -46,8 +46,8 @@ config_schema:
     type: string
     required: false
     help_text: >
-      Optional override for where AiSOC stores its byte-position
-      cursor. Defaults to ``<audit_log_path>.aisoc-cursor``. Use a
+      Optional override for where Quarry stores its byte-position
+      cursor. Defaults to ``<audit_log_path>.quarry-cursor``. Use a
       writeable path — the connector pod needs to update this on
       every successful poll. Surviving the cursor across restarts
       is what gives the connector exactly-once-ish semantics.

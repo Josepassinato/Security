@@ -1,6 +1,6 @@
 -- Migration 016: Internal threat-intel generation
 -- Stores IOCs, threat actor profiles, and campaign data produced or enriched
--- by the AiSOC fusion engine.
+-- by the Quarry fusion engine.
 
 BEGIN;
 

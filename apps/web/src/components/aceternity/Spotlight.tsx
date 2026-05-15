@@ -1,7 +1,7 @@
 // Source: https://ui.aceternity.com/components/spotlight
 // Licensed under MIT — Aceternity UI is a copy-into-your-codebase library
 // (no npm package), so this file is the vendored implementation. Rewritten
-// in plain Tailwind 4 + framer-motion 11 to fit the AiSOC landing tokens.
+// in plain Tailwind 4 + framer-motion 11 to fit the Quarry landing tokens.
 'use client';
 
 import type { CSSProperties } from 'react';
@@ -31,11 +31,11 @@ export function Spotlight({ className, fill = 'rgb(59 130 246 / 0.55)', style }:
       fill="none"
       aria-hidden="true"
     >
-      <g filter="url(#aisoc-spotlight-filter)">
+      <g filter="url(#quarry-spotlight-filter)">
         <ellipse cx="1924.71" cy="273.501" rx="1924.71" ry="273.501" transform="matrix(-0.822377 -0.568943 -0.568943 0.822377 3631.88 2291.09)" fill={fill} fillOpacity="0.21" />
       </g>
       <defs>
-        <filter id="aisoc-spotlight-filter" x="0.860352" y="0.838989" width="3785.16" height="2840.26" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+        <filter id="quarry-spotlight-filter" x="0.860352" y="0.838989" width="3785.16" height="2840.26" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
           <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
           <feGaussianBlur stdDeviation="151" result="effect1_foregroundBlur_1065_8" />

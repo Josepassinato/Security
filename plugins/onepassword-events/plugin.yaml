@@ -6,9 +6,9 @@ description: >
   Pulls 1Password Business and Enterprise events (sign-in attempts, item usage,
   and audit events) via the 1Password Events API. Useful for detecting credential
   theft, anomalous access patterns, and insider misuse of privileged secrets.
-author: AiSOC Core Team
+author: Quarry Core Team
 tags: [identity, secrets, 1password, events, connector]
-homepage: https://github.com/beenuar/AiSOC/tree/main/plugins/onepassword-events
+homepage: https://github.com/beenuar/Quarry/tree/main/plugins/onepassword-events
 license: MIT
 min_aisoc_version: "4.0.0"
 config_schema:

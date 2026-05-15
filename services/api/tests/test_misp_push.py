@@ -235,9 +235,9 @@ class TestStixIndicatorToMispAttribute:
         assert attr["distribution"] == 1
         # Description wins over name as the comment.
         assert attr["comment"] == "APT-42 staging IP"
-        # Labels surface as MISP tags with the ``aisoc:`` prefix so an
+        # Labels surface as MISP tags with the ``quarry:`` prefix so an
         # operator can filter for them.
-        assert {tag["name"] for tag in attr["Tag"]} == {"aisoc:apt-42", "aisoc:c2"}
+        assert {tag["name"] for tag in attr["Tag"]} == {"quarry:apt-42", "quarry:c2"}
 
     def test_unknown_pattern_returns_none(self) -> None:
         assert stix_indicator_to_misp_attribute({"pattern": "[process:name = 'x']"}) is None
@@ -302,8 +302,8 @@ class TestStixIndicatorToMispEvent:
         assert len(body["Attribute"]) == 1
         # Tags include source provenance + the indicator ID.
         tag_names = {t["name"] for t in body["Tag"]}
-        assert "aisoc:source=stix" in tag_names
-        assert "aisoc:indicator=indicator--abc" in tag_names
+        assert "quarry:source=stix" in tag_names
+        assert "quarry:indicator=indicator--abc" in tag_names
 
     def test_indicator_event_returns_none_on_unknown_pattern(self) -> None:
         assert stix_indicator_to_misp_event({"id": "indicator--x", "pattern": "[process:name = 'svchost.exe']"}) is None
@@ -311,7 +311,7 @@ class TestStixIndicatorToMispEvent:
     def test_indicator_event_falls_back_to_id_when_no_name(self) -> None:
         event = stix_indicator_to_misp_event({"id": "indicator--zzz", "pattern": "[ipv4-addr:value = '10.0.0.1']"})
         assert event is not None
-        assert event["Event"]["info"] == "AiSOC indicator indicator--zzz"
+        assert event["Event"]["info"] == "Quarry indicator indicator--zzz"
 
 
 class TestStixBundleToMispEvent:
@@ -322,7 +322,7 @@ class TestStixBundleToMispEvent:
                 {"type": "indicator", "name": "ip", "pattern": "[ipv4-addr:value = '10.0.0.1']"},
                 {"type": "indicator", "name": "dom", "pattern": "[domain-name:value = 'evil.example']"},
                 # Non-indicator object — must be ignored, not skipped.
-                {"type": "identity", "name": "AiSOC"},
+                {"type": "identity", "name": "Quarry"},
                 # Translatable miss — counts toward _skipped.
                 {"type": "indicator", "pattern": "[process:name = 'x']"},
             ],
@@ -333,7 +333,7 @@ class TestStixBundleToMispEvent:
         assert len(event["Event"]["Attribute"]) == 2
         # Bundle ID propagates as a tag for downstream filtering.
         tag_names = {t["name"] for t in event["Event"]["Tag"]}
-        assert "aisoc:bundle=bundle--xyz" in tag_names
+        assert "quarry:bundle=bundle--xyz" in tag_names
 
     def test_bundle_event_info_uses_indicator_names(self) -> None:
         """When ``info`` is omitted, the event title surfaces the first 3 names.
@@ -455,15 +455,15 @@ class TestMispPushClientHealthCheck:
     @pytest.mark.asyncio
     async def test_blocked_by_airgap(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """Air-gap policy must short-circuit before any HTTP call."""
-        monkeypatch.setattr(settings, "AISOC_AIRGAPPED", True)
-        monkeypatch.setattr(settings, "AISOC_AIRGAP_ALLOWLIST", [])
+        monkeypatch.setattr(settings, "QUARRY_AIRGAPPED", True)
+        monkeypatch.setattr(settings, "QUARRY_AIRGAP_ALLOWLIST", [])
         client = MispPushClient(url="https://misp.public.example", api_key="k")
         with pytest.raises(AirgapViolation):
             await client.health_check()
 
     @pytest.mark.asyncio
     async def test_success_returns_user_role(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.setattr(settings, "AISOC_AIRGAPPED", False)
+        monkeypatch.setattr(settings, "QUARRY_AIRGAPPED", False)
         client = MispPushClient(url="https://misp.internal", api_key="k")
 
         async def _handler(request: httpx.Request) -> httpx.Response:
@@ -488,7 +488,7 @@ class TestMispPushClientHealthCheck:
 
     @pytest.mark.asyncio
     async def test_401_surfaces_as_auth_error(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.setattr(settings, "AISOC_AIRGAPPED", False)
+        monkeypatch.setattr(settings, "QUARRY_AIRGAPPED", False)
         client = MispPushClient(url="https://misp.internal", api_key="bad")
 
         async def _handler(_: httpx.Request) -> httpx.Response:
@@ -500,7 +500,7 @@ class TestMispPushClientHealthCheck:
 
     @pytest.mark.asyncio
     async def test_5xx_surfaces_as_push_error(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.setattr(settings, "AISOC_AIRGAPPED", False)
+        monkeypatch.setattr(settings, "QUARRY_AIRGAPPED", False)
         client = MispPushClient(url="https://misp.internal", api_key="k")
 
         async def _handler(_: httpx.Request) -> httpx.Response:
@@ -518,7 +518,7 @@ class TestMispPushClientHealthCheck:
         responses; leaking the raw ``httpx`` exception type would mean
         every caller has to know about the transport library.
         """
-        monkeypatch.setattr(settings, "AISOC_AIRGAPPED", False)
+        monkeypatch.setattr(settings, "QUARRY_AIRGAPPED", False)
         client = MispPushClient(url="https://misp.internal", api_key="k")
 
         async def _handler(_: httpx.Request) -> httpx.Response:
@@ -538,7 +538,7 @@ class TestMispPushClientPushEvent:
         a strict-mode JSON validator depending on MISP version. Either
         way they have no business being on the wire.
         """
-        monkeypatch.setattr(settings, "AISOC_AIRGAPPED", False)
+        monkeypatch.setattr(settings, "QUARRY_AIRGAPPED", False)
         client = MispPushClient(url="https://misp.internal", api_key="k")
         captured: dict[str, Any] = {}
 
@@ -571,14 +571,14 @@ class TestMispPushClientPushEvent:
         MISP would just reject the empty event anyway; failing fast
         keeps the air-gap audit log clean.
         """
-        monkeypatch.setattr(settings, "AISOC_AIRGAPPED", False)
+        monkeypatch.setattr(settings, "QUARRY_AIRGAPPED", False)
         client = MispPushClient(url="https://misp.internal", api_key="k")
         with pytest.raises(MispPushError, match="cannot be mapped"):
             await client.push_indicator({"pattern": "[process:name = 'x']"})
 
     @pytest.mark.asyncio
     async def test_push_bundle_with_no_translatable_indicators_raises(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.setattr(settings, "AISOC_AIRGAPPED", False)
+        monkeypatch.setattr(settings, "QUARRY_AIRGAPPED", False)
         client = MispPushClient(url="https://misp.internal", api_key="k")
         with pytest.raises(MispPushError, match="no MISP-translatable indicators"):
             await client.push_bundle(
@@ -596,7 +596,7 @@ class TestMispPushClientPushEvent:
         "we mirrored 4/5 indicators; one was a process name we don't
         know how to express in MISP".
         """
-        monkeypatch.setattr(settings, "AISOC_AIRGAPPED", False)
+        monkeypatch.setattr(settings, "QUARRY_AIRGAPPED", False)
         client = MispPushClient(url="https://misp.internal", api_key="k")
 
         async def _handler(_: httpx.Request) -> httpx.Response:
@@ -923,7 +923,7 @@ class TestMispHealthEndpoint:
     def test_unconfigured(self, client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr(settings, "MISP_URL", "")
         monkeypatch.setattr(settings, "MISP_API_KEY", "")
-        monkeypatch.setattr(settings, "AISOC_AIRGAPPED", False)
+        monkeypatch.setattr(settings, "QUARRY_AIRGAPPED", False)
         monkeypatch.setattr(settings, "MISP_PUSH_AUTO", False)
         resp = client.get("/api/v1/threatintel/stix/misp/health")
         assert resp.status_code == 200
@@ -942,8 +942,8 @@ class TestMispHealthEndpoint:
         """
         monkeypatch.setattr(settings, "MISP_URL", "https://misp.example")
         monkeypatch.setattr(settings, "MISP_API_KEY", "k")
-        monkeypatch.setattr(settings, "AISOC_AIRGAPPED", True)
-        monkeypatch.setattr(settings, "AISOC_AIRGAP_ALLOWLIST", [])
+        monkeypatch.setattr(settings, "QUARRY_AIRGAPPED", True)
+        monkeypatch.setattr(settings, "QUARRY_AIRGAP_ALLOWLIST", [])
 
         resp = client.get("/api/v1/threatintel/stix/misp/health")
         assert resp.status_code == 200
@@ -956,7 +956,7 @@ class TestMispHealthEndpoint:
     def test_misp_push_error_surfaces_in_health(self, client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr(settings, "MISP_URL", "https://misp.example")
         monkeypatch.setattr(settings, "MISP_API_KEY", "k")
-        monkeypatch.setattr(settings, "AISOC_AIRGAPPED", False)
+        monkeypatch.setattr(settings, "QUARRY_AIRGAPPED", False)
 
         fake_client = MagicMock()
         fake_client.configured = True
@@ -972,7 +972,7 @@ class TestMispHealthEndpoint:
     def test_successful_health_check(self, client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr(settings, "MISP_URL", "https://misp.internal")
         monkeypatch.setattr(settings, "MISP_API_KEY", "k")
-        monkeypatch.setattr(settings, "AISOC_AIRGAPPED", False)
+        monkeypatch.setattr(settings, "QUARRY_AIRGAPPED", False)
 
         fake_client = MagicMock()
         fake_client.configured = True
@@ -997,7 +997,7 @@ class TestMispHealthEndpoint:
 class TestMispDryRunEndpoint:
     def test_indicator_dry_run_yields_event(self, client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr(settings, "MISP_URL", "https://misp.internal")
-        monkeypatch.setattr(settings, "AISOC_AIRGAPPED", False)
+        monkeypatch.setattr(settings, "QUARRY_AIRGAPPED", False)
         resp = client.post(
             "/api/v1/threatintel/stix/misp/dry-run",
             json={
@@ -1018,7 +1018,7 @@ class TestMispDryRunEndpoint:
 
     def test_bundle_dry_run_aggregates(self, client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr(settings, "MISP_URL", "https://misp.internal")
-        monkeypatch.setattr(settings, "AISOC_AIRGAPPED", False)
+        monkeypatch.setattr(settings, "QUARRY_AIRGAPPED", False)
         resp = client.post(
             "/api/v1/threatintel/stix/misp/dry-run",
             json={
@@ -1086,8 +1086,8 @@ class TestMispDryRunEndpoint:
         production traffic.
         """
         monkeypatch.setattr(settings, "MISP_URL", "https://misp.public.example")
-        monkeypatch.setattr(settings, "AISOC_AIRGAPPED", True)
-        monkeypatch.setattr(settings, "AISOC_AIRGAP_ALLOWLIST", [])
+        monkeypatch.setattr(settings, "QUARRY_AIRGAPPED", True)
+        monkeypatch.setattr(settings, "QUARRY_AIRGAP_ALLOWLIST", [])
 
         resp = client.post(
             "/api/v1/threatintel/stix/misp/dry-run",

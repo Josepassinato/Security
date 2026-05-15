@@ -1,7 +1,7 @@
-# AiSOC — Managed Instance Outputs (T6.1)
+# Quarry — Managed Instance Outputs (T6.1)
 # =============================================================================
 # Everything an operator needs to wire the managed instance into the rest of
-# the AiSOC ecosystem after a successful `terraform apply`:
+# the Quarry ecosystem after a successful `terraform apply`:
 #
 #   • App identity and Fly hostname for `fly deploy`.
 #   • Postgres + Redis connection metadata so the operator can pipe them
@@ -98,18 +98,18 @@ output "cloudflare_record_id" {
 output "bootstrap_checklist" {
   description = "Operator checklist printed after a successful apply."
   value = <<-EOT
-    AiSOC managed instance provisioned. Next steps:
+    Quarry managed instance provisioned. Next steps:
 
       1. Attach Postgres to the control plane:
            fly attach -a ${fly_app.control_plane.name} ${fly_postgres_cluster.primary.app_name}
 
-      2. Set the AiSOC credential-vault key (Fernet, 32 bytes urlsafe-b64):
-           fly secrets set AISOC_CREDENTIAL_KEY=$(python -c 'from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())') -a ${fly_app.control_plane.name}
+      2. Set the Quarry credential-vault key (Fernet, 32 bytes urlsafe-b64):
+           fly secrets set QUARRY_CREDENTIAL_KEY=$(python -c 'from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())') -a ${fly_app.control_plane.name}
 
       3. Set the Slack sales-channel webhook used by /v1/waitlist/signup:
-           fly secrets set AISOC_WAITLIST_SLACK_WEBHOOK=<your webhook> -a ${fly_app.control_plane.name}
+           fly secrets set QUARRY_WAITLIST_SLACK_WEBHOOK=<your webhook> -a ${fly_app.control_plane.name}
 
-      4. Deploy the AiSOC images:
+      4. Deploy the Quarry images:
            fly deploy --app ${fly_app.control_plane.name}
 
       5. Verify the public URL responds:

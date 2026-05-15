@@ -1,6 +1,6 @@
 id: det-endpoint-215
 name: login.keychain-db Read By Non-Owner UID
-description: AiSOC v1 curated detection. Triggers on the endpoint signal described by 'login.keychain-db
+description: Quarry v1 curated detection. Triggers on the endpoint signal described by 'login.keychain-db
   Read By Non-Owner UID'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: high
@@ -20,6 +20,6 @@ false_positives:
 - DFIR responder running a documented playbook
 playbook: tpl-credential-access
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

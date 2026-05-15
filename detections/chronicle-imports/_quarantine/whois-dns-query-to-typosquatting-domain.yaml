@@ -70,4 +70,4 @@ provenance:
   upstream_path: rules/community/threat_intel/whois_dns_query_to_typosquatting_domain.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

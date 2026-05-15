@@ -1,4 +1,4 @@
-"""AiSOC Core API - FastAPI Application Entry Point."""
+"""Quarry Core API - FastAPI Application Entry Point."""
 
 import asyncio
 import hmac
@@ -54,7 +54,7 @@ REQUEST_LATENCY = Histogram(
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifespan handler for startup and shutdown tasks."""
     configure_logging()
-    logger.info("AiSOC API starting up", version=settings.VERSION, environment=settings.ENVIRONMENT)
+    logger.info("Quarry API starting up", version=settings.VERSION, environment=settings.ENVIRONMENT)
 
     # Surface insecure defaults (placeholder SECRET_KEY, missing METRICS_TOKEN
     # outside dev, plugin trust mode disabled outside dev) at the top of the
@@ -96,7 +96,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     except Exception as exc:
         logger.warning("Neo4j unavailable at startup – graph features disabled", error=str(exc))
 
-    # Auto-discover plugins from AISOC_PLUGINS_DIR
+    # Auto-discover plugins from QUARRY_PLUGINS_DIR
     try:
         plugin_mgr = get_plugin_manager()
         loaded = await plugin_mgr.discover()
@@ -142,7 +142,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
     yield
 
-    logger.info("AiSOC API shutting down")
+    logger.info("Quarry API shutting down")
     if oauth_refresh_task is not None and not oauth_refresh_task.done():
         oauth_refresh_task.cancel()
         try:
@@ -181,8 +181,8 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 def create_application() -> FastAPI:
     """Create and configure the FastAPI application."""
     app = FastAPI(
-        title="AiSOC Platform API",
-        description=("AiSOC — open-source AI Security Operations Center. Autonomous threat detection, investigation, and response."),
+        title="Quarry Platform API",
+        description=("Quarry — open-source AI Security Operations Center. Autonomous threat detection, investigation, and response."),
         version=settings.VERSION,
         # Docs are exposed in every non-production environment. We use the
         # ``is_production`` predicate (the inverse of the dev set) so any
@@ -204,7 +204,7 @@ def create_application() -> FastAPI:
     app.add_middleware(AuditMiddleware)
     app.add_middleware(DemoModeMiddleware)
     app.add_middleware(GZipMiddleware, minimum_size=1000)
-    # CORS allow-list is resolved from AISOC_CORS_ORIGINS / CORS_ORIGINS via
+    # CORS allow-list is resolved from QUARRY_CORS_ORIGINS / CORS_ORIGINS via
     # the shared helper; settings.CORS_ORIGINS is the Pydantic-parsed fallback
     # for when neither env var is set (e.g. local pytest). The helper also
     # enforces "no wildcard with credentials in production" so bad deploys
@@ -295,7 +295,7 @@ async def health_check() -> dict:
     """
     return {
         "status": "healthy",
-        "service": "aisoc-api",
+        "service": "quarry-api",
         "version": settings.VERSION,
         "airgap": airgap_status(),
     }

@@ -60,4 +60,4 @@ provenance:
   upstream_path: rules/community/github/github_high_number_of_non_public_github_repositories_cloned.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

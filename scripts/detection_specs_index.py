@@ -1,5 +1,5 @@
 """
-AiSOC Detection Pack v1 - Combined Specification Index
+Quarry Detection Pack v1 - Combined Specification Index
 ======================================================
 
 Imports the rule tables from `detection_specs.py`, `detection_specs_part2.py`,
@@ -58,7 +58,7 @@ def total_counts() -> dict[str, int]:
 if __name__ == "__main__":
     counts = total_counts()
     total = sum(counts.values())
-    print("AiSOC Detection Pack v1 spec counts:")
+    print("Quarry Detection Pack v1 spec counts:")
     for category, count in sorted(counts.items()):
         print(f"  {category:14s} {count:4d}")
     print(f"  {'TOTAL':14s} {total:4d}")

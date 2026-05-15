@@ -13,7 +13,7 @@ from app.db.base import Base
 
 
 class OsqueryNode(Base):
-    """Represents an osqueryd agent enrolled with the AiSOC TLS service."""
+    """Represents an osqueryd agent enrolled with the Quarry TLS service."""
 
     __tablename__ = "osquery_node"
     __table_args__ = (UniqueConstraint("host_identifier", "tenant_id", name="uq_node_host_tenant"),)

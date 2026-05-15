@@ -1,7 +1,7 @@
 ###############################################################################
-# AiSOC - AI Security Operations Center
+# Quarry - AI Security Operations Center
 # Docker Compose - Full Development Stack
-# AiSOC — open-source under MIT License
+# Quarry — open-source under MIT License
 #
 # SECURITY NOTE
 # -------------
@@ -16,7 +16,7 @@
 ###############################################################################
 
 networks:
-  aisoc:
+  quarry:
     driver: bridge
 
 volumes:
@@ -35,34 +35,34 @@ services:
 
   postgres:
     image: postgres:16-alpine
-    container_name: aisoc-postgres
+    container_name: quarry-postgres
     environment:
-      POSTGRES_DB: aisoc
-      POSTGRES_USER: aisoc
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-aisoc_dev_secret}
+      POSTGRES_DB: quarry
+      POSTGRES_USER: quarry
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-quarry_dev_secret}
     ports:
       - "127.0.0.1:5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./services/api/migrations:/docker-entrypoint-initdb.d:ro
     networks:
-      - aisoc
+      - quarry
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U aisoc"]
+      test: ["CMD-SHELL", "pg_isready -U quarry"]
       interval: 10s
       timeout: 5s
       retries: 5
 
   redis:
     image: redis:7-alpine
-    container_name: aisoc-redis
+    container_name: quarry-redis
     command: redis-server --appendonly yes --requirepass redis_dev_secret
     ports:
       - "127.0.0.1:6379:6379"
     volumes:
       - redis_data:/data
     networks:
-      - aisoc
+      - quarry
     healthcheck:
       test: ["CMD", "redis-cli", "-a", "redis_dev_secret", "ping"]
       interval: 10s
@@ -71,12 +71,12 @@ services:
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
-    container_name: aisoc-zookeeper
+    container_name: quarry-zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     networks:
-      - aisoc
+      - quarry
     healthcheck:
       test: ["CMD", "nc", "-z", "localhost", "2181"]
       interval: 10s
@@ -85,7 +85,7 @@ services:
 
   kafka:
     image: confluentinc/cp-kafka:7.5.0
-    container_name: aisoc-kafka
+    container_name: quarry-kafka
     depends_on:
       zookeeper:
         condition: service_healthy
@@ -101,7 +101,7 @@ services:
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
       KAFKA_LOG_RETENTION_HOURS: 168
     networks:
-      - aisoc
+      - quarry
     volumes:
       - kafka_data:/var/lib/kafka/data
     # Memory caps surface OOMKiller events as a clear container exit instead of
@@ -116,7 +116,7 @@ services:
 
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
-    container_name: aisoc-kafka-ui
+    container_name: quarry-kafka-ui
     depends_on:
       kafka:
         condition: service_healthy
@@ -126,11 +126,11 @@ services:
       KAFKA_CLUSTERS_0_NAME: local
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
     networks:
-      - aisoc
+      - quarry
 
   clickhouse:
     image: clickhouse/clickhouse-server:23.8
-    container_name: aisoc-clickhouse
+    container_name: quarry-clickhouse
     ports:
       - "127.0.0.1:8123:8123"
       - "127.0.0.1:9000:9000"
@@ -138,12 +138,12 @@ services:
       - clickhouse_data:/var/lib/clickhouse
       - ./services/api/clickhouse:/docker-entrypoint-initdb.d:ro
     environment:
-      CLICKHOUSE_DB: aisoc
-      CLICKHOUSE_USER: aisoc
+      CLICKHOUSE_DB: quarry
+      CLICKHOUSE_USER: quarry
       CLICKHOUSE_PASSWORD: clickhouse_dev_secret
       CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
     networks:
-      - aisoc
+      - quarry
     ulimits:
       nofile:
         soft: 262144
@@ -153,10 +153,10 @@ services:
 
   opensearch:
     image: opensearchproject/opensearch:2.11.0
-    container_name: aisoc-opensearch
+    container_name: quarry-opensearch
     environment:
-      - cluster.name=aisoc-cluster
-      - node.name=aisoc-node-1
+      - cluster.name=quarry-cluster
+      - node.name=quarry-node-1
       - discovery.type=single-node
       - bootstrap.memory_lock=true
       - OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m
@@ -171,23 +171,23 @@ services:
     ports:
       - "127.0.0.1:9200:9200"
     networks:
-      - aisoc
+      - quarry
     mem_limit: 1g
     mem_reservation: 768m
 
   qdrant:
     image: qdrant/qdrant:v1.7.0
-    container_name: aisoc-qdrant
+    container_name: quarry-qdrant
     ports:
       - "127.0.0.1:6333:6333"
     volumes:
       - qdrant_data:/qdrant/storage
     networks:
-      - aisoc
+      - quarry
 
   neo4j:
     image: neo4j:5.15-community
-    container_name: aisoc-neo4j
+    container_name: quarry-neo4j
     ports:
       - "127.0.0.1:7474:7474"   # HTTP browser
       - "127.0.0.1:7687:7687"   # Bolt
@@ -201,7 +201,7 @@ services:
       - neo4j_data:/data
       - neo4j_logs:/logs
     networks:
-      - aisoc
+      - quarry
     mem_limit: 1g
     mem_reservation: 768m
     healthcheck:
@@ -216,9 +216,9 @@ services:
     build:
       context: ./services/api
       dockerfile: Dockerfile
-    image: ghcr.io/beenuar/aisoc-core-api:${AISOC_VERSION:-latest}
+    image: ghcr.io/beenuar/quarry-core-api:${QUARRY_VERSION:-latest}
     pull_policy: missing
-    container_name: aisoc-api
+    container_name: quarry-api
     depends_on:
       postgres:
         condition: service_healthy
@@ -229,10 +229,10 @@ services:
     ports:
       - "127.0.0.1:8000:8000"
     environment:
-      DATABASE_URL: postgresql+asyncpg://aisoc:${POSTGRES_PASSWORD:-aisoc_dev_secret}@postgres:5432/aisoc
+      DATABASE_URL: postgresql+asyncpg://quarry:${POSTGRES_PASSWORD:-quarry_dev_secret}@postgres:5432/quarry
       REDIS_URL: redis://:redis_dev_secret@redis:6379/0
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092
-      CLICKHOUSE_URL: http://aisoc:clickhouse_dev_secret@clickhouse:8123/aisoc
+      CLICKHOUSE_URL: http://quarry:clickhouse_dev_secret@clickhouse:8123/quarry
       OPENSEARCH_URL: http://opensearch:9200
       QDRANT_URL: http://qdrant:6333
       NEO4J_URI: bolt://neo4j:7687
@@ -242,16 +242,16 @@ services:
       ENVIRONMENT: development
       LOG_LEVEL: info
     networks:
-      - aisoc
+      - quarry
     restart: unless-stopped
 
   ingest-worker:
     build:
       context: ./services/ingest
       dockerfile: Dockerfile
-    image: ghcr.io/beenuar/aisoc-ingest:${AISOC_VERSION:-latest}
+    image: ghcr.io/beenuar/quarry-ingest:${QUARRY_VERSION:-latest}
     pull_policy: missing
-    container_name: aisoc-ingest
+    container_name: quarry-ingest
     depends_on:
       kafka:
         condition: service_healthy
@@ -268,16 +268,16 @@ services:
       JWT_SECRET: dev_secret_key_change_in_production
       ATTCK_DATA_PATH: /app/data/enterprise-attack.json
     networks:
-      - aisoc
+      - quarry
     restart: unless-stopped
 
   enrichment:
     build:
       context: ./services/enrichment
       dockerfile: Dockerfile
-    image: ghcr.io/beenuar/aisoc-enrichment:${AISOC_VERSION:-latest}
+    image: ghcr.io/beenuar/quarry-enrichment:${QUARRY_VERSION:-latest}
     pull_policy: missing
-    container_name: aisoc-enrichment
+    container_name: quarry-enrichment
     depends_on:
       redis:
         condition: service_healthy
@@ -293,16 +293,16 @@ services:
       GREYNOISE_API_KEY: ${GREYNOISE_API_KEY:-}
       SHODAN_API_KEY: ${SHODAN_API_KEY:-}
     networks:
-      - aisoc
+      - quarry
     restart: unless-stopped
 
   fusion:
     build:
       context: ./services/fusion
       dockerfile: Dockerfile
-    image: ghcr.io/beenuar/aisoc-fusion:${AISOC_VERSION:-latest}
+    image: ghcr.io/beenuar/quarry-fusion:${QUARRY_VERSION:-latest}
     pull_policy: missing
-    container_name: aisoc-fusion
+    container_name: quarry-fusion
     depends_on:
       redis:
         condition: service_healthy
@@ -313,18 +313,18 @@ services:
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       REDIS_URL: redis://:redis_dev_secret@redis:6379/3
-      DATABASE_URL: postgresql+asyncpg://aisoc:${POSTGRES_PASSWORD:-aisoc_dev_secret}@postgres:5432/aisoc
+      DATABASE_URL: postgresql+asyncpg://quarry:${POSTGRES_PASSWORD:-quarry_dev_secret}@postgres:5432/quarry
     networks:
-      - aisoc
+      - quarry
     restart: unless-stopped
 
   agents:
     build:
       context: ./services/agents
       dockerfile: Dockerfile
-    image: ghcr.io/beenuar/aisoc-agents:${AISOC_VERSION:-latest}
+    image: ghcr.io/beenuar/quarry-agents:${QUARRY_VERSION:-latest}
     pull_policy: missing
-    container_name: aisoc-agents
+    container_name: quarry-agents
     depends_on:
       postgres:
         condition: service_healthy
@@ -333,7 +333,7 @@ services:
     ports:
       - "127.0.0.1:8001:8084"
     environment:
-      DATABASE_URL: postgresql+asyncpg://aisoc:${POSTGRES_PASSWORD:-aisoc_dev_secret}@postgres:5432/aisoc
+      DATABASE_URL: postgresql+asyncpg://quarry:${POSTGRES_PASSWORD:-quarry_dev_secret}@postgres:5432/quarry
       REDIS_URL: redis://:redis_dev_secret@redis:6379/4
       CORE_API_URL: http://api:8000
       QDRANT_URL: http://qdrant:6333
@@ -345,7 +345,7 @@ services:
       OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
       ATTCK_DATA_PATH: /app/data/enterprise-attack.json
     networks:
-      - aisoc
+      - quarry
     restart: unless-stopped
 
   osquery-tls:
@@ -353,9 +353,9 @@ services:
       context: ./services/osquery-tls
       dockerfile: Dockerfile
     # Not in publish-images.yml matrix yet — pull falls back to local build.
-    image: ghcr.io/beenuar/aisoc-osquery-tls:${AISOC_VERSION:-latest}
+    image: ghcr.io/beenuar/quarry-osquery-tls:${QUARRY_VERSION:-latest}
     pull_policy: missing
-    container_name: aisoc-osquery-tls
+    container_name: quarry-osquery-tls
     depends_on:
       postgres:
         condition: service_healthy
@@ -366,22 +366,22 @@ services:
     profiles:
       - osquery
     environment:
-      DATABASE_URL: postgresql+asyncpg://aisoc:${POSTGRES_PASSWORD:-aisoc_dev_secret}@postgres:5432/aisoc
-      AISOC_OSQUERY_TLS_ENROLL_SECRET: ${AISOC_OSQUERY_TLS_ENROLL_SECRET:-change-me-in-production}
+      DATABASE_URL: postgresql+asyncpg://quarry:${POSTGRES_PASSWORD:-quarry_dev_secret}@postgres:5432/quarry
+      QUARRY_OSQUERY_TLS_ENROLL_SECRET: ${QUARRY_OSQUERY_TLS_ENROLL_SECRET:-change-me-in-production}
       # The ingest service is registered as `ingest-worker` in this compose
       # file; the previous `http://ingest:8080` would not resolve via DNS.
-      AISOC_INGEST_BASE_URL: http://ingest-worker:8080
+      QUARRY_INGEST_BASE_URL: http://ingest-worker:8080
     networks:
-      - aisoc
+      - quarry
     restart: unless-stopped
 
   actions:
     build:
       context: ./services/actions
       dockerfile: Dockerfile
-    image: ghcr.io/beenuar/aisoc-actions:${AISOC_VERSION:-latest}
+    image: ghcr.io/beenuar/quarry-actions:${QUARRY_VERSION:-latest}
     pull_policy: missing
-    container_name: aisoc-actions
+    container_name: quarry-actions
     depends_on:
       redis:
         condition: service_healthy
@@ -392,19 +392,19 @@ services:
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       REDIS_URL: redis://:redis_dev_secret@redis:6379/5
-      DATABASE_URL: postgresql+asyncpg://aisoc:${POSTGRES_PASSWORD:-aisoc_dev_secret}@postgres:5432/aisoc
+      DATABASE_URL: postgresql+asyncpg://quarry:${POSTGRES_PASSWORD:-quarry_dev_secret}@postgres:5432/quarry
       CORE_API_URL: http://api:8000
     networks:
-      - aisoc
+      - quarry
     restart: unless-stopped
 
   connectors:
     build:
       context: ./services/connectors
       dockerfile: Dockerfile
-    image: ghcr.io/beenuar/aisoc-connectors:${AISOC_VERSION:-latest}
+    image: ghcr.io/beenuar/quarry-connectors:${QUARRY_VERSION:-latest}
     pull_policy: missing
-    container_name: aisoc-connectors
+    container_name: quarry-connectors
     depends_on:
       kafka:
         condition: service_healthy
@@ -417,7 +417,7 @@ services:
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       REDIS_URL: redis://:redis_dev_secret@redis:6379/6
-      DATABASE_URL: postgresql+asyncpg://aisoc:${POSTGRES_PASSWORD:-aisoc_dev_secret}@postgres:5432/aisoc
+      DATABASE_URL: postgresql+asyncpg://quarry:${POSTGRES_PASSWORD:-quarry_dev_secret}@postgres:5432/quarry
       CORE_API_URL: http://api:8000
       CROWDSTRIKE_CLIENT_ID: ${CROWDSTRIKE_CLIENT_ID:-}
       CROWDSTRIKE_CLIENT_SECRET: ${CROWDSTRIKE_CLIENT_SECRET:-}
@@ -425,16 +425,16 @@ services:
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
     networks:
-      - aisoc
+      - quarry
     restart: unless-stopped
 
   threatintel:
     build:
       context: ./services/threatintel
       dockerfile: Dockerfile
-    image: ghcr.io/beenuar/aisoc-threatintel:${AISOC_VERSION:-latest}
+    image: ghcr.io/beenuar/quarry-threatintel:${QUARRY_VERSION:-latest}
     pull_policy: missing
-    container_name: aisoc-threatintel
+    container_name: quarry-threatintel
     depends_on:
       redis:
         condition: service_healthy
@@ -457,16 +457,16 @@ services:
       TAXII_USERNAME: ${TAXII_USERNAME:-}
       TAXII_PASSWORD: ${TAXII_PASSWORD:-}
     networks:
-      - aisoc
+      - quarry
     restart: unless-stopped
 
   ueba:
     build:
       context: ./services/ueba
       dockerfile: Dockerfile
-    image: ghcr.io/beenuar/aisoc-ueba:${AISOC_VERSION:-latest}
+    image: ghcr.io/beenuar/quarry-ueba:${QUARRY_VERSION:-latest}
     pull_policy: missing
-    container_name: aisoc-ueba
+    container_name: quarry-ueba
     depends_on:
       postgres:
         condition: service_healthy
@@ -477,26 +477,26 @@ services:
     ports:
       - "127.0.0.1:8007:8004"
     environment:
-      DATABASE_URL: postgresql+asyncpg://aisoc:${POSTGRES_PASSWORD:-aisoc_dev_secret}@postgres:5432/aisoc
+      DATABASE_URL: postgresql+asyncpg://quarry:${POSTGRES_PASSWORD:-quarry_dev_secret}@postgres:5432/quarry
       REDIS_URL: redis://:redis_dev_secret@redis:6379/8
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092
-      CLICKHOUSE_URL: http://aisoc:clickhouse_dev_secret@clickhouse:8123/aisoc
+      CLICKHOUSE_URL: http://quarry:clickhouse_dev_secret@clickhouse:8123/quarry
       CORE_API_URL: http://api:8000
     networks:
-      - aisoc
+      - quarry
     restart: unless-stopped
 
   honeytokens:
     # Gated behind the `extras` profile: image isn't published to GHCR yet, so
-    # `aisoc serve` skips it by default. Opt in with `--profile extras` and the
+    # `quarry serve` skips it by default. Opt in with `--profile extras` and the
     # local Dockerfile build will run.
     profiles: ["extras"]
     build:
       context: ./services/honeytokens
       dockerfile: Dockerfile
-    image: ghcr.io/beenuar/aisoc-honeytokens:${AISOC_VERSION:-latest}
+    image: ghcr.io/beenuar/quarry-honeytokens:${QUARRY_VERSION:-latest}
     pull_policy: build
-    container_name: aisoc-honeytokens
+    container_name: quarry-honeytokens
     depends_on:
       postgres:
         condition: service_healthy
@@ -507,25 +507,25 @@ services:
     ports:
       - "127.0.0.1:8008:8005"
     environment:
-      DATABASE_URL: postgresql+asyncpg://aisoc:${POSTGRES_PASSWORD:-aisoc_dev_secret}@postgres:5432/aisoc
+      DATABASE_URL: postgresql+asyncpg://quarry:${POSTGRES_PASSWORD:-quarry_dev_secret}@postgres:5432/quarry
       REDIS_URL: redis://:redis_dev_secret@redis:6379/9
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       CORE_API_URL: http://api:8000
     networks:
-      - aisoc
+      - quarry
     restart: unless-stopped
 
   purple-team:
     # Gated behind the `extras` profile: image isn't published to GHCR yet, so
-    # `aisoc serve` skips it by default. Opt in with `--profile extras` and the
+    # `quarry serve` skips it by default. Opt in with `--profile extras` and the
     # local Dockerfile build will run.
     profiles: ["extras"]
     build:
       context: ./services/purple-team
       dockerfile: Dockerfile
-    image: ghcr.io/beenuar/aisoc-purple-team:${AISOC_VERSION:-latest}
+    image: ghcr.io/beenuar/quarry-purple-team:${QUARRY_VERSION:-latest}
     pull_policy: build
-    container_name: aisoc-purple-team
+    container_name: quarry-purple-team
     depends_on:
       postgres:
         condition: service_healthy
@@ -534,21 +534,21 @@ services:
     ports:
       - "127.0.0.1:8006:8006"
     environment:
-      DATABASE_URL: postgresql+asyncpg://aisoc:${POSTGRES_PASSWORD:-aisoc_dev_secret}@postgres:5432/aisoc
+      DATABASE_URL: postgresql+asyncpg://quarry:${POSTGRES_PASSWORD:-quarry_dev_secret}@postgres:5432/quarry
       REDIS_URL: redis://:redis_dev_secret@redis:6379/10
       CORE_API_URL: http://api:8000
       ATTCK_DATA_PATH: /app/data/enterprise-attack.json
     networks:
-      - aisoc
+      - quarry
     restart: unless-stopped
 
   realtime:
     build:
       context: ./services/realtime
       dockerfile: Dockerfile
-    image: ghcr.io/beenuar/aisoc-realtime:${AISOC_VERSION:-latest}
+    image: ghcr.io/beenuar/quarry-realtime:${QUARRY_VERSION:-latest}
     pull_policy: missing
-    container_name: aisoc-realtime
+    container_name: quarry-realtime
     depends_on:
       redis:
         condition: service_healthy
@@ -562,10 +562,10 @@ services:
       REDIS_PASSWORD: redis_dev_secret
       PORT: 4000
     networks:
-      - aisoc
+      - quarry
     restart: unless-stopped
 
-  # ChatOps adapter. Holds no state — forwards `/aisoc …` slash commands and
+  # ChatOps adapter. Holds no state — forwards `/quarry …` slash commands and
   # approval-card button clicks to services/api and services/actions. Runs
   # under the `chatops` profile so a default `docker compose up` doesn't fail
   # when the operator has not yet provisioned a Slack app or service tokens.
@@ -573,9 +573,9 @@ services:
     build:
       context: ./services/slack-bot
       dockerfile: Dockerfile
-    image: ghcr.io/beenuar/aisoc-slack-bot:${AISOC_VERSION:-latest}
+    image: ghcr.io/beenuar/quarry-slack-bot:${QUARRY_VERSION:-latest}
     pull_policy: missing
-    container_name: aisoc-slack-bot
+    container_name: quarry-slack-bot
     depends_on:
       - api
       - actions
@@ -586,25 +586,25 @@ services:
     environment:
       SLACK_BOT_TOKEN: ${SLACK_BOT_TOKEN:-}
       SLACK_SIGNING_SECRET: ${SLACK_SIGNING_SECRET:-}
-      AISOC_API_BASE_URL: http://api:8000
-      AISOC_ACTIONS_BASE_URL: http://actions:8085
-      AISOC_API_SERVICE_TOKEN: ${AISOC_SLACK_API_TOKEN:-}
-      AISOC_ACTIONS_SERVICE_TOKEN: ${AISOC_SLACK_ACTIONS_TOKEN:-}
-      AISOC_DEFAULT_TENANT_ID: ${AISOC_DEFAULT_TENANT_ID:-00000000-0000-0000-0000-000000000000}
-      AISOC_WEB_BASE_URL: ${AISOC_WEB_BASE_URL:-http://localhost:3000}
-      AISOC_SLACK_BOT_PORT: 8089
-      AISOC_HTTP_TIMEOUT_SECONDS: 10
+      QUARRY_API_BASE_URL: http://api:8000
+      QUARRY_ACTIONS_BASE_URL: http://actions:8085
+      QUARRY_API_SERVICE_TOKEN: ${QUARRY_SLACK_API_TOKEN:-}
+      QUARRY_ACTIONS_SERVICE_TOKEN: ${QUARRY_SLACK_ACTIONS_TOKEN:-}
+      QUARRY_DEFAULT_TENANT_ID: ${QUARRY_DEFAULT_TENANT_ID:-00000000-0000-0000-0000-000000000000}
+      QUARRY_WEB_BASE_URL: ${QUARRY_WEB_BASE_URL:-http://localhost:3000}
+      QUARRY_SLACK_BOT_PORT: 8089
+      QUARRY_HTTP_TIMEOUT_SECONDS: 10
     networks:
-      - aisoc
+      - quarry
     restart: unless-stopped
 
   web:
     build:
       context: .
       dockerfile: apps/web/Dockerfile
-    image: ghcr.io/beenuar/aisoc-web:${AISOC_VERSION:-latest}
+    image: ghcr.io/beenuar/quarry-web:${QUARRY_VERSION:-latest}
     pull_policy: missing
-    container_name: aisoc-web
+    container_name: quarry-web
     depends_on:
       - api
       - realtime
@@ -615,26 +615,26 @@ services:
       NEXT_PUBLIC_WS_URL: ws://localhost:8086
       NODE_ENV: production
     networks:
-      - aisoc
+      - quarry
     restart: unless-stopped
 
   # ─── Observability ────────────────────────────────────────────────────────────
 
   prometheus:
     image: prom/prometheus:v2.48.0
-    container_name: aisoc-prometheus
+    container_name: quarry-prometheus
     ports:
       - "127.0.0.1:9091:9090"
     volumes:
       - ./infra/docker/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     networks:
-      - aisoc
+      - quarry
     profiles:
       - monitoring
 
   grafana:
     image: grafana/grafana:10.2.0
-    container_name: aisoc-grafana
+    container_name: quarry-grafana
     depends_on:
       - prometheus
     ports:
@@ -647,6 +647,6 @@ services:
     volumes:
       - ./infra/docker/grafana:/etc/grafana/provisioning:ro
     networks:
-      - aisoc
+      - quarry
     profiles:
       - monitoring

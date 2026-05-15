@@ -5,13 +5,13 @@ build-backend = "hatchling.build"
 [project]
 name = "quarry-plugin-sdk"
 version = "0.1.0"
-description = "AiSOC Plugin SDK for Python — build custom enrichers, connectors, and response actions"
+description = "Quarry Plugin SDK for Python — build custom enrichers, connectors, and response actions"
 readme = "README.md"
 license = { text = "MIT" }
 authors = [
   { name = "Beenu Arora", email = "beenu@cyble.com" },
 ]
-keywords = ["aisoc", "soc", "security", "plugin", "sdk"]
+keywords = ["quarry", "soc", "security", "plugin", "sdk"]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Intended Audience :: Developers",
@@ -37,12 +37,12 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/beenuar/AiSOC"
-Documentation = "https://github.com/beenuar/AiSOC#readme"
-Repository = "https://github.com/beenuar/AiSOC"
+Homepage = "https://github.com/Josepassinato/quarry"
+Documentation = "https://github.com/Josepassinato/quarry#readme"
+Repository = "https://github.com/Josepassinato/quarry"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/aisoc_plugin_sdk"]
+packages = ["src/quarry_plugin_sdk"]
 
 [tool.ruff]
 line-length = 100

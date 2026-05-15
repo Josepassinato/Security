@@ -1,7 +1,7 @@
 /**
- * AiSOC — GCP serverless skeleton
+ * Quarry — GCP serverless skeleton
  *
- * Input variables. Defaults aim for "smallest viable AiSOC" so a `terraform
+ * Input variables. Defaults aim for "smallest viable Quarry" so a `terraform
  * apply` against a fresh project produces a working stack inside the GCP
  * always-free / startup-credit envelope, not a five-figure surprise.
  */
@@ -22,14 +22,14 @@ variable "region" {
 variable "name_prefix" {
   description = "Prefix used for resource names (Cloud Run services, SQL instance, etc.)."
   type        = string
-  default     = "aisoc"
+  default     = "quarry"
 }
 
 variable "labels" {
   description = "Common labels applied to every label-supporting resource."
   type        = map(string)
   default = {
-    project    = "aisoc"
+    project    = "quarry"
     managed_by = "terraform"
   }
 }
@@ -71,13 +71,13 @@ variable "postgres_disk_size_gb" {
 variable "postgres_db_name" {
   description = "Logical Postgres database name created inside the instance."
   type        = string
-  default     = "aisoc"
+  default     = "quarry"
 }
 
 variable "postgres_user" {
   description = "Application Postgres user."
   type        = string
-  default     = "aisoc"
+  default     = "quarry"
 }
 
 variable "deletion_protection" {
@@ -111,19 +111,19 @@ variable "redis_version" {
 variable "api_image" {
   description = "Container image for the API service (FastAPI). Defaults to the GHCR demo image."
   type        = string
-  default     = "ghcr.io/beenuar/aisoc-api:latest"
+  default     = "ghcr.io/beenuar/quarry-api:latest"
 }
 
 variable "web_image" {
   description = "Container image for the web service (Next.js)."
   type        = string
-  default     = "ghcr.io/beenuar/aisoc-web:latest"
+  default     = "ghcr.io/beenuar/quarry-web:latest"
 }
 
 variable "ingest_image" {
   description = "Container image for the ingest service (Go)."
   type        = string
-  default     = "ghcr.io/beenuar/aisoc-ingest:latest"
+  default     = "ghcr.io/beenuar/quarry-ingest:latest"
 }
 
 variable "api_min_instances" {

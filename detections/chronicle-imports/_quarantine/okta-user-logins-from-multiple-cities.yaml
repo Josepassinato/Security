@@ -67,4 +67,4 @@ provenance:
   upstream_path: rules/community/okta/okta_user_logins_from_multiple_cities.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

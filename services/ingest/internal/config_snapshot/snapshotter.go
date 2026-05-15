@@ -34,7 +34,7 @@
 // The graph writer still upserts the underlying :Resource node, so the
 // ingest pipeline NEVER stalls on a bad config lookup.
 //
-// AiSOC — open-source AI Security Operations Center (MIT License)
+// Quarry — open-source AI Security Operations Center (MIT License)
 package config_snapshot
 
 import (
@@ -50,7 +50,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/beenuar/aisoc/services/ingest/internal/graph"
+	"github.com/beenuar/quarry/services/ingest/internal/graph"
 	"github.com/rs/zerolog/log"
 )
 
@@ -147,7 +147,7 @@ type HTTPProvider struct {
 
 // NewHTTPProvider constructs the production provider. ``timeout`` caps each
 // round-trip — defaults to 1.5s if non-positive (matches
-// AISOC_SNAPSHOT_PROVIDER_TIMEOUT_MS).
+// QUARRY_SNAPSHOT_PROVIDER_TIMEOUT_MS).
 func NewHTTPProvider(baseURL string, timeout time.Duration) *HTTPProvider {
 	if timeout <= 0 {
 		timeout = 1500 * time.Millisecond

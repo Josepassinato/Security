@@ -9,7 +9,7 @@ spec (also attached as `uploads/ai-stack-data-integration-plan_e90071ca.plan-L1-
 
 ## How to resume after a session restart
 
-1. Re-open `/Users/beenu/Desktop/AiSOC` in your editor.
+1. Re-open `/Users/beenu/Desktop/Quarry` in your editor.
 2. Read this file top-to-bottom.
 3. Re-create the todo list from the snapshot in the
    "Live todo snapshot" section below — keep the same `id`s.
@@ -38,8 +38,8 @@ spec (also attached as `uploads/ai-stack-data-integration-plan_e90071ca.plan-L1-
 
 User asked for:
 1. GitHub fully updated (docs/architecture in sync with code).
-2. Code-scanning alerts at https://github.com/beenuar/AiSOC/security/code-scanning fixed.
-3. Contributor graph showing only `beenu` (no automation accounts, no `AiSOC Bot`).
+2. Code-scanning alerts at https://github.com/Josepassinato/quarry/security/code-scanning fixed.
+3. Contributor graph showing only `beenu` (no automation accounts, no `Quarry Bot`).
 4. **Author identity for all commits: `Beenu Arora <beenu@cyble.com>`** — no
    co-author trailers, no automation addresses, no `users.noreply.github.com`.
 
@@ -186,7 +186,7 @@ Six triaged false positives, each with a comment:
 
 - `detections/fixtures/positive/jwt-none-alg.json:jwt:2` — positive test fixture.
 - `render.yaml:generic-api-key:70` and `:124` — env var **names**
-  (`AISOC_DISABLE_NEO4J=true`).
+  (`QUARRY_DISABLE_NEO4J=true`).
 - `scripts/detection_specs_part3_application.py:generic-api-key:61` —
   detection rule literal `count_5min_per_ip_gt: 30`.
 - `scripts/detection_specs_part2.py:jwt:1111` — positive sample for jwt-none-alg.
@@ -217,7 +217,7 @@ post-rewrite block.
   `Capability.PUSH_CASE` / `Capability.PUSH_STATUS` enum members.
 - `services/connectors/app/connectors/jira_connector.py` —
   - `push_case`: creates Jira issue with ADF-formatted description, severity →
-    priority mapping, summary truncation at 255 chars, `aisoc-case-{id}` label
+    priority mapping, summary truncation at 255 chars, `quarry-case-{id}` label
     for round-trip identification, returns `{external_id, external_url, vendor,
     external_status}`.
   - `push_status_change`: discovers transitions via
@@ -227,7 +227,7 @@ post-rewrite block.
   - Falls through to `push_case` when `external_ref is None` (first push).
 - `services/connectors/app/connectors/servicenow.py` —
   - `push_case`: POSTs to `/api/now/table/incident`, sets
-    `correlation_id="aisoc:{case_id}"` for round-tripping AiSOC case identity,
+    `correlation_id="quarry:{case_id}"` for round-tripping Quarry case identity,
     severity → impact/urgency mapping, short_description truncation at 160 chars.
   - `push_status_change`: PATCHes `/api/now/table/incident/{sys_id}` with
     `state`; for `Resolved`/`Closed` adds `close_code` + `close_notes` (required
@@ -252,12 +252,12 @@ post-rewrite block.
   not raised).
 - `services/api/app/api/v1/endpoints/inbox_itsm.py` — public-surface inbound
   webhook (`POST /v1/inbox/itsm/{token}`) with:
-  - HMAC-SHA256 verification via `X-AiSOC-Signature` header.
+  - HMAC-SHA256 verification via `X-Quarry-Signature` header.
   - Vendor-specific payload parsing (Jira `issue.key`/`fields.status.name`,
     ServiceNow `sys_id`/`state`).
-  - `_map_inbound_status` collapsing vendor statuses → AiSOC statuses.
+  - `_map_inbound_status` collapsing vendor statuses → Quarry statuses.
   - `case_external_refs` lookup by `(vendor, external_id)`.
-  - Idempotent AiSOC case status updates (skips if already at target status).
+  - Idempotent Quarry case status updates (skips if already at target status).
 - `services/api/app/api/v1/endpoints/inbox.py` — `itsm-inbound` template added
   to `ALLOWED_TEMPLATE_IDS` and `_TEMPLATE_CATALOG`; `_build_inbox_url` now
   routes ITSM tokens through `OAUTH_PUBLIC_BASE_URL` to the API service.
@@ -319,7 +319,7 @@ Reference plan §WS8.
   flagged — no more reading source to know if a given connector can
   `PUSH_CASE` or only `PULL_ALERTS`.
 - `apps/docs/docs/architecture/itsm-as-source-of-truth.md` — explains why
-  AiSOC is the canonical store for case state and ITSM systems are
+  Quarry is the canonical store for case state and ITSM systems are
   projections. Covers the outbound path (`case_fanout` → `push_case` /
   `push_status_change`), the inbound path (`POST /v1/inbox/itsm` with
   HMAC verification, `_JIRA_INBOUND_STATUS` / `_SNOW_INBOUND_STATUS`
@@ -394,7 +394,7 @@ Reference plan §WS9.
 
 ## Environment
 
-- Repo: `/Users/beenu/Desktop/AiSOC` (branch: `main`)
+- Repo: `/Users/beenu/Desktop/Quarry` (branch: `main`)
 - Python venv: `services/api/.venv` → `python3.14`
 - Activate: `cd services/api && source .venv/bin/activate`
 - Test: `python -m pytest tests/test_lake_sql.py tests/test_lake_rate_limit.py -q`
@@ -425,7 +425,7 @@ journey.
 | 2  | P0       | `/api/v1/marketplace`                            | 503 "marketplace/index.json not found" (file outside Docker build context)  | `8328870`  | endpoint returns 200    |
 | 3  | P0       | API service boot                                 | FastAPI `AssertionError` on 204 route (`oauth.py` DELETE) crashed startup   | `8328870`  | `/health` returns 200   |
 | 4  | P1       | Case workspace + Hunt view (demo mode)           | UI banner + toasts said "backend offline" when only writes are disabled     | `a8f08c4`  | copy reads correctly    |
-| 5  | P1       | `sitemap.xml`                                    | `/signup` listed in sitemap but route is 404 (AiSOC ships no signup)        | `a8f08c4`  | sitemap clean           |
+| 5  | P1       | `sitemap.xml`                                    | `/signup` listed in sitemap but route is 404 (Quarry ships no signup)        | `a8f08c4`  | sitemap clean           |
 | 6  | P1       | `/onboarding` "Run a detection" card             | Linked to `/detections` (plural) — 404. Correct path is `/detection`        | `d3240a7`  | card now links to 200   |
 | 7  | P1       | `/onboarding` "Bring your own data" card         | Linked to in-app `/docs/operations/credentials` — 404 (docs are external)   | `d3240a7`  | links to GH Pages docs  |
 | 8  | P1       | `NextStepCard` component                         | Used `next/link` for cross-origin docs URL; would break target=_blank       | `d3240a7`  | external `<a>` rendered |
@@ -439,7 +439,7 @@ journey.
 - `d3240a7` — fix(web/onboarding): two 404s in NextStepCard footer
 
 All three authored as `Beenu Arora <beenu@cyble.com>` with no
-co-author trailers, deployed to `aisoc-demo-web` and `aisoc-demo-api`
+co-author trailers, deployed to `quarry-demo-web` and `quarry-demo-api`
 on Fly, and verified live on `tryaisoc.com`.
 
 ### Post-deploy verification sweep
@@ -468,7 +468,7 @@ These paths return 404 because they are intentionally not part of the
 product surface. Recorded here so a future review does not re-open
 them:
 
-- `/signup`, `/pricing`, `/about` — AiSOC is open source and
+- `/signup`, `/pricing`, `/about` — Quarry is open source and
   self-hosted; the only auth entry is `/login`, and the demo lands
   anonymously via the home-page CTA. The hero copy and the
   why-open-source page both state "No signup."
@@ -489,7 +489,7 @@ them:
 
 ### Outstanding non-blocker
 
-`flyctl deploy` for `aisoc-demo-web` returned a client-side timeout
+`flyctl deploy` for `quarry-demo-web` returned a client-side timeout
 warning ("the app is not listening on the expected address") on the
 last roll-out, but the new image is live and all post-deploy probes
 pass. Recorded here so a future deploy can investigate the listener
@@ -548,7 +548,7 @@ Verified complete and shippable.
   read-only badges for "Air-gap engaged" + "AI calls route to: …".
   Mutations are deliberately deploy-time only.
 - `services/agents/app/api/explain.py:_llm_allowed()` honours
-  `AISOC_AIRGAPPED`: with air-gap on and no `OPENAI_BASE_URL`, the
+  `QUARRY_AIRGAPPED`: with air-gap on and no `OPENAI_BASE_URL`, the
   outbound call is blocked; with a local proxy URL it is allowed.
 - `docker-compose.demo.yml` ships zero outbound LLM calls by
   default (`OPENAI_API_KEY: ${OPENAI_API_KEY:-}` — empty unless the
@@ -595,7 +595,7 @@ Agents-side read path (services/agents):
 - `app/security/credential_vault.py` — vendored read-path copy
   of the API service's vault. Differs only in that
   `get_vault()` returns `None` (instead of raising) when
-  `AISOC_CREDENTIAL_KEY` is missing, so explain stays
+  `QUARRY_CREDENTIAL_KEY` is missing, so explain stays
   resilient on operator boxes that have not migrated to BYOK
   yet.
 - `app/security/llm_resolver.py` — `resolve_llm_config` is
@@ -631,7 +631,7 @@ Tests:
   paths (provider transitions that violate invariants,
   duplicate-tenant `IntegrityError`), and audit emission.
 - `services/agents/tests/test_llm_resolver.py` — 33 tests
-  covering `_env_baseline` (OPENAI_*, LLM_*, AISOC_LLM_MODEL
+  covering `_env_baseline` (OPENAI_*, LLM_*, QUARRY_LLM_MODEL
   precedence), `_airgap_blocks`, `_classify_source`,
   `_decrypt_vault_token` (vault disabled, round-trip, corrupt
   ciphertext), and `resolve_llm_config` end-to-end with a
@@ -651,7 +651,7 @@ Documentation:
   the agents service decrypts at read time.
 - `apps/docs/docs/operations/airgap.md` — clarified that BYOK
   to a private LiteLLM/Ollama/vLLM gateway works under
-  `AISOC_AIRGAPPED=true`, while BYOK pointing at
+  `QUARRY_AIRGAPPED=true`, while BYOK pointing at
   `api.openai.com` is still blocked.
 - `apps/docs/docs/operations/security.md` — added a pointer
   to the BYOK section so the security model document

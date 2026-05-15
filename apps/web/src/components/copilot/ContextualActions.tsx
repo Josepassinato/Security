@@ -465,7 +465,7 @@ function ContextualPanel({
 // We deliberately avoid pulling in `react-markdown` + `remark-gfm` for this
 // surface — the LLM only emits a tight subset (headings, code blocks, lists,
 // inline emphasis, links). A bespoke renderer keeps the bundle small and the
-// output styled to match the rest of the AiSOC console.
+// output styled to match the rest of the Quarry console.
 
 function Markdown({ text }: { text: string }) {
   const blocks = useMemo(() => parseMarkdownBlocks(text), [text]);

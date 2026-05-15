@@ -1,19 +1,19 @@
 /**
  * packHelpers
  * ===========
- * Helpers for distinguishing AiSOC's shipped reference playbook packs from
+ * Helpers for distinguishing Quarry's shipped reference playbook packs from
  * user-created playbooks, deriving category facets, and forking a pack.
  *
  * Design notes:
  *   - The agents service loads both user-created playbooks and the
  *     `playbooks/packs/v1/**` reference packs into a single flat list at
  *     `GET /api/v1/playbooks` (see services/agents/app/playbook/store.py).
- *   - Shipped packs all carry `author === "AiSOC"` and use kebab-case ids
+ *   - Shipped packs all carry `author === "Quarry"` and use kebab-case ids
  *     like `supply-vendor-breach-v1`. User-created playbooks default to a
  *     UUID id (PlaybookStore.create generates one when id is empty).
  *   - We treat a playbook as a "pack" when the author matches AND the id
  *     does not look like a UUID. This avoids misclassifying any future
- *     user-submitted playbook that happens to set author="AiSOC".
+ *     user-submitted playbook that happens to set author="Quarry".
  *   - Categories are recovered from the first matching tag — packs all
  *     prefix their tags with the category name (see playbooks/packs/v1).
  *   - MITRE tactics are inferred from `mitre.tXXXX` tags using the ATT&CK
@@ -65,10 +65,10 @@ const CATEGORY_COLORS: Record<PackCategory, string> = {
 
 /**
  * True when the playbook is one of the shipped reference packs that lives
- * under `playbooks/packs/v1/`. Heuristic: author "AiSOC" + non-UUID id.
+ * under `playbooks/packs/v1/`. Heuristic: author "Quarry" + non-UUID id.
  */
 export function isShippedPack(pb: Playbook): boolean {
-  if (pb.author !== 'AiSOC') return false;
+  if (pb.author !== 'Quarry') return false;
   if (!pb.id) return false;
   return !UUID_REGEX.test(pb.id);
 }

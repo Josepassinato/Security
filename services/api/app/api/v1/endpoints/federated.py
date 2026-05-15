@@ -163,10 +163,10 @@ def _connectors_query_url(connector_type: str) -> str:
 
 
 def _ensure_feature_enabled() -> None:
-    if not settings.AISOC_FEATURE_FED_SEARCH:
+    if not settings.QUARRY_FEATURE_FED_SEARCH:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="federated search is disabled (AISOC_FEATURE_FED_SEARCH=false)",
+            detail="federated search is disabled (QUARRY_FEATURE_FED_SEARCH=false)",
         )
 
 

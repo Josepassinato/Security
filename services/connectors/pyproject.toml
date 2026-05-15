@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "quarry-connectors"
 version = "0.1.0"
-description = "AiSOC Security Source Connectors"
+description = "Quarry Security Source Connectors"
 authors = ["Beenu Arora <beenu@cyble.com>"]
 license = "MIT"
 
@@ -23,7 +23,7 @@ apscheduler = "^3.10.0"
 sqlalchemy = "^2.0.0"
 asyncpg = "^0.29.0"
 # Cryptography is required to decrypt the auth_config blob written by the
-# API service's CredentialVault. We share AISOC_CREDENTIAL_KEY across both
+# API service's CredentialVault. We share QUARRY_CREDENTIAL_KEY across both
 # services via the deployment's secret store.
 cryptography = "^42.0.0"
 

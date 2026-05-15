@@ -3,7 +3,7 @@
 /**
  * Entity-centric Risk-Based Alerting (RBA) queue.
  *
- * Wave 1 of the AiSOC v6 capability roadmap. Renders the rolled-up entity
+ * Wave 1 of the Quarry v6 capability roadmap. Renders the rolled-up entity
  * queue produced by the fusion service's EntityRiskEngine. Each row is a
  * *user / host / ip / domain* with a time-decayed score, contributing alerts,
  * and a severity histogram — not a raw alert. Goal: surface ≤ 1 entity per

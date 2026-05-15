@@ -41,7 +41,7 @@ What this suite locks down:
 * **_load_rule_for_tenant** — the security tripod: 404 on missing,
   404 on cross-tenant, 403 on platform-wide (NULL tenant_id) rules.
 
-AiSOC — open-source AI Security Operations Center (MIT License)
+Quarry — open-source AI Security Operations Center (MIT License)
 Author: Beenu Arora <beenu@cyble.com>
 """
 

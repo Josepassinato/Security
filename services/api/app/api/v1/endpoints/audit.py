@@ -195,7 +195,7 @@ async def export_audit_events(
             content=body,
             media_type="text/csv; charset=utf-8",
             headers={
-                "Content-Disposition": (f'attachment; filename="aisoc-audit-{timestamp_slug}.csv"'),
+                "Content-Disposition": (f'attachment; filename="quarry-audit-{timestamp_slug}.csv"'),
                 "X-Total-Rows": str(len(rows)),
             },
         )
@@ -216,7 +216,7 @@ async def export_audit_events(
     return HTMLResponse(
         content=html_body,
         headers={
-            "Content-Disposition": (f'inline; filename="aisoc-audit-{timestamp_slug}.html"'),
+            "Content-Disposition": (f'inline; filename="quarry-audit-{timestamp_slug}.html"'),
             "X-Total-Rows": str(len(rows)),
         },
     )

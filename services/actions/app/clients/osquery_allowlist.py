@@ -1,7 +1,7 @@
 """Read-only parameterised osquery SQL templates.
 
 Playbook steps reference templates by ID rather than passing raw SQL directly to
-osctrl / FleetDM / aisoc-direct.  This ensures that the only queries that can be
+osctrl / FleetDM / quarry-direct.  This ensures that the only queries that can be
 executed on remote hosts via a playbook are those that have been reviewed and
 approved here.
 

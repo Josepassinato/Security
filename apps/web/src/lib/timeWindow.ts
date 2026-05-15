@@ -69,4 +69,4 @@ export function sinceFor(window: TimeWindow, now: number = Date.now()): string {
 }
 
 /** localStorage key for the user's last-chosen window. */
-export const TIME_WINDOW_STORAGE_KEY = 'aisoc.timeWindow';
+export const TIME_WINDOW_STORAGE_KEY = 'quarry.timeWindow';

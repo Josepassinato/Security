@@ -1,7 +1,7 @@
 """
 Adaptive Card callback dispatch.
 
-When a Teams user clicks Approve / Deny / Need-Info on an AiSOC
+When a Teams user clicks Approve / Deny / Need-Info on an Quarry
 approval card, Teams POSTs an ``invoke`` activity carrying the card's
 signed ``data`` payload. This module:
 
@@ -184,7 +184,7 @@ async def handle_card_action(
 
 def callback_max_age_seconds() -> int:
     """Resolve the replay window. Defaults to 600s (10 minutes)."""
-    raw = os.environ.get("AISOC_TEAMS_CALLBACK_MAX_AGE_SECONDS")
+    raw = os.environ.get("QUARRY_TEAMS_CALLBACK_MAX_AGE_SECONDS")
     if not raw:
         return 600
     try:

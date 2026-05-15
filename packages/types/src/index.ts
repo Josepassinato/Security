@@ -1,7 +1,7 @@
 /**
- * AiSOC Shared Types - Main Entry Point
+ * Quarry Shared Types - Main Entry Point
  *
- * AiSOC — open-source AI Security Operations Center platform
+ * Quarry — open-source AI Security Operations Center platform
  * MIT License
  */
 

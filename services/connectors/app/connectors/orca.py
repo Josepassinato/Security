@@ -14,9 +14,9 @@ Auth model:
 
 Severity mapping:
     Orca uses a 5-tier ladder (``hazardous, critical, high, medium,
-    informational``). AiSOC also exposes 5 tiers (``critical, high,
+    informational``). Quarry also exposes 5 tiers (``critical, high,
     medium, low, info``). Both ``hazardous`` (Orca's "actively exploited /
-    active threat" band) and ``critical`` map into AiSOC ``critical`` so
+    active threat" band) and ``critical`` map into Quarry ``critical`` so
     P1 cloud findings keep their original priority. The original Orca
     tier is preserved on ``raw_event.state.severity``.
 """
@@ -35,9 +35,9 @@ logger = structlog.get_logger()
 
 _DEFAULT_API_URL = "https://api.orcasecurity.io"
 
-# Orca's 5-tier ladder mapped into AiSOC's 5-tier canonical set.
+# Orca's 5-tier ladder mapped into Quarry's 5-tier canonical set.
 # ``hazardous`` is Orca-internal terminology for "actively exploited /
-# active threat" and is the most severe band — escalate it to AiSOC
+# active threat" and is the most severe band — escalate it to Quarry
 # ``critical`` so the SOC P1 SLA fires. ``critical`` stays ``critical``.
 _SEVERITY_MAP: dict[str, str] = {
     "hazardous": "critical",

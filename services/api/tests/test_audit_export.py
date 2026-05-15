@@ -177,7 +177,7 @@ class TestHtmlRenderer:
         out = render_audit_html([], _context([]))
         assert out.startswith("<!DOCTYPE html>")
         assert out.rstrip().endswith("</html>")
-        assert "<title>AiSOC — Audit Export</title>" in out
+        assert "<title>Quarry — Audit Export</title>" in out
 
     def test_header_includes_tenant_and_generator_metadata(self):
         ctx = _context([])

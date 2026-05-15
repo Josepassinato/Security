@@ -104,7 +104,7 @@ export function Hero() {
             className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-fg-secondary sm:text-lg sm:leading-[1.6] motion-safe:animate-fade-in-up"
             style={{ animationDelay: '420ms' }}
           >
-            AiSOC is the open agentic Security Operations Center. Four named
+            Quarry is the open agentic Security Operations Center. Four named
             agents investigate every incident end-to-end, and every prompt,
             tool call, and rationale lands in a replayable ledger.
             Self-host in five minutes, take it air-gapped on a flag, or join
@@ -116,7 +116,7 @@ export function Hero() {
             style={{ animationDelay: '540ms' }}
           >
             <Link
-              href="https://app.aisoc.dev/signup"
+              href="https://app.quarry.dev/signup"
               className="group inline-flex h-11 w-full items-center justify-center gap-2 rounded-md bg-gradient-to-br from-brand-500 to-brand-700 px-6 text-sm font-semibold text-white shadow-[0_1px_0_rgba(255,255,255,0.18)_inset,0_8px_24px_-12px_rgba(59,130,246,0.55)] transition-[box-shadow,transform] duration-200 ease-landing-out-quart hover:shadow-[0_12px_32px_-12px_rgba(59,130,246,0.75)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-base sm:w-auto"
             >
               Start free on managed
@@ -126,7 +126,7 @@ export function Hero() {
               />
             </Link>
             <a
-              href="https://github.com/beenuar/AiSOC"
+              href="https://github.com/beenuar/Quarry"
               target="_blank"
               rel="noreferrer"
               className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-md border border-surface-border bg-surface-raised/60 px-6 text-sm font-semibold text-fg-primary backdrop-blur-sm transition-colors duration-200 ease-landing-out-quart hover:border-brand-500/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-base sm:w-auto"

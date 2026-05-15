@@ -129,4 +129,4 @@ provenance:
   upstream_path: rules/community/microsoft/windows/win_pua_detection_of_uncommon_rmm.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

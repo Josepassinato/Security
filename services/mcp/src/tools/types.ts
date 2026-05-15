@@ -11,7 +11,7 @@
  * thrown error.
  */
 import type { z } from "zod";
-import type { AisocClient } from "../client.js";
+import type { QuarryClient } from "../client.js";
 import type { Logger } from "../config.js";
 
 /** Minimal MCP "tool" descriptor — name + JSON schema for ListToolsResult. */
@@ -29,7 +29,7 @@ export interface ToolMetadata {
  * tools are easy to unit-test against a mock client.
  */
 export interface ToolContext {
-  client: AisocClient;
+  client: QuarryClient;
   log: Logger;
 }
 

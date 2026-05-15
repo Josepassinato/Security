@@ -1,6 +1,6 @@
 id: det-network-027
 name: NTP Amplification Reflector Attack (Inbound monlist)
-description: AiSOC v1 curated detection. Triggers on the network signal described by 'NTP Amplification
+description: Quarry v1 curated detection. Triggers on the network signal described by 'NTP Amplification
   Reflector Attack (Inbound monlist)'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: high
@@ -22,6 +22,6 @@ false_positives:
 - Legacy NTP misconfiguration (must be patched)
 playbook: tpl-ddos
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

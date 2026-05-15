@@ -7,9 +7,9 @@ description: >
   Salesforce Event Monitoring + Setup Audit Trail. Pulls EventLogFile entries
   (logins, API usage, report exports) and SetupAuditTrail (admin config
   changes).
-author: AiSOC Core Team
+author: Quarry Core Team
 tags: [saas, salesforce, crm, audit]
-homepage: https://github.com/beenuar/AiSOC/tree/main/services/connectors/app/connectors/salesforce.py
+homepage: https://github.com/beenuar/Quarry/tree/main/services/connectors/app/connectors/salesforce.py
 license: MIT
 min_aisoc_version: "4.0.0"
 config_schema:

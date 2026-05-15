@@ -2,7 +2,7 @@
   "name": "@quarry/web",
   "version": "7.3.1",
   "private": true,
-  "description": "AiSOC SOC Console - Next.js 14 Frontend",
+  "description": "Quarry SOC Console - Next.js 14 Frontend",
   "license": "MIT",
   "scripts": {
     "dev": "next dev -p 3000",

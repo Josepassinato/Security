@@ -31,7 +31,7 @@ def _make_settings(**overrides) -> Settings:
         "METRICS_TOKEN": "long-random-token",
         "PLUGIN_TRUST_MODE": "strict",
         # Pre-generated Fernet key. Real deployments mount this via Fly secret.
-        "AISOC_CREDENTIAL_KEY": "Z7t9fM3pZ8U_bN5oVxQYr1w2kLsHd4aJiTvE6cNxYpA=",
+        "QUARRY_CREDENTIAL_KEY": "Z7t9fM3pZ8U_bN5oVxQYr1w2kLsHd4aJiTvE6cNxYpA=",
         # SAML/OIDC session signing secret. Empty/placeholder values now warn
         # in prod (issue #130, finding #10), so the "clean prod" baseline
         # has to set a real value.
@@ -95,17 +95,17 @@ def test_clean_prod_settings_emit_no_warnings():
 
 
 def test_empty_credential_key_in_prod_warns():
-    """Operators must set AISOC_CREDENTIAL_KEY before connector secrets touch Postgres."""
-    s = _make_settings(AISOC_CREDENTIAL_KEY="")
+    """Operators must set QUARRY_CREDENTIAL_KEY before connector secrets touch Postgres."""
+    s = _make_settings(QUARRY_CREDENTIAL_KEY="")
     msgs = warn_if_insecure_defaults(s)
-    assert any("AISOC_CREDENTIAL_KEY" in m for m in msgs)
+    assert any("QUARRY_CREDENTIAL_KEY" in m for m in msgs)
 
 
 def test_empty_credential_key_in_dev_does_not_warn():
     """Dev auto-generates an ephemeral key, so silence here is intentional."""
-    s = _make_settings(ENVIRONMENT="development", AISOC_CREDENTIAL_KEY="")
+    s = _make_settings(ENVIRONMENT="development", QUARRY_CREDENTIAL_KEY="")
     msgs = warn_if_insecure_defaults(s)
-    assert not any("AISOC_CREDENTIAL_KEY" in m for m in msgs)
+    assert not any("QUARRY_CREDENTIAL_KEY" in m for m in msgs)
 
 
 def test_empty_jwt_secret_in_prod_warns():

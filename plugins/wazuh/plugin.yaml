@@ -6,12 +6,12 @@ tier: stable
 description: >
   Wazuh — open-source XDR/SIEM. Pulls alerts from the Wazuh indexer
   (OpenSearch-compatible) above a configurable rule-level threshold and
-  collapses the 0-15 rule-level ladder onto AiSOC's four-tier severity
+  collapses the 0-15 rule-level ladder onto Quarry's four-tier severity
   taxonomy (info | low | medium | high) so detection and fusion logic
   stays vendor-agnostic.
-author: AiSOC Core Team
+author: Quarry Core Team
 tags: [siem, xdr, wazuh, opensource, hids, fim]
-homepage: https://github.com/beenuar/AiSOC/tree/main/services/connectors/app/connectors/wazuh.py
+homepage: https://github.com/beenuar/Quarry/tree/main/services/connectors/app/connectors/wazuh.py
 license: MIT
 min_aisoc_version: "4.0.0"
 config_schema:

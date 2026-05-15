@@ -10,7 +10,7 @@ client could trivially spoof their source IP in the audit trail by attaching
 This module gates the use of ``X-Forwarded-For`` on the presence of a
 configured allow-list of trusted proxy CIDRs. The rules are:
 
-* If ``AISOC_TRUSTED_PROXIES`` is empty (the default), ``X-Forwarded-For``
+* If ``QUARRY_TRUSTED_PROXIES`` is empty (the default), ``X-Forwarded-For``
   is ignored entirely — we fall back to the direct TCP peer
   (``request.client.host``). This is the safe default: an untrusted edge
   cannot forge audit IPs.
@@ -36,11 +36,11 @@ from collections.abc import Iterable, Sequence
 
 from fastapi import Request
 
-logger = logging.getLogger("aisoc.audit.trusted_proxy")
+logger = logging.getLogger("quarry.audit.trusted_proxy")
 
 # Env var name. Read from os.environ at resolution time rather than pinning
 # at import so tests can monkeypatch without re-importing the module.
-TRUSTED_PROXIES_ENV = "AISOC_TRUSTED_PROXIES"
+TRUSTED_PROXIES_ENV = "QUARRY_TRUSTED_PROXIES"
 
 
 def _parse_cidrs(raw: str | None) -> list[ipaddress._BaseNetwork]:

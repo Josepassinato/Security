@@ -6,9 +6,9 @@ tier: stable
 description: >
   Auth0 tenant logs. Pulls login events, MFA events, and admin actions via the
   Management API.
-author: AiSOC Core Team
+author: Quarry Core Team
 tags: [iam, auth0, okta, identity]
-homepage: https://github.com/beenuar/AiSOC/tree/main/services/connectors/app/connectors/auth0.py
+homepage: https://github.com/beenuar/Quarry/tree/main/services/connectors/app/connectors/auth0.py
 license: MIT
 min_aisoc_version: "4.0.0"
 config_schema:

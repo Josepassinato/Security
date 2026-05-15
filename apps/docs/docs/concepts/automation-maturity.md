@@ -1,13 +1,13 @@
 ---
 sidebar_position: 6
 title: L0–L4 Automation Maturity
-description: The five-tier model AiSOC uses to gate autonomous response, from analyst-only (L0) through closed-loop autonomous (L4).
+description: The five-tier model Quarry uses to gate autonomous response, from analyst-only (L0) through closed-loop autonomous (L4).
 ---
 
 # L0–L4 Automation Maturity
 
 Every SOC sits on a spectrum between "humans do everything" and "agents do
-everything, humans review at audit time." AiSOC formalises that spectrum into
+everything, humans review at audit time." Quarry formalises that spectrum into
 five tiers — **L0 through L4** — and ships the tier as a first-class,
 per-tenant configuration. The tier you operate at is not a marketing claim; it
 is a row in `remediation_maturity`, a gate that fires on every action, and an
@@ -34,17 +34,17 @@ to the question, "what is allowed to run without a human in the loop?"
 ## The five tiers
 
 The implementation lives in
-[`services/actions/app/services/maturity.py`](https://github.com/beenuar/AiSOC/tree/main/services/actions/app/services/maturity.py),
+[`services/actions/app/services/maturity.py`](https://github.com/Josepassinato/quarry/tree/main/services/actions/app/services/maturity.py),
 gated by `evaluate_gate()` against the action's blast radius. Blast radii are
 defined in
-[`services/actions/app/models/action.py`](https://github.com/beenuar/AiSOC/tree/main/services/actions/app/models/action.py)
+[`services/actions/app/models/action.py`](https://github.com/Josepassinato/quarry/tree/main/services/actions/app/models/action.py)
 as `MINIMAL`, `LOW`, `MEDIUM`, `HIGH`, `CRITICAL`.
 
 | Tier | Name | Auto-executed blast radius | Everything else | Default for | Honest MTTR target |
 |------|------|----------------------------|-----------------|-------------|---------------------|
 | **L0** | Observe | _nothing_ — agents are advisory | All actions queued for approval | New tenants, regulated workloads first 30 days | Human-bound (hours) |
 | **L1** | Notify | `MINIMAL` (Slack, ticket, ChatOps verify) | Queued for approval | Tenants in week 2–4 of onboarding | < 30 min for triage notify |
-| **L2** | Contain | `MINIMAL` + `LOW` (quarantine file, IOC blocklist, AV scan) | Queued for approval | Most production AiSOC tenants today | < 10 min for low-risk containment |
+| **L2** | Contain | `MINIMAL` + `LOW` (quarantine file, IOC blocklist, AV scan) | Queued for approval | Most production Quarry tenants today | < 10 min for low-risk containment |
 | **L3** | Remediate | `MINIMAL` + `LOW` + `MEDIUM` (block IP/domain, kill process, reset password, run playbook) | Queued for approval | Mature tenants with strong rollback discipline | < 5 min for medium-risk remediation |
 | **L4** | Automate | All radii up to and including `HIGH` (isolate host, disable user, suspend session) — **only if a whitelist entry matches** | Queued for approval | Closed-loop scenarios on pre-approved action+target pairs | < 2 min for whitelisted closed loops |
 
@@ -58,7 +58,7 @@ operator requests is routed to the approval queue. The agent's role is
 
 Entry criteria:
 
-- A working AiSOC tenant with at least one connector emitting alerts.
+- A working Quarry tenant with at least one connector emitting alerts.
 - No special trust signals required.
 
 Auto-executed:
@@ -112,7 +112,7 @@ FP tolerance:
 - Medium-high. A wrong Slack post or wrong ticket is recoverable and
   embarrassing, not destructive.
 
-### L2 — Contain (low-blast-radius autonomous, the AiSOC default for production)
+### L2 — Contain (low-blast-radius autonomous, the Quarry default for production)
 
 The agent is allowed to take reversible, single-resource actions: quarantine
 a file, capture forensics, add an IOC to a blocklist, run an AV scan. These
@@ -138,7 +138,7 @@ Gated:
 Honest performance:
 
 - MTTR for low-blast-radius containment drops to single-digit minutes.
-  AiSOC's published benchmark on synthetic incidents measures this as
+  Quarry's published benchmark on synthetic incidents measures this as
   the most common autonomous path in production tenants today.
 
 FP tolerance:
@@ -146,8 +146,8 @@ FP tolerance:
 - Medium. A wrongly-quarantined file or a wrongly-blocked IOC is
   recoverable from the gate log and rollback metadata, but it costs time.
 
-**This is where most AiSOC tenants operate in practice as of v8.0.** If a
-prospect asks "where is AiSOC autonomous today," the honest answer is "L2
+**This is where most Quarry tenants operate in practice as of v8.0.** If a
+prospect asks "where is Quarry autonomous today," the honest answer is "L2
 for the median tenant, L3 on selected action classes for mature tenants."
 Anyone marketing a higher number is either running a narrow demo or is
 counting recommendations as actions.
@@ -163,7 +163,7 @@ is interrupted.
 Entry criteria:
 
 - Tenant must have a tested rollback story for each MEDIUM action class.
-  AiSOC's executor framework records `rollback_data` on every action, but
+  Quarry's executor framework records `rollback_data` on every action, but
   the actual rollback is a connector-side capability and varies by vendor.
 - Operator has reviewed the gate log for at least one full alert cycle at
   L2 and is satisfied with the false-positive rate.
@@ -260,12 +260,12 @@ This log is the source of truth for tier-graduation discussions.
 
 ## How to assess your own SOC's level
 
-These are the questions AiSOC's onboarding flow asks (and that you can ask
+These are the questions Quarry's onboarding flow asks (and that you can ask
 yourself before flipping the dial):
 
 1. **Notification readiness.** Is at least one notification connector
    configured? Are analysts paying attention to it? If not, **stay at L0.**
-2. **Triage volume.** Is the alert-to-incident ratio under control? AiSOC's
+2. **Triage volume.** Is the alert-to-incident ratio under control? Quarry's
    public benchmark gates at 50:1; if your tenant is over that, autonomous
    action will amplify noise, not reduce it. **Stay at L1.**
 3. **Rollback discipline.** For each LOW-radius action you intend to enable,
@@ -305,7 +305,7 @@ action.
 
 A few things deliberately don't sit inside the L0–L4 dial:
 
-- **`CRITICAL`-blast-radius actions.** AiSOC currently has no action type
+- **`CRITICAL`-blast-radius actions.** Quarry currently has no action type
   marked CRITICAL in `ACTION_BLAST_RADIUS`; the level exists in the enum so
   future actions (e.g. bulk credential rotation, regional traffic
   blackholing) can land in a tier that requires a separate explicit
@@ -323,8 +323,8 @@ A few things deliberately don't sit inside the L0–L4 dial:
 - The model is influenced by — but not aligned to — the
   [MITRE D3FEND](https://d3fend.mitre.org/) defensive technique catalog,
   particularly the `D3-* / Eviction / Restore` branches that map naturally
-  to AiSOC's blast-radius classes.
-- For interoperable playbook formats, AiSOC's playbook engine is
+  to Quarry's blast-radius classes.
+- For interoperable playbook formats, Quarry's playbook engine is
   format-compatible with [OASIS CACAO](https://www.oasis-open.org/standard/cacao/)
   v2.0 (Collaborative Automated Course of Action Operations); the L0–L4 gate
   evaluates the same actions a CACAO playbook would.
@@ -334,9 +334,9 @@ A few things deliberately don't sit inside the L0–L4 dial:
   actions are reversible in ways driving is not — but the framing of
   "who is responsible at each tier" is portable.
 
-## Where AiSOC sits today
+## Where Quarry sits today
 
-As of v8.0, the majority of production AiSOC tenants operate at **L2** with
+As of v8.0, the majority of production Quarry tenants operate at **L2** with
 a small set of L3 overrides for specific action types where the rollback
 story is mature. A small number of pilot tenants are running L4-whitelisted
 closed loops for `isolate_host` on quarantine-tagged hosts.

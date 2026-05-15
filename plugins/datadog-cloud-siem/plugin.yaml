@@ -6,9 +6,9 @@ tier: stable
 description: >
   Datadog Cloud SIEM. Pulls Security Signals and supports log search across the
   Datadog logs platform.
-author: AiSOC Core Team
+author: Quarry Core Team
 tags: [siem, datadog, cloud-siem]
-homepage: https://github.com/beenuar/AiSOC/tree/main/services/connectors/app/connectors/datadog_cloud_siem.py
+homepage: https://github.com/beenuar/Quarry/tree/main/services/connectors/app/connectors/datadog_cloud_siem.py
 license: MIT
 min_aisoc_version: "4.0.0"
 config_schema:

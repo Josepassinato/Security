@@ -1,8 +1,8 @@
 {
   "name": "@quarry/sdk",
   "version": "4.0.0",
-  "description": "TypeScript client SDK for AiSOC — auto-generated from the OpenAPI schema",
-  "keywords": ["aisoc", "soc", "security", "client", "sdk"],
+  "description": "TypeScript client SDK for Quarry — auto-generated from the OpenAPI schema",
+  "keywords": ["quarry", "soc", "security", "client", "sdk"],
   "license": "MIT",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

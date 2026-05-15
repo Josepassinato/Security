@@ -1,9 +1,9 @@
-# AiSOC on Railway
+# Quarry on Railway
 
-Deploy AiSOC to [Railway](https://railway.com) with one click — the lean
+Deploy Quarry to [Railway](https://railway.com) with one click — the lean
 demo profile, 4 services, plus Postgres + Redis plugins.
 
-[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/new/template?template=https%3A%2F%2Fgithub.com%2Fbeenuar%2FAiSOC&plugins=postgresql%2Credis)
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/new/template?template=https%3A%2F%2Fgithub.com%2Fbeenuar%2FQuarry&plugins=postgresql%2Credis)
 
 ## What this deploys
 
@@ -47,11 +47,11 @@ services take ~3 minutes to add via the dashboard.
 
 ### Step 1: Click the deploy button
 
-[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/new/template?template=https%3A%2F%2Fgithub.com%2Fbeenuar%2FAiSOC&plugins=postgresql%2Credis)
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/new/template?template=https%3A%2F%2Fgithub.com%2Fbeenuar%2FQuarry&plugins=postgresql%2Credis)
 
 This:
 
-1. Forks `beenuar/AiSOC` to your GitHub account (or uses an existing fork).
+1. Forks `beenuar/Quarry` to your GitHub account (or uses an existing fork).
 2. Creates a new Railway project.
 3. Provisions a Postgres plugin (named `Postgres`).
 4. Provisions a Redis plugin (named `Redis`).
@@ -84,10 +84,10 @@ migrations on the next boot and become healthy.
 ```
 ENVIRONMENT=demo
 PORT=8084
-AISOC_AGENT_MODE=deterministic
-AISOC_DISABLE_KAFKA=true
-AISOC_DISABLE_QDRANT=true
-AISOC_DISABLE_NEO4J=true
+QUARRY_AGENT_MODE=deterministic
+QUARRY_DISABLE_KAFKA=true
+QUARRY_DISABLE_QDRANT=true
+QUARRY_DISABLE_NEO4J=true
 DATABASE_URL=${{ Postgres.DATABASE_URL }}
 REDIS_URL=${{ Redis.REDIS_URL }}
 CORE_API_URL=http://${{ api.RAILWAY_PRIVATE_DOMAIN }}:8000
@@ -106,7 +106,7 @@ The `RAILWAY_PRIVATE_DOMAIN` reference resolves to
 NODE_ENV=production
 PORT=8086
 REDIS_URL=${{ Redis.REDIS_URL }}
-AISOC_DISABLE_KAFKA=true
+QUARRY_DISABLE_KAFKA=true
 ```
 
 4. **Settings** → **Networking** → **Generate Domain** (the realtime
@@ -129,8 +129,8 @@ NEXT_PUBLIC_WS_URL=wss://${{ realtime.RAILWAY_PUBLIC_DOMAIN }}
 NEXT_PUBLIC_DEMO_MODE=true
 NEXT_PUBLIC_DEMO_DEEPLINK=/cases/INC-RT-001?tab=ledger
 NEXT_PUBLIC_DEMO_BANNER=Demo data resets daily. All write actions are disabled.
-NEXT_PUBLIC_DEMO_AUTOLOGIN_EMAIL=demo@aisoc.dev
-NEXT_PUBLIC_DEMO_AUTOLOGIN_PASSWORD=aisoc-demo
+NEXT_PUBLIC_DEMO_AUTOLOGIN_EMAIL=demo@quarry.dev
+NEXT_PUBLIC_DEMO_AUTOLOGIN_PASSWORD=quarry-demo
 ```
 
 5. **Settings** → **Networking** → **Generate Domain**.

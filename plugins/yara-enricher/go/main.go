@@ -1,6 +1,6 @@
 // Package main is the YARA file enricher reference implementation in Go.
 //
-// This is a reference skeleton for the AiSOC Go Plugin SDK. Production builds
+// This is a reference skeleton for the Quarry Go Plugin SDK. Production builds
 // should compile against go-yara (github.com/hillu/go-yara/v4) which links
 // against libyara. The skeleton uses an exec fallback to the `yara` CLI to
 // avoid the cgo dependency in the reference build.
@@ -15,35 +15,35 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/beenuar/aisoc/plugin-sdk-go/aisoc"
+	"github.com/beenuar/quarry/plugin-sdk-go/quarry"
 )
 
-// YaraEnricher implements aisoc.Enricher for file-based YARA scanning.
+// YaraEnricher implements quarry.Enricher for file-based YARA scanning.
 //
 // The plugin treats the indicator value as a filesystem path. When the
 // indicator type is "hash", a path lookup is attempted via Metadata["path"].
 type YaraEnricher struct {
-	aisoc.BasePlugin
+	quarry.BasePlugin
 }
 
-func (y *YaraEnricher) Manifest() aisoc.PluginManifest {
-	return aisoc.PluginManifest{
+func (y *YaraEnricher) Manifest() quarry.PluginManifest {
+	return quarry.PluginManifest{
 		ID:          "yara-enricher",
 		Name:        "YARA File Enricher",
 		Version:     "1.0.0",
-		PluginType:  aisoc.PluginTypeEnricher,
+		PluginType:  quarry.PluginTypeEnricher,
 		Description: "Scans files against a configurable set of YARA rules.",
-		Author:      "AiSOC Core Team",
+		Author:      "Quarry Core Team",
 		Tags:        []string{"malware", "yara", "file-analysis", "enrichment"},
 	}
 }
 
 func (y *YaraEnricher) Enrich(
 	ctx context.Context,
-	req aisoc.EnrichmentRequest,
-	pctx aisoc.PluginContext,
-) (aisoc.EnrichmentResult, error) {
-	result := aisoc.EnrichmentResult{
+	req quarry.EnrichmentRequest,
+	pctx quarry.PluginContext,
+) (quarry.EnrichmentResult, error) {
+	result := quarry.EnrichmentResult{
 		IndicatorType:  req.IndicatorType,
 		IndicatorValue: req.IndicatorValue,
 		Enrichments:    map[string]any{},
@@ -52,7 +52,7 @@ func (y *YaraEnricher) Enrich(
 
 	rulesDir, _ := pctx.Config["rules_dir"].(string)
 	if rulesDir == "" {
-		rulesDir = "/opt/aisoc/yara-rules"
+		rulesDir = "/opt/quarry/yara-rules"
 	}
 
 	target := req.IndicatorValue
@@ -157,7 +157,7 @@ func scan(ctx context.Context, rules []string, target string) ([]string, error) 
 }
 
 func main() {
-	registry := aisoc.NewRegistry()
+	registry := quarry.NewRegistry()
 	if err := registry.Register(&YaraEnricher{}); err != nil {
 		panic(err)
 	}

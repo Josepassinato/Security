@@ -1,16 +1,16 @@
 /**
- * Minimal HTTP client for the AiSOC REST API.
+ * Minimal HTTP client for the Quarry REST API.
  *
  * Why we hand-roll a fetch wrapper instead of pulling in `openapi-fetch`
  * (which `packages/sdk-ts` already uses):
  *
  *   1. The MCP server publishes to npm and is launched by `npx`. Each extra
  *      dependency widens the surface IDE hosts have to download on first
- *      run, which lengthens the "claude desktop says aisoc is loading"
+ *      run, which lengthens the "claude desktop says quarry is loading"
  *      window. The native `fetch` in Node 18+ is enough.
  *   2. Static `openapi-fetch` typings would lock the MCP server to a
  *      specific OpenAPI snapshot at build time. Real MCP deployments may
- *      hit older AiSOC instances, and we'd rather degrade by tolerating an
+ *      hit older Quarry instances, and we'd rather degrade by tolerating an
  *      unknown field than crash on a parse error.
  *   3. We can centralise auth, timeout, retry, and error mapping in one
  *      place that matches the typed errors in `./errors.ts`.
@@ -36,8 +36,8 @@ export interface RequestOptions {
   raw?: boolean;
 }
 
-/** AiSOC client surface used by the tool layer. */
-export class AisocClient {
+/** Quarry client surface used by the tool layer. */
+export class QuarryClient {
   constructor(
     private readonly cfg: ServerConfig,
     private readonly log: Logger,
@@ -59,9 +59,9 @@ export class AisocClient {
   }
 
   /**
-   * Health probe — used by `aisoc-mcp doctor`. We hit `/health` rather than
+   * Health probe — used by `quarry-mcp doctor`. We hit `/health` rather than
    * `/api/v1/...` because the unauthenticated health endpoint exists on
-   * every AiSOC build and lets `doctor` validate the URL even when the key
+   * every Quarry build and lets `doctor` validate the URL even when the key
    * is missing or wrong.
    */
   async health(): Promise<{ status: string; reachable: boolean; raw?: unknown }> {

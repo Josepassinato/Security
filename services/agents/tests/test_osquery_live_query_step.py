@@ -71,7 +71,7 @@ def _inject_stubs(
         direct_instance.live_query = direct_live_query
     direct_cls = MagicMock(return_value=direct_instance)
     direct_mod = types.ModuleType("app.clients.aisoc_direct_client")
-    direct_mod.AiSOCDirectClient = direct_cls  # type: ignore[attr-defined]
+    direct_mod.QuarryDirectClient = direct_cls  # type: ignore[attr-defined]
     sys.modules["app.clients.aisoc_direct_client"] = direct_mod
 
     return osc_instance, fleet_instance, direct_instance  # type: ignore[return-value]
@@ -202,7 +202,7 @@ class TestFleetDMDispatch:
         lq.assert_awaited_once_with(["h1"], "logged_in_users", {}, 60)
 
 
-class TestAiSOCDirectStub:
+class TestQuarryDirectStub:
     @pytest.mark.asyncio
     async def test_aisoc_direct_not_implemented_is_safe(self) -> None:
         lq = AsyncMock(side_effect=NotImplementedError("PR4: not yet implemented"))
@@ -429,9 +429,9 @@ class TestRuntimeTimeoutClamp:
         """
         from app.playbook.bounds import ABSOLUTE_MAX_PARAM_TIMEOUT_SECONDS
 
-        # Operator typo: setting AISOC_PLAYBOOK_MAX_TIMEOUT_SECONDS=100000 must
+        # Operator typo: setting QUARRY_PLAYBOOK_MAX_TIMEOUT_SECONDS=100000 must
         # NOT silently uncap the runtime guard.
-        monkeypatch.setenv("AISOC_PLAYBOOK_MAX_TIMEOUT_SECONDS", "100000")
+        monkeypatch.setenv("QUARRY_PLAYBOOK_MAX_TIMEOUT_SECONDS", "100000")
 
         lq = AsyncMock(return_value={"results": {}, "partial": False})
         _inject_stubs(osctrl_live_query=lq)

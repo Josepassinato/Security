@@ -13,7 +13,7 @@ observability we want both surfaces:
 2. **Case events** — ``GET /api/v1/cases`` returns the cases produced
    by stories. We page through the index endpoint and treat the
    per-case state (``open / in_progress / closed``) plus the most-recent
-   record severity as the AiSOC-facing severity.
+   record severity as the Quarry-facing severity.
 
 The connector polls both streams on every cycle and merges them.
 
@@ -116,7 +116,7 @@ class TinesConnector(BaseConnector):
         return {
             "Authorization": f"Bearer {self._api_token}",
             "Accept": "application/json",
-            "User-Agent": "AiSOC-Connector/1.0",
+            "User-Agent": "Quarry-Connector/1.0",
         }
 
     # ------------------------- contract -------------------------
@@ -274,7 +274,7 @@ class TinesConnector(BaseConnector):
 
     # Tines case "record severity" — the worst severity of any record
     # attached to the case — uses the vendor-native string ladder. We
-    # collapse to the AiSOC 4-tier ladder per the wave-1 mapping rule.
+    # collapse to the Quarry 4-tier ladder per the wave-1 mapping rule.
     _CASE_SEVERITY_MAP = {
         "critical": "high",
         "error": "high",

@@ -154,7 +154,7 @@ class CreateNotableEventExecutor(BaseExecutor):
     """
 
     async def execute(self, request: ActionRequest) -> ActionResult:
-        title = request.parameters.get("event_title", f"AiSOC Alert — {request.target}")
+        title = request.parameters.get("event_title", f"Quarry Alert — {request.target}")
         severity = request.parameters.get("severity", "high")
         description = request.parameters.get("description", request.rationale or "")
         fields = request.parameters.get("fields", {})
@@ -359,7 +359,7 @@ class BlockIOCExecutor(BaseExecutor):
 
         ioc_value = request.target
         ioc_type = request.parameters.get("ioc_type", "IpAddress")
-        title = request.parameters.get("title", f"AiSOC — blocked {ioc_type}: {ioc_value}")
+        title = request.parameters.get("title", f"Quarry — blocked {ioc_type}: {ioc_value}")
         logger.info("Executing block_ioc", ioc_value=ioc_value, ioc_type=ioc_type)
 
         tenant_id = request.parameters.get("mde_tenant_id")

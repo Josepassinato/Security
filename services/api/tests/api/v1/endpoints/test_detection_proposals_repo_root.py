@@ -13,7 +13,7 @@ resolver:
 1. Finds the real repo root on the host (where ``scripts/run_evals.py`` exists).
 2. Falls back gracefully when the marker is absent (Docker case) without
    crashing and without resolving to ``/``.
-3. Honours the ``AISOC_REPO_ROOT`` environment override.
+3. Honours the ``QUARRY_REPO_ROOT`` environment override.
 4. Survives shallow path trees that would have triggered the original
    ``IndexError``.
 """
@@ -109,7 +109,7 @@ def test_resolver_handles_extremely_shallow_paths(tmp_path: Path):
 
 
 def test_repo_root_honours_env_override(monkeypatch, tmp_path: Path):
-    """``AISOC_REPO_ROOT`` lets operators point at an explicit directory
+    """``QUARRY_REPO_ROOT`` lets operators point at an explicit directory
     inside Docker images that ship the ``scripts/`` tree alongside the API.
     Reload the module so the env var is read at import time.
     """
@@ -117,7 +117,7 @@ def test_repo_root_honours_env_override(monkeypatch, tmp_path: Path):
     (custom / "scripts").mkdir(parents=True)
     (custom / "scripts" / "run_evals.py").write_text("# marker")
 
-    monkeypatch.setenv("AISOC_REPO_ROOT", str(custom))
+    monkeypatch.setenv("QUARRY_REPO_ROOT", str(custom))
     reloaded = importlib.reload(dp_endpoint)
 
     assert reloaded._REPO_ROOT == custom

@@ -30,7 +30,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/beenuar/aisoc/services/ingest/internal/graph"
+	"github.com/beenuar/quarry/services/ingest/internal/graph"
 )
 
 // subscriberBufferDefault is the per-client buffer size. Keep small —

@@ -32,7 +32,7 @@ components, multiplied by the actor's baseline profile-confidence:
 
 The default confidence threshold is `0.30`. Below it, the engine returns
 `actor_id="unknown"` and an empty match list. The threshold is tunable
-per environment via `AISOC_ATTRIBUTION_THRESHOLD` (clamped to `[0.0, 1.0]`;
+per environment via `QUARRY_ATTRIBUTION_THRESHOLD` (clamped to `[0.0, 1.0]`;
 invalid values fall back to the default and emit a warning log).
 
 ### Tool matching
@@ -153,8 +153,8 @@ The agent uses `state.raw_alert` for `targets`, `industry`, `geography`,
 and `severity`. To enrich attribution, populate those fields on the
 incoming alert.
 
-The HTTP timeout is tunable via `AISOC_ATTRIBUTION_TIMEOUT_SECONDS`
-(default `10`), and the `threatintel` base URL via `AISOC_THREATINTEL_URL`
+The HTTP timeout is tunable via `QUARRY_ATTRIBUTION_TIMEOUT_SECONDS`
+(default `10`), and the `threatintel` base URL via `QUARRY_THREATINTEL_URL`
 (default `http://threatintel:8083`).
 
 ## v0 limits and intended next steps

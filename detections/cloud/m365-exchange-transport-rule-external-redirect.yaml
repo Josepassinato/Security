@@ -24,6 +24,6 @@ false_positives:
 - Partner organisation relay
 playbook: tpl-collection
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-07'
 modified: '2026-05-07'

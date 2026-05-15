@@ -57,7 +57,7 @@ export function CopilotDock() {
 
   // Keyboard shortcut: ⌘J / Ctrl+J toggles the dock.
   // (⌘K is reserved for the global command palette.)
-  // We also listen for an `aisoc:open-copilot` window event so the palette
+  // We also listen for an `quarry:open-copilot` window event so the palette
   // can open the dock without prop drilling.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -72,10 +72,10 @@ export function CopilotDock() {
     };
     const onOpen = () => setOpen(true);
     window.addEventListener('keydown', onKey);
-    window.addEventListener('aisoc:open-copilot', onOpen);
+    window.addEventListener('quarry:open-copilot', onOpen);
     return () => {
       window.removeEventListener('keydown', onKey);
-      window.removeEventListener('aisoc:open-copilot', onOpen);
+      window.removeEventListener('quarry:open-copilot', onOpen);
     };
   }, [open]);
 

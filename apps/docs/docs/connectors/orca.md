@@ -1,13 +1,13 @@
 ---
 sidebar_position: 20
 title: Orca Security
-description: Orca Security CNAPP alerts across workload, container, cloud configuration, identity, and data risk surfaces into AiSOC via the unified /api/alerts API.
+description: Orca Security CNAPP alerts across workload, container, cloud configuration, identity, and data risk surfaces into Quarry via the unified /api/alerts API.
 ---
 
 # Orca Security
 
 The Orca Security connector pulls **open security alerts** from an Orca
-tenant into AiSOC. One connector instance covers every Orca surface —
+tenant into Quarry. One connector instance covers every Orca surface —
 **workload**, **container**, **cloud configuration (CSPM)**, **identity
 (CIEM)**, and **data risk (DSPM)** — because the `/api/alerts` REST
 endpoint aggregates findings across all of them. There is no per-product
@@ -39,20 +39,20 @@ shows it once.
 
 1. In the Orca console, **Settings → Users & Permissions → API Tokens →
    Create Token**.
-2. Name the token `aisoc-prod` (or similar) and set an expiry — match it
+2. Name the token `quarry-prod` (or similar) and set an expiry — match it
    to your secrets-rotation policy.
 3. Assign the role **Auditor** (read-only) or higher. Auditor is
    sufficient for alert ingestion.
 4. Copy the token value to a password manager.
 
-### 2. Add the connector in AiSOC
+### 2. Add the connector in Quarry
 
 1. **Connectors → Add connector → Orca Security**.
 2. **API Token** — paste the token from step 1.
 3. **API URL** — leave blank unless you're on a region-specific
    endpoint. The default `https://api.orcasecurity.io` works for the
    standard commercial cloud.
-4. **Test connection** — AiSOC calls `GET /api/user/session` to confirm
+4. **Test connection** — Quarry calls `GET /api/user/session` to confirm
    the token is valid and live.
 5. **Save**.
 
@@ -70,9 +70,9 @@ shows it once.
 
 ## Severity mapping
 
-Orca uses a 5-tier severity ladder. AiSOC's canonical ladder is 4-tier:
+Orca uses a 5-tier severity ladder. Quarry's canonical ladder is 4-tier:
 
-| Orca severity | AiSOC severity |
+| Orca severity | Quarry severity |
 |---|---|
 | `hazardous` | `high` |
 | `imminent_compromise` | `high` |
@@ -92,7 +92,7 @@ need to distinguish `hazardous` vs `critical` vs `high` still can.
 The unified `/api/alerts` endpoint includes findings from every Orca
 module you license:
 
-| Module | What you'll see in AiSOC |
+| Module | What you'll see in Quarry |
 |---|---|
 | **Workload** | Vulnerable packages, malware, runtime drift, exposed secrets in workloads |
 | **Container / Kubernetes** | Image vulnerabilities, runtime risks, K8s misconfig |
@@ -101,7 +101,7 @@ module you license:
 | **DSPM** | Sensitive data exposure, data-flow risks, compliance breaches |
 
 If a module isn't licensed on the tenant, no alerts of that type appear
-— there is nothing to disable in AiSOC.
+— there is nothing to disable in Quarry.
 
 ## Live actions
 
@@ -123,7 +123,7 @@ curl https://api.orcasecurity.io/api/user/session \
 ```
 
 A 200 response with a JSON session body confirms the token is good — the
-issue is then in the AiSOC field value.
+issue is then in the Quarry field value.
 
 **`orca auth failed: HTTP 403`** — the token's role does not have
 permission to read alerts. Reassign the token to **Auditor** or higher

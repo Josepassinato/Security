@@ -23,7 +23,7 @@ Routes
 The endpoint deliberately accepts an optional ``snapshot_b64`` query param
 (base64-encoded JSON) so an analyst can dry-run the resolver against a
 hypothetical policy bundle without touching the live snapshot store. The
-helper is hidden behind a feature flag (``AISOC_ALLOW_INLINE_SNAPSHOT``) so
+helper is hidden behind a feature flag (``QUARRY_ALLOW_INLINE_SNAPSHOT``) so
 production deployments don't accept arbitrary policy JSON over the wire.
 """
 
@@ -51,7 +51,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/identity", tags=["identity-effective-permissions"])
 
 # Sentinel for the "dry-run with inline snapshot" feature flag. Off by default.
-_INLINE_SNAPSHOT_FLAG = "AISOC_ALLOW_INLINE_SNAPSHOT"
+_INLINE_SNAPSHOT_FLAG = "QUARRY_ALLOW_INLINE_SNAPSHOT"
 
 
 @router.get(
@@ -88,7 +88,7 @@ async def get_effective_permissions(
         None,
         description=(
             "Optional base64-encoded JSON snapshot for dry-run resolution. "
-            "Only honoured when AISOC_ALLOW_INLINE_SNAPSHOT=1 is set."
+            "Only honoured when QUARRY_ALLOW_INLINE_SNAPSHOT=1 is set."
         ),
     ),
     _user: User = Depends(get_current_user),

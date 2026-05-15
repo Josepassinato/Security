@@ -35,4 +35,4 @@ provenance:
   upstream_path: rules/_deprecated/info/http_user_agent.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

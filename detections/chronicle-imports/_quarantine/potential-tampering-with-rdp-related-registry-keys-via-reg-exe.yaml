@@ -80,4 +80,4 @@ provenance:
   upstream_path: rules/community/microsoft/windows/potential_tampering_with_rdp_related_registry_keys_via_reg_exe.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

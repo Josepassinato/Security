@@ -6,7 +6,7 @@ description: Generic, vendor-agnostic action interface that lets agents and play
 
 # Live Actions
 
-The **live action interface** is AiSOC's generic action substrate. Where the
+The **live action interface** is Quarry's generic action substrate. Where the
 older Action Execution API was organised around `ActionType` enums and
 auto-selected the vendor at call time based on which credentials happened
 to be in scope, the live action interface inverts that contract:
@@ -164,7 +164,7 @@ makes it easier to wire up "Preview action" buttons in UIs that should
 
 ## Writing a plugin executor
 
-Plugin authors implement [`LiveActionExecutor`](https://github.com/aisoc-platform/aisoc/blob/main/services/actions/app/live_actions/executor.py)
+Plugin authors implement [`LiveActionExecutor`](https://github.com/quarry-platform/quarry/blob/main/services/actions/app/live_actions/executor.py)
 and call `register_executor()` from their plugin's `setup()` hook:
 
 ```python

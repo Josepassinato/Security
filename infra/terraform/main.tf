@@ -1,7 +1,7 @@
 /**
- * AiSOC - AI Security Operations Center
+ * Quarry - AI Security Operations Center
  * Terraform Infrastructure - Main Configuration
- * AiSOC — open-source under MIT License
+ * Quarry — open-source under MIT License
  */
 
 terraform {
@@ -27,11 +27,11 @@ terraform {
   }
 
   backend "s3" {
-    bucket         = "aisoc-terraform-state"
+    bucket         = "quarry-terraform-state"
     key            = "infra/terraform.tfstate"
     region         = "us-east-1"
     encrypt        = true
-    dynamodb_table = "aisoc-terraform-locks"
+    dynamodb_table = "quarry-terraform-locks"
   }
 }
 
@@ -40,10 +40,10 @@ provider "aws" {
 
   default_tags {
     tags = {
-      Project     = "AiSOC"
+      Project     = "Quarry"
       Environment = var.environment
       ManagedBy   = "Terraform"
-      Owner       = "AiSOC"
+      Owner       = "Quarry"
     }
   }
 }
@@ -59,7 +59,7 @@ data "aws_caller_identity" "current" {}
 # ─── Locals ───────────────────────────────────────────────────────────────────
 
 locals {
-  name_prefix = "aisoc-${var.environment}"
+  name_prefix = "quarry-${var.environment}"
   azs         = slice(data.aws_availability_zones.available.names, 0, 3)
   account_id  = data.aws_caller_identity.current.account_id
 }
@@ -115,7 +115,7 @@ module "rds" {
   vpc_id         = module.vpc.vpc_id
   db_subnet_ids  = module.vpc.db_subnet_ids
   instance_class = var.rds_instance_class
-  db_name        = "aisoc"
+  db_name        = "quarry"
   db_username    = var.db_username
 
   allowed_security_groups = [module.eks.node_security_group_id]
@@ -149,17 +149,17 @@ module "kafka" {
 module "osquery_tls" {
   source = "./modules/osquery-tls"
 
-  namespace        = "aisoc"
+  namespace        = "quarry"
   create_namespace = false
 
-  image_repository = "ghcr.io/aisoc-community/osquery-tls"
+  image_repository = "ghcr.io/quarry-community/osquery-tls"
   image_tag        = var.osquery_tls_image_tag
 
   replicas = var.osquery_tls_replicas
 
   enroll_secret   = var.osquery_tls_enroll_secret
-  database_url    = "postgresql+asyncpg://${var.db_username}:${module.rds.db_password}@${module.rds.endpoint}/aisoc"
-  ingest_base_url = "http://aisoc-ingest.aisoc.svc.cluster.local:8080"
+  database_url    = "postgresql+asyncpg://${var.db_username}:${module.rds.db_password}@${module.rds.endpoint}/quarry"
+  ingest_base_url = "http://quarry-ingest.quarry.svc.cluster.local:8080"
 
   autoscaling = {
     enabled                = true

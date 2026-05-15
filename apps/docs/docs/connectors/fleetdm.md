@@ -1,7 +1,7 @@
 ---
 sidebar_position: 15
 title: FleetDM
-description: Pull host posture and saved-query report rows from FleetDM into AiSOC.
+description: Pull host posture and saved-query report rows from FleetDM into Quarry.
 ---
 
 # FleetDM
@@ -44,7 +44,7 @@ distinguishes `host` vs `query_row` so playbooks and detections can branch.
 Tokens are scoped to the user. Use a dedicated service-account user so
 revocation does not lock out a real operator.
 
-### 2. Add the connector in AiSOC
+### 2. Add the connector in Quarry
 
 1. **Connectors → Add connector → FleetDM**.
 2. Fill in `base_url` (no trailing slash; `/api` is appended automatically), `api_token`, and optionally `team_id`.
@@ -60,7 +60,7 @@ revocation does not lock out a real operator.
 
 ### Host posture
 
-| Fleet `status` | AiSOC severity |
+| Fleet `status` | Quarry severity |
 |---|---|
 | `missing` | `medium` |
 | `offline` | `low` |
@@ -147,7 +147,7 @@ fleet manager.
 | Community / ecosystem | Larger | Smaller |
 | Multi-tenant isolation | Teams (paid tier for strict isolation) | Native environments (OSS) |
 | Infra footprint | MySQL + Redis | PostgreSQL only |
-| AiSOC stack alignment | Needs extra deps | Native fit |
+| Quarry stack alignment | Needs extra deps | Native fit |
 
 Both backends are fully supported — choose based on your existing fleet
 management deployment.

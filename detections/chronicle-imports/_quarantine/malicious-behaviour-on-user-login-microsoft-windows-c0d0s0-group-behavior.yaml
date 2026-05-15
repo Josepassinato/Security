@@ -36,4 +36,4 @@ provenance:
   upstream_path: rules/_deprecated/soc_prime_rules/threat_hunting/file_event/malicious_behaviour_on_user_login__microsoft_windows___c0d0s0_group_behavior_part_1.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

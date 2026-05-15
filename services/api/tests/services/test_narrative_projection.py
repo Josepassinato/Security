@@ -20,7 +20,7 @@ The contract we're guarding:
 6. The end-to-end pipeline (project → ``build_narrative``) produces a
    non-empty, deterministic narrative for a typical alert.
 
-AiSOC — open-source AI Security Operations Center (MIT License)
+Quarry — open-source AI Security Operations Center (MIT License)
 Author: Beenu Arora <beenu@cyble.com>
 """
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Export the AiSOC FastAPI OpenAPI schema to docs/openapi.yaml.
+Export the Quarry FastAPI OpenAPI schema to docs/openapi.yaml.
 
 Usage
 -----
@@ -12,7 +12,7 @@ Usage
 The script imports the FastAPI application directly (no running server needed)
 and calls ``app.openapi()`` to get the schema, then serialises it to YAML.
 
-MIT License — AiSOC (open-source AI Security Operations Center)
+MIT License — Quarry (open-source AI Security Operations Center)
 """
 from __future__ import annotations
 
@@ -74,7 +74,7 @@ def check_yaml(schema: dict, dest: Path) -> bool:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Export or verify AiSOC OpenAPI schema.")
+    parser = argparse.ArgumentParser(description="Export or verify Quarry OpenAPI schema.")
     parser.add_argument(
         "--check",
         action="store_true",

@@ -34,7 +34,7 @@ interface PaletteGroup {
   items: PaletteAction[];
 }
 
-const RECENT_STORAGE_KEY = 'aisoc.palette.recent';
+const RECENT_STORAGE_KEY = 'quarry.palette.recent';
 const MAX_RECENT = 5;
 
 function readRecent(): string[] {
@@ -141,13 +141,13 @@ export function CommandPalette() {
       items: [
         {
           id: 'action:copilot',
-          label: 'Ask AiSOC Copilot',
+          label: 'Ask Quarry Copilot',
           hint: 'Open the floating Copilot dock',
           shortcut: ['⌘', 'J'],
           keywords: ['ai', 'copilot', 'assistant', 'investigate'],
           perform: () => {
             // Tell the floating dock to open. Lives in CopilotDock.tsx.
-            window.dispatchEvent(new Event('aisoc:open-copilot'));
+            window.dispatchEvent(new Event('quarry:open-copilot'));
             close();
           },
         },
@@ -237,7 +237,7 @@ export function CommandPalette() {
             className="relative w-full max-w-xl rounded-xl border border-gray-700/70 bg-[#0d121b] shadow-2xl shadow-black/50 overflow-hidden"
           >
             <Command
-              label="AiSOC command palette"
+              label="Quarry command palette"
               loop
               className="flex flex-col"
             >
@@ -321,7 +321,7 @@ export function CommandPalette() {
                     select
                   </span>
                 </div>
-                <span className="hidden sm:inline">AiSOC · ⌘K to toggle</span>
+                <span className="hidden sm:inline">Quarry · ⌘K to toggle</span>
               </div>
             </Command>
           </motion.div>

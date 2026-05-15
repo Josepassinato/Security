@@ -138,7 +138,7 @@ func (c *RecordedFutureClient) lookup(ctx context.Context, iocType IOCType, kind
 	}
 	req.Header.Set("X-RFToken", c.apiKey)
 	req.Header.Set("Accept", "application/json")
-	req.Header.Set("User-Agent", "AiSOC-Enrichment/1.0")
+	req.Header.Set("User-Agent", "Quarry-Enrichment/1.0")
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {

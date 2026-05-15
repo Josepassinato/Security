@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-AiSOC Detection Rule Validator
+Quarry Detection Rule Validator
 ================================
 Validates all YAML detection rules under ``detections/`` for:
 
@@ -132,7 +132,7 @@ def classify(path: Path) -> dict[str, Any]:
     * ``tier`` — ``"native" | "imported" | "community" | "unknown"``
     * ``source`` — short source name for imported rules, else ``None``
     * ``id_prefix`` — required id prefix for the tier, else ``None``
-    * ``category`` — the AiSOC category this rule belongs to (e.g.
+    * ``category`` — the Quarry category this rule belongs to (e.g.
       ``cloud``), inferred from the directory layout
     * ``is_quarantined`` — true if the rule lives under ``_quarantine/``
     """

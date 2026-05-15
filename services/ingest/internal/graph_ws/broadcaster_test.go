@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/beenuar/aisoc/services/ingest/internal/graph"
+	"github.com/beenuar/quarry/services/ingest/internal/graph"
 )
 
 // fakeSource is a deterministic EnvelopeSource backed by a buffered

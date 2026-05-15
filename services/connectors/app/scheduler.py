@@ -76,7 +76,7 @@ from app.pipeline import (
 )
 from app.security.credential_vault import CredentialVault, CredentialVaultError, get_vault
 
-logger = logging.getLogger("aisoc.connectors.scheduler")
+logger = logging.getLogger("quarry.connectors.scheduler")
 
 # How often we re-read the connectors table to pick up new / disabled
 # instances. Tuned to balance UI-perceived latency against DB load — at
@@ -777,7 +777,7 @@ def _extract_last_event_at(events: list[dict[str, Any]]) -> datetime | None:
 # ---------------------------------------------------------------------------
 
 
-_SCHEDULER_DISABLED_ENV = "AISOC_CONNECTORS_DISABLE_SCHEDULER"
+_SCHEDULER_DISABLED_ENV = "QUARRY_CONNECTORS_DISABLE_SCHEDULER"
 
 
 def scheduler_disabled() -> bool:

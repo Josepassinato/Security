@@ -55,4 +55,4 @@ provenance:
   upstream_path: rules/community/microsoft/graph_activity/ms_graph_group_creation_success.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

@@ -27,10 +27,10 @@ caller passes a raw list of dicts; we return:
 The three caps are all environment-driven so an operator can tune them
 without redeploying:
 
-* ``AISOC_SUBMIT_MAX_EVENTS``        — max events per batch (default 1000)
-* ``AISOC_SUBMIT_MAX_EVENT_BYTES``   — max serialised size per event
+* ``QUARRY_SUBMIT_MAX_EVENTS``        — max events per batch (default 1000)
+* ``QUARRY_SUBMIT_MAX_EVENT_BYTES``   — max serialised size per event
                                        (default 262144, i.e. 256 KiB)
-* ``AISOC_SUBMIT_MAX_TOTAL_BYTES``   — max serialised size for the whole
+* ``QUARRY_SUBMIT_MAX_TOTAL_BYTES``   — max serialised size for the whole
                                        batch after redaction (default
                                        4194304, i.e. 4 MiB)
 
@@ -49,7 +49,7 @@ submission — analysts still want the visibility on the *other* events —
 but a deliberately oversized batch (caller is misconfigured or hostile)
 gets a clean 4xx instead of crashing the worker.
 
-AiSOC — open-source AI Security Operations Center (MIT License)
+Quarry — open-source AI Security Operations Center (MIT License)
 Author: Beenu Arora <beenu@cyble.com>
 """
 
@@ -118,9 +118,9 @@ REDACTED_SENTINEL = "[REDACTED]"
 # the practical ceiling much lower. Operators driving high-volume
 # connectors should bump MAX_EVENTS + MAX_TOTAL_BYTES together.
 
-_MAX_EVENTS_ENV = "AISOC_SUBMIT_MAX_EVENTS"
-_MAX_EVENT_BYTES_ENV = "AISOC_SUBMIT_MAX_EVENT_BYTES"
-_MAX_TOTAL_BYTES_ENV = "AISOC_SUBMIT_MAX_TOTAL_BYTES"
+_MAX_EVENTS_ENV = "QUARRY_SUBMIT_MAX_EVENTS"
+_MAX_EVENT_BYTES_ENV = "QUARRY_SUBMIT_MAX_EVENT_BYTES"
+_MAX_TOTAL_BYTES_ENV = "QUARRY_SUBMIT_MAX_TOTAL_BYTES"
 
 _DEFAULT_MAX_EVENTS = 1000
 _DEFAULT_MAX_EVENT_BYTES = 256 * 1024  # 256 KiB

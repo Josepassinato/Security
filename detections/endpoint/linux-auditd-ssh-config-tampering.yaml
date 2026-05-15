@@ -1,7 +1,7 @@
 id: det-endpoint-302
 name: SSH Config Or Authorized Keys Tampering Via auditd Watch
 description: |
-  Triggers when the AiSOC auditd profile records a write to /etc/ssh/sshd_config,
+  Triggers when the Quarry auditd profile records a write to /etc/ssh/sshd_config,
   /etc/ssh/sshd_config.d/, or /root/.ssh/authorized_keys. Pivots on the
   auditd_key field so the rule fires for any modify-class syscall (open, openat,
   rename, link, unlink) without needing a per-syscall companion rule.
@@ -28,6 +28,6 @@ false_positives:
 - Sanctioned config-management tooling (Ansible, Chef, Puppet) — allowlist the agent's exe
 playbook: tpl-persistence
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-12'
 modified: '2026-05-12'

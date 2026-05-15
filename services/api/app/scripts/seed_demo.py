@@ -8,19 +8,19 @@ Run this from the host (the API container has the package on its PYTHONPATH):
 
 The seed is idempotent — running it twice produces the same dataset and never
 duplicates rows. Demo IDs are kept in sync with `app/api/v1/dev_auth.py` so the
-auth bypass and the seeded data agree on who "demo@aisoc.dev" is.
+auth bypass and the seeded data agree on who "demo@quarry.dev" is.
 
 Two modes:
 
 * **Full seed** (default) — populates the canonical BOTS-shaped catalogue:
   15 hand-crafted ``INC-RT-*`` incidents (with one in-flight investigation
   on INC-RT-001), 28 randomised alerts, and the supporting connector set.
-  This is what ``pnpm aisoc:demo`` runs and what the hosted demo ships.
+  This is what ``pnpm quarry:demo`` runs and what the hosted demo ships.
 
 * **Quick seed** (``--demo-quick``) — populates exactly four deterministic
   cases (DEMO-001 phishing, DEMO-002 cloud takeover, DEMO-003 insider exfil,
   DEMO-004 ransomware) with a fixed wall-clock so re-runs are byte-stable.
-  This is the T6.4 screencast path — ``pnpm aisoc:demo --quick`` finishes
+  This is the T6.4 screencast path — ``pnpm quarry:demo --quick`` finishes
   in under 4 minutes on a warm laptop. ``_purge_demo_quick`` deletes the
   four DEMO-* cases before reseeding so re-running is a clean reset rather
   than a duplicate.
@@ -1603,11 +1603,11 @@ async def _ensure_tenant(session) -> Tenant:
         return tenant
     tenant = Tenant(
         id=DEMO_TENANT_ID,
-        name="AiSOC Demo Tenant",
+        name="Quarry Demo Tenant",
         slug="demo",
         plan="enterprise",
         is_active=True,
-        settings={"demo": True, "branding": "AiSOC"},
+        settings={"demo": True, "branding": "Quarry"},
         limits={"alerts_per_day": 1_000_000},
     )
     session.add(tenant)
@@ -1619,13 +1619,13 @@ async def _ensure_user(session, tenant: Tenant) -> User:
     """Upsert the demo user.
 
     If the deterministic demo user already exists from a previous seed (with a
-    stale email like the old ``demo@aisoc.local``, or a different password),
+    stale email like the old ``demo@quarry.local``, or a different password),
     bring it back into sync rather than skipping. This keeps re-seeds idempotent
     *and* self-healing against drift introduced by previous schema decisions.
     """
     result = await session.execute(select(User).where(User.id == DEMO_USER_ID))
     user = result.scalar_one_or_none()
-    hashed = get_password_hash("aisoc-demo")
+    hashed = get_password_hash("quarry-demo")
     if user is not None:
         user.tenant_id = tenant.id
         user.email = DEMO_USER_EMAIL
@@ -2089,7 +2089,7 @@ async def _seed_in_flight_investigation(session, tenant: Tenant) -> int:
             "src_ip": incident["src_ip"],
             "techniques": incident["technique_ids"],
         },
-        model_used="aisoc-investigator-v1",
+        model_used="quarry-investigator-v1",
         status="running",
         started_at=started,
     )
@@ -2294,7 +2294,7 @@ async def _seed_alerts_and_cases(session, tenant: Tenant, *, alert_count: int = 
 
 
 # Map ORM Case.status → aisoc_cases.status (migration 012 CHECK constraint).
-_AISOC_STATUS_MAP = {
+_QUARRY_STATUS_MAP = {
     "open": "new",
     "new": "new",
     "triaged": "triaged",
@@ -2308,7 +2308,7 @@ _AISOC_STATUS_MAP = {
 }
 
 # Map ORM severity → aisoc_cases.severity (migration 012 CHECK constraint).
-_AISOC_SEVERITY_MAP = {
+_QUARRY_SEVERITY_MAP = {
     "critical": "critical",
     "high": "high",
     "medium": "medium",
@@ -2340,8 +2340,8 @@ async def _mirror_cases_to_aisoc(session, tenant: Tenant) -> int:
             "case_number": c.case_number,
             "title": c.title,
             "description": c.description or c.summary or "",
-            "severity": _AISOC_SEVERITY_MAP.get(c.severity, "medium"),
-            "status": _AISOC_STATUS_MAP.get(c.status, "new"),
+            "severity": _QUARRY_SEVERITY_MAP.get(c.severity, "medium"),
+            "status": _QUARRY_STATUS_MAP.get(c.status, "new"),
             "assignee": str(c.assigned_to_id) if c.assigned_to_id else None,
             "mitre_techniques": _json_dumps(c.mitre_techniques or []),
             "alert_ids": [str(a) for a in (c.alert_ids or [])],
@@ -3106,10 +3106,10 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="python -m app.scripts.seed_demo",
         description=(
-            "Seed the AiSOC demo dataset. With no flags this populates the full "
+            "Seed the Quarry demo dataset. With no flags this populates the full "
             "BOTS-shaped catalogue (15 INC-RT-* + 28 randomized). With "
             "--demo-quick it populates exactly four deterministic DEMO-* "
-            "incidents for the `pnpm aisoc:demo --quick` / screencast path."
+            "incidents for the `pnpm quarry:demo --quick` / screencast path."
         ),
     )
     p.add_argument(

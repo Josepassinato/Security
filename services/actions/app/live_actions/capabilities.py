@@ -5,7 +5,7 @@ This is a deliberate mirror of the ``Capability`` enum defined in
 ``services/connectors/app/connectors/base.py``. We mirror instead of
 importing because:
 
-  * Each AiSOC service is independently deployable. A hard import from
+  * Each Quarry service is independently deployable. A hard import from
     ``services.actions`` into ``services.connectors`` would couple two
     deploy units that today have no dependency.
   * The mirror is small (a flat ``frozenset[str]``), trivially diffable

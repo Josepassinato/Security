@@ -10,7 +10,7 @@
  *   1. `isDemoMode()` is true (NEXT_PUBLIC_DEMO_MODE=true), AND
  *   2. there's no existing access token,
  *
- * it logs in as the well-known demo user (`demo@aisoc.dev` / `aisoc-demo` —
+ * it logs in as the well-known demo user (`demo@quarry.dev` / `quarry-demo` —
  * the same credentials displayed on `/login`) and then triggers a global SWR
  * revalidation so every `useSWR` hook on the page swaps its `fallbackData`
  * mocks for the freshly-fetched live data.
@@ -29,9 +29,9 @@ import { authApi } from '@/lib/api';
 import { isDemoMode } from '@/lib/demoMode';
 
 const DEMO_EMAIL =
-  process.env.NEXT_PUBLIC_DEMO_AUTOLOGIN_EMAIL?.trim() || 'demo@aisoc.dev';
+  process.env.NEXT_PUBLIC_DEMO_AUTOLOGIN_EMAIL?.trim() || 'demo@quarry.dev';
 const DEMO_PASSWORD =
-  process.env.NEXT_PUBLIC_DEMO_AUTOLOGIN_PASSWORD?.trim() || 'aisoc-demo';
+  process.env.NEXT_PUBLIC_DEMO_AUTOLOGIN_PASSWORD?.trim() || 'quarry-demo';
 
 export function DemoAutoLogin() {
   const { mutate } = useSWRConfig();

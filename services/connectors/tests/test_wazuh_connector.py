@@ -5,7 +5,7 @@ Pattern mirrors ``test_osquery_connectors.py``:
 
   1. Schema sanity — wizard form has the fields the docs promise and
      the secret-typed fields are masked.
-  2. ``normalize()`` produces the canonical AiSOC alert shape and applies
+  2. ``normalize()`` produces the canonical Quarry alert shape and applies
      the four-tier severity collapse exactly as documented.
   3. HTTP routing through ``respx`` exercises the real ``httpx`` paths
      and proves we hit the documented Wazuh indexer endpoints.
@@ -67,7 +67,7 @@ def test_wazuh_capabilities_cover_pull_query_search_pivot():
         (12, "high"),
         (14, "high"),
         # Wazuh level 15 is the maximum band and represents the most
-        # severe attack signatures — it now maps to AiSOC's ``critical``
+        # severe attack signatures — it now maps to Quarry's ``critical``
         # (P1, 15-minute MTTD SLA) so it lands in the top lane.
         (15, "critical"),
         # Out-of-band / weird inputs — must not raise.

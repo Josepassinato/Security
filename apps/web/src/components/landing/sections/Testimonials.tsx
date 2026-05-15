@@ -66,7 +66,7 @@ export function Testimonials() {
             </h3>
             <p className="mt-3 max-w-xl text-base leading-relaxed text-fg-secondary">
               We are onboarding reference partners through Q2 2026. If your
-              team ships AiSOC into production, we will publish your case
+              team ships Quarry into production, we will publish your case
               study under your byline, with the before/after metrics you
               choose.
             </p>

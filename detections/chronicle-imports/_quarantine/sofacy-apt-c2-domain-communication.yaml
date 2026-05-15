@@ -53,4 +53,4 @@ provenance:
   upstream_path: rules/_deprecated/soc_prime_rules/ioc_sigma/proxy/sofacy___apt_c2_domain_communication.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

@@ -57,4 +57,4 @@ provenance:
   upstream_path: rules/community/github/github_personal_access_token_auto_approve_policy_modified.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

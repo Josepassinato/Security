@@ -56,7 +56,7 @@ def test_scrub_sql_for_log_passthrough_under_limit() -> None:
     so the common case must be a no-op. Any mutation here would corrupt
     the structured logs operators read.
     """
-    sql = "SELECT severity, count() FROM aisoc.alert_metrics GROUP BY severity"
+    sql = "SELECT severity, count() FROM quarry.alert_metrics GROUP BY severity"
     scrubbed = _scrub_sql_for_log(sql)
     assert scrubbed == sql
 
@@ -69,11 +69,11 @@ def test_scrub_sql_for_log_truncates_at_max_chars() -> None:
     it, a debugger would see what looks like a complete-but-mysterious
     SELECT.
     """
-    long_sql = "SELECT * FROM aisoc.raw_events WHERE x = '" + ("a" * 5000) + "'"
+    long_sql = "SELECT * FROM quarry.raw_events WHERE x = '" + ("a" * 5000) + "'"
     scrubbed = _scrub_sql_for_log(long_sql, max_chars=4_000)
 
     assert len(scrubbed) > 4_000  # because the marker adds bytes
-    assert scrubbed.startswith("SELECT * FROM aisoc.raw_events")
+    assert scrubbed.startswith("SELECT * FROM quarry.raw_events")
     assert "…<truncated" in scrubbed
     # The truncation marker reports the number of dropped characters.
     expected_dropped = len(long_sql) - 4_000
@@ -258,7 +258,7 @@ async def test_audit_query_attempt_emits_with_full_payload() -> None:
             user_email="alice@example.com",
             request=request,
             outcome="ok",
-            referenced_tables=["aisoc.alert_metrics"],
+            referenced_tables=["quarry.alert_metrics"],
             row_count=12,
             elapsed_ms=345,
             row_cap=1000,
@@ -278,7 +278,7 @@ async def test_audit_query_attempt_emits_with_full_payload() -> None:
     changes = kwargs["changes"]
     assert changes["outcome"] == "ok"
     assert changes["reason"] is None
-    assert changes["referenced_tables"] == ["aisoc.alert_metrics"]
+    assert changes["referenced_tables"] == ["quarry.alert_metrics"]
     assert changes["row_count"] == 12
     assert changes["elapsed_ms"] == 345
     assert changes["row_cap"] == 1000
@@ -337,7 +337,7 @@ async def test_audit_query_attempt_swallows_emit_failure() -> None:
             user_email="alice@example.com",
             request=_build_request(),
             outcome="ok",
-            referenced_tables=["aisoc.alert_metrics"],
+            referenced_tables=["quarry.alert_metrics"],
             row_count=1,
             elapsed_ms=2,
             row_cap=100,

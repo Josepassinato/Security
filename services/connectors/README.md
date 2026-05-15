@@ -1,4 +1,4 @@
-# AiSOC Connectors Service
+# Quarry Connectors Service
 
 A Python/FastAPI service that polls external security sources on a schedule,
 normalises raw events into OCSF, and forwards them to the ingest pipeline.
@@ -48,7 +48,7 @@ normalises raw events into OCSF, and forwards them to the ingest pipeline.
 
 ```bash
 # From the repo root
-cp .env.example .env          # set AISOC_CREDENTIAL_KEY, DATABASE_URL, etc.
+cp .env.example .env          # set QUARRY_CREDENTIAL_KEY, DATABASE_URL, etc.
 pnpm docker:dev               # bring up Postgres, Redis, Kafka, etc.
 
 # Run the service
@@ -59,7 +59,7 @@ python -m uvicorn app.main:app --reload --port 8003
 Disable the polling scheduler in tests:
 
 ```bash
-AISOC_CONNECTORS_DISABLE_SCHEDULER=1 pytest
+QUARRY_CONNECTORS_DISABLE_SCHEDULER=1 pytest
 ```
 
 ---

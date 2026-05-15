@@ -1,7 +1,7 @@
 variable "namespace" {
   description = "Kubernetes namespace to deploy into"
   type        = string
-  default     = "aisoc"
+  default     = "quarry"
 }
 
 variable "create_namespace" {
@@ -11,9 +11,9 @@ variable "create_namespace" {
 }
 
 variable "image_repository" {
-  description = "Container image repository for aisoc-osquery-tls"
+  description = "Container image repository for quarry-osquery-tls"
   type        = string
-  default     = "ghcr.io/aisoc-community/osquery-tls"
+  default     = "ghcr.io/quarry-community/osquery-tls"
 }
 
 variable "image_tag" {
@@ -41,9 +41,9 @@ variable "database_url" {
 }
 
 variable "ingest_base_url" {
-  description = "Base URL for the AiSOC ingest service"
+  description = "Base URL for the Quarry ingest service"
   type        = string
-  default     = "http://aisoc-ingest:8080"
+  default     = "http://quarry-ingest:8080"
 }
 
 variable "resources" {

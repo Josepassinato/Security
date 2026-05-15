@@ -64,4 +64,4 @@ provenance:
   upstream_path: rules/community/gcp/gcp_identity_low_and_medium_severity_alert_escalation.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

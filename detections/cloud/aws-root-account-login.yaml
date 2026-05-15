@@ -22,6 +22,6 @@ false_positives:
 - Initial account setup (one-time)
 playbook: tpl-privilege-escalation
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

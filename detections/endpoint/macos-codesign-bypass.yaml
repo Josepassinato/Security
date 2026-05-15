@@ -1,6 +1,6 @@
 id: det-endpoint-035
 name: macOS Quarantine Attribute Stripped
-description: AiSOC v1 curated detection. Triggers on the endpoint signal described by 'macOS Quarantine
+description: Quarry v1 curated detection. Triggers on the endpoint signal described by 'macOS Quarantine
   Attribute Stripped'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: medium
@@ -19,6 +19,6 @@ false_positives:
 - Developer build/test workflows (allowlist hostnames)
 playbook: tpl-defense-evasion
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

@@ -1,6 +1,6 @@
 // Package main is the Tailscale ACL action reference implementation in Go.
 //
-// Demonstrates the AiSOC Go Plugin SDK for an isolation/network response action
+// Demonstrates the Quarry Go Plugin SDK for an isolation/network response action
 // against the Tailscale REST API.
 package main
 
@@ -13,31 +13,31 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/beenuar/aisoc/plugin-sdk-go/aisoc"
+	"github.com/beenuar/quarry/plugin-sdk-go/quarry"
 )
 
 const tsAPIBase = "https://api.tailscale.com/api/v2"
 
-// TailscaleACLAction implements aisoc.Action for the Tailscale API.
+// TailscaleACLAction implements quarry.Action for the Tailscale API.
 type TailscaleACLAction struct {
-	aisoc.BasePlugin
+	quarry.BasePlugin
 
 	httpClient *http.Client
 }
 
-func (t *TailscaleACLAction) Manifest() aisoc.PluginManifest {
-	return aisoc.PluginManifest{
+func (t *TailscaleACLAction) Manifest() quarry.PluginManifest {
+	return quarry.PluginManifest{
 		ID:          "tailscale-acl",
 		Name:        "Tailscale ACL Action",
 		Version:     "1.0.0",
-		PluginType:  aisoc.PluginTypeAction,
+		PluginType:  quarry.PluginTypeAction,
 		Description: "Manage Tailscale devices and tailnet ACLs as response actions.",
-		Author:      "AiSOC Core Team",
+		Author:      "Quarry Core Team",
 		Tags:        []string{"network", "tailscale", "zerotrust", "response", "isolation"},
 	}
 }
 
-func (t *TailscaleACLAction) OnLoad(ctx context.Context, pctx aisoc.PluginContext) error {
+func (t *TailscaleACLAction) OnLoad(ctx context.Context, pctx quarry.PluginContext) error {
 	t.httpClient = &http.Client{Timeout: 30 * time.Second}
 	return nil
 }
@@ -54,13 +54,13 @@ func (t *TailscaleACLAction) SupportedActions() []string {
 
 func (t *TailscaleACLAction) Execute(
 	ctx context.Context,
-	req aisoc.ActionRequest,
-	pctx aisoc.PluginContext,
-) (aisoc.ActionResult, error) {
+	req quarry.ActionRequest,
+	pctx quarry.PluginContext,
+) (quarry.ActionResult, error) {
 	apiKey, _ := pctx.Config["api_key"].(string)
 	tailnet, _ := pctx.Config["tailnet"].(string)
 	if apiKey == "" || tailnet == "" {
-		return aisoc.ActionResult{
+		return quarry.ActionResult{
 			ActionID: req.ActionID,
 			Error:    "api_key and tailnet are required",
 		}, errors.New("api_key and tailnet are required")
@@ -71,11 +71,11 @@ func (t *TailscaleACLAction) Execute(
 		body, err := t.do(ctx, apiKey, "GET",
 			fmt.Sprintf("/tailnet/%s/devices", tailnet), nil, "")
 		if err != nil {
-			return aisoc.ActionResult{ActionID: req.ActionID, Error: err.Error()}, err
+			return quarry.ActionResult{ActionID: req.ActionID, Error: err.Error()}, err
 		}
 		var parsed map[string]any
 		_ = json.Unmarshal(body, &parsed)
-		return aisoc.ActionResult{
+		return quarry.ActionResult{
 			ActionID: req.ActionID,
 			Success:  true,
 			Summary:  "listed Tailscale devices",
@@ -85,15 +85,15 @@ func (t *TailscaleACLAction) Execute(
 		deviceID, _ := req.Params["device_id"].(string)
 		_, err := t.do(ctx, apiKey, "DELETE", "/device/"+deviceID, nil, "")
 		if err != nil {
-			return aisoc.ActionResult{ActionID: req.ActionID, Error: err.Error()}, err
+			return quarry.ActionResult{ActionID: req.ActionID, Error: err.Error()}, err
 		}
-		return aisoc.ActionResult{
+		return quarry.ActionResult{
 			ActionID: req.ActionID,
 			Success:  true,
 			Summary:  fmt.Sprintf("deleted device %s", deviceID),
 		}, nil
 	default:
-		return aisoc.ActionResult{
+		return quarry.ActionResult{
 			ActionID: req.ActionID,
 			Error:    "unsupported action: " + req.ActionID,
 		}, nil
@@ -126,7 +126,7 @@ func (t *TailscaleACLAction) do(
 }
 
 func main() {
-	registry := aisoc.NewRegistry()
+	registry := quarry.NewRegistry()
 	if err := registry.Register(&TailscaleACLAction{}); err != nil {
 		panic(err)
 	}

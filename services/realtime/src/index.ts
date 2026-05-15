@@ -14,16 +14,16 @@ const log = pino({ level: process.env.LOG_LEVEL || 'info' });
 const PORT = parseInt(process.env.PORT || '8086', 10);
 const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379/4';
 const KAFKA_BROKERS = (process.env.KAFKA_BOOTSTRAP_SERVERS || 'localhost:9092').split(',');
-const KAFKA_TOPIC_FUSED = process.env.KAFKA_TOPIC_FUSED || 'aisoc.alerts.fused';
+const KAFKA_TOPIC_FUSED = process.env.KAFKA_TOPIC_FUSED || 'quarry.alerts.fused';
 // T1.4 (v8.0): graph-update channel. The ingest-side graph writer publishes
 // one envelope per node/edge upsert on `security.graph_updates`; we fan out
 // to WebSocket clients subscribed to `/ws/graph`. Topic name matches the
 // default in services/ingest/internal/config/config.go (env
-// `AISOC_GRAPH_UPDATES_TOPIC`) so the two services agree without manual
+// `QUARRY_GRAPH_UPDATES_TOPIC`) so the two services agree without manual
 // plumbing. Set to an empty string to disable the consumer entirely (useful
 // in tests that don't spin up Kafka for graph traffic).
 const KAFKA_TOPIC_GRAPH_UPDATES =
-  process.env.AISOC_GRAPH_UPDATES_TOPIC ||
+  process.env.QUARRY_GRAPH_UPDATES_TOPIC ||
   process.env.KAFKA_TOPIC_GRAPH_UPDATES ||
   'security.graph_updates';
 const VAPID_PUBLIC_KEY = process.env.VAPID_PUBLIC_KEY || '';
@@ -32,7 +32,7 @@ const VAPID_SUBJECT = process.env.VAPID_SUBJECT || 'mailto:soc@example.com';
 const PUSH_REDIS = new Redis(REDIS_URL);
 
 // Mirror the shared Python helper in services/api/app/core/cors.py:
-//   1. AISOC_CORS_ORIGINS (canonical, comma-separated)
+//   1. QUARRY_CORS_ORIGINS (canonical, comma-separated)
 //   2. CORS_ORIGINS (legacy alias kept for Helm charts / dev scripts)
 //   3. Default allow-list (local dev + tryaisoc.com)
 // SSE + WebSocket connections from the console carry the auth cookie, so
@@ -49,7 +49,7 @@ const DEFAULT_CORS_ORIGINS = [
 ];
 
 function resolveCorsOrigins(): string[] {
-  for (const env of ['AISOC_CORS_ORIGINS', 'CORS_ORIGINS']) {
+  for (const env of ['QUARRY_CORS_ORIGINS', 'CORS_ORIGINS']) {
     const raw = (process.env[env] || '').trim();
     if (!raw) continue;
     const parts = raw.split(',').map((s) => s.trim()).filter(Boolean);
@@ -59,7 +59,7 @@ function resolveCorsOrigins(): string[] {
 }
 
 function isProductionEnv(): boolean {
-  const env = (process.env.AISOC_ENV || process.env.ENVIRONMENT || process.env.APP_ENV || '')
+  const env = (process.env.QUARRY_ENV || process.env.ENVIRONMENT || process.env.APP_ENV || '')
     .trim()
     .toLowerCase();
   return env === 'production' || env === 'prod';
@@ -72,7 +72,7 @@ if (CORS_ORIGINS.includes('*')) {
     // Fail loud at startup instead of silently exposing /sse + /internal/*.
     throw new Error(
       'realtime: refusing to start with wildcard CORS origin in production. ' +
-        'Set AISOC_CORS_ORIGINS to an explicit allow-list.',
+        'Set QUARRY_CORS_ORIGINS to an explicit allow-list.',
     );
   }
   log.warn(
@@ -334,7 +334,7 @@ app.get('/sse', sseRateLimit, (req, res) => {
 
   // Register as SSE client via Redis pub/sub
   const sub = new Redis(REDIS_URL);
-  sub.subscribe(`aisoc:events:${tenantId}`);
+  sub.subscribe(`quarry:events:${tenantId}`);
   sub.on('message', (_channel: string, message: string) => {
     res.write(`data: ${message}\n\n`);
   });
@@ -348,14 +348,14 @@ app.get('/sse', sseRateLimit, (req, res) => {
 // Single shared Kafka client so we don't spin up a second TCP fan-out for
 // each topic; kafkajs multiplexes consumers internally.
 const kafka = new Kafka({
-  clientId: 'aisoc-realtime',
+  clientId: 'quarry-realtime',
   brokers: KAFKA_BROKERS,
   retry: { retries: 5 },
 });
 
 // --- Kafka consumer: bridge fused alerts to WebSocket clients ---
 async function startKafkaConsumer() {
-  const consumer = kafka.consumer({ groupId: 'aisoc-realtime-ws' });
+  const consumer = kafka.consumer({ groupId: 'quarry-realtime-ws' });
 
   await consumer.connect();
   await consumer.subscribe({ topic: KAFKA_TOPIC_FUSED, fromBeginning: false });
@@ -431,7 +431,7 @@ async function startGraphUpdateConsumer() {
     return;
   }
 
-  const consumer = kafka.consumer({ groupId: 'aisoc-realtime-graph' });
+  const consumer = kafka.consumer({ groupId: 'quarry-realtime-graph' });
 
   await consumer.connect();
   await consumer.subscribe({
@@ -443,7 +443,7 @@ async function startGraphUpdateConsumer() {
   });
 
   log.info(
-    { topic: KAFKA_TOPIC_GRAPH_UPDATES, groupId: 'aisoc-realtime-graph' },
+    { topic: KAFKA_TOPIC_GRAPH_UPDATES, groupId: 'quarry-realtime-graph' },
     'Graph update Kafka consumer connected',
   );
 
@@ -577,7 +577,7 @@ app.post('/internal/agent-event', internalEventRateLimit, (req, res) => {
     summary,
     timestamp: new Date().toISOString(),
   });
-  redisPub.publish(`aisoc:events:${tenantId}`, payload)
+  redisPub.publish(`quarry:events:${tenantId}`, payload)
     .then(() => redisPub.disconnect())
     .catch((err: unknown) => log.warn({ err }, 'Redis publish failed'));
 
@@ -627,7 +627,7 @@ app.post('/internal/agent-event', internalEventRateLimit, (req, res) => {
 const reportHealth = (_req: express.Request, res: express.Response) => {
   res.json({
     status: 'healthy',
-    service: 'aisoc-realtime',
+    service: 'quarry-realtime',
     clients: wss.clients.size,
   });
 };
@@ -640,7 +640,7 @@ app.get('/healthz', reportHealth);
 // other services and avoid surprises if a future Node release changes the
 // default or the container is launched with IPv6 disabled.
 server.listen(PORT, '::', async () => {
-  log.info({ port: PORT, host: '::' }, 'AiSOC Real-time service started');
+  log.info({ port: PORT, host: '::' }, 'Quarry Real-time service started');
 
   // Start the two Kafka consumers concurrently. Each is wrapped in its own
   // try/catch so a failure on the graph topic (e.g. it doesn't exist yet on

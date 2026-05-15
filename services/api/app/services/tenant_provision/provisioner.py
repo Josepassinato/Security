@@ -227,7 +227,7 @@ def generate_credential_key() -> tuple[str, str]:
 
     Returns ``(plaintext_key, fingerprint)``. The plaintext is what
     the tenant's connector code will load via
-    ``AISOC_CREDENTIAL_KEY`` (per-tenant scoping is then layered on
+    ``QUARRY_CREDENTIAL_KEY`` (per-tenant scoping is then layered on
     top by the resolver). The fingerprint is the first eight chars
     of a SHA-256 of the key — safe to log and surface to the support
     UI so operators can verify which key a given tenant is on without
@@ -283,7 +283,7 @@ async def provision_from_waitlist(
     *,
     waitlist_entry_id: uuid.UUID,
     actor_email: str,
-    invite_base_url: str = "https://app.aisoc.dev",
+    invite_base_url: str = "https://app.quarry.dev",
     seed_demo: bool = True,
     demo_seeder: DemoSeederCallable | None = None,
     templates: TenantTemplateBundle | None = None,
@@ -344,11 +344,11 @@ async def provision_from_waitlist(
     provisioned_at = datetime.now(UTC)
     tenant_settings = {
         "managed": True,
-        "branding": "AiSOC",
+        "branding": "Quarry",
         "aisoc_credential_key_fingerprint": key_fingerprint,
         # NOTE: the *plaintext* key is intentionally NOT persisted in
         # the JSONB. The connectors-service reads it from
-        # ``AISOC_CREDENTIAL_KEY`` at runtime; we surface only the
+        # ``QUARRY_CREDENTIAL_KEY`` at runtime; we surface only the
         # fingerprint here so operators can confirm which key is
         # active without ever round-tripping the secret through the
         # database.

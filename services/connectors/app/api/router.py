@@ -91,7 +91,7 @@ class FederatedQueryRequest(BaseModel):
 # WS8: bidirectional ITSM push.
 # ---------------------------------------------------------------------------
 #
-# These two payloads carry the AiSOC case (already serialized to a dict by
+# These two payloads carry the Quarry case (already serialized to a dict by
 # the API layer) plus the same auth/runtime config envelope as the test and
 # query endpoints. Trust model is identical: ``auth_config`` arrives in
 # plaintext because the API service decrypted it via ``CredentialVault``
@@ -99,7 +99,7 @@ class FederatedQueryRequest(BaseModel):
 
 
 class PushCaseRequest(BaseModel):
-    """Mint or update an external ticket from an AiSOC case.
+    """Mint or update an external ticket from an Quarry case.
 
     ``case`` is the dict the API layer assembled from the ``aisoc_cases``
     row (id, case_number, title, description, severity, status, plus any
@@ -112,7 +112,7 @@ class PushCaseRequest(BaseModel):
     connector_config: dict[str, Any] = PydField(default_factory=dict)
     case: dict[str, Any] = PydField(
         ...,
-        description="AiSOC case payload to project onto the external ITSM.",
+        description="Quarry case payload to project onto the external ITSM.",
     )
     external_ref: dict[str, Any] | None = PydField(
         default=None,
@@ -121,13 +121,13 @@ class PushCaseRequest(BaseModel):
 
 
 class PushStatusChangeRequest(BaseModel):
-    """Project an AiSOC status transition onto an external ticket."""
+    """Project an Quarry status transition onto an external ticket."""
 
     auth_config: dict[str, Any] = PydField(default_factory=dict)
     connector_config: dict[str, Any] = PydField(default_factory=dict)
     case: dict[str, Any] = PydField(...)
-    old_status: str = PydField(..., description="AiSOC status the case is moving from.")
-    new_status: str = PydField(..., description="AiSOC status the case is moving to.")
+    old_status: str = PydField(..., description="Quarry status the case is moving from.")
+    new_status: str = PydField(..., description="Quarry status the case is moving to.")
     external_ref: dict[str, Any] | None = PydField(
         default=None,
         description="Existing case_external_refs row. None falls through to push_case.",
@@ -333,7 +333,7 @@ async def run_federated_query(connector_id: str, payload: FederatedQueryRequest)
 
 @router.post("/connectors/{connector_id}/push_case")
 async def push_case(connector_id: str, payload: PushCaseRequest):
-    """Mint or upsert an external ITSM ticket from an AiSOC case.
+    """Mint or upsert an external ITSM ticket from an Quarry case.
 
     Idempotency is the connector's responsibility: when ``external_ref``
     is set, the connector should patch the existing ticket; when it's
@@ -380,7 +380,7 @@ async def push_case(connector_id: str, payload: PushCaseRequest):
 
 @router.post("/connectors/{connector_id}/push_status_change")
 async def push_status_change(connector_id: str, payload: PushStatusChangeRequest):
-    """Project an AiSOC status transition onto a previously-pushed ticket.
+    """Project an Quarry status transition onto a previously-pushed ticket.
 
     If ``external_ref`` is None we delegate to ``push_case`` (i.e. the
     case is being reported to this ITSM for the first time as part of
@@ -428,4 +428,4 @@ async def push_status_change(connector_id: str, payload: PushStatusChangeRequest
 
 @router.get("/health")
 async def health():
-    return {"status": "healthy", "service": "aisoc-connectors"}
+    return {"status": "healthy", "service": "quarry-connectors"}

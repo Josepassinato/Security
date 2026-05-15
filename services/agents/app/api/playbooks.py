@@ -26,7 +26,7 @@ from app.playbook import (
     PlaybookStore,
 )
 
-logger = logging.getLogger("aisoc.api.playbooks")
+logger = logging.getLogger("quarry.api.playbooks")
 router = APIRouter(prefix="/api/v1/playbooks", tags=["playbooks"])
 
 # In-memory run store for Pillar-2 (swap for Redis/DB in production)

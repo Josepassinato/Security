@@ -1,11 +1,11 @@
 """POST /api/v1/osquery/distributed/enqueue — internal API for playbook engine.
 
 This endpoint is NOT part of the standard osquery TLS plugin spec.
-It is called by the AiSOC action client (``aisoc_direct_client``) to enqueue
+It is called by the Quarry action client (``aisoc_direct_client``) to enqueue
 a distributed query targeted at a specific host by its host_identifier.
 
 Authentication uses the same bearer-token mechanism as the rest of the
-internal service APIs (Authorization: Bearer <AISOC_OSQUERY_TLS_API_TOKEN>).
+internal service APIs (Authorization: Bearer <QUARRY_OSQUERY_TLS_API_TOKEN>).
 """
 
 from __future__ import annotations

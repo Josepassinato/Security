@@ -1,4 +1,4 @@
-"""Tenant-provisioning service module — T6.1 (`app.aisoc.dev` managed beta).
+"""Tenant-provisioning service module — T6.1 (`app.quarry.dev` managed beta).
 
 Re-exports the small surface the API endpoint cares about so callers can
 ``from app.services.tenant_provision import provision_from_waitlist`` and

@@ -32,4 +32,4 @@ provenance:
   upstream_path: rules/_deprecated/soc_prime_rules/active_directory_security/windows/active_directory_as_a_c2__command___control.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

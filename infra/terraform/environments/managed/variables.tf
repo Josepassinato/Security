@@ -1,4 +1,4 @@
-# AiSOC — Managed Instance Variables (T6.1)
+# Quarry — Managed Instance Variables (T6.1)
 # =============================================================================
 # Every sensitive value is declared with `sensitive = true` and a `null`
 # default so Terraform fails fast (`required value not provided`) if the
@@ -30,7 +30,7 @@ variable "fly_api_token" {
 variable "cloudflare_api_token" {
   description = <<-EOT
     Cloudflare API token with `Zone.DNS.Edit` permission on the zone
-    that hosts `aisoc.dev`. Export as `TF_VAR_cloudflare_api_token`.
+    that hosts `quarry.dev`. Export as `TF_VAR_cloudflare_api_token`.
   EOT
   type        = string
   sensitive   = true
@@ -39,7 +39,7 @@ variable "cloudflare_api_token" {
 
 variable "cloudflare_zone_id" {
   description = <<-EOT
-    Cloudflare zone ID for the apex domain (e.g. `aisoc.dev`). Find it
+    Cloudflare zone ID for the apex domain (e.g. `quarry.dev`). Find it
     on the Cloudflare dashboard → Overview → API → Zone ID.
   EOT
   type        = string
@@ -53,7 +53,7 @@ variable "cloudflare_zone_id" {
 variable "fly_org" {
   description = "Fly.io organisation slug that owns the managed deployment."
   type        = string
-  default     = "aisoc"
+  default     = "quarry"
 }
 
 variable "fly_region" {
@@ -74,7 +74,7 @@ variable "app_name_prefix" {
     reused (e.g. spinning up a staging environment alongside production).
   EOT
   type        = string
-  default     = "aisoc-managed"
+  default     = "quarry-managed"
 
   validation {
     # Fly.io requires app names to match `[a-z][a-z0-9-]{0,29}`. We
@@ -147,17 +147,17 @@ variable "redis_url_override" {
 # -----------------------------------------------------------------------------
 
 variable "app_hostname" {
-  description = "Public hostname for the console + API (e.g. `app.aisoc.dev`)."
+  description = "Public hostname for the console + API (e.g. `app.quarry.dev`)."
   type        = string
-  default     = "app.aisoc.dev"
+  default     = "app.quarry.dev"
 }
 
 variable "realtime_hostname" {
   description = <<-EOT
     Optional public hostname for the websocket / realtime stream
-    (e.g. `realtime.aisoc.dev`). Set to `null` to share the main
+    (e.g. `realtime.quarry.dev`). Set to `null` to share the main
     hostname for WS traffic.
   EOT
   type        = string
-  default     = "realtime.aisoc.dev"
+  default     = "realtime.quarry.dev"
 }

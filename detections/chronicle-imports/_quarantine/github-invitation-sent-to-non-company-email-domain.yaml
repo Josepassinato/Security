@@ -59,4 +59,4 @@ provenance:
   upstream_path: rules/community/github/github_invitation_sent_to_non_company_email_domain.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

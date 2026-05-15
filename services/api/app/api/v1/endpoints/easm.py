@@ -19,7 +19,7 @@ from app.models.tenant import Tenant
 from app.services.easm_discovery import run_discovery
 from app.services.easm_drift import detect_drift
 
-logger = logging.getLogger("aisoc.easm")
+logger = logging.getLogger("quarry.easm")
 
 router = APIRouter(prefix="/easm", tags=["easm"])
 
@@ -69,7 +69,7 @@ async def trigger_easm_scan(
     drift events written to ``external_asset_drift``.
     """
     s = get_settings()
-    if not s.AISOC_FEATURE_EASM:
+    if not s.QUARRY_FEATURE_EASM:
         raise HTTPException(status_code=403, detail="EASM feature is disabled")
 
     if body.tenant_id != current_user.tenant_id:

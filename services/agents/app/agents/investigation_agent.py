@@ -20,8 +20,8 @@ logger = structlog.get_logger()
 # Address of the threat intel service that hosts the attribution endpoint.
 # Defaults to the in-cluster Docker Compose hostname; override via env in
 # Kubernetes / Fly / standalone deployments.
-THREAT_INTEL_SERVICE_URL = os.getenv("AISOC_THREATINTEL_URL", "http://threatintel:8083").rstrip("/")
-ATTRIBUTION_TIMEOUT_SECONDS = float(os.getenv("AISOC_ATTRIBUTION_TIMEOUT_SECONDS", "30.0"))
+THREAT_INTEL_SERVICE_URL = os.getenv("QUARRY_THREATINTEL_URL", "http://threatintel:8083").rstrip("/")
+ATTRIBUTION_TIMEOUT_SECONDS = float(os.getenv("QUARRY_ATTRIBUTION_TIMEOUT_SECONDS", "30.0"))
 
 
 async def run_investigation(state: InvestigationState) -> InvestigationState:
@@ -134,7 +134,7 @@ async def _perform_threat_actor_attribution(state: InvestigationState, malicious
     ``state.threat_intel["attribution"]``. Failure is soft — a finding is
     added and the rest of the investigation continues.
 
-    Severity in findings uses AiSOC's four-tier ladder
+    Severity in findings uses Quarry's four-tier ladder
     (``info``, ``low``, ``medium``, ``high``) to stay consistent with
     detection content and connector normalization.
     """

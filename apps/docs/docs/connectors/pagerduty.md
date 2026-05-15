@@ -1,7 +1,7 @@
 ---
 sidebar_position: 73
 title: PagerDuty
-description: Pull PagerDuty incident lifecycle and audit-record events into AiSOC via the REST API.
+description: Pull PagerDuty incident lifecycle and audit-record events into Quarry via the REST API.
 ---
 
 # PagerDuty
@@ -29,7 +29,7 @@ Events are normalised with `source: pagerduty`, `category: saas`.
 2. **Read-only** is sufficient — the connector never writes to PagerDuty.
 3. Copy the token (PagerDuty does not show it again).
 
-### 2. Add the connector in AiSOC
+### 2. Add the connector in Quarry
 
 1. **Connectors → Add connector → PagerDuty**.
 2. `api_key` = the REST API key (encrypted in the credential vault).
@@ -47,9 +47,9 @@ Events are normalised with `source: pagerduty`, `category: saas`.
 
 ## Severity mapping
 
-Vendor signals collapse to the AiSOC 4-tier ladder per the wave-1 PagerDuty rule:
+Vendor signals collapse to the Quarry 4-tier ladder per the wave-1 PagerDuty rule:
 
-| Source | Vendor value | AiSOC severity |
+| Source | Vendor value | Quarry severity |
 |---|---|---|
 | incident | priority name `P1` or `critical` | `high` |
 | incident | priority name `P2` or `error` | `medium` |
@@ -76,7 +76,7 @@ Vendor signals collapse to the AiSOC 4-tier ladder per the wave-1 PagerDuty rule
 
 ## What this connector does **not** cover
 
-- **Triggering pages from AiSOC** — that's the PagerDuty Paging action plugin (a separate write-mode integration, doc page TBD).
+- **Triggering pages from Quarry** — that's the PagerDuty Paging action plugin (a separate write-mode integration, doc page TBD).
 - **Per-incident log entry stream** — only the top-level incident envelope is pulled. The fine-grained "log_entries" stream is a separate endpoint and deliberately omitted from wave-1 to avoid quota pressure.
 
 ## Related

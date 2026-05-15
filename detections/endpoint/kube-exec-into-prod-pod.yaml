@@ -1,6 +1,6 @@
 id: det-endpoint-030
 name: kubectl exec Into Production Namespace by Non-Operator
-description: AiSOC v1 curated detection. Triggers on the endpoint signal described by 'kubectl exec Into
+description: Quarry v1 curated detection. Triggers on the endpoint signal described by 'kubectl exec Into
   Production Namespace by Non-Operator'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: high
@@ -22,6 +22,6 @@ false_positives:
 - Approved on-call investigation (must be on-call)
 playbook: tpl-cloud-anomaly
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

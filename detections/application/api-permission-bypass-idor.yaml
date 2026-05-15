@@ -1,6 +1,6 @@
 id: det-application-020
 name: API Returned Object Outside Caller's Tenant
-description: AiSOC v1 curated detection. Triggers on the application signal described by 'API Returned
+description: Quarry v1 curated detection. Triggers on the application signal described by 'API Returned
   Object Outside Caller's Tenant'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: critical
@@ -19,6 +19,6 @@ false_positives:
 - Admin-impersonation operations (must originate from internal tooling)
 playbook: tpl-data-exposure
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

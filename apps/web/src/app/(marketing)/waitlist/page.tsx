@@ -3,7 +3,7 @@
 /**
  * `/waitlist` — managed-instance signup landing page (T6.1).
  *
- * This is the public marketing surface for `app.aisoc.dev`. The page
+ * This is the public marketing surface for `app.quarry.dev`. The page
  * collects email + company + role + current SOC stack + motivation,
  * POSTs to `/v1/waitlist/signup` (rate-limited per-IP on the API side),
  * and then flips into a success state.
@@ -142,7 +142,7 @@ export default function WaitlistPage() {
         const detail = await response.text().catch(() => '');
         setError(
           `Could not submit (HTTP ${response.status}). ${
-            detail ? detail.slice(0, 240) : 'Please try again or email hello@aisoc.dev.'
+            detail ? detail.slice(0, 240) : 'Please try again or email hello@quarry.dev.'
           }`,
         );
         return;
@@ -151,7 +151,7 @@ export default function WaitlistPage() {
       setSuccess(true);
     } catch (err) {
       setError(
-        `Network error: ${(err as Error).message}. Please try again or email hello@aisoc.dev.`,
+        `Network error: ${(err as Error).message}. Please try again or email hello@quarry.dev.`,
       );
     } finally {
       setSubmitting(false);
@@ -170,20 +170,20 @@ export default function WaitlistPage() {
         <div className="mx-auto max-w-3xl">
           <div className="mb-3 flex flex-wrap items-center gap-2">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-500/20 bg-brand-500/10 px-3 py-1 text-xs font-medium text-brand-300">
-              Invite-only beta · app.aisoc.dev
+              Invite-only beta · app.quarry.dev
             </span>
             <span className="text-xs text-gray-500">
               We typically respond within 5 business days.
             </span>
           </div>
           <h1 className="text-4xl font-bold tracking-tight text-white md:text-5xl">
-            Run AiSOC as a managed service —
+            Run Quarry as a managed service —
             <br />
             <span className="text-brand-300">invite-only beta.</span>
           </h1>
           <p className="mt-5 max-w-2xl text-lg leading-relaxed text-gray-400">
             Skip the Kubernetes cluster. We host the same MIT-licensed
-            agent loop on <code className="rounded bg-white/[0.05] px-1 py-0.5 text-sm">app.aisoc.dev</code>,
+            agent loop on <code className="rounded bg-white/[0.05] px-1 py-0.5 text-sm">app.quarry.dev</code>,
             ship it on a dedicated tenant with your own connectors and
             credential vault, and put your team in front of real
             investigations on day one. Self-hosting stays a first-class
@@ -338,7 +338,7 @@ export default function WaitlistPage() {
                 <p className="text-xs text-gray-500">
                   We store this in our own database, not a marketing
                   SaaS. The team that reads it is the same team that
-                  builds AiSOC.
+                  builds Quarry.
                 </p>
                 <button
                   type="submit"
@@ -441,7 +441,7 @@ function SuccessCard() {
         We&apos;ll be in touch within 5 business days. In the meantime,
         the entire substrate is open-source —{' '}
         <a
-          href="https://github.com/beenuar/AiSOC"
+          href="https://github.com/beenuar/Quarry"
           target="_blank"
           rel="noreferrer"
           className="text-brand-300 underline-offset-2 hover:underline"
@@ -450,7 +450,7 @@ function SuccessCard() {
         </a>{' '}
         and run it locally with{' '}
         <code className="rounded bg-white/[0.05] px-1 py-0.5 text-xs">
-          pnpm aisoc:demo
+          pnpm quarry:demo
         </code>{' '}
         while you wait.
       </p>

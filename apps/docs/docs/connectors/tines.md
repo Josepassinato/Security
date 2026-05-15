@@ -1,7 +1,7 @@
 ---
 sidebar_position: 70
 title: Tines
-description: Pull Tines story audit log + case lifecycle events into AiSOC via the REST API.
+description: Pull Tines story audit log + case lifecycle events into Quarry via the REST API.
 ---
 
 # Tines
@@ -26,10 +26,10 @@ Events are normalised with `source: tines`, `category: saas`.
 1. Log in to Tines as the operator account.
 2. **Profile → Personal Access Tokens → New token**.
 3. **Role**: `read_only` (sufficient for both `audit_logs` and `cases` endpoints).
-4. **Expiration**: ≤ 180 days, rotate from the AiSOC edit screen.
+4. **Expiration**: ≤ 180 days, rotate from the Quarry edit screen.
 5. Copy the token (`tines_pat_…`) — Tines does not show it again.
 
-### 2. Add the connector in AiSOC
+### 2. Add the connector in Quarry
 
 1. **Connectors → Add connector → Tines**.
 2. `base_url` = your tenant URL with scheme (e.g. `https://acme.tines.com`).
@@ -48,9 +48,9 @@ Events are normalised with `source: tines`, `category: saas`.
 
 ## Severity mapping
 
-The Tines case `record_severity` and audit `operation_name` collapse into the AiSOC 4-tier ladder:
+The Tines case `record_severity` and audit `operation_name` collapse into the Quarry 4-tier ladder:
 
-| Source | Vendor value | AiSOC severity |
+| Source | Vendor value | Quarry severity |
 |---|---|---|
 | audit | `credential.created` / `credential.deleted` / `tenant.api_key_*` | `high` |
 | audit | `story.deleted` / `story.disabled` / `tenant.sso_disabled` | `high` |

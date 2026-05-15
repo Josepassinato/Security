@@ -6,9 +6,9 @@ tier: stable
 description: >
   Sumo Logic Cloud SIEM Enterprise (CSE). Pulls insights and signals, and
   supports log search jobs across the platform.
-author: AiSOC Core Team
+author: Quarry Core Team
 tags: [siem, sumo-logic, cloud-siem]
-homepage: https://github.com/beenuar/AiSOC/tree/main/services/connectors/app/connectors/sumo_logic.py
+homepage: https://github.com/beenuar/Quarry/tree/main/services/connectors/app/connectors/sumo_logic.py
 license: MIT
 min_aisoc_version: "4.0.0"
 config_schema:

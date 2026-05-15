@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "quarry-ueba"
 version = "0.1.0"
-description = "AiSOC UEBA — User & Entity Behaviour Analytics microservice"
+description = "Quarry UEBA — User & Entity Behaviour Analytics microservice"
 requires-python = ">=3.11"
 dependencies = [
     "fastapi>=0.110.0",

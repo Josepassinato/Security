@@ -63,4 +63,4 @@ provenance:
   upstream_path: rules/community/workspace/google_workspace_suspicious_login_and_google_drive_file_share.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

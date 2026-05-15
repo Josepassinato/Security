@@ -1,4 +1,4 @@
-"""Cloudflare WAF action plugin for AiSOC.
+"""Cloudflare WAF action plugin for Quarry.
 
 Supported actions:
   - block_ip: add IP to account-level access rules (block mode)
@@ -73,7 +73,7 @@ class Plugin:
                             "target": "ip",
                             "value": payload.get("ip", ""),
                         },
-                        "notes": payload.get("note", "blocked by AiSOC"),
+                        "notes": payload.get("note", "blocked by Quarry"),
                     },
                 )
                 resp.raise_for_status()

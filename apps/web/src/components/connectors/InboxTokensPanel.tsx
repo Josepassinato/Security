@@ -3,7 +3,7 @@
 /**
  * Universal-capture (Workstream 6) — operator surface for inbox tokens.
  *
- * For closed-proprietary tools we can't read or OAuth into, AiSOC mints a
+ * For closed-proprietary tools we can't read or OAuth into, Quarry mints a
  * per-tenant rotatable inbox URL. The vendor's existing webhook config
  * gets pointed at that URL; ``services/ingest`` resolves the token to a
  * tenant + vendor template and reuses the existing OCSF + Kafka pipeline.
@@ -132,7 +132,7 @@ function SecretDisclosureModal({
                 Copy this URL — it won&apos;t be shown again
               </h3>
               <p className="text-xs text-gray-400 mt-1">
-                Paste the URL into your vendor&apos;s webhook configuration. AiSOC
+                Paste the URL into your vendor&apos;s webhook configuration. Quarry
                 stores only a fingerprint after this dialog closes; if you
                 lose it, rotate the token to mint a new one.
               </p>

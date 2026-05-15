@@ -121,7 +121,7 @@ function ResponderLoginInner() {
             </svg>
           </div>
           <h1 className="text-2xl font-semibold tracking-tight">
-            AiSOC Responder
+            Quarry Responder
           </h1>
           <p className="text-sm text-zinc-400 mt-2 leading-relaxed">
             Tap to sign in with your phone&rsquo;s passkey. No passwords. No
@@ -231,7 +231,7 @@ function ResponderLoginInner() {
 
       <div className="px-6 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4 text-center">
         <p className="text-[10px] text-zinc-700 uppercase tracking-widest">
-          AiSOC · MIT-licensed AI SOC
+          Quarry · MIT-licensed AI SOC
         </p>
       </div>
     </div>

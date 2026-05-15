@@ -8,10 +8,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/beenuar/aisoc/services/ingest/internal/config"
-	"github.com/beenuar/aisoc/services/ingest/internal/graph"
-	"github.com/beenuar/aisoc/services/ingest/internal/normalizer"
-	"github.com/beenuar/aisoc/services/ingest/internal/publisher"
+	"github.com/beenuar/quarry/services/ingest/internal/config"
+	"github.com/beenuar/quarry/services/ingest/internal/graph"
+	"github.com/beenuar/quarry/services/ingest/internal/normalizer"
+	"github.com/beenuar/quarry/services/ingest/internal/publisher"
 	"github.com/rs/zerolog/log"
 )
 

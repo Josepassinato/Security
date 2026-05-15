@@ -1,4 +1,4 @@
-"""Calibrated-confidence utilities for AiSOC agents.
+"""Calibrated-confidence utilities for Quarry agents.
 
 Public surface:
 

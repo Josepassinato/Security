@@ -35,4 +35,4 @@ provenance:
   upstream_path: rules/_deprecated/soc_prime_rules/ioc_sigma/windows/wsf_jse_js_vba_vbe_file_execution__sysmon.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

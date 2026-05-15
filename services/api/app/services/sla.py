@@ -335,7 +335,7 @@ async def compute_sla_metrics(
         "overall": overall,
         "per_severity": per_severity,
     }
-    if get_settings().AISOC_FEATURE_KPI_BAR:
+    if get_settings().QUARRY_FEATURE_KPI_BAR:
         kpi_targets = await load_kpi_bar_targets(db, tenant_id)
         out["kpi_bar"] = await _compute_kpi_bar(db, tenant_id, since, kpi_targets)
     else:

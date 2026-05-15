@@ -1,12 +1,12 @@
 ---
 sidebar_position: 3
-title: Hello, hunt — write your first AiSOC detection
-description: A walkthrough that ships a runnable AiSOC detection rule end to end. Author the YAML, pin it with positive and negative fixtures, run it against the rule engine, and surface it in the marketplace — no vendor account required.
+title: Hello, hunt — write your first Quarry detection
+description: A walkthrough that ships a runnable Quarry detection rule end to end. Author the YAML, pin it with positive and negative fixtures, run it against the rule engine, and surface it in the marketplace — no vendor account required.
 ---
 
 # Hello, hunt
 
-This tutorial walks you end-to-end through the work of adding a new detection rule to AiSOC. By the end you will have:
+This tutorial walks you end-to-end through the work of adding a new detection rule to Quarry. By the end you will have:
 
 - A `community-tier` Sigma-style YAML rule under `detections/community/<category>/`.
 - A **positive** fixture under `detections/fixtures/positive/` that the rule must match.
@@ -37,7 +37,7 @@ Three files, one rule. That's the whole contract.
 
 ## Detection tiers — pick the right shelf first
 
-AiSOC sorts detections into three tiers, and each tier has a different bar:
+Quarry sorts detections into three tiers, and each tier has a different bar:
 
 | Tier        | Path                                              | `id` prefix                   | Authoring style       | Bar                                                                                                                                                                                                                  |
 | ----------- | ------------------------------------------------- | ----------------------------- | --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -52,7 +52,7 @@ If you eventually want your rule promoted to native, see [Graduating from `commu
 ## Step 1 — Pick a stable `id`
 
 ```yaml
-id: community-aisoc-hello-hunt-aws-root-login
+id: community-quarry-hello-hunt-aws-root-login
 ```
 
 Three rules to internalise:
@@ -61,7 +61,7 @@ Three rules to internalise:
 2. **Prefix with `community-<your-handle>-`.** This is enforced socially, not technically — the validator doesn't reject other shapes — but `marketplace/curated.json` and the in-app filters group by prefix, and reviewers will ask you to rename if you skip it.
 3. **Never change it after merge.** Renaming a rule breaks every alert row in production that references it. If the rule needs a behavioural overhaul, give the new version a new `id` and deprecate the old one.
 
-The example uses `aisoc` as the handle because the AiSOC project itself is the author. Real contributions use your GitHub username (`community-jdoe-aws-root-login`) or your org name (`community-acme-aws-root-login`).
+The example uses `quarry` as the handle because the Quarry project itself is the author. Real contributions use your GitHub username (`community-jdoe-aws-root-login`) or your org name (`community-acme-aws-root-login`).
 
 ## Step 2 — Fill in the metadata block
 
@@ -94,7 +94,7 @@ A few non-obvious things:
 
 ## Step 3 — Write the `detection` block
 
-This is the actual logic. The community tier supports the same Sigma-style shape that the rule engine's [`_sigma_fallback`](https://github.com/beenuar/AiSOC/blob/main/services/api/app/services/rule_engine.py) understands:
+This is the actual logic. The community tier supports the same Sigma-style shape that the rule engine's [`_sigma_fallback`](https://github.com/Josepassinato/quarry/blob/main/services/api/app/services/rule_engine.py) understands:
 
 ```yaml
 detection:
@@ -126,7 +126,7 @@ false_positives:
   - Initial AWS account setup before an IAM admin user exists.
 playbook: tpl-credential-access
 enabled: true
-author: AiSOC Tutorial
+author: Quarry Tutorial
 created: '2026-05-12'
 modified: '2026-05-12'
 references:
@@ -142,7 +142,7 @@ These fields are optional from the validator's perspective but required for huma
 
 ## Step 5 — Write the positive fixture
 
-The fixture is a single CloudTrail event that **must** trigger the rule. Drop it at `detections/fixtures/positive/<rule-slug>.json` (slug == `id` minus the `community-aisoc-` prefix, so the file is `hello-hunt-aws-root-login.json`):
+The fixture is a single CloudTrail event that **must** trigger the rule. Drop it at `detections/fixtures/positive/<rule-slug>.json` (slug == `id` minus the `community-quarry-` prefix, so the file is `hello-hunt-aws-root-login.json`):
 
 ```json
 {
@@ -278,7 +278,7 @@ After this, the rule shows up in the in-app marketplace at `/marketplace` with a
 
 ## Step 10 — (Optional) Replay the rule against your tenant's live events
 
-If you have a running AiSOC dev stack and want to see the rule fire end to end:
+If you have a running Quarry dev stack and want to see the rule fire end to end:
 
 ```bash
 # 1. Restart the API so it reloads the detection corpus from disk.
@@ -291,7 +291,7 @@ curl -X POST http://localhost:8000/v1/ingest/batch \
   -d "@detections/fixtures/positive/hello-hunt-aws-root-login.json"
 
 # 3. Watch the rule fire.
-curl -s "http://localhost:8000/v1/alerts?rule_id=community-aisoc-hello-hunt-aws-root-login" \
+curl -s "http://localhost:8000/v1/alerts?rule_id=community-quarry-hello-hunt-aws-root-login" \
   -H "X-Tenant-ID: demo" | jq '.items[0]'
 ```
 
@@ -300,9 +300,9 @@ You should see one alert come back with `severity: "high"` and the original Clou
 :::tip Two ingestion paths — pick the right one for what you're testing
 
 - **`POST /v1/ingest/batch`** (above) — sends the event through the full pipeline (`services/ingest` → Kafka → `services/fusion` → rule engine → alert). This is the path you want for testing **detection rules**, because the rule engine is in the loop. Use it for `hello-hunt`.
-- **`POST /api/v1/alerts/submit`** ([v7.3.1+](../api/rest)) — synthesises an `Alert` row directly from a batch of OCSF events, bypassing Kafka / `services/ingest` / `services/fusion` / the rule engine. This is the founder-flow path used by `aisoc submit` and the fresh-clone demo. Use it when you want a row in `/alerts` immediately and don't care whether a rule actually fired.
+- **`POST /api/v1/alerts/submit`** ([v7.3.1+](../api/rest)) — synthesises an `Alert` row directly from a batch of OCSF events, bypassing Kafka / `services/ingest` / `services/fusion` / the rule engine. This is the founder-flow path used by `quarry submit` and the fresh-clone demo. Use it when you want a row in `/alerts` immediately and don't care whether a rule actually fired.
 
-If you `aisoc submit` the positive fixture above, you'll see an alert in `/alerts` — but its `rule_id` will be whatever the submit payload carries, **not** `community-aisoc-hello-hunt-aws-root-login`. The direct-write path doesn't consult the detection corpus.
+If you `quarry submit` the positive fixture above, you'll see an alert in `/alerts` — but its `rule_id` will be whatever the submit payload carries, **not** `community-quarry-hello-hunt-aws-root-login`. The direct-write path doesn't consult the detection corpus.
 
 :::
 
@@ -316,7 +316,7 @@ When you've run the rule against a few weeks of real telemetry and you want it p
 4. **Re-run validation.** `python3 scripts/validate_detections.py --strict-fixtures` must pass for native rules — fixtures are no longer optional, and the spec round-trip is enforced.
 5. **Mark it verified.** The marketplace build will switch `verified: true` and `source: "native"` automatically based on the file path.
 
-That's the full path. Promotion is intentionally manual — the curated set is one of AiSOC's sharpest selling points, and we'd rather move slowly than dilute it.
+That's the full path. Promotion is intentionally manual — the curated set is one of Quarry's sharpest selling points, and we'd rather move slowly than dilute it.
 
 ## Related
 

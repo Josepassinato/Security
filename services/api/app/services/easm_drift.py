@@ -24,7 +24,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.easm import ExternalAsset, ExternalAssetDrift
 from app.services.easm_discovery import DiscoveredAsset
 
-logger = logging.getLogger("aisoc.easm.drift")
+logger = logging.getLogger("quarry.easm.drift")
 
 
 async def _upsert_asset(

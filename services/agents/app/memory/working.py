@@ -3,7 +3,7 @@
 Falls back to an in-process dict when Redis is unavailable so the agent
 keeps running in development or minimal deployments.
 
-Keys are namespaced as  ``aisoc:mem:working:{tenant_id}:{run_id}:{key}``
+Keys are namespaced as  ``quarry:mem:working:{tenant_id}:{run_id}:{key}``
 to prevent cross-tenant bleed.
 """
 
@@ -47,7 +47,7 @@ except ImportError:
 
 
 def _key(tenant_id: str, run_id: str | None, key: str) -> str:
-    return f"aisoc:mem:working:{tenant_id}:{run_id or '*'}:{key}"
+    return f"quarry:mem:working:{tenant_id}:{run_id or '*'}:{key}"
 
 
 async def working_get(tenant_id: str, key: str, run_id: str | None = None) -> Any | None:

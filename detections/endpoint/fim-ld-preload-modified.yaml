@@ -3,7 +3,7 @@ name: LD_PRELOAD / ld.so.preload Tampered (FIM)
 description: >
   The dynamic linker preload file /etc/ld.so.preload or any shared library
   under /etc/ld.so.conf.d/ was created or modified, as detected by osquery
-  file_events via the AiSOC FIM pipeline.  Attackers use ld.so.preload to
+  file_events via the Quarry FIM pipeline.  Attackers use ld.so.preload to
   inject arbitrary shared libraries into every process at startup, achieving
   rootkit-level stealth, credential capture, or privilege escalation
   (T1574.006 – Dynamic Linker Hijacking).
@@ -33,7 +33,7 @@ false_positives:
   - System package updates that refresh shared library search paths
 playbook: tpl-persistence
 enabled: true
-author: AiSOC
+author: Quarry
 references:
   - https://attack.mitre.org/techniques/T1574/006/
   - https://man7.org/linux/man-pages/man8/ld.so.8.html

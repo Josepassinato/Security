@@ -80,4 +80,4 @@ async def get_investigation(run_id: str):
 
 @router.get("/health")
 async def health():
-    return {"status": "healthy", "service": "aisoc-agents"}
+    return {"status": "healthy", "service": "quarry-agents"}

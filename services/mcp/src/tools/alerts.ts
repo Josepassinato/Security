@@ -87,7 +87,7 @@ export const listAlertsTool: ToolDefinition<typeof ListAlertsSchema> = {
   metadata: {
     name: "aisoc_list_alerts",
     description:
-      "List security alerts in the connected AiSOC tenant. Filter by severity, status, category, or free-text search. Results are paginated; default page_size 25.",
+      "List security alerts in the connected Quarry tenant. Filter by severity, status, category, or free-text search. Results are paginated; default page_size 25.",
     inputSchema: zodToJsonSchema(ListAlertsSchema),
   },
   schema: ListAlertsSchema,

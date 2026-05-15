@@ -1,7 +1,7 @@
 """
 Detection confidence + explainability surface.
 
-Wave 1 of the AiSOC v6 capability roadmap. Every fused alert leaves the
+Wave 1 of the Quarry v6 capability roadmap. Every fused alert leaves the
 fusion service with a high/medium/low confidence label and an ordered
 evidence chain (``ConfidenceFactor[]``) that the UI renders in the alert
 detail drawer. The label is **derived**, not assigned — analysts can
@@ -40,7 +40,7 @@ Sum of weights = 1.0. The factor list is *also* what's persisted on the
 ``FusedAlert`` so the UI can render the same evidence chain that the
 score was derived from — no magic numbers.
 
-AiSOC — open-source AI Security Operations Center (MIT License)
+Quarry — open-source AI Security Operations Center (MIT License)
 """
 
 from __future__ import annotations
@@ -166,7 +166,7 @@ class ConfidenceScorer:
     entity score) extend ``score`` and add a row to the rationale.
 
     The scorer carries an ``enabled`` flag so the capability can be feature-
-    flagged at the deployment level (``AISOC_FEATURE_CONFIDENCE``) without
+    flagged at the deployment level (``QUARRY_FEATURE_CONFIDENCE``) without
     having to pass ``None`` through the pipeline. When disabled, ``score``
     returns the alert unchanged — the model defaults (MEDIUM / 0.5 / [])
     keep the API and UI rendering safely.

@@ -65,6 +65,6 @@ CREATE INDEX IF NOT EXISTS detection_rules_provenance_license_idx
     WHERE provenance ? 'license';
 
 COMMENT ON COLUMN detection_rules.provenance IS
-    'WS-B1: structured provenance block for imported rules. Empty {} for native AiSOC rules. Used by services/api/app/services/detections/sigma_import.py for idempotent re-imports.';
+    'WS-B1: structured provenance block for imported rules. Empty {} for native Quarry rules. Used by services/api/app/services/detections/sigma_import.py for idempotent re-imports.';
 
 COMMIT;

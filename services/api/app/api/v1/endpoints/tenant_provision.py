@@ -1,4 +1,4 @@
-"""Admin tenant-provisioning endpoints — T6.1 (`app.aisoc.dev` managed beta).
+"""Admin tenant-provisioning endpoints — T6.1 (`app.quarry.dev` managed beta).
 
 Exposes the bridge between the waitlist (built in commit 1 of this
 work) and the live ``tenants`` table:
@@ -59,7 +59,7 @@ router = APIRouter(prefix="/admin/tenants", tags=["admin", "tenants"])
 # ---------------------------------------------------------------------------
 
 _MAX_LIST_LIMIT: int = 500
-_DEFAULT_INVITE_BASE_URL: str = "https://app.aisoc.dev"
+_DEFAULT_INVITE_BASE_URL: str = "https://app.quarry.dev"
 
 
 # ---------------------------------------------------------------------------

@@ -64,4 +64,4 @@ provenance:
   upstream_path: rules/community/okta/okta_suspicious_use_of_a_session_cookie.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

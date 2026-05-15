@@ -1,7 +1,7 @@
 """Tenant inbox token ORM model — Workstream 6 (universal capture).
 
 For every closed-proprietary tool that has neither a read API nor an
-OAuth flow, AiSOC mints a per-tenant, rotatable inbox URL of the form
+OAuth flow, Quarry mints a per-tenant, rotatable inbox URL of the form
 ``/v1/inbox/{token}``. The customer points the vendor's existing webhook
 at that URL; ``services/ingest`` resolves the token to a tenant +
 vendor template and reuses the existing OCSF normalizer + Kafka

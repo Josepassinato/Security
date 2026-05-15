@@ -9,7 +9,7 @@
     "severity": ["critical"],
     "tags": ["ransomware"]
   },
-  "author": "AiSOC",
+  "author": "Quarry",
   "enabled": true,
   "steps": [
     {

@@ -1,6 +1,6 @@
-# AiSOC — Community-Feedback-Driven Roadmap (2026-05-12)
+# Quarry — Community-Feedback-Driven Roadmap (2026-05-12)
 
-This directory captures the **active** planning artifacts for AiSOC, derived
+This directory captures the **active** planning artifacts for Quarry, derived
 from a community-feedback synthesis pass on 2026-05-12. It supersedes the
 "deferred beyond v7" sections of [`/ROADMAP.md`](../../../ROADMAP.md) for
 day-to-day prioritization while leaving the major-version history intact for
@@ -10,9 +10,9 @@ traceability.
 
 | File | Purpose |
 | --- | --- |
-| [`AiSOC_ROADMAP.md`](./AiSOC_ROADMAP.md) | Now / Next / Later strategic narrative — 30-day, 30–90-day, and 90+-day buckets. |
-| [`AiSOC_Community_Feedback_Synthesis.md`](./AiSOC_Community_Feedback_Synthesis.md) | Themed feedback log with stable IDs (`F001`–`Fxxx`) for traceability. |
-| [`AiSOC_Proposed_Issues.md`](./AiSOC_Proposed_Issues.md) | 23 implementation tickets, each tagged with `Feedback Item: Fxxx`. |
+| [`Quarry_ROADMAP.md`](./Quarry_ROADMAP.md) | Now / Next / Later strategic narrative — 30-day, 30–90-day, and 90+-day buckets. |
+| [`Quarry_Community_Feedback_Synthesis.md`](./Quarry_Community_Feedback_Synthesis.md) | Themed feedback log with stable IDs (`F001`–`Fxxx`) for traceability. |
+| [`Quarry_Proposed_Issues.md`](./Quarry_Proposed_Issues.md) | 23 implementation tickets, each tagged with `Feedback Item: Fxxx`. |
 
 ## How these docs are used
 
@@ -38,12 +38,12 @@ state of `main`. The relevant correction lives in
 [`/CHANGELOG.md`](../../../CHANGELOG.md) under the `[7.0.x]` heading: the
 PR1–PR6 endpoint-telemetry wave was developed on
 `feat/pr6-osquery-extensions` and **not** merged into `main`. The generic
-`live_action` interface ([Issue #8](./AiSOC_Proposed_Issues.md#issue-8)) is
+`live_action` interface ([Issue #8](./Quarry_Proposed_Issues.md#issue-8)) is
 therefore built fresh on `main`, not on top of those primitives.
 
 ## Workflow
 
-1. Pick an issue from `AiSOC_Proposed_Issues.md`.
+1. Pick an issue from `Quarry_Proposed_Issues.md`.
 2. Open a GitHub issue using the draft body (or reference the file if the
    draft is faithful enough to skip re-typing). Apply the `area:subarea`
    labels listed in the draft.

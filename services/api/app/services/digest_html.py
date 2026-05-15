@@ -200,7 +200,7 @@ def render_digest_html(digest: ExecutiveDigest) -> str:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>AiSOC Executive Digest — {_esc(period.label)}</title>
+<title>Quarry Executive Digest — {_esc(period.label)}</title>
 <style>
   @page {{ margin: 18mm; }}
   body {{
@@ -225,7 +225,7 @@ def render_digest_html(digest: ExecutiveDigest) -> str:
 <body>
   <header>
     <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:0.08em;">
-      AiSOC weekly executive digest
+      Quarry weekly executive digest
     </div>
     <h1>{_esc(period.label)}</h1>
     <div style="color:#334155;font-size:14px;margin-top:6px;">{headline}</div>
@@ -267,7 +267,7 @@ def render_digest_html(digest: ExecutiveDigest) -> str:
   {_recommendation_cards(digest.recommendations)}
 
   <footer style="margin-top:32px;color:#94a3b8;font-size:11px;text-align:center;">
-    AiSOC — open-source AI Security Operations Center.
+    Quarry — open-source AI Security Operations Center.
     Print this page (Ctrl/Cmd-P → Save as PDF) for board-ready archival.
   </footer>
 </body>

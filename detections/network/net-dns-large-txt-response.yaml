@@ -1,6 +1,6 @@
 id: det-network-036
 name: Large DNS TXT Response (Possible C2)
-description: AiSOC v1 curated detection. Triggers on the network signal described by 'Large DNS TXT Response
+description: Quarry v1 curated detection. Triggers on the network signal described by 'Large DNS TXT Response
   (Possible C2)'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: high
@@ -20,6 +20,6 @@ false_positives:
 - DKIM/SPF audit
 playbook: tpl-command-and-control
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

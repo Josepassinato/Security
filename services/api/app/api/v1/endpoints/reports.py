@@ -253,7 +253,7 @@ async def weekly_digest(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail=str(exc),
             ) from exc
-        filename = f"aisoc-digest-{digest.period.start.date()}.pdf"
+        filename = f"quarry-digest-{digest.period.start.date()}.pdf"
         return Response(
             content=pdf_bytes,
             media_type="application/pdf",

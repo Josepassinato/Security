@@ -1,6 +1,6 @@
-# AiSOC — Managed Instance (T6.1)
+# Quarry — Managed Instance (T6.1)
 # =============================================================================
-# Provisions the single-tenant managed offering hosted at `app.aisoc.dev`.
+# Provisions the single-tenant managed offering hosted at `app.quarry.dev`.
 #
 # Components:
 #   • Fly.io application  — runs `services/api`, `services/agents`, the web
@@ -9,7 +9,7 @@
 #   • Fly.io Postgres     — managed primary + standby, encrypted at rest,
 #                          point-in-time recovery enabled.
 #   • Fly.io Redis        — managed Upstash-backed Redis (pubsub + cache).
-#   • Cloudflare DNS      — `app.aisoc.dev` CNAME → Fly.io edge.
+#   • Cloudflare DNS      — `app.quarry.dev` CNAME → Fly.io edge.
 #
 # This is the *skeleton*. The actual Fly.io provider is community-maintained
 # (`fly-apps/fly`) and the API surface is still moving; the operator who
@@ -64,17 +64,17 @@ terraform {
   # and populate the bucket/workspace name before the first `init`.
   #
   # backend "s3" {
-  #   bucket         = "aisoc-managed-tfstate"
+  #   bucket         = "quarry-managed-tfstate"
   #   key            = "managed/terraform.tfstate"
   #   region         = "us-east-1"
-  #   dynamodb_table = "aisoc-managed-tflock"
+  #   dynamodb_table = "quarry-managed-tflock"
   #   encrypt        = true
   # }
   #
   # backend "remote" {
   #   organization = "<your-tf-cloud-org>"
   #   workspaces {
-  #     name = "aisoc-managed"
+  #     name = "quarry-managed"
   #   }
   # }
 }
@@ -168,11 +168,11 @@ resource "fly_redis" "primary" {
 }
 
 # -----------------------------------------------------------------------------
-# Cloudflare — DNS for app.aisoc.dev
+# Cloudflare — DNS for app.quarry.dev
 # -----------------------------------------------------------------------------
 #
 # Fly.io issues a per-app hostname (`<app>.fly.dev`). We point
-# `app.aisoc.dev` at it via a proxied CNAME so Cloudflare terminates
+# `app.quarry.dev` at it via a proxied CNAME so Cloudflare terminates
 # TLS in front of Fly's edge.
 
 resource "cloudflare_record" "app" {
@@ -182,11 +182,11 @@ resource "cloudflare_record" "app" {
   content = "${fly_app.control_plane.name}.fly.dev"
   proxied = true
   ttl     = 1  # ttl=1 means "automatic" when proxied=true
-  comment = "Managed by AiSOC managed-instance Terraform (T6.1)"
+  comment = "Managed by Quarry managed-instance Terraform (T6.1)"
 }
 
 # Optional second CNAME for the realtime hostname — many deployments
-# split `app.aisoc.dev` (HTTP) from `realtime.aisoc.dev` (websockets) so
+# split `app.quarry.dev` (HTTP) from `realtime.quarry.dev` (websockets) so
 # the WS connection budget isn't shared with API requests. Set
 # `var.realtime_hostname` to null to skip this record.
 resource "cloudflare_record" "realtime" {
@@ -198,5 +198,5 @@ resource "cloudflare_record" "realtime" {
   content = "${fly_app.control_plane.name}.fly.dev"
   proxied = true
   ttl     = 1
-  comment = "Managed by AiSOC managed-instance Terraform (T6.1)"
+  comment = "Managed by Quarry managed-instance Terraform (T6.1)"
 }

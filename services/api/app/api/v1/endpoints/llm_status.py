@@ -117,7 +117,7 @@ def _is_loopback_or_private_host(host: str) -> bool:
     """Cheap "is this clearly a local LLM" classifier for the UI badge.
 
     We don't want to claim "running locally" for a host the operator
-    just happened to put in ``AISOC_AIRGAP_ALLOWLIST`` (e.g. an internal
+    just happened to put in ``QUARRY_AIRGAP_ALLOWLIST`` (e.g. an internal
     SaaS gateway), so this is intentionally narrower than the full
     air-gap host classifier.
     """
@@ -143,7 +143,7 @@ def _env_baseline() -> tuple[str, str, bool]:
     overrides on top by name.
     """
     base_url = os.getenv("LLM_BASE_URL") or os.getenv("OPENAI_BASE_URL") or ""
-    model = os.getenv("LLM_MODEL") or os.getenv("OPENAI_MODEL") or os.getenv("AISOC_LLM_MODEL") or ""
+    model = os.getenv("LLM_MODEL") or os.getenv("OPENAI_MODEL") or os.getenv("QUARRY_LLM_MODEL") or ""
     key_set = bool(os.getenv("OPENAI_API_KEY") or os.getenv("LLM_API_KEY"))
     return base_url, model, key_set
 
@@ -163,7 +163,7 @@ def _compute_status(
     ``source`` argument is threaded through to the response so callers
     can tell where each value came from without re-doing the merge.
     """
-    airgap_enabled = bool(settings.AISOC_AIRGAPPED)
+    airgap_enabled = bool(settings.QUARRY_AIRGAPPED)
 
     # If neither base_url nor key are set, the operator is running on
     # the deterministic fallback. Surface that explicitly so the
@@ -191,7 +191,7 @@ def _compute_status(
         # which is never compliant under air-gap.
         airgap_compliant = False
     else:
-        airgap_compliant = is_host_allowed_for_airgap(host, settings.AISOC_AIRGAP_ALLOWLIST)
+        airgap_compliant = is_host_allowed_for_airgap(host, settings.QUARRY_AIRGAP_ALLOWLIST)
 
     is_local = _is_loopback_or_private_host(host)
 
@@ -218,7 +218,7 @@ def _compute_status(
             f"Air-gapped mode is ON and host '{host or 'api.openai.com'}' is "
             "not allowed by the egress policy. The Explain endpoint will "
             "fall back to deterministic summaries until the LLM points at a "
-            "host in AISOC_AIRGAP_ALLOWLIST or a private/internal endpoint."
+            "host in QUARRY_AIRGAP_ALLOWLIST or a private/internal endpoint."
         )
     elif effective_path == "fallback":
         # key_set is False but base_url may be set — uncommon but possible.

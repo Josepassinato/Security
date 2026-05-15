@@ -1,6 +1,6 @@
 # Migration Guide: v3 → v4
 
-This guide covers the breaking changes and upgrade path from AiSOC v3 to v4.
+This guide covers the breaking changes and upgrade path from Quarry v3 to v4.
 Read it before running `docker compose pull` or deploying to production.
 
 ---
@@ -13,7 +13,7 @@ Read it before running `docker compose pull` or deploying to production.
    - [Step 1 — Back up your data](#step-1--back-up-your-data)
    - [Step 2 — Update environment variables](#step-2--update-environment-variables)
    - [Step 3 — Database migrations](#step-3--database-migrations)
-   - [Step 4 — Migrate plugins (aisoc-plugin.json → plugin.yaml)](#step-4--migrate-plugins)
+   - [Step 4 — Migrate plugins (quarry-plugin.json → plugin.yaml)](#step-4--migrate-plugins)
    - [Step 5 — Migrate playbooks (schema upgrade)](#step-5--migrate-playbooks)
    - [Step 6 — Pull and restart](#step-6--pull-and-restart)
    - [Step 7 — Verify](#step-7--verify)
@@ -29,7 +29,7 @@ Read it before running `docker compose pull` or deploying to production.
 |------|----|----|
 | Core engine | Rule-based SOAR engine | LangGraph multi-agent investigator |
 | Playbook format | Custom JSON (no schema) | JSON Schema 2020-12 (`playbook.schema.json`) |
-| Plugin manifest | `aisoc-plugin.json` only | `plugin.yaml` (preferred) + `aisoc-plugin.json` (legacy) |
+| Plugin manifest | `quarry-plugin.json` only | `plugin.yaml` (preferred) + `quarry-plugin.json` (legacy) |
 | Plugin types | `enricher`, `action`, `connector` | + `responder`, `detection`, `widget` |
 | Plugin distribution | Local directory only | Local directory + OCI images (via `oras`) |
 | API auth | JWT only | JWT + scoped API tokens (`/api/v1/api-keys`) |
@@ -55,11 +55,11 @@ Read it before running `docker compose pull` or deploying to production.
 
 ```bash
 # PostgreSQL
-docker compose exec postgres pg_dump -U aisoc aisoc > backup_v3_$(date +%Y%m%d).sql
+docker compose exec postgres pg_dump -U quarry aisoc > backup_v3_$(date +%Y%m%d).sql
 
 # ClickHouse (event store)
 docker compose exec clickhouse clickhouse-client \
-  --query "BACKUP DATABASE aisoc TO Disk('backups', 'aisoc_v3_$(date +%Y%m%d).zip')"
+  --query "BACKUP DATABASE quarry TO Disk('backups', 'quarry_v3_$(date +%Y%m%d).zip')"
 
 # Copy plugin directory
 cp -r plugins plugins_v3_backup
@@ -122,7 +122,7 @@ INFO  [alembic.runtime.migration] Running upgrade ghi789 -> jkl012, add investig
 
 ### Step 4 — Migrate plugins
 
-The preferred manifest file is now `plugin.yaml`. Existing `aisoc-plugin.json`
+The preferred manifest file is now `plugin.yaml`. Existing `quarry-plugin.json`
 files continue to work, but we recommend migrating for richer metadata support.
 
 **Automated migration** (converts all plugins in `./plugins/`):
@@ -133,7 +133,7 @@ python3 scripts/migrate_plugins.py
 
 **Manual migration example:**
 
-`plugins/my-plugin/aisoc-plugin.json` (v3):
+`plugins/my-plugin/quarry-plugin.json` (v3):
 ```json
 {
   "id": "my-plugin",
@@ -258,7 +258,7 @@ POST /api/v1/api-keys
 { "name": "ci-reader", "scopes": ["cases:read", "alerts:read"] }
 
 # Use it
-curl -H "X-API-Key: aisoc_..." http://localhost:8000/api/v1/cases
+curl -H "X-API-Key: quarry_..." http://localhost:8000/api/v1/cases
 ```
 
 ### Endpoint changes
@@ -308,7 +308,7 @@ investigator entirely.
 
 Q: Can I run v3 and v4 side by side?
 A: Yes. Use a different Docker Compose project name:
-`docker compose -p aisoc-v4 up -d`
+`docker compose -p quarry-v4 up -d`
 
 Q: Will my v3 playbooks still run?
 A: After `python3 scripts/upgrade_playbooks.py`, yes. The v4 engine is
@@ -319,4 +319,4 @@ A: Restore the PostgreSQL backup from Step 1, then `docker compose pull` with
 the v3 image tags pinned in your `docker-compose.yml`.
 
 Q: Where do I get help?
-A: Open an issue at https://github.com/beenuar/AiSOC/issues.
+A: Open an issue at https://github.com/Josepassinato/quarry/issues.

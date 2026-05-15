@@ -46,7 +46,7 @@ The narrative is composed of up to four blocks separated by a blank line:
 If any block has no content it is dropped — the narrative never contains
 empty sections.
 
-AiSOC — open-source AI Security Operations Center (MIT License)
+Quarry — open-source AI Security Operations Center (MIT License)
 Author: Beenu Arora <beenu@cyble.com>
 """
 

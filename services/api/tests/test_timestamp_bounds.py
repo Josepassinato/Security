@@ -8,9 +8,9 @@ Pins the contract that protects ``Alert.first_seen`` / ``last_seen`` /
 * timestamps older than ``MIN_AGE`` clamp to the floor;
 * timestamps further in the future than ``MAX_FUTURE`` clamp to the ceiling;
 * timestamps inside the window pass through unchanged with ``was_clamped=False``;
-* env caps clamp to hard maxima and reject junk like other AiSOC helpers.
+* env caps clamp to hard maxima and reject junk like other Quarry helpers.
 
-AiSOC — open-source AI Security Operations Center (MIT License)
+Quarry — open-source AI Security Operations Center (MIT License)
 Author: Beenu Arora <beenu@cyble.com>
 """
 
@@ -212,25 +212,25 @@ class TestEnvCaps:
         assert max_future_seconds() == 300
 
     def test_env_override_lowers_age(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.setenv("AISOC_SUBMIT_MAX_TIMESTAMP_AGE_DAYS", "30")
+        monkeypatch.setenv("QUARRY_SUBMIT_MAX_TIMESTAMP_AGE_DAYS", "30")
         assert max_age_days() == 30
 
     def test_env_zero_falls_back_to_default_age(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """A non-positive value is silently ignored — operators sometimes
         type 0 to "disable" caps; we explicitly refuse that footgun."""
-        monkeypatch.setenv("AISOC_SUBMIT_MAX_TIMESTAMP_AGE_DAYS", "0")
+        monkeypatch.setenv("QUARRY_SUBMIT_MAX_TIMESTAMP_AGE_DAYS", "0")
         assert max_age_days() == 90
 
     def test_env_garbage_falls_back_to_default_age(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.setenv("AISOC_SUBMIT_MAX_TIMESTAMP_AGE_DAYS", "not-a-number")
+        monkeypatch.setenv("QUARRY_SUBMIT_MAX_TIMESTAMP_AGE_DAYS", "not-a-number")
         assert max_age_days() == 90
 
     def test_env_huge_age_clamps_to_hard_max(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """An operator typing a century mustn't disable bounds."""
-        monkeypatch.setenv("AISOC_SUBMIT_MAX_TIMESTAMP_AGE_DAYS", "999999")
+        monkeypatch.setenv("QUARRY_SUBMIT_MAX_TIMESTAMP_AGE_DAYS", "999999")
         assert max_age_days() == 365 * 10
 
     def test_env_future_clamps_to_hard_max(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.setenv("AISOC_SUBMIT_MAX_FUTURE_SECONDS", "86400")
+        monkeypatch.setenv("QUARRY_SUBMIT_MAX_FUTURE_SECONDS", "86400")
         # 1 day requested, hard cap is 1 hour.
         assert max_future_seconds() == 3600

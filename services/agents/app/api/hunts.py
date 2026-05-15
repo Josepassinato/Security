@@ -30,7 +30,7 @@ from app.hunt import HuntCorpus
 from app.hunt import scheduler as hunt_scheduler
 from app.hunt import store as hunt_store
 
-logger = logging.getLogger("aisoc.api.hunts")
+logger = logging.getLogger("quarry.api.hunts")
 router = APIRouter(prefix="/api/v1/hunts", tags=["hunts"])
 
 

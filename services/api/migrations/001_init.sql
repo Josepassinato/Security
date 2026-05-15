@@ -1,4 +1,4 @@
--- AiSOC initial schema
+-- Quarry initial schema
 -- Runs on first postgres container start via /docker-entrypoint-initdb.d
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -209,7 +209,7 @@ INSERT INTO users (id, tenant_id, email, username, hashed_password, role, is_act
 VALUES (
     '00000000-0000-0000-0000-000000000002',
     '00000000-0000-0000-0000-000000000001',
-    'admin@aisoc.local',
+    'admin@quarry.local',
     'admin',
     '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj3EEbF7FtRS',
     'admin',

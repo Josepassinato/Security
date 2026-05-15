@@ -114,7 +114,7 @@ function MitreSparkline({ rows }: { rows: ScoreboardRow[] }) {
     <figure className={styles.chartFigure}>
       <svg
         role="img"
-        aria-label="MITRE accuracy trend over time across the AiSOC public eval scoreboard"
+        aria-label="MITRE accuracy trend over time across the Quarry public eval scoreboard"
         viewBox={`0 0 ${W} ${H}`}
         className={styles.chart}
       >
@@ -191,7 +191,7 @@ export function ScoreboardTable({ rows }: { rows: ScoreboardRow[] }) {
     <div className={styles.tableWrap}>
       <table className={styles.table}>
         <caption className={styles.srOnly}>
-          AiSOC public benchmark scoreboard — weekly eval results, newest
+          Quarry public benchmark scoreboard — weekly eval results, newest
           first. Substrate rows are deterministic CI gates (no LLM); wet-eval
           rows are real LangGraph agent runs.
         </caption>

@@ -1,6 +1,6 @@
 id: det-cloud-146
 name: GCS Bucket IAM Granted To allUsers
-description: AiSOC v1 curated detection. Triggers on the cloud signal described by 'GCS Bucket IAM Granted
+description: Quarry v1 curated detection. Triggers on the cloud signal described by 'GCS Bucket IAM Granted
   To allUsers'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: critical
@@ -19,6 +19,6 @@ false_positives:
 - Public CDN bucket by design
 playbook: tpl-data-exposure
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

@@ -375,7 +375,7 @@ def render_case_postmortem_html(postmortem: CasePostmortem) -> str:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>AiSOC Post-mortem — {_esc(postmortem.case.case_number or postmortem.case.title)}</title>
+<title>Quarry Post-mortem — {_esc(postmortem.case.case_number or postmortem.case.title)}</title>
 <style>
   @page {{ margin: 18mm; }}
   body {{
@@ -415,7 +415,7 @@ def render_case_postmortem_html(postmortem: CasePostmortem) -> str:
   {_action_items_block(postmortem.action_items)}
 
   <footer style="margin-top:32px;color:#94a3b8;font-size:11px;text-align:center;">
-    AiSOC — open-source AI Security Operations Center.
+    Quarry — open-source AI Security Operations Center.
     Blameless retrospective · system-focused · print this page (Ctrl/Cmd-P → Save as PDF) for the runbook archive.
   </footer>
 </body>

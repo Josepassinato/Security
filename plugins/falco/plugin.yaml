@@ -8,9 +8,9 @@ description: >
   rule-engine output over HTTP from falcosidekick or Falco's built-in HTTP
   output plugin, optionally validating a shared-secret header on each
   delivery. Push-driven — no API key required.
-author: AiSOC Core Team
+author: Quarry Core Team
 tags: [siem, runtime, kubernetes, linux, cncf, falco]
-homepage: https://github.com/beenuar/AiSOC/tree/main/services/connectors/app/connectors/falco.py
+homepage: https://github.com/beenuar/Quarry/tree/main/services/connectors/app/connectors/falco.py
 license: MIT
 min_aisoc_version: "4.0.0"
 config_schema:
@@ -19,7 +19,7 @@ config_schema:
   properties:
     webhook_path:
       type: string
-      description: "Path on the AiSOC ingest service where Falco / falcosidekick POSTs events"
+      description: "Path on the Quarry ingest service where Falco / falcosidekick POSTs events"
       default: "/v1/webhooks/falco"
     shared_secret:
       type: string

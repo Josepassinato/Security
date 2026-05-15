@@ -19,12 +19,12 @@ Environment overrides
 ---------------------
 Operators can raise the ceiling for slow-running on-prem agents via:
 
-``AISOC_PLAYBOOK_MAX_TIMEOUT_SECONDS``
+``QUARRY_PLAYBOOK_MAX_TIMEOUT_SECONDS``
     Maximum per-step timeout enforced at runtime by :func:`clamp_timeout`.
     Default 300. Clamped to
     ``[MIN_TIMEOUT_SECONDS, ABSOLUTE_MAX_PARAM_TIMEOUT_SECONDS]``.
 
-``AISOC_PLAYBOOK_MAX_RETRIES``
+``QUARRY_PLAYBOOK_MAX_RETRIES``
     Maximum ``retry_max`` value any step may declare. Default 10. Clamped
     to ``[0, ABSOLUTE_MAX_RETRIES]``.
 """
@@ -35,7 +35,7 @@ import logging
 import os
 from typing import Any, Final
 
-logger = logging.getLogger("aisoc.playbook.bounds")
+logger = logging.getLogger("quarry.playbook.bounds")
 
 # ── Hard limits ─────────────────────────────────────────────────────────────
 # These are absolute ceilings — even with env overrides we will never accept
@@ -116,7 +116,7 @@ def max_timeout_seconds() -> int:
     to accommodate long human-approval waits.
     """
     return _env_int(
-        "AISOC_PLAYBOOK_MAX_TIMEOUT_SECONDS",
+        "QUARRY_PLAYBOOK_MAX_TIMEOUT_SECONDS",
         DEFAULT_MAX_TIMEOUT_SECONDS,
         MIN_TIMEOUT_SECONDS,
         ABSOLUTE_MAX_PARAM_TIMEOUT_SECONDS,
@@ -126,7 +126,7 @@ def max_timeout_seconds() -> int:
 def max_retries() -> int:
     """Effective per-step retry ceiling, honouring env overrides."""
     return _env_int(
-        "AISOC_PLAYBOOK_MAX_RETRIES",
+        "QUARRY_PLAYBOOK_MAX_RETRIES",
         DEFAULT_MAX_RETRIES,
         0,
         ABSOLUTE_MAX_RETRIES,

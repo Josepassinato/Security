@@ -62,4 +62,4 @@ provenance:
   upstream_path: rules/community/microsoft/windows/lsass_memory_access_by_tool_dump_keyword_name.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

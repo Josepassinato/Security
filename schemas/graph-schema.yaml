@@ -1,4 +1,4 @@
-# AiSOC Security Knowledge Graph — schema v1.0
+# Quarry Security Knowledge Graph — schema v1.0
 #
 # This file is the machine-readable source of truth for the graph that
 # `services/ingest` materialises into Neo4j at ingest time. It is consumed by

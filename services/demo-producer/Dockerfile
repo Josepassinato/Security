@@ -1,4 +1,4 @@
-# AiSOC Demo Event Producer
+# Quarry Demo Event Producer
 # Multi-stage Go build → tiny distroless runtime image.
 FROM golang:1.21-alpine AS builder
 WORKDIR /src

@@ -1,5 +1,5 @@
 """
-/v1/osquery/extensions/* — data endpoints consumed by the aisoc-extension
+/v1/osquery/extensions/* — data endpoints consumed by the quarry-extension
 Go binary (the five osquery virtual tables).
 
 All three routes are read-only and accept an optional ?host_identifier=
@@ -57,7 +57,7 @@ def _pending_actions_stub(host: str) -> list[dict[str, Any]]:
             "case_id": "case-stub-042",
             "action_type": "isolate",
             "target": host,
-            "requested_by": "aisoc-playbook",
+            "requested_by": "quarry-playbook",
             "requested_at": (_now() - timedelta(minutes=10)).isoformat(),
             "expires_at": (_now() + timedelta(hours=23, minutes=50)).isoformat(),
             "description": "Isolate host pending malware triage",
@@ -94,7 +94,7 @@ def _persistence_baseline_stub(host: str) -> list[dict[str, Any]]:
         {
             "entry_id": "pe-stub-002",
             "mechanism": "systemd",
-            "path": "/etc/systemd/system/aisoc-agent.service",
+            "path": "/etc/systemd/system/quarry-agent.service",
             "arguments": "",
             "approved": True,
             "mitre_technique": "T1543.002",

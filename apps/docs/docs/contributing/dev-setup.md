@@ -4,7 +4,7 @@ sidebar_position: 1
 
 # Development Setup
 
-This guide walks through getting a full AiSOC dev environment on your
+This guide walks through getting a full Quarry dev environment on your
 laptop. If you only need a working demo (no code changes), prefer the
 one-shot path described in the [Quickstart](../quickstart) — it pulls
 prebuilt GHCR images and is ready in under five minutes.
@@ -20,15 +20,15 @@ prebuilt GHCR images and is ready in under five minutes.
 | Docker | 24+ | Compose v2 is required |
 | Make | optional | A `Makefile` wraps the most common targets |
 
-> **Tip:** the `pnpm aisoc:doctor` command verifies that all of the
+> **Tip:** the `pnpm quarry:doctor` command verifies that all of the
 > above are installed at compatible versions before you spin up the
 > stack.
 
 ## 1. Clone & install
 
 ```bash
-git clone https://github.com/beenuar/AiSOC.git
-cd AiSOC
+git clone https://github.com/Josepassinato/quarry.git
+cd Quarry
 pnpm install
 ```
 
@@ -152,7 +152,7 @@ The other Python services (`fusion`, `actions`, `threatintel`, `ueba`,
 `honeytokens`, `purple-team`) follow the same pattern: activate the
 virtualenv and run `uvicorn app.main:app --reload --port <port>`.
 The canonical port mapping is in
-[`docker-compose.yml`](https://github.com/beenuar/AiSOC/blob/main/docker-compose.yml)
+[`docker-compose.yml`](https://github.com/Josepassinato/quarry/blob/main/docker-compose.yml)
 and the [Architecture](../architecture#service-responsibilities) page.
 
 ## 7. Run tests
@@ -186,10 +186,10 @@ substrate self-consistency gates.
 
 | Script | Description |
 |--------|-------------|
-| `pnpm aisoc:doctor` | Verify Node / pnpm / Python / Go / Docker versions |
-| `pnpm aisoc:demo` | One-shot demo using prebuilt GHCR images |
-| `pnpm aisoc:demo:logs` | Tail logs from the demo stack |
-| `pnpm aisoc:demo:down` | Tear the demo stack down |
+| `pnpm quarry:doctor` | Verify Node / pnpm / Python / Go / Docker versions |
+| `pnpm quarry:demo` | One-shot demo using prebuilt GHCR images |
+| `pnpm quarry:demo:logs` | Tail logs from the demo stack |
+| `pnpm quarry:demo:down` | Tear the demo stack down |
 | `pnpm seed:demo` | Seed demo tenants, alerts, cases, and playbooks |
 | `pnpm marketplace:build` | Build `marketplace/index.json` from `detections/`, `playbooks/`, `plugins/` |
 | `pnpm marketplace:check` | Validate the marketplace index against the schema |
@@ -201,8 +201,8 @@ substrate self-consistency gates.
 
 ## 9. Hacking on content
 
-AiSOC ships a curated marketplace at
-[`marketplace/index.json`](https://github.com/beenuar/AiSOC/blob/main/marketplace/index.json)
+Quarry ships a curated marketplace at
+[`marketplace/index.json`](https://github.com/Josepassinato/quarry/blob/main/marketplace/index.json)
 that aggregates 6,900+ detections (filtered by tier), 50+ playbooks, and
 15 first-party plugins. To add to the catalog:
 

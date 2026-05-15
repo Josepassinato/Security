@@ -230,7 +230,7 @@ def test_runner_rejects_unknown_mode() -> None:
 
 
 def test_wet_mode_requires_endpoint(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.delenv("AISOC_WET_EVAL_ENDPOINT", raising=False)
+    monkeypatch.delenv("QUARRY_WET_EVAL_ENDPOINT", raising=False)
     with pytest.raises(RuntimeError, match="wet mode requires"):
         runner.evaluate("cicids", [MICRO_FIXTURE], mode="wet", limit=1)
 
@@ -244,7 +244,7 @@ def test_wet_mode_falls_back_to_benign_on_http_failure(
         [MICRO_FIXTURE],
         mode="wet",
         limit=2,
-        wet_endpoint="http://127.0.0.1:1/aisoc-fake",
+        wet_endpoint="http://127.0.0.1:1/quarry-fake",
     )
     # Every row should classify as ``benign`` because the wet shim
     # is defensive on transport errors.

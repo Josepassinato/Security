@@ -1,6 +1,6 @@
 id: det-endpoint-150
 name: Bash History File Truncated Or Removed
-description: AiSOC v1 curated detection. Triggers on the endpoint signal described by 'Bash History File
+description: Quarry v1 curated detection. Triggers on the endpoint signal described by 'Bash History File
   Truncated Or Removed'. Watch the 2 documented false-positive cases before tuning.
 version: 1.0.0
 severity: medium
@@ -21,6 +21,6 @@ false_positives:
 - User cleared their own history (educate)
 playbook: tpl-defense-evasion
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

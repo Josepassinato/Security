@@ -173,7 +173,7 @@ func (c *MandiantClient) lookup(ctx context.Context, iocType IOCType, mType, val
 	}
 	req.Header.Set("Authorization", "Bearer "+bearer)
 	req.Header.Set("Accept", "application/json")
-	req.Header.Set("X-App-Name", "AiSOC-Enrichment")
+	req.Header.Set("X-App-Name", "Quarry-Enrichment")
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {

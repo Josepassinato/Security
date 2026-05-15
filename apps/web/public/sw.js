@@ -1,5 +1,5 @@
 /**
- * AiSOC Responder PWA service worker.
+ * Quarry Responder PWA service worker.
  *
  * Responsibilities:
  *  - App shell + static asset caching for offline-first access to /responder
@@ -13,9 +13,9 @@
  */
 
 const CACHE_VERSION = 'v1.0.0';
-const SHELL_CACHE = `aisoc-shell-${CACHE_VERSION}`;
-const ASSET_CACHE = `aisoc-assets-${CACHE_VERSION}`;
-const RUNTIME_CACHE = `aisoc-runtime-${CACHE_VERSION}`;
+const SHELL_CACHE = `quarry-shell-${CACHE_VERSION}`;
+const ASSET_CACHE = `quarry-assets-${CACHE_VERSION}`;
+const RUNTIME_CACHE = `quarry-runtime-${CACHE_VERSION}`;
 
 // Minimum app shell — must be cacheable so the responder can launch offline
 // and at least see the last known triage state. /offline.html provides the
@@ -147,7 +147,7 @@ async function navigationStrategy(request) {
     const offline = await caches.match('/offline.html');
     return (
       offline ||
-      new Response('<h1>Offline</h1><p>AiSOC is offline.</p>', {
+      new Response('<h1>Offline</h1><p>Quarry is offline.</p>', {
         status: 503,
         headers: { 'Content-Type': 'text/html' },
       })
@@ -179,11 +179,11 @@ self.addEventListener('push', (event) => {
   try {
     payload = event.data ? event.data.json() : {};
   } catch (err) {
-    payload = { title: 'AiSOC', body: event.data ? event.data.text() : 'New event' };
+    payload = { title: 'Quarry', body: event.data ? event.data.text() : 'New event' };
   }
 
   const {
-    title = 'AiSOC',
+    title = 'Quarry',
     body = 'You have a new security event.',
     severity = 'info',
     icon = '/icons/icon-192.svg',
@@ -203,7 +203,7 @@ self.addEventListener('push', (event) => {
       body,
       icon,
       badge,
-      tag: tag || data.tag || `aisoc-${Date.now()}`,
+      tag: tag || data.tag || `quarry-${Date.now()}`,
       requireInteraction: requireInteraction ?? critical,
       vibrate: critical ? [200, 100, 200, 100, 200] : [100, 50, 100],
       data,
@@ -280,7 +280,7 @@ self.addEventListener('pushsubscriptionchange', (event) => {
 // ────────────────────────────────────────────────────────────────────────────
 
 self.addEventListener('sync', (event) => {
-  if (event.tag === 'aisoc-sync-approvals') {
+  if (event.tag === 'quarry-sync-approvals') {
     event.waitUntil(replayQueuedApprovals());
   }
 });

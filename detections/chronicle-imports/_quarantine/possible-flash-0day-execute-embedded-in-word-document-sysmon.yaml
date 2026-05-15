@@ -38,4 +38,4 @@ provenance:
   upstream_path: rules/_deprecated/soc_prime_rules/proactive_exploit_detection/sysmon/possible_flash_0day_execute_embedded_in_word_document___sysmon.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

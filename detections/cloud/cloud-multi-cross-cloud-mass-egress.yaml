@@ -1,6 +1,6 @@
 id: det-cloud-186
 name: Multi-Cloud Cross-Cloud Mass Egress Burst
-description: AiSOC v1 curated detection. Triggers on the cloud signal described by 'Multi-Cloud Cross-Cloud
+description: Quarry v1 curated detection. Triggers on the cloud signal described by 'Multi-Cloud Cross-Cloud
   Mass Egress Burst'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: high
@@ -21,6 +21,6 @@ false_positives:
 - Approved cross-cloud replication pipeline
 playbook: tpl-exfiltration
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

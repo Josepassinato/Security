@@ -22,7 +22,7 @@ Hardening (BATCH 7 — H-4 + M-12)
 * **Source-IP attribution.** ``actor_ip`` is resolved through
   :func:`app.core.trusted_proxy.resolve_client_ip`, which only honours
   ``X-Forwarded-For`` when the direct peer is on the configured
-  ``AISOC_TRUSTED_PROXIES`` allow-list. The previous version trusted
+  ``QUARRY_TRUSTED_PROXIES`` allow-list. The previous version trusted
   the header unconditionally, letting any client forge their audit IP.
   It also had an operator-precedence bug
   (``A or B if C else None``) that silently broke when ``request.client``
@@ -57,7 +57,7 @@ from app.models.audit import AuditLog
 from app.services.audit_hash import compute_entry_hash
 from app.services.audit_redaction import redact_changes
 
-logger = logging.getLogger("aisoc.audit")
+logger = logging.getLogger("quarry.audit")
 
 # Hard caps on header-derived metadata that lands in the audit row.
 # These exist independently of changes-payload redaction and protect

@@ -1,0 +1,33 @@
+apiVersion: v2
+name: quarry
+description: Quarry - the open-source, AI-native Security Operations Center
+type: application
+version: 5.2.0
+appVersion: "5.2.0"
+
+keywords:
+  - security
+  - soc
+  - ai
+  - siem
+  - soar
+  - xdr
+  - mitre-attack
+
+home: https://github.com/beenuar/Quarry
+sources:
+  - https://github.com/beenuar/Quarry
+
+maintainers:
+  - name: Quarry Maintainers
+    url: https://github.com/beenuar/Quarry
+
+dependencies:
+  - name: postgresql
+    version: "13.x.x"
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: postgresql.enabled
+  - name: redis
+    version: "18.x.x"
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: redis.enabled

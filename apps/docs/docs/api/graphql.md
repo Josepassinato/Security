@@ -4,7 +4,7 @@ sidebar_position: 2
 
 # GraphQL API Reference
 
-AiSOC exposes a GraphQL endpoint alongside the REST API, suitable for flexible data fetching in dashboards and integrations.
+Quarry exposes a GraphQL endpoint alongside the REST API, suitable for flexible data fetching in dashboards and integrations.
 
 ## Endpoint
 

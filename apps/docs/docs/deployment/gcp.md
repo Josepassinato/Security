@@ -5,7 +5,7 @@ sidebar_position: 3
 # GCP (Cloud Run + Cloud SQL)
 
 A serverless-first Terraform skeleton lives at
-[`infra/terraform/gcp/`](https://github.com/beenuar/AiSOC/tree/main/infra/terraform/gcp).
+[`infra/terraform/gcp/`](https://github.com/Josepassinato/quarry/tree/main/infra/terraform/gcp).
 It targets Google Cloud Run for the customer-visible services (API, web,
 ingest), Cloud SQL for PostgreSQL 16, and Memorystore for Redis 7.2 — all
 private-IP, peered through a dedicated VPC.
@@ -55,15 +55,15 @@ immediately if `allow_unauthenticated` is `true` (the default).
 
 ```bash
 $ terraform output
-api_url     = "https://aisoc-api-xxxxxxxxxx-uc.a.run.app"
-web_url     = "https://aisoc-web-xxxxxxxxxx-uc.a.run.app"
-ingest_url  = "https://aisoc-ingest-xxxxxxxxxx-uc.a.run.app"
+api_url     = "https://quarry-api-xxxxxxxxxx-uc.a.run.app"
+web_url     = "https://quarry-web-xxxxxxxxxx-uc.a.run.app"
+ingest_url  = "https://quarry-ingest-xxxxxxxxxx-uc.a.run.app"
 ```
 
 ## Container images
 
 The defaults point at the public GHCR demo images
-(`ghcr.io/beenuar/aisoc-{api,web,ingest}:latest`) so the skeleton runs with
+(`ghcr.io/beenuar/quarry-{api,web,ingest}:latest`) so the skeleton runs with
 zero CI work. For a real deployment, push your own images to the Artifact
 Registry repo this stack provisions:
 
@@ -93,7 +93,7 @@ PASSWORD=$(gcloud secrets versions access latest \
   --secret=$(terraform output -raw secret_postgres_password_id))
 
 cloud-sql-proxy --port 5432 "$INSTANCE" &
-PGPASSWORD="$PASSWORD" psql -h 127.0.0.1 -U aisoc aisoc
+PGPASSWORD="$PASSWORD" psql -h 127.0.0.1 -U quarry aisoc
 ```
 
 ## Secrets
@@ -102,11 +102,11 @@ Five secrets are managed automatically:
 
 | Secret ID                     | Source                | Consumed by         |
 |-------------------------------|-----------------------|---------------------|
-| `aisoc-postgres-password`     | random_password       | api, ingest         |
-| `aisoc-secret-key`            | random_password (64c) | api, ingest         |
-| `aisoc-credential-key`        | random (Fernet key)   | api (CredentialVault) |
-| `aisoc-redis-auth`            | Memorystore auth      | api, ingest         |
-| `aisoc-openai-api-key`        | `var.openai_api_key`  | api (optional)      |
+| `quarry-postgres-password`     | random_password       | api, ingest         |
+| `quarry-secret-key`            | random_password (64c) | api, ingest         |
+| `quarry-credential-key`        | random (Fernet key)   | api (CredentialVault) |
+| `quarry-redis-auth`            | Memorystore auth      | api, ingest         |
+| `quarry-openai-api-key`        | `var.openai_api_key`  | api (optional)      |
 
 Cloud Run mounts each as an environment variable via
 `secret_key_ref { version = "latest" }`, so rotating a secret value (without
@@ -148,7 +148,7 @@ This is a **skeleton**, not the full GCP migration:
   keys on Cloud SQL / Memorystore / Artifact Registry are a one-line addition
   (`encryption_key_name = ...`) and intentionally left out of the skeleton to
   keep the trust boundary small.
-- **Demo image source.** `ghcr.io/beenuar/aisoc-*` is the default for the
+- **Demo image source.** `ghcr.io/beenuar/quarry-*` is the default for the
   zero-config experience; don't ship that to production.
 
 ## Tear-down
@@ -167,8 +167,8 @@ terraform destroy
 
 ## See also
 
-- [`infra/terraform/gcp/README.md`](https://github.com/beenuar/AiSOC/blob/main/infra/terraform/gcp/README.md) — operator runbook
+- [`infra/terraform/gcp/README.md`](https://github.com/Josepassinato/quarry/blob/main/infra/terraform/gcp/README.md) — operator runbook
 - [Environment variables reference](./env-vars) — what each Cloud Run service
   consumes
-- [AWS BYOC module](https://github.com/beenuar/AiSOC/tree/main/infra/terraform/byoc)
+- [AWS BYOC module](https://github.com/Josepassinato/quarry/tree/main/infra/terraform/byoc)
   — equivalent skeleton for AWS (EKS + RDS + ElastiCache)

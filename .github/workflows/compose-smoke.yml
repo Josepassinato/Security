@@ -7,7 +7,7 @@ name: Compose Smoke
 # before they reach a new contributor.
 #
 # Strategy: pull-by-default. Services with published images on GHCR
-# (`AISOC_VERSION=main`) are pulled; the two unpublished default-profile
+# (`QUARRY_VERSION=main`) are pulled; the two unpublished default-profile
 # services (`honeytokens`, `purple-team`) are built locally. Profile-gated
 # services (osquery, connectors, chatops, monitoring) are intentionally
 # excluded — they are exercised by their own publish workflows.
@@ -79,8 +79,8 @@ jobs:
     timeout-minutes: 25
 
     env:
-      AISOC_VERSION: ${{ github.event.inputs.aisoc_version || 'main' }}
-      COMPOSE_PROJECT_NAME: aisoc-smoke
+      QUARRY_VERSION: ${{ github.event.inputs.aisoc_version || 'main' }}
+      COMPOSE_PROJECT_NAME: quarry-smoke
       # Health budget for the up + converge phase. The job timeout is wider
       # to leave room for checkout, log capture, and teardown.
       HEALTH_BUDGET_SECONDS: '600'
@@ -114,12 +114,12 @@ jobs:
           cp .env.example .env
           # Override the image tag so smoke runs always pull a known-good
           # published tag. Manual dispatches can override this via input.
-          if grep -q '^AISOC_VERSION=' .env; then
-            sed -i "s|^AISOC_VERSION=.*|AISOC_VERSION=${AISOC_VERSION}|" .env
+          if grep -q '^QUARRY_VERSION=' .env; then
+            sed -i "s|^QUARRY_VERSION=.*|QUARRY_VERSION=${QUARRY_VERSION}|" .env
           else
-            printf '\nAISOC_VERSION=%s\n' "${AISOC_VERSION}" >> .env
+            printf '\nQUARRY_VERSION=%s\n' "${QUARRY_VERSION}" >> .env
           fi
-          echo "Resolved AISOC_VERSION=${AISOC_VERSION}"
+          echo "Resolved QUARRY_VERSION=${QUARRY_VERSION}"
 
       - name: Validate compose file
         run: docker compose config --quiet
@@ -231,7 +231,7 @@ jobs:
 
           probe_postgres() {
             docker compose ps --format '{{.Name}} {{.Health}}' \
-              | awk '$1=="aisoc-postgres" && $2=="healthy" {found=1} END {exit !found}'
+              | awk '$1=="quarry-postgres" && $2=="healthy" {found=1} END {exit !found}'
           }
 
           probe_http() {

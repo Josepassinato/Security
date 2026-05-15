@@ -20,7 +20,7 @@ import type { Metadata } from "next";
 import { BusinessContextSettings } from "./BusinessContextSettings";
 
 export const metadata: Metadata = {
-  title: "Business Context Rules | Settings | AiSOC",
+  title: "Business Context Rules | Settings | Quarry",
 };
 
 export default function BusinessContextSettingsPage() {

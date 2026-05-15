@@ -31,7 +31,7 @@ Why dual-mode (webhook vs file_tail)?
         The polling scheduler reads the file forward from a cursor
         and ships each event up to ingest. This mode is the
         operationally-cheap option for on-prem / Rancher / kubeadm
-        clusters, but does require AiSOC's connector pod to be able
+        clusters, but does require Quarry's connector pod to be able
         to read the file.
 
     Both modes emit the same normalized shape — the apiserver writes
@@ -125,7 +125,7 @@ _MAX_TAIL_BYTES_PER_POLL = 8 * 1024 * 1024  # 8 MiB
 
 
 def _classify_severity(event: dict[str, Any]) -> str:
-    """Bucket a single audit event into AiSOC's 5-tier severity ladder.
+    """Bucket a single audit event into Quarry's 5-tier severity ladder.
 
     Reads the standard ``audit.k8s.io/v1`` Event shape:
         objectRef.resource, objectRef.subresource, verb,
@@ -200,7 +200,7 @@ class KubernetesAuditConnector(BaseConnector):
     # cursor survives connector restarts. Operators who'd rather
     # store cursors in a different location can override via the
     # ``cursor_path`` field — see schema().
-    _DEFAULT_CURSOR_SUFFIX = ".aisoc-cursor"
+    _DEFAULT_CURSOR_SUFFIX = ".quarry-cursor"
 
     @classmethod
     def schema(cls) -> ConnectorSchema:
@@ -210,8 +210,8 @@ class KubernetesAuditConnector(BaseConnector):
             category=cls.connector_category,
             description=(
                 "Kubernetes apiserver audit logs. Supports two delivery "
-                "modes: webhook (apiserver pushes events to AiSOC's "
-                "inbox) and file_tail (AiSOC tails a local audit log "
+                "modes: webhook (apiserver pushes events to Quarry's "
+                "inbox) and file_tail (Quarry tails a local audit log "
                 "file forward from a byte cursor). Powers cluster-level "
                 "detections under detections/cloud/kubernetes-*.yaml."
             ),
@@ -232,7 +232,7 @@ class KubernetesAuditConnector(BaseConnector):
                         "clusters (EKS/GKE/AKS). File tail is the "
                         "right choice for self-hosted clusters where "
                         "you can mount the audit log path into the "
-                        "AiSOC connector pod."
+                        "Quarry connector pod."
                     ),
                 ),
                 Field(
@@ -278,9 +278,9 @@ class KubernetesAuditConnector(BaseConnector):
                     "Cursor file path (file_tail mode only)",
                     required=False,
                     help_text=(
-                        "Optional override for where AiSOC stores "
+                        "Optional override for where Quarry stores "
                         "its byte-position cursor. Defaults to "
-                        "``<audit_log_path>.aisoc-cursor``. Use a "
+                        "``<audit_log_path>.quarry-cursor``. Use a "
                         "writeable path — the connector pod needs "
                         "to update this on every successful poll."
                     ),
@@ -516,7 +516,7 @@ class KubernetesAuditConnector(BaseConnector):
         return []
 
     def normalize(self, raw: dict[str, Any]) -> dict[str, Any]:
-        """Map an audit.k8s.io/v1 Event to AiSOC's normalised shape.
+        """Map an audit.k8s.io/v1 Event to Quarry's normalised shape.
 
         See https://kubernetes.io/docs/tasks/debug/debug-cluster/audit/
         for the upstream schema. We project the subset detection

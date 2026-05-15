@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://github.com/beenuar/AiSOC/schemas/playbook.schema.json",
-  "title": "AiSOC Playbook",
-  "description": "Schema for AiSOC v4 Pillar-2 playbook definitions.",
+  "$id": "https://github.com/beenuar/Quarry/schemas/playbook.schema.json",
+  "title": "Quarry Playbook",
+  "description": "Schema for Quarry v4 Pillar-2 playbook definitions.",
   "type": "object",
   "required": ["name", "steps"],
   "additionalProperties": false,

@@ -1,7 +1,7 @@
 """
 Jira connector.
 Fetches security-relevant issues from Jira Cloud via the REST API and,
-under Workstream 8, projects AiSOC cases / status changes back into Jira.
+under Workstream 8, projects Quarry cases / status changes back into Jira.
 """
 
 from __future__ import annotations
@@ -17,7 +17,7 @@ from app.connectors.base import BaseConnector, Capability, ConnectorSchema, Fiel
 logger = structlog.get_logger()
 
 # Jira ships a 5-tier priority ladder (Highest / High / Medium / Low /
-# Lowest). AiSOC's 5-tier severity ladder
+# Lowest). Quarry's 5-tier severity ladder
 # (info | low | medium | high | critical) lines up 1:1 with that, so
 # ``Highest`` maps to ``critical`` and round-trips back to ``Highest``
 # without any collapse — P1 escalations to Jira stay P1.
@@ -29,7 +29,7 @@ _PRIORITY_SEVERITY = {
     "Lowest": "info",
 }
 
-# WS8: AiSOC severity → Jira priority. We invert ``_PRIORITY_SEVERITY``
+# WS8: Quarry severity → Jira priority. We invert ``_PRIORITY_SEVERITY``
 # so the round-trip is lossless.
 _SEVERITY_TO_PRIORITY = {
     "critical": "Highest",
@@ -39,7 +39,7 @@ _SEVERITY_TO_PRIORITY = {
     "info": "Lowest",
 }
 
-# WS8: AiSOC status → Jira status name. The values on the right match
+# WS8: Quarry status → Jira status name. The values on the right match
 # the default Jira workflow ("To Do" / "In Progress" / "Done"). Customers
 # with custom workflows can override via ``connector_config.status_map``
 # in the future; for now we ship the defaults so the happy path Just Works.
@@ -98,7 +98,7 @@ class JiraConnector(BaseConnector):
     @classmethod
     def capabilities(cls) -> tuple[Capability, ...]:
         # WS8: bidirectional ticketing landed; Jira can now mint issues
-        # from AiSOC cases (PUSH_CASE) and project status transitions
+        # from Quarry cases (PUSH_CASE) and project status transitions
         # onto them (PUSH_STATUS) in addition to pulling alerts.
         return (Capability.PULL_ALERTS, Capability.PUSH_CASE, Capability.PUSH_STATUS)
 
@@ -211,12 +211,12 @@ class JiraConnector(BaseConnector):
         return f"{self._base_url}/browse/{key}"
 
     async def push_case(self, case: dict[str, Any]) -> dict[str, Any]:
-        """Mint a Jira issue from an AiSOC case."""
+        """Mint a Jira issue from an Quarry case."""
         if not self._project_key:
             raise ValueError("jira.push_case: project_key not configured on connector instance")
 
         severity = (case.get("severity") or "medium").lower()
-        title = case.get("title") or f"AiSOC case {case.get('case_number') or case.get('id')}"
+        title = case.get("title") or f"Quarry case {case.get('case_number') or case.get('id')}"
         description = case.get("description") or ""
         case_id = case.get("id") or case.get("case_number")
 
@@ -227,10 +227,10 @@ class JiraConnector(BaseConnector):
                 "description": self._adf_text(description),
                 "issuetype": {"name": "Task"},
                 "priority": {"name": _SEVERITY_TO_PRIORITY.get(severity, "Medium")},
-                # ``labels`` is the cheapest way to round-trip the AiSOC
+                # ``labels`` is the cheapest way to round-trip the Quarry
                 # case identifier without requiring a custom field. The
                 # inbound webhook can then strip the prefix to find us.
-                "labels": [f"aisoc-case-{case_id}", "aisoc"],
+                "labels": [f"quarry-case-{case_id}", "quarry"],
             }
         }
 
@@ -293,7 +293,7 @@ class JiraConnector(BaseConnector):
         new_status: str,
         external_ref: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
-        """Project an AiSOC status transition onto a Jira issue."""
+        """Project an Quarry status transition onto a Jira issue."""
         if external_ref is None:
             # First-time push: fall through to ``push_case`` so the
             # caller doesn't have to special-case "no link yet".
@@ -305,7 +305,7 @@ class JiraConnector(BaseConnector):
 
         target_name = _STATUS_MAP_JIRA.get(new_status, "")
         if not target_name:
-            # Unknown AiSOC status → no-op rather than throwing, since
+            # Unknown Quarry status → no-op rather than throwing, since
             # the contract is "best effort projection" not "schema match".
             logger.info(
                 "jira.push_status_change.no_mapping",

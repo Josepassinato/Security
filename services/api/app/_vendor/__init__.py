@@ -1,7 +1,7 @@
 """Vendored third-party / cross-service modules used by the API service.
 
 This namespace exists so that modules owned by *other* services can be shipped
-inside the ``aisoc-api`` Docker image without depending on the rest of the
+inside the ``quarry-api`` Docker image without depending on the rest of the
 monorepo being copied in. The build context for ``services/api/Dockerfile`` is
 ``./services/api``, which means anything under ``services/agents`` or
 ``services/fusion`` is **not** available at runtime — vendoring the bits we

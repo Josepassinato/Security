@@ -96,7 +96,7 @@ class EmailInboxConnector(BaseConnector):
                     "username",
                     "string",
                     "Username",
-                    placeholder="aisoc-alerts@example.com",
+                    placeholder="quarry-alerts@example.com",
                 ),
                 Field(
                     "password",

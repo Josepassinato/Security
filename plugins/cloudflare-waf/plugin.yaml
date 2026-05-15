@@ -7,9 +7,9 @@ description: >
   toggles "Under Attack" mode, manages firewall rules, and purges cache via
   the Cloudflare API. Useful as an inline response step in DDoS, credential
   stuffing, and bot-attack playbooks.
-author: AiSOC Core Team
+author: Quarry Core Team
 tags: [network, cloudflare, waf, response, ddos]
-homepage: https://github.com/beenuar/AiSOC/tree/main/plugins/cloudflare-waf
+homepage: https://github.com/beenuar/Quarry/tree/main/plugins/cloudflare-waf
 license: MIT
 min_aisoc_version: "4.0.0"
 config_schema:

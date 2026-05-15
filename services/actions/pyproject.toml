@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "quarry-actions"
 version = "0.1.0"
-description = "AiSOC Action Execution Service - blast-radius gated response actions with rollback"
+description = "Quarry Action Execution Service - blast-radius gated response actions with rollback"
 authors = ["Beenu Arora <beenu@cyble.com>"]
 license = "MIT"
 

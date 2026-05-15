@@ -7,7 +7,7 @@ interface LogoProps {
 }
 
 /**
- * Inline SVG version of the AiSOC mark. We render inline (not from /public/logo.svg)
+ * Inline SVG version of the Quarry mark. We render inline (not from /public/logo.svg)
  * so the gradients can pick up Tailwind brand tokens and so individual elements
  * (the spark) can animate independently when used in the hero.
  */
@@ -63,7 +63,7 @@ export function Logo({ size = 36, withWordmark = false, className }: LogoProps) 
       </svg>
       {withWordmark && (
         <span className="flex items-baseline gap-2 leading-none">
-          <span className="text-xl font-bold tracking-tight text-white">AiSOC</span>
+          <span className="text-xl font-bold tracking-tight text-white">Quarry</span>
           <span className="text-xs font-medium text-gray-500">open-source</span>
         </span>
       )}

@@ -36,4 +36,4 @@ provenance:
   upstream_path: rules/_deprecated/mitre_attack/T1543_001_macos_launch_agent.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

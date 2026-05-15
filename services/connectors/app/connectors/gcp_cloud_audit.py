@@ -287,7 +287,7 @@ class GCPCloudAuditConnector(BaseConnector):
         status = proto.get("status", {}) or {}
         succeeded = "code" not in status or status.get("code", 0) == 0
 
-        # Severity heuristic against AiSOC's 5-tier ladder
+        # Severity heuristic against Quarry's 5-tier ladder
         # (info | low | medium | high | critical):
         #   - high-blast-radius IAM/KMS operations -> ``high``
         #   - failed control-plane writes          -> ``medium``

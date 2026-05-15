@@ -1,5 +1,5 @@
 """
-OpenTelemetry bootstrap for AiSOC Agents service.
+OpenTelemetry bootstrap for Quarry Agents service.
 
 Instruments:
   - FastAPI   (HTTP spans)
@@ -8,7 +8,7 @@ Instruments:
 
 Configuration (env vars):
   OTEL_EXPORTER              otlp | jaeger | console | none  (default: otlp)
-  OTEL_SERVICE_NAME          aisoc-agents  (default)
+  OTEL_SERVICE_NAME          quarry-agents  (default)
   OTEL_EXPORTER_OTLP_ENDPOINT  http://otel-collector:4317  (default)
   ENVIRONMENT                development | staging | production
 
@@ -39,8 +39,8 @@ _TRACER_PROVIDER: TracerProvider | None = None
 def _make_resource() -> Resource:
     return Resource.create(
         {
-            SERVICE_NAME: os.getenv("OTEL_SERVICE_NAME", "aisoc-agents"),
-            SERVICE_VERSION: os.getenv("AISOC_VERSION", "4.0.0"),
+            SERVICE_NAME: os.getenv("OTEL_SERVICE_NAME", "quarry-agents"),
+            SERVICE_VERSION: os.getenv("QUARRY_VERSION", "4.0.0"),
             "deployment.environment": os.getenv("ENVIRONMENT", "development"),
         }
     )
@@ -115,7 +115,7 @@ def instrument_app(app) -> None:  # noqa: ANN001
         pass  # optional dependency not installed; skip HTTPX auto-instrumentation
 
 
-def get_tracer(name: str = "aisoc-agents") -> trace.Tracer:
+def get_tracer(name: str = "quarry-agents") -> trace.Tracer:
     """Return a named tracer, initialising telemetry if needed."""
     if _TRACER_PROVIDER is None:
         setup_telemetry()

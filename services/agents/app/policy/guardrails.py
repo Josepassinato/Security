@@ -10,7 +10,7 @@ For every action the agent can take we hold three confidence thresholds:
 Threshold resolution order (lowest to highest precedence):
 
 1. Hard-coded defaults in this module (``_DEFAULT_THRESHOLDS``).
-2. Site-wide YAML overrides at ``$AISOC_AUTONOMY_POLICY`` or
+2. Site-wide YAML overrides at ``$QUARRY_AUTONOMY_POLICY`` or
    ``services/agents/config/autonomy_policy.yaml``. Loaded once per process and
    cached. Useful for ops-managed deployments where every tenant gets the same
    policy.
@@ -92,7 +92,7 @@ def _make_thresholds(
 
 
 # ---------------------------------------------------------------------------
-# Default thresholds — minimums shipped with AiSOC
+# Default thresholds — minimums shipped with Quarry
 # action_name -> (auto, review, escalation)
 # Actions not listed here resolve to ``ActionThresholds(1.0, 1.0, 1.0)`` —
 # i.e. always require an analyst.
@@ -142,7 +142,7 @@ _YAML_THRESHOLDS: dict[str, ActionThresholds] | None = None
 
 
 def _yaml_policy_path() -> Path:
-    override = os.environ.get("AISOC_AUTONOMY_POLICY", "").strip()
+    override = os.environ.get("QUARRY_AUTONOMY_POLICY", "").strip()
     if override:
         return Path(override).expanduser()
     return Path(__file__).resolve().parents[2] / "config" / "autonomy_policy.yaml"

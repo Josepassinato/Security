@@ -1,6 +1,6 @@
 id: det-network-077
 name: LDAP Search Pattern Matches BloodHound Collection
-description: AiSOC v1 curated detection. Triggers on the network signal described by 'LDAP Search Pattern
+description: Quarry v1 curated detection. Triggers on the network signal described by 'LDAP Search Pattern
   Matches BloodHound Collection'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: high
@@ -20,6 +20,6 @@ false_positives:
 - Authorised red-team or penetration test
 playbook: tpl-discovery
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

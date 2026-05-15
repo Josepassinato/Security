@@ -1,6 +1,6 @@
 /**
- * @quarry/ui - AiSOC React UI Component Library
- * AiSOC — open-source AI Security Operations Center
+ * @quarry/ui - Quarry React UI Component Library
+ * Quarry — open-source AI Security Operations Center
  * MIT License
  */
 

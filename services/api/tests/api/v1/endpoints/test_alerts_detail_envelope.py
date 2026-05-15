@@ -21,7 +21,7 @@ The endpoint is exercised by **direct function invocation** with mocked
 tests fast and hermetic; the FastAPI plumbing (auth, route binding) is
 covered by higher-level integration tests elsewhere.
 
-AiSOC — open-source AI Security Operations Center (MIT License)
+Quarry — open-source AI Security Operations Center (MIT License)
 Author: Beenu Arora <beenu@cyble.com>
 """
 

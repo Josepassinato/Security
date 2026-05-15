@@ -1,18 +1,18 @@
 ---
 sidebar_position: 3
-title: Hello, plugin — write your first AiSOC enricher
-description: A walkthrough that ships a runnable AiSOC plugin end to end. Author the manifest, implement the EnricherPlugin contract, register it with the runtime, and pin the whole thing with a smoke test — no vendor account, no API key, just the Python plugin SDK front to back.
+title: Hello, plugin — write your first Quarry enricher
+description: A walkthrough that ships a runnable Quarry plugin end to end. Author the manifest, implement the EnricherPlugin contract, register it with the runtime, and pin the whole thing with a smoke test — no vendor account, no API key, just the Python plugin SDK front to back.
 ---
 
 # Hello, plugin
 
-This tutorial walks you end-to-end through the work of adding a new plugin to AiSOC. By the end you will have:
+This tutorial walks you end-to-end through the work of adding a new plugin to Quarry. By the end you will have:
 
-- An `aisoc-plugin.yaml` manifest the plugin loader can validate.
+- An `quarry-plugin.yaml` manifest the plugin loader can validate.
 - A `plugin.py` that subclasses `EnricherPlugin` and exposes a `create_plugin()` factory.
 - A working `on_load()` lifecycle hook that reads tenant config out of `PluginContext`.
 - A working `enrich()` method that returns a typed `EnrichmentResult` the platform can write to indicator records.
-- A `PluginRegistry` flow that mirrors what the AiSOC runtime does at boot.
+- A `PluginRegistry` flow that mirrors what the Quarry runtime does at boot.
 - A smoke test that pins all of the above against the real loader, so the docs page can never silently drift away from the code.
 
 The example enricher is intentionally trivial — it computes a deterministic SHA-256 hash of the indicator value and returns the digest as enrichment metadata. There is no network call, no external API, no credential. That keeps the tutorial:
@@ -29,16 +29,16 @@ When you're ready to write a real enricher, copy the example, replace the hashin
 The reference plugin and its smoke test live at:
 
 ```text
-plugins/community/_examples/hello-plugin/aisoc-plugin.yaml
+plugins/community/_examples/hello-plugin/quarry-plugin.yaml
 plugins/community/_examples/hello-plugin/plugin.py
 plugins/community/_examples/hello-plugin/README.md
 packages/plugin-sdk-py/tests/test_hello_plugin_example.py
 ```
 
-The `_examples/` directory is **deliberately not** picked up by [`scripts/build_marketplace.py`](https://github.com/beenuar/AiSOC/blob/main/scripts/build_marketplace.py). The marketplace builder scans `plugins/community/<id>/plugin.yaml`, and the tutorial avoids both signals on purpose:
+The `_examples/` directory is **deliberately not** picked up by [`scripts/build_marketplace.py`](https://github.com/Josepassinato/quarry/blob/main/scripts/build_marketplace.py). The marketplace builder scans `plugins/community/<id>/plugin.yaml`, and the tutorial avoids both signals on purpose:
 
 1. It lives one directory deeper, under `_examples/hello-plugin/`.
-2. Its manifest is named `aisoc-plugin.yaml` (the SDK loader filename), not `plugin.yaml` (the marketplace filename).
+2. Its manifest is named `quarry-plugin.yaml` (the SDK loader filename), not `plugin.yaml` (the marketplace filename).
 
 That means the example can never accidentally ship to a real tenant. The smoke test pins this invariant — if anyone "fixes" either of those, CI fails. The same pattern is used by [Hello, connector](/docs/connectors/hello-connector) and [Hello, hunt](/docs/detections/hello-hunt).
 
@@ -57,23 +57,23 @@ This tutorial sticks to `enricher` because it's the simplest contract — one in
 ## Step 1 — Pick a stable plugin `id`
 
 ```yaml
-id: aisoc.hello-plugin
+id: quarry.hello-plugin
 ```
 
 Three rules to internalise:
 
 1. **Lowercase, dotted, no spaces.** The `id` is a wire identifier — it ends up in `marketplace/index.json`, in tenant install records, and in audit logs whenever the registry resolves an enricher. Treat it like a primary key.
-2. **Prefix with your namespace.** Use `<your-org>.` or `<your-handle>.` so two contributors don't ship `vt-enricher` and collide. The `aisoc.` prefix is reserved for first-party tutorial and reference plugins; real contributions use `acme.virustotal` or `jdoe.greynoise`.
+2. **Prefix with your namespace.** Use `<your-org>.` or `<your-handle>.` so two contributors don't ship `vt-enricher` and collide. The `quarry.` prefix is reserved for first-party tutorial and reference plugins; real contributions use `acme.virustotal` or `jdoe.greynoise`.
 3. **Never change it after merge.** Renaming a plugin orphans every tenant install that references the old id. If the plugin needs a v2 with breaking config changes, give it a new id and deprecate the old one — the marketplace publishing flow has a `deprecated` field for exactly this reason. See [Publishing plugins](/docs/plugins/publishing).
 
-The example uses `aisoc.hello-plugin` because the AiSOC project itself is the author.
+The example uses `quarry.hello-plugin` because the Quarry project itself is the author.
 
 ## Step 2 — Write the manifest
 
-The manifest is parsed by [`load_manifest`](https://github.com/beenuar/AiSOC/blob/main/packages/plugin-sdk-py/src/aisoc_plugin_sdk/loader.py) and validated against [`PluginManifest`](https://github.com/beenuar/AiSOC/blob/main/packages/plugin-sdk-py/src/aisoc_plugin_sdk/plugin.py). Anything that doesn't match the schema is rejected at load time with a `PluginLoadError`.
+The manifest is parsed by [`load_manifest`](https://github.com/Josepassinato/quarry/blob/main/packages/plugin-sdk-py/src/aisoc_plugin_sdk/loader.py) and validated against [`PluginManifest`](https://github.com/Josepassinato/quarry/blob/main/packages/plugin-sdk-py/src/aisoc_plugin_sdk/plugin.py). Anything that doesn't match the schema is rejected at load time with a `PluginLoadError`.
 
-```yaml title="plugins/community/_examples/hello-plugin/aisoc-plugin.yaml"
-id: aisoc.hello-plugin
+```yaml title="plugins/community/_examples/hello-plugin/quarry-plugin.yaml"
+id: quarry.hello-plugin
 name: Hello Plugin (Tutorial)
 version: 1.0.0
 plugin_type: enricher
@@ -82,7 +82,7 @@ description: >
   Reference implementation for apps/docs/docs/plugins/hello-plugin.md.
   Deliberately offline so it can run in air-gapped environments and CI
   without any external API calls.
-author: AiSOC Tutorial
+author: Quarry Tutorial
 tags:
   - tutorial
   - enricher
@@ -94,7 +94,7 @@ A few non-obvious things:
 - **`plugin_type` is regex-validated.** The schema enforces `^(enricher|action|connector)$`. Misspelling it (`enrichers`, `Enricher`, `connect`) fails the load with a Pydantic validation error before your `plugin.py` is even imported.
 - **`version` is treated as SemVer.** The marketplace orders installable versions by SemVer comparison, and the publishing flow uses it to decide whether a tenant has an upgrade available. Use real SemVer (`1.0.0`, `1.0.1`, `2.0.0-rc.1`) — calendar versions like `2025.05` will sort but won't trigger upgrade notifications cleanly.
 - **`tags` are free-form** and mostly used for marketplace filtering. There is no enforced taxonomy (yet). Keep them lowercase and hyphen-separated for consistency with the connectors layer.
-- **Two manifest filenames exist.** The SDK loader (`load_manifest`) reads `aisoc-plugin.yaml`. The marketplace builder (`scripts/build_marketplace.py`) reads `plugin.yaml`. The two formats are nearly identical, but the marketplace one carries extra publish metadata (signature URL, registry URL, install instructions). When you graduate from `_examples/` to `plugins/community/<your-id>/`, you will write **both** files. See [Publishing plugins](/docs/plugins/publishing) for the marketplace shape.
+- **Two manifest filenames exist.** The SDK loader (`load_manifest`) reads `quarry-plugin.yaml`. The marketplace builder (`scripts/build_marketplace.py`) reads `plugin.yaml`. The two formats are nearly identical, but the marketplace one carries extra publish metadata (signature URL, registry URL, install instructions). When you graduate from `_examples/` to `plugins/community/<your-id>/`, you will write **both** files. See [Publishing plugins](/docs/plugins/publishing) for the marketplace shape.
 
 ## Step 3 — Implement the plugin class
 
@@ -106,7 +106,7 @@ from __future__ import annotations
 import hashlib
 
 from aisoc_plugin_sdk import (
-    AiSOCPlugin,
+    QuarryPlugin,
     EnricherPlugin,
     EnrichmentRequest,
     EnrichmentResult,
@@ -121,7 +121,7 @@ class HelloPlugin(EnricherPlugin):
     @property
     def manifest(self) -> PluginManifest:
         return PluginManifest(
-            id="aisoc.hello-plugin",
+            id="quarry.hello-plugin",
             name="Hello Plugin (Tutorial)",
             version="1.0.0",
             description=(
@@ -129,7 +129,7 @@ class HelloPlugin(EnricherPlugin):
                 "Reference implementation for "
                 "apps/docs/docs/plugins/hello-plugin.md."
             ),
-            author="AiSOC Tutorial",
+            author="Quarry Tutorial",
             tags=["tutorial", "enricher", "offline"],
             plugin_type="enricher",
         )
@@ -137,9 +137,9 @@ class HelloPlugin(EnricherPlugin):
 
 Three things to call out:
 
-1. **`manifest` is a `@property`, not a method.** The SDK defines `manifest` as `@property @abstractmethod` on `AiSOCPlugin`. If you write `def manifest(self)` instead of `@property def manifest(self)`, the registry will receive a *bound method* instead of a `PluginManifest` instance and every lookup will explode at runtime. The smoke test pins the property contract.
-2. **The manifest values must mirror `aisoc-plugin.yaml`.** The loader trusts the YAML for discovery, but every code path past the load step reads the manifest off the *plugin instance*. If the two drift, the marketplace will list one version and the runtime will report another. Keep them in lockstep, or have a build step that reads the YAML and constructs the manifest from it.
-3. **You're inheriting from `EnricherPlugin`, not `AiSOCPlugin` directly.** This is what makes the registry route enrichment requests to your plugin. Inheriting from the wrong base class is a silent bug — the plugin loads fine, registers fine, and never receives any enrichment work.
+1. **`manifest` is a `@property`, not a method.** The SDK defines `manifest` as `@property @abstractmethod` on `QuarryPlugin`. If you write `def manifest(self)` instead of `@property def manifest(self)`, the registry will receive a *bound method* instead of a `PluginManifest` instance and every lookup will explode at runtime. The smoke test pins the property contract.
+2. **The manifest values must mirror `quarry-plugin.yaml`.** The loader trusts the YAML for discovery, but every code path past the load step reads the manifest off the *plugin instance*. If the two drift, the marketplace will list one version and the runtime will report another. Keep them in lockstep, or have a build step that reads the YAML and constructs the manifest from it.
+3. **You're inheriting from `EnricherPlugin`, not `QuarryPlugin` directly.** This is what makes the registry route enrichment requests to your plugin. Inheriting from the wrong base class is a silent bug — the plugin loads fine, registers fine, and never receives any enrichment work.
 
 ## Step 4 — Implement the lifecycle hook
 
@@ -189,7 +189,7 @@ async def enrich(
 
 The contract:
 
-- **`request.indicator_type` and `request.indicator_value` come from the indicator that triggered enrichment.** The five types AiSOC routes today are `ip | domain | url | hash | email`. A real enricher should branch on `indicator_type` and short-circuit (or return an empty result) for types it doesn't support — the tutorial hashes everything because hash-of-anything is well-defined.
+- **`request.indicator_type` and `request.indicator_value` come from the indicator that triggered enrichment.** The five types Quarry routes today are `ip | domain | url | hash | email`. A real enricher should branch on `indicator_type` and short-circuit (or return an empty result) for types it doesn't support — the tutorial hashes everything because hash-of-anything is well-defined.
 - **`enrichments` is a flat dict that's merged into the indicator record.** Namespace your keys with `<plugin-id>.<field>` (the tutorial uses `hello_plugin.*`) so two enrichers writing to the same indicator can't stomp each other.
 - **`tags` are appended to the indicator's tag list.** Use them for downstream filtering — e.g. `["malicious", "vt-detected"]` or `["benign", "alexa-top-1k"]`.
 - **`malicious` is a tri-state.** `True` means the enricher is confident it's bad. `False` means the enricher is confident it's clean. `None` means the enricher has no opinion. **Don't return `False` just because your API returned no hits** — that's an opinion you don't have. The tutorial returns `None` because hashing a value tells you nothing about its reputation.
@@ -201,7 +201,7 @@ The contract:
 The loader doesn't import your class directly. It looks for a top-level `create_plugin()` factory in `plugin.py` and uses whatever it returns:
 
 ```python
-def create_plugin() -> AiSOCPlugin:
+def create_plugin() -> QuarryPlugin:
     """Factory called by ``load_plugin_from_directory``."""
     return HelloPlugin()
 ```
@@ -210,7 +210,7 @@ Why a factory and not the class itself:
 
 - **Per-tenant isolation.** Every tenant install gets its own plugin instance, so per-tenant state (cached HTTP client, last-seen timestamp, rate-limit bucket) lives on the instance and can't leak across tenants.
 - **Lazy construction.** The class can defer expensive work (loading a model, opening a file) until the runtime actually needs it. The loader pays the cost of `create_plugin()`; the import of `plugin.py` stays cheap.
-- **Test-friendly.** The smoke test calls `load_plugin_from_directory(...)` exactly the way the runtime does. If `create_plugin` is missing, returns `None`, or returns something that isn't an `AiSOCPlugin`, the loader raises `PluginLoadError` with a precise message. You don't need to mock anything.
+- **Test-friendly.** The smoke test calls `load_plugin_from_directory(...)` exactly the way the runtime does. If `create_plugin` is missing, returns `None`, or returns something that isn't an `QuarryPlugin`, the loader raises `PluginLoadError` with a precise message. You don't need to mock anything.
 
 ## Step 7 — Run the smoke test
 
@@ -245,7 +245,7 @@ def test_hello_plugin_loads_via_loader() -> None:
     plugin = load_plugin_from_directory(HELLO_PLUGIN_DIR)
 
     assert isinstance(plugin, EnricherPlugin)
-    assert plugin.manifest.id == "aisoc.hello-plugin"
+    assert plugin.manifest.id == "quarry.hello-plugin"
     assert plugin.manifest.plugin_type == "enricher"
 ```
 
@@ -284,7 +284,7 @@ Two reasons this matters:
 
 ## Step 8 — Register with the runtime
 
-In production, the AiSOC plugin runtime constructs a `PluginRegistry`, loads every installed plugin from disk, and calls `load_all()` once per tenant. The smoke test mirrors this so you can validate it locally:
+In production, the Quarry plugin runtime constructs a `PluginRegistry`, loads every installed plugin from disk, and calls `load_all()` once per tenant. The smoke test mirrors this so you can validate it locally:
 
 ```python
 async def test_hello_plugin_registers_as_enricher(ctx: PluginContext) -> None:
@@ -297,8 +297,8 @@ async def test_hello_plugin_registers_as_enricher(ctx: PluginContext) -> None:
     assert len(registry) == 1
     enrichers = registry.enrichers()
     assert len(enrichers) == 1
-    assert enrichers[0].manifest.id == "aisoc.hello-plugin"
-    assert registry.get("aisoc.hello-plugin") is plugin
+    assert enrichers[0].manifest.id == "quarry.hello-plugin"
+    assert registry.get("quarry.hello-plugin") is plugin
 ```
 
 Three things this proves:
@@ -315,7 +315,7 @@ The tutorial is intentionally narrow. Real plugins eventually need:
 - **An HTTP client.** Open one `httpx.AsyncClient` in `on_load`, store it on `self`, reuse it from every `enrich()`, and close it in `on_unload`. Don't open a fresh client per request — connection pooling matters even for low-volume enrichers.
 - **Error handling.** The current `enrich()` will raise if the algorithm is missing or invalid. A real enricher should catch upstream API errors, classify them (timeout vs. 4xx vs. 5xx), and either return an empty `EnrichmentResult` or raise — the runtime treats unhandled exceptions as fatal for the request, not for the plugin.
 - **Rate limiting.** If your vendor enforces a request-per-second budget, enforce it in the plugin with `asyncio.Semaphore` or `aiolimiter`. The runtime won't do it for you, and bursting will get the tenant's API key throttled or banned.
-- **Observability.** The `AiSOCClient` (exported from `aisoc_plugin_sdk`) gives you authenticated access to the AiSOC API for emitting plugin-side events and metrics. Use it sparingly — every call goes back over the network.
+- **Observability.** The `QuarryClient` (exported from `aisoc_plugin_sdk`) gives you authenticated access to the Quarry API for emitting plugin-side events and metrics. Use it sparingly — every call goes back over the network.
 
 When you wire any of these in, the contract you wrote in this tutorial — manifest, `create_plugin()`, `on_load`, `enrich`, registry — does not change. That's the value of the SDK.
 
@@ -324,7 +324,7 @@ When you wire any of these in, the contract you wrote in this tutorial — manif
 When you're ready to ship the plugin to real tenants:
 
 1. Copy `plugins/community/_examples/hello-plugin/` to `plugins/community/<your-id>/`.
-2. Rename `aisoc-plugin.yaml` → `plugin.yaml` and add the marketplace fields (`signature_url`, `registry_url`, `install_command`). The full schema lives in [Publishing plugins](/docs/plugins/publishing).
+2. Rename `quarry-plugin.yaml` → `plugin.yaml` and add the marketplace fields (`signature_url`, `registry_url`, `install_command`). The full schema lives in [Publishing plugins](/docs/plugins/publishing).
 3. Sign the plugin with your maintainer Ed25519 key (`scripts/sign_plugin.py`).
 4. Add an entry to `marketplace/index.json` and run `pnpm marketplace:sync`.
 5. Open a PR. Maintainers will review the plugin, validate the signature against your registered public key, and merge.

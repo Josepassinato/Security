@@ -1,5 +1,5 @@
 /**
- * AiSOC — GCP serverless skeleton
+ * Quarry — GCP serverless skeleton
  *
  * Cloud SQL for Postgres, private-IP only, peered to the VPC defined in
  * main.tf. The application user password is randomly generated and stored
@@ -56,12 +56,12 @@ resource "google_sql_database_instance" "main" {
   }
 }
 
-resource "google_sql_database" "aisoc" {
+resource "google_sql_database" "quarry" {
   name     = var.postgres_db_name
   instance = google_sql_database_instance.main.name
 }
 
-resource "google_sql_user" "aisoc" {
+resource "google_sql_user" "quarry" {
   name     = var.postgres_user
   instance = google_sql_database_instance.main.name
   password = random_password.postgres_user.result

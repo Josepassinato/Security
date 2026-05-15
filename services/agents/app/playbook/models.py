@@ -28,7 +28,7 @@ class StepType(str, Enum):
     CLOSE_CASE = "close_case"
     HTTP = "http"  # Generic outbound HTTP call
     CONDITION = "condition"  # Branching / gate
-    OSQUERY_LIVE_QUERY = "osquery_live_query"  # Distributed osquery via osctrl/FleetDM/aisoc-direct
+    OSQUERY_LIVE_QUERY = "osquery_live_query"  # Distributed osquery via osctrl/FleetDM/quarry-direct
     # Human-in-the-loop
     APPROVAL = "approval"  # Require analyst approval before proceeding
     # Identity response
@@ -112,7 +112,7 @@ class Playbook(BaseModel):
     )
     steps: list[PlaybookStep] = Field(default_factory=list)
     # Metadata
-    author: str = "AiSOC"
+    author: str = "Quarry"
     enabled: bool = True
     created_at: str = ""
     updated_at: str = ""

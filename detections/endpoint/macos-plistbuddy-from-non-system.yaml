@@ -1,6 +1,6 @@
 id: det-endpoint-194
 name: PlistBuddy Used By Non-System Process
-description: AiSOC v1 curated detection. Triggers on the endpoint signal described by 'PlistBuddy Used
+description: Quarry v1 curated detection. Triggers on the endpoint signal described by 'PlistBuddy Used
   By Non-System Process'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: medium
@@ -20,6 +20,6 @@ false_positives:
 - Approved homebrew formula
 playbook: tpl-persistence
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

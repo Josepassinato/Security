@@ -213,7 +213,7 @@ def _fallback_templates(req: TranslateRequest) -> dict[str, Any]:
         elif fmt == "esql":
             rule = f"FROM logs-*\n| WHERE {rule}"
         elif fmt == "yara_l2":
-            rule = f'rule translated_rule {{\n  meta:\n    author = "AiSOC"\n  condition:\n    {rule}\n}}'
+            rule = f'rule translated_rule {{\n  meta:\n    author = "Quarry"\n  condition:\n    {rule}\n}}'
         elif fmt == "udm":
             rule = f"// Chronicle UDM Search\n{rule}"
 
@@ -241,7 +241,7 @@ async def translate_rule(body: TranslateRequest) -> TranslateResponse:
         payload = await _llm_translate(body)
     except AirgapViolation as exc:
         # Surface the misconfig clearly instead of silently falling back —
-        # otherwise an operator who flipped on AISOC_AIRGAPPED would see
+        # otherwise an operator who flipped on QUARRY_AIRGAPPED would see
         # quietly degraded translations with no signal that the LLM was
         # being refused.
         raise HTTPException(

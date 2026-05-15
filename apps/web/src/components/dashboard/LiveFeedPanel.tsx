@@ -32,7 +32,7 @@ interface LiveEvent {
 
 /**
  * Loose shape of the message broadcast by `services/realtime`. The realtime
- * service forwards Kafka messages from `aisoc.alerts.fused` so the inner
+ * service forwards Kafka messages from `quarry.alerts.fused` so the inner
  * `payload` may carry either the full envelope or the unwrapped alert.
  */
 interface RealtimeAlertMessage {
@@ -182,7 +182,7 @@ function eventFromMessage(msg: RealtimeAlertMessage, fallbackId: number): LiveEv
     inner.source_system ??
     (payload as { source?: string }).source ??
     (payload as { source_system?: string }).source_system ??
-    'AiSOC';
+    'Quarry';
 
   const tsRaw = msg.timestamp ? Date.parse(msg.timestamp) : Date.now();
   const receivedAt = Number.isFinite(tsRaw) ? tsRaw : Date.now();

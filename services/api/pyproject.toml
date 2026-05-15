@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "quarry-api"
 version = "0.1.0"
-description = "AiSOC Core API Service — Open-source AI Security Operations Center"
+description = "Quarry Core API Service — Open-source AI Security Operations Center"
 authors = ["Beenu Arora <beenu@cyble.com>"]
 license = "MIT"
 readme = "README.md"
@@ -70,5 +70,5 @@ ignore_missing_imports = true
 asyncio_mode = "auto"
 testpaths = ["tests"]
 markers = [
-    "integration: marks tests as requiring a live Postgres + alembic-migrated schema (run explicitly with AISOC_RUN_INTEGRATION=1)",
+    "integration: marks tests as requiring a live Postgres + alembic-migrated schema (run explicitly with QUARRY_RUN_INTEGRATION=1)",
 ]

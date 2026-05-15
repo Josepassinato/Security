@@ -49,7 +49,7 @@ from app.services.github import create_detection_pr
 router = APIRouter(prefix="/detection-proposals", tags=["detection_rules", "dac"])
 
 
-# Resolve the AiSOC repository root by walking up from this file until we
+# Resolve the Quarry repository root by walking up from this file until we
 # find the eval harness this module shells out to (``scripts/run_evals.py``).
 # Hard-coding ``Path(__file__).parents[6]`` only works on the host, where
 # this file sits six levels under the repo root. Inside the API Docker
@@ -87,7 +87,7 @@ def _resolve_repo_root(start: Path) -> Path:
 
 _ENDPOINT_FILE = Path(__file__).resolve()
 _REPO_ROOT_DEFAULT = _resolve_repo_root(_ENDPOINT_FILE)
-_REPO_ROOT = Path(os.environ.get("AISOC_REPO_ROOT", str(_REPO_ROOT_DEFAULT)))
+_REPO_ROOT = Path(os.environ.get("QUARRY_REPO_ROOT", str(_REPO_ROOT_DEFAULT)))
 _EVAL_SCRIPT = _REPO_ROOT / "scripts" / "run_evals.py"
 
 
@@ -243,10 +243,10 @@ class CreateBaselineRequest(BaseModel):
 
 
 def _ensure_dac_enabled() -> None:
-    if not settings.AISOC_FEATURE_DAC:
+    if not settings.QUARRY_FEATURE_DAC:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Detection-as-code is disabled (AISOC_FEATURE_DAC=false)",
+            detail="Detection-as-code is disabled (QUARRY_FEATURE_DAC=false)",
         )
 
 
@@ -560,7 +560,7 @@ async def run_eval_harness(
     if not _EVAL_SCRIPT.exists():
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=(f"Eval runner missing at {_EVAL_SCRIPT}. Set AISOC_REPO_ROOT or verify the deployment includes scripts/run_evals.py."),
+            detail=(f"Eval runner missing at {_EVAL_SCRIPT}. Set QUARRY_REPO_ROOT or verify the deployment includes scripts/run_evals.py."),
         )
 
     baseline_path: Path | None = None
@@ -810,7 +810,7 @@ async def promote_proposal(
 
     # WS-B4: git PR path — Author: Beenu - beenu@cyble.com
     # Attempt to create a GitHub Pull Request carrying the Sigma/YARA rule file.
-    # create_detection_pr() is a no-op (returns None) when AISOC_GITHUB_TOKEN is
+    # create_detection_pr() is a no-op (returns None) when QUARRY_GITHUB_TOKEN is
     # not configured, so this never blocks promotion for unconfigured deployments.
     try:
         pr_url = await create_detection_pr(

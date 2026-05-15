@@ -53,4 +53,4 @@ provenance:
   upstream_path: rules/_deprecated/soc_prime_rules/threat_hunting/sysmon/wastedlocker_a_new_ransomware_variant_developed_by_the_evil_corp_group.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

@@ -3,7 +3,7 @@ name: AWS VPC Flow Logs
 version: 1.0.0
 category: cloud
 vendor: Amazon Web Services
-publisher: AiSOC Community
+publisher: Quarry Community
 description: >
   Streams AWS VPC Flow Log records from CloudWatch Logs with a default
   REJECT-only filter pattern so detections see denied connections (port
@@ -47,7 +47,7 @@ config_schema:
     required: false
     default: v2
     help_text: >
-      AiSOC parses v2 (the AWS default 14-field layout) natively. For
+      Quarry parses v2 (the AWS default 14-field layout) natively. For
       v5 custom layouts the raw record passes through on raw_event so
       detection content can match on the JSON.
   - name: access_key

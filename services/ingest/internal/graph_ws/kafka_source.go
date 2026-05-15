@@ -13,7 +13,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/beenuar/aisoc/services/ingest/internal/graph"
+	"github.com/beenuar/quarry/services/ingest/internal/graph"
 	kafka "github.com/segmentio/kafka-go"
 )
 

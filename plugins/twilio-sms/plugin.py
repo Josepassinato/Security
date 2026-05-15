@@ -1,4 +1,4 @@
-"""Twilio SMS notifier action plugin for AiSOC."""
+"""Twilio SMS notifier action plugin for Quarry."""
 from __future__ import annotations
 
 from typing import Any
@@ -40,7 +40,7 @@ class Plugin:
         from_number = config["from_number"]
 
         action = payload.get("action", "send_sms")
-        body = payload.get("body") or payload.get("message") or "AiSOC alert"
+        body = payload.get("body") or payload.get("message") or "Quarry alert"
 
         try:
             if action == "send_sms":

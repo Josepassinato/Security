@@ -89,7 +89,7 @@ function authHeaders(): HeadersInit {
   if (typeof window !== "undefined") {
     try {
       const token = window.localStorage.getItem(
-        "aisoc.responder.accessToken",
+        "quarry.responder.accessToken",
       );
       if (token) headers.Authorization = `Bearer ${token}`;
     } catch {

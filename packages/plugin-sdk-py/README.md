@@ -1,12 +1,12 @@
-# aisoc-plugin-sdk · Python
+# quarry-plugin-sdk · Python
 
-The official Python SDK for building AiSOC plugins — custom enrichers,
+The official Python SDK for building Quarry plugins — custom enrichers,
 response actions, and data-source connectors.
 
 ## Installation
 
 ```bash
-pip install aisoc-plugin-sdk
+pip install quarry-plugin-sdk
 ```
 
 Or during development:

@@ -1,4 +1,4 @@
-# AiSOC landing page — product brief for UX design kickoff
+# Quarry landing page — product brief for UX design kickoff
 
 ## 1. Document control
 
@@ -8,7 +8,7 @@
 - **Audience:** Lead UX designer (and the first illustrator / motion designer
   brought in to support the build).
 - **Purpose:** Provide everything needed to design a single marketing
-  landing page for AiSOC at `aisoc.dev`, plus a stripped-back logged-in
+  landing page for Quarry at `quarry.dev`, plus a stripped-back logged-in
   product overview that lives behind the same brand. The designer should
   not have to read the repo to design the page.
 - **Deliverable:** Figma file (desktop + tablet + phone artboards) covering
@@ -31,14 +31,14 @@
 
 ### Elevator pitch (three sentences)
 
-AiSOC is an MIT-licensed agentic Security Operations Center that fuses raw
+Quarry is an MIT-licensed agentic Security Operations Center that fuses raw
 events into incidents, runs four named agents — Detect, Triage, Hunt, and
 Respond — against them, and records every prompt, tool call, and rationale
 to a replayable Investigation Ledger. It ships with 69 click-and-connect
 data sources, 6,998 detection rules, 62 playbook packs, and a public
 benchmark harness that gates every PR. You can self-host the whole stack
 in five minutes, take it air-gapped on a flag, or join the managed
-waitlist at `app.aisoc.dev` — same code in every direction.
+waitlist at `app.quarry.dev` — same code in every direction.
 
 ### Positioning statement (≈ 250 words)
 
@@ -50,7 +50,7 @@ keystroke to a black-box agent you cannot inspect, cannot fork, and cannot
 benchmark. That trade — visibility for convenience — does not survive
 contact with a procurement team, a regulated industry, or an auditor.
 
-**AiSOC is the open-source answer.** It is a single self-hostable stack
+**Quarry is the open-source answer.** It is a single self-hostable stack
 that ingests security events, correlates them in real time, runs four
 named agents against the resulting incidents, and surfaces the work in a
 SOC console that any analyst can use on their first day. The agent stack
@@ -114,7 +114,7 @@ and ATT&CK coverage, sits in the weekly metrics review.
 - **Bounce triggers.** Hand-wavy phrases like "AI-native." Marketing math
   ("98 % accurate"). No methodology link.
 - **Technical literacy.** Reads Sigma, KQL, ES|QL fluently. Will pull the
-  repo and run `pnpm aisoc:demo` before talking to sales.
+  repo and run `pnpm quarry:demo` before talking to sales.
 - **Objections.** "Open source means I am the support team." "Will it run
   air-gapped for our regulated tenant?"
 
@@ -242,7 +242,7 @@ hosted-only feature, and no commercial license tier that hides code.
 
 ### P2 — Graph-native at ingest
 
-**Claim.** AiSOC builds the entity-and-event graph while the alert is
+**Claim.** Quarry builds the entity-and-event graph while the alert is
 being normalised, not when an analyst clicks "show graph."
 
 **Defence.** `services/ingest/internal/graph/` writes Neo4j nodes and
@@ -277,12 +277,12 @@ poll-time.
 **Claim.** Self-host in five minutes, take it sovereign in an afternoon,
 take it air-gapped on a flag.
 
-**Defence.** `pnpm aisoc:demo` brings up the slim stack in ~3.5 minutes
-warm. `render.yaml` powers a one-click deploy. `infra/helm/aisoc/` runs
+**Defence.** `pnpm quarry:demo` brings up the slim stack in ~3.5 minutes
+warm. `render.yaml` powers a one-click deploy. `infra/helm/quarry/` runs
 on any Kubernetes. `infra/terraform/` brings up AWS. The air-gapped
 overlay at `docker-compose.airgap.yml` ships a pinned Ollama sidecar so
 the demo seed runs end-to-end with zero external calls; the
-`AISOC_AIRGAPPED=true` flag refuses outbound LLM calls,
+`QUARRY_AIRGAPPED=true` flag refuses outbound LLM calls,
 threat-intel feeds, and telemetry. Per-tenant LLM credentials in
 `TenantLlmCredential` let one tenant talk to OpenAI while the next
 talks to a private LiteLLM gateway.
@@ -466,7 +466,7 @@ section tracking.
 - **Content blocks:** H2 ("MIT-licensed. Every rule public. Every
   benchmark reproducible.") · GitHub repo card with live star count · CTA
   ("Star on GitHub") · secondary CTA ("Read CONTRIBUTING.md") · code
-  snippet showing `pnpm aisoc:demo`.
+  snippet showing `pnpm quarry:demo`.
 - **Visual treatment:** Brand-coloured GitHub octocat mark + repo card.
   Code snippet uses `JetBrains Mono` per §7.
 - **Responsive:** Code snippet horizontal-scrolls under 600 px.
@@ -617,8 +617,8 @@ phrases).
 - **One claim per sentence.** Stack short sentences instead of compound
   ones.
 - **Cite or cut.** Every metric earns a tooltip or a methodology link.
-- **Active voice.** "AiSOC fuses raw events," not "raw events are fused."
-- **Pronouns.** We refer to AiSOC as "AiSOC" or "we." The reader is
+- **Active voice.** "Quarry fuses raw events," not "raw events are fused."
+- **Pronouns.** We refer to Quarry as "Quarry" or "we." The reader is
   "you" (second person), never "users."
 - **Sentence length.** Median ≤ 18 words. Hard cap 28.
 - **Headlines.** Verb-first or product-name-first. No questions in
@@ -691,7 +691,7 @@ Primary CTA names: `cta-start-managed-{section}`, secondary CTA names:
 
 ## 10. SEO and metadata
 
-- **Title (≤ 60 chars):** `AiSOC — The open agentic SOC`
+- **Title (≤ 60 chars):** `Quarry — The open agentic SOC`
 - **Description (≤ 155 chars):** `Open-source MIT-licensed agentic SOC.
   Four named agents. 69 connectors. Public benchmark. Self-host in 5
   minutes or join the managed waitlist.`
@@ -782,7 +782,7 @@ The following are **not** part of this landing-page design effort:
 - The full pricing page (we ship a teaser; the full page is a follow-on).
 - The blog (`/blog`) — already exists at
   `apps/web/src/app/(marketing)/blog/page.tsx`.
-- The status page (`status.aisoc.dev`) — third-party service.
+- The status page (`status.quarry.dev`) — third-party service.
 - The Cursor extension marketplace listing (`services/mcp/cursor-extension/`)
   — separate visual asset, separate cadence.
 - Hiring / about pages — not committed to a date.
@@ -800,7 +800,7 @@ opinions, not just options.
    first-frame budget in §12.
 2. **Demo embed treatment.** Picture-in-picture window vs. full-bleed
    browser-frame mock vs. minimal "terminal" treatment for the
-   `pnpm aisoc:demo` flow?
+   `pnpm quarry:demo` flow?
 3. **Four-agent diagram style.** Pipeline left-to-right, radial hub,
    stepped vertical, or "stage cards on a track"?
 4. **Connector grid.** Marquee that animates on scroll, a static
@@ -893,7 +893,7 @@ Condensed teardown lives at `docs/design/landing-page-references.md`.
 | Cursor extension                       | `services/mcp/cursor-extension/` (T7.1)                                                      | Detection engineer  | V4                  | features-operate              | Shipped (scaffold) |
 | Render one-click deploy                | `render.yaml` · `infra/render/`                                                              | Analyst, manager    | V5 (deploy)         | deploy                        | Shipped       |
 | Fly.io deploy script                   | `infra/fly/`                                                                                 | Manager             | V5                  | deploy                        | Shipped       |
-| Helm chart                             | `infra/helm/aisoc/`                                                                          | CISO                | V5                  | deploy                        | Shipped       |
+| Helm chart                             | `infra/helm/quarry/`                                                                          | CISO                | V5                  | deploy                        | Shipped       |
 | Terraform (AWS, GCP, BYOC)             | `infra/terraform/`                                                                           | CISO                | V5                  | deploy                        | Shipped       |
 | Air-gap overlay (Ollama sidecar)       | `docker-compose.airgap.yml` · `apps/docs/docs/operations/air-gapped.md`                      | CISO                | V5, P4              | deploy, pillars (P4)          | Shipped       |
 | BYOK per-tenant LLM credentials        | `services/api/app/models/tenant_llm.py` · `apps/web/src/components/settings/SettingsView.tsx`| CISO                | V5, P3              | deploy, pillars (P3)          | Shipped       |

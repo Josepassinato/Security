@@ -1,8 +1,8 @@
-# AiSOC Demo Event Producer
+# Quarry Demo Event Producer
 
 A tiny Go CLI that pumps synthetic but realistic security events
 (CrowdStrike, Defender, Suricata, GuardDuty, Okta, Splunk) into the
-AiSOC ingest service so the dashboard, alerts, copilots, and the attack
+Quarry ingest service so the dashboard, alerts, copilots, and the attack
 graph have real-looking data while you develop locally.
 
 ## Quick start
@@ -41,5 +41,5 @@ demo.
 
 This binary is intentionally **tiny** — no Kafka, no protobuf, just an
 HTTP POST to the ingest service. That keeps the dependency graph small
-and means the producer works against any AiSOC environment that exposes
+and means the producer works against any Quarry environment that exposes
 `/v1/ingest`.

@@ -4,7 +4,7 @@ sidebar_position: 2
 
 # One-click install
 
-The fastest way to a running AiSOC dashboard, with **zero assumed
+The fastest way to a running Quarry dashboard, with **zero assumed
 prerequisites**, is the bootstrap installer. It works against a
 freshly-imaged machine — no Docker, Node, pnpm, git, or even Homebrew
 required up front. It detects your OS, installs everything idempotently,
@@ -19,10 +19,10 @@ deploying to production, see [Deployment options](./deployment/docker).
 
 ```bash
 # Linux + macOS (one-liner):
-curl -fsSL https://raw.githubusercontent.com/beenuar/AiSOC/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/beenuar/Quarry/main/install.sh | bash
 
 # Windows (PowerShell as Administrator):
-iwr -useb https://raw.githubusercontent.com/beenuar/AiSOC/main/install.ps1 | iex
+iwr -useb https://raw.githubusercontent.com/beenuar/Quarry/main/install.ps1 | iex
 ```
 
 When the installer finishes, your default browser opens at
@@ -61,11 +61,11 @@ target component is already installed at a sufficient version.
 4.  **pnpm 8+** via `corepack enable && corepack prepare pnpm@latest`.
 5.  **Homebrew** (macOS only) — bootstrapped non-interactively if it
     isn't already installed.
-6.  **The AiSOC repo itself** — cloned to `$HOME/aisoc` (override with
-    `AISOC_DIR=/path/to/clone`). On a re-run the installer does
+6.  **The Quarry repo itself** — cloned to `$HOME/quarry` (override with
+    `QUARRY_DIR=/path/to/clone`). On a re-run the installer does
     `git fetch && git pull` instead.
 7.  **`pnpm install`** at the repo root to materialise the workspace.
-8.  **`pnpm aisoc:demo`** — the existing one-shot orchestrator that
+8.  **`pnpm quarry:demo`** — the existing one-shot orchestrator that
     pulls the prebuilt `ghcr.io/beenuar/*` images, brings up the slim
     demo profile, runs the seeder as a one-shot container, kicks off
     an investigation, and opens your browser at the live case.
@@ -87,9 +87,9 @@ target component is already installed at a sufficient version.
     proceeding.
 5.  **Node.js 20 LTS** via `winget install --id OpenJS.NodeJS.LTS`.
 6.  **pnpm 8+** via `corepack enable && corepack prepare pnpm@latest`.
-7.  **The AiSOC repo** — cloned to `$env:USERPROFILE\aisoc` (override
-    with `-AisocDir 'C:\path\to\clone'`).
-8.  **`pnpm install`** + **`pnpm aisoc:demo`** as on Linux/macOS.
+7.  **The Quarry repo** — cloned to `$env:USERPROFILE\quarry` (override
+    with `-QuarryDir 'C:\path\to\clone'`).
+8.  **`pnpm install`** + **`pnpm quarry:demo`** as on Linux/macOS.
 
 ## Common cases
 
@@ -102,14 +102,14 @@ running demo with `INC-RT-001` open in your browser.
 ### "I want to install into a different directory"
 
 ```bash
-# Linux/macOS — clone to ~/work/aisoc instead of ~/aisoc:
-AISOC_DIR=$HOME/work/aisoc bash <(curl -fsSL https://raw.githubusercontent.com/beenuar/AiSOC/main/install.sh)
+# Linux/macOS — clone to ~/work/quarry instead of ~/quarry:
+QUARRY_DIR=$HOME/work/quarry bash <(curl -fsSL https://raw.githubusercontent.com/beenuar/Quarry/main/install.sh)
 ```
 
 ```powershell
-# Windows — clone to D:\src\aisoc instead of $HOME\aisoc:
-iwr -useb https://raw.githubusercontent.com/beenuar/AiSOC/main/install.ps1 -OutFile $env:TEMP\aisoc-install.ps1
-& $env:TEMP\aisoc-install.ps1 -AisocDir 'D:\src\aisoc'
+# Windows — clone to D:\src\quarry instead of $HOME\quarry:
+iwr -useb https://raw.githubusercontent.com/beenuar/Quarry/main/install.ps1 -OutFile $env:TEMP\quarry-install.ps1
+& $env:TEMP\quarry-install.ps1 -QuarryDir 'D:\src\quarry'
 ```
 
 ### "I want to run the script after reading it"
@@ -117,18 +117,18 @@ iwr -useb https://raw.githubusercontent.com/beenuar/AiSOC/main/install.ps1 -OutF
 Recommended for production-adjacent machines. Both scripts live at the
 repo root and are short enough to read in one sitting:
 
-- [`install.sh`](https://github.com/beenuar/AiSOC/blob/main/install.sh) — Linux + macOS (~620 lines, pure POSIX-friendly bash)
-- [`install.ps1`](https://github.com/beenuar/AiSOC/blob/main/install.ps1) — Windows PowerShell
+- [`install.sh`](https://github.com/Josepassinato/quarry/blob/main/install.sh) — Linux + macOS (~620 lines, pure POSIX-friendly bash)
+- [`install.ps1`](https://github.com/Josepassinato/quarry/blob/main/install.ps1) — Windows PowerShell
 
 ```bash
-curl -fsSLO https://raw.githubusercontent.com/beenuar/AiSOC/main/install.sh
+curl -fsSLO https://raw.githubusercontent.com/beenuar/Quarry/main/install.sh
 less install.sh         # read it
 shellcheck install.sh   # optional: confirm it's lint-clean
 bash install.sh
 ```
 
 ```powershell
-iwr -useb https://raw.githubusercontent.com/beenuar/AiSOC/main/install.ps1 -OutFile install.ps1
+iwr -useb https://raw.githubusercontent.com/beenuar/Quarry/main/install.ps1 -OutFile install.ps1
 notepad install.ps1     # read it
 .\install.ps1
 ```
@@ -137,14 +137,14 @@ notepad install.ps1     # read it
 
 ```bash
 # Linux/macOS:
-AISOC_SKIP_DEMO=1 bash install.sh
+QUARRY_SKIP_DEMO=1 bash install.sh
 
 # Windows:
 .\install.ps1 -SkipDemo
 ```
 
 The repo is still cloned and `pnpm install` still runs, but
-`pnpm aisoc:demo` is skipped so you can manually configure `.env` /
+`pnpm quarry:demo` is skipped so you can manually configure `.env` /
 secrets / connectors before the first stack startup.
 
 ### "I want to redirect the demo to a different host or port"
@@ -204,17 +204,17 @@ ticked, then `wsl --update` and restart Docker Desktop.
 
 Visit
 [`http://localhost:3000/cases/INC-RT-001?tab=ledger`](http://localhost:3000/cases/INC-RT-001?tab=ledger)
-manually. Default credentials are pre-filled (`demo@aisoc.dev`); the
+manually. Default credentials are pre-filled (`demo@quarry.dev`); the
 investigation is already in flight on the **Ledger** tab.
 
-### `aisoc:demo` is already running
+### `quarry:demo` is already running
 
-The orchestrator is idempotent — re-running `pnpm aisoc:demo` against
+The orchestrator is idempotent — re-running `pnpm quarry:demo` against
 a healthy stack is a no-op. To get a fully clean start:
 
 ```bash
-pnpm aisoc:demo:down   # stop stack + drop volumes
-pnpm aisoc:demo        # bring it back up + reseed
+pnpm quarry:demo:down   # stop stack + drop volumes
+pnpm quarry:demo        # bring it back up + reseed
 ```
 
 ### Anything else
@@ -223,7 +223,7 @@ The [troubleshooting page](./operations/troubleshooting) has runbooks
 for the most common stack-level failure modes (healthchecks red,
 Postgres OOM, Kafka cluster-id drift, …). For installer-specific bugs,
 file an issue with the installer's full output —
-[github.com/beenuar/AiSOC/issues](https://github.com/beenuar/AiSOC/issues).
+[github.com/Josepassinato/quarry/issues](https://github.com/Josepassinato/quarry/issues).
 
 ## Security notes
 
@@ -237,18 +237,18 @@ file an issue with the installer's full output —
   **not** join AD, change Defender settings, or reconfigure Windows
   Update.
 - The Docker images pulled by the demo
-  (`ghcr.io/beenuar/aisoc-*`) are signed with [Cosign](https://docs.sigstore.dev/cosign/overview/);
+  (`ghcr.io/beenuar/quarry-*`) are signed with [Cosign](https://docs.sigstore.dev/cosign/overview/);
   the [Docker deployment page](./deployment/docker#image-provenance)
   documents the signature verification workflow.
 - The demo seeds **synthetic data only**. No real customer data, IOCs,
   or telemetry is shipped with the installer.
-- The repo is cloned over HTTPS from `github.com/beenuar/AiSOC` —
+- The repo is cloned over HTTPS from `github.com/Josepassinato/quarry` —
   there is no opaque "phone home" URL involved.
 
 ## What's next
 
-- [Quick start](./quickstart) — the underlying `pnpm aisoc:demo` flow + full developer stack
+- [Quick start](./quickstart) — the underlying `pnpm quarry:demo` flow + full developer stack
 - [Architecture](./architecture) — how the services in the demo wire together
-- [Connect your first source](./connectors) — point AiSOC at a real EDR / SIEM / cloud
+- [Connect your first source](./connectors) — point Quarry at a real EDR / SIEM / cloud
 - [Operations: Credentials](./operations/credentials) — credential vault key & rotation
 - [Deploy to Kubernetes](./deployment/kubernetes) — production install via Helm

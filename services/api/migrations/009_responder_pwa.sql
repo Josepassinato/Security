@@ -1,4 +1,4 @@
--- AiSOC Responder PWA migration (Phase 4B)
+-- Quarry Responder PWA migration (Phase 4B)
 -- Adds the operational tables the mobile responder PWA needs:
 --
 --   passkey_credentials   — WebAuthn passkeys per user (passwordless auth)

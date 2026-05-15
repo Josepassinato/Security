@@ -13,17 +13,17 @@ import { CommunitySubmissions } from '@/components/benchmark/CommunitySubmission
 export const metadata: Metadata = {
   title: 'Public benchmark scoreboard',
   description:
-    'A reproducible regression harness over the AiSOC substrate. Four CI gates over a 200-incident synthetic dataset (MITRE / completeness / response quality) plus a 1,000-alert noisy stream (alert reduction). Per-template macros, per-case means, alert-reduction %, the 2026 KPI bar, and a fixed-dataset community leaderboard. The page documents what each metric measures and what it does not.',
+    'A reproducible regression harness over the Quarry substrate. Four CI gates over a 200-incident synthetic dataset (MITRE / completeness / response quality) plus a 1,000-alert noisy stream (alert reduction). Per-template macros, per-case means, alert-reduction %, the 2026 KPI bar, and a fixed-dataset community leaderboard. The page documents what each metric measures and what it does not.',
   alternates: { canonical: '/benchmark' },
   openGraph: {
-    title: 'AiSOC public benchmark scoreboard',
+    title: 'Quarry public benchmark scoreboard',
     description:
-      'Regression-gate harness over the AiSOC substrate plus a fixed-dataset community leaderboard. Open dataset, open harness, CI-enforced.',
+      'Regression-gate harness over the Quarry substrate plus a fixed-dataset community leaderboard. Open dataset, open harness, CI-enforced.',
     type: 'article',
   },
 };
 
-const REPRODUCE_SNIPPET = `git clone https://github.com/beenuar/AiSOC && cd AiSOC
+const REPRODUCE_SNIPPET = `git clone https://github.com/beenuar/Quarry && cd Quarry
 python3 scripts/run_evals.py --json --out report.json`;
 
 function fmtPct(value: number | undefined, digits = 1): string {
@@ -53,7 +53,7 @@ export default async function BenchmarkPage() {
   const ic = report.suites.investigation_completeness;
   const rq = report.suites.response_quality;
   const expectedOutput = `============================================================================
-  AiSOC Pillar-1 Eval - 200-incident synthetic benchmark
+  Quarry Pillar-1 Eval - 200-incident synthetic benchmark
 ============================================================================
   [${mt?.passed ? 'PASS' : 'FAIL'}] mitre_accuracy               accuracy               ${fmtScore(mt?.value)}  (target >= ${fmtScore(mt?.target, 2)})
   [${ar?.passed ? 'PASS' : 'FAIL'}] alert_reduction              reduction_ratio        ${fmtScore(ar?.value)}  (target >= ${fmtScore(ar?.target, 2)})
@@ -92,7 +92,7 @@ export default async function BenchmarkPage() {
             Public benchmark scoreboard
           </h1>
           <p className="mt-4 max-w-3xl text-lg text-gray-400">
-            A deterministic regression harness over the AiSOC substrate &mdash;
+            A deterministic regression harness over the Quarry substrate &mdash;
             the keyword extractors, the in-harness fusion grouping (a faithful
             re-implementation of the production Tier 1/2/3 logic in{' '}
             <code className="text-gray-300">services/fusion</code>, minus the
@@ -116,7 +116,7 @@ export default async function BenchmarkPage() {
 
           <div className="mt-8 flex flex-wrap gap-3">
             <a
-              href="https://github.com/beenuar/AiSOC/blob/main/services/agents/tests/eval_data/synthetic_incidents.json"
+              href="https://github.com/beenuar/Quarry/blob/main/services/agents/tests/eval_data/synthetic_incidents.json"
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-2 rounded-md border border-white/10 bg-white/[0.03] px-4 py-2 text-sm font-medium text-gray-300 transition hover:border-white/20 hover:bg-white/[0.06] hover:text-white"
@@ -132,7 +132,7 @@ export default async function BenchmarkPage() {
               </svg>
             </a>
             <a
-              href="https://github.com/beenuar/AiSOC/tree/main/services/agents/tests"
+              href="https://github.com/beenuar/Quarry/tree/main/services/agents/tests"
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-2 rounded-md border border-white/10 bg-white/[0.03] px-4 py-2 text-sm font-medium text-gray-300 transition hover:border-white/20 hover:bg-white/[0.06] hover:text-white"
@@ -148,7 +148,7 @@ export default async function BenchmarkPage() {
               </svg>
             </a>
             <a
-              href="https://github.com/beenuar/AiSOC/actions/workflows/ci.yml"
+              href="https://github.com/beenuar/Quarry/actions/workflows/ci.yml"
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-2 rounded-md bg-brand-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-400"
@@ -303,11 +303,11 @@ export default async function BenchmarkPage() {
             run where actual agent accuracy is measured. Tracking issue:{' '}
             <a
               className="underline decoration-dotted hover:text-gray-300"
-              href="https://github.com/beenuar/AiSOC/issues"
+              href="https://github.com/beenuar/Quarry/issues"
               target="_blank"
               rel="noreferrer"
             >
-              github.com/beenuar/AiSOC/issues
+              github.com/beenuar/Quarry/issues
             </a>.
           </p>
         </div>
@@ -388,7 +388,7 @@ export default async function BenchmarkPage() {
                 &ldquo;Public eval harness&rdquo; means this harness, not a
                 third-party leaderboard.
               </span>{' '}
-              No outside body grades AiSOC. The dataset, the code, and the
+              No outside body grades Quarry. The dataset, the code, and the
               gates are open and CI-enforced, and anyone can run, audit, or
               extend the harness.
             </li>
@@ -414,7 +414,7 @@ export default async function BenchmarkPage() {
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <a
-              href="https://github.com/beenuar/AiSOC/blob/main/CONTRIBUTING.md"
+              href="https://github.com/beenuar/Quarry/blob/main/CONTRIBUTING.md"
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-2 rounded-md bg-brand-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-400"
@@ -425,7 +425,7 @@ export default async function BenchmarkPage() {
               href="/"
               className="inline-flex items-center gap-2 rounded-md border border-white/10 bg-white/[0.03] px-4 py-2 text-sm font-medium text-gray-300 transition hover:border-white/20 hover:bg-white/[0.06] hover:text-white"
             >
-              Back to AiSOC
+              Back to Quarry
             </Link>
           </div>
         </div>

@@ -5,12 +5,12 @@ build-backend = "hatchling.build"
 [project]
 name = "quarry-sdk"
 version = "4.0.0"
-description = "Python client SDK for AiSOC — typed httpx client"
+description = "Python client SDK for Quarry — typed httpx client"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
-keywords = ["aisoc", "soc", "security", "client", "sdk"]
-authors = [{ name = "AiSOC Contributors", email = "oss@aisoc.io" }]
+keywords = ["quarry", "soc", "security", "client", "sdk"]
+authors = [{ name = "Quarry Contributors", email = "oss@quarry.io" }]
 dependencies = [
     "httpx>=0.27.0",
     "pydantic>=2.0.0",
@@ -26,13 +26,13 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/beenuar/AiSOC"
-Documentation = "https://beenuar.github.io/AiSOC"
-Repository = "https://github.com/beenuar/AiSOC"
-Issues = "https://github.com/beenuar/AiSOC/issues"
+Homepage = "https://github.com/Josepassinato/quarry"
+Documentation = "https://beenuar.github.io/Quarry"
+Repository = "https://github.com/Josepassinato/quarry"
+Issues = "https://github.com/Josepassinato/quarry/issues"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/aisoc_sdk"]
+packages = ["src/quarry_sdk"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

@@ -1,4 +1,4 @@
-# AiSOC Roadmap
+# Quarry Roadmap
 
 > **📌 Active planning has moved (2026-05-12)**
 >
@@ -7,16 +7,16 @@
 > issue intake now live in the community-feedback-driven **Now / Next /
 > Later** docs:
 >
-> - [`docs/community-feedback/2026-05-12/AiSOC_ROADMAP.md`](docs/community-feedback/2026-05-12/AiSOC_ROADMAP.md) — strategic narrative
-> - [`docs/community-feedback/2026-05-12/AiSOC_Community_Feedback_Synthesis.md`](docs/community-feedback/2026-05-12/AiSOC_Community_Feedback_Synthesis.md) — themes (`F001`–`Fxxx`)
-> - [`docs/community-feedback/2026-05-12/AiSOC_Proposed_Issues.md`](docs/community-feedback/2026-05-12/AiSOC_Proposed_Issues.md) — 23 implementation tickets
+> - [`docs/community-feedback/2026-05-12/Quarry_ROADMAP.md`](docs/community-feedback/2026-05-12/Quarry_ROADMAP.md) — strategic narrative
+> - [`docs/community-feedback/2026-05-12/Quarry_Community_Feedback_Synthesis.md`](docs/community-feedback/2026-05-12/Quarry_Community_Feedback_Synthesis.md) — themes (`F001`–`Fxxx`)
+> - [`docs/community-feedback/2026-05-12/Quarry_Proposed_Issues.md`](docs/community-feedback/2026-05-12/Quarry_Proposed_Issues.md) — 23 implementation tickets
 >
 > Items in v7.1+ sections below that overlap with the new docs are flagged
 > inline with `→ Now/Next/Later: [ID]`. Where the new docs supersede a
 > deferred item entirely, the entry here is left intact for traceability
 > but reasoned about against the newer plan.
 
-This document captures the planned direction for AiSOC across major versions. All v4 deliverables and items deferred beyond v4 are listed here.
+This document captures the planned direction for Quarry across major versions. All v4 deliverables and items deferred beyond v4 are listed here.
 
 ## v4.0 — Shipped
 
@@ -31,7 +31,7 @@ This document captures the planned direction for AiSOC across major versions. Al
 - [x] React Flow playbook editor with full node palette (Trigger, Condition, Action, Loop, Parallel, Human Approval, Wait, Notify)
 - [x] DAG playbook engine with retries, idempotency, blast-radius checks
 - [x] `playbook.schema.json` (JSON Schema 2020-12) for portability and CI linting
-- [x] Detection-as-Code: `detections/` directory with Sigma + AiSOC YAML, GitHub Action deploy-on-merge
+- [x] Detection-as-Code: `detections/` directory with Sigma + Quarry YAML, GitHub Action deploy-on-merge
 - [x] 12 starter playbook templates
 - [x] Community playbook marketplace (static index v4.0; publishing flow v4.1)
 
@@ -42,9 +42,9 @@ This document captures the planned direction for AiSOC across major versions. Al
 - [x] Public REST API v1 at `/api/v1`, OpenAPI 3.1 at `docs/openapi.yaml`
 - [x] GraphQL gateway (Strawberry) proxying REST
 - [x] Scoped API tokens (`cases:read`, `playbooks:run`, `plugins:install`)
-- [x] Auto-generated client SDKs: `@quarry/sdk` (TypeScript), `aisoc-sdk` (Python/PyPI), `github.com/beenuar/aisoc/sdk-go`
+- [x] Auto-generated client SDKs: `@quarry/sdk` (TypeScript), `quarry-sdk` (Python/PyPI), `github.com/beenuar/quarry/sdk-go`
 - [x] Docusaurus docs site at `docs/site/`, deployed to GitHub Pages
-- [x] Demo Lab: `pnpm aisoc:lab` one-command full-stack + Conti-style ransomware scenario
+- [x] Demo Lab: `pnpm quarry:lab` one-command full-stack + Conti-style ransomware scenario
 - [x] 4 reference plugins: Okta connector, YARA enricher, Slack quarantine responder, MTTR sparkline widget
 
 ### Cross-cutting
@@ -60,7 +60,7 @@ This document captures the planned direction for AiSOC across major versions. Al
 - [x] Plugin marketplace UI v2 (ratings, install counts, verified badges, category filter, sort)
 - [x] Detection catalog: browse and install community Sigma rules via UI
 - [x] Playbook community submissions and curation
-- [x] `aisoc-cli` — developer CLI for scaffold, validate, publish plugins and detections
+- [x] `quarry-cli` — developer CLI for scaffold, validate, publish plugins and detections
 
 ---
 
@@ -228,7 +228,7 @@ the v7.0 release window and then patched through 7.0.1 → 7.0.3.
       `fleetdm_client.py`, `osquery_allowlist.py`, `services/agents/app/playbook/steps/osquery_live_query.py`).
       Allowlisted distributed queries pushed to single hosts or fleet-wide via
       osctrl/FleetDM with HMAC-signed ChatOps approval.
-- [x] **PR4 — `aisoc-osquery-tls` FastAPI service + `aisoc-direct` agent connector**
+- [x] **PR4 — `quarry-osquery-tls` FastAPI service + `quarry-direct` agent connector**
       (`services/osquery-tls/`, `services/connectors/app/connectors/aisoc_direct.py`).
       First-party self-hosted osquery TLS plugin, FleetDM-compatible config/log endpoints,
       direct-from-agent ingest path that bypasses third-party SaaS.
@@ -237,7 +237,7 @@ the v7.0 release window and then patched through 7.0.1 → 7.0.3.
       Bundled IR / OSquery-ATT&CK / FIM packs; ingests `file_events` and synthesises
       alerts on writes to `/etc/passwd`, `/etc/shadow`, sshd configs, sudoers, Windows
       registry hives. FIM-specific detection IDs `det-endpoint-297..300`.
-- [x] **PR6 — AiSOC osquery extensions** (`services/osquery-extensions/tables/*.go`).
+- [x] **PR6 — Quarry osquery extensions** (`services/osquery-extensions/tables/*.go`).
       5 custom Go-based virtual tables: `aisoc_browser_extensions`, `aisoc_kernel_modules`,
       `aisoc_attck_persistence`, `aisoc_pending_actions`, `aisoc_alert_cache` — ship
       richer endpoint visibility plus a bidirectional response channel.
@@ -285,7 +285,7 @@ the v7.0 release window and then patched through 7.0.1 → 7.0.3.
 
 Six new connectors, three documentation backfills, and a new ingest template
 closing the biggest cloud-security gap in the connector catalogue. Every Tier-1
-cloud workload protection platform now has a first-class AiSOC integration,
+cloud workload protection platform now has a first-class Quarry integration,
 AWS gets three native data sources, and Kubernetes audit logs land via a
 dual-mode connector that works on both managed and air-gapped clusters.
 
@@ -321,7 +321,7 @@ dual-mode connector that works on both managed and air-gapped clusters.
 - [x] **`AWSGuardDutyConnector`** (`services/connectors/app/connectors/aws_guardduty.py`)
       — boto3-based, supports IAM-role + static-key auth via `_resolve_session`,
       iterates detectors with `list_findings` + `get_findings`. Collapses
-      GuardDuty's continuous numeric severity scale (`0.1`–`10.0`) into AiSOC's
+      GuardDuty's continuous numeric severity scale (`0.1`–`10.0`) into Quarry's
       four-tier `info|low|medium|high` ladder.
 - [x] **`AWSCloudTrailConnector`** (`services/connectors/app/connectors/aws_cloudtrail.py`)
       — `cloudtrail.lookup_events` with a curated 21-event allow-list covering
@@ -339,16 +339,16 @@ dual-mode connector that works on both managed and air-gapped clusters.
 
 - [x] **`KubernetesAuditConnector`** (`services/connectors/app/connectors/kubernetes_audit.py`)
       ships with two delivery modes selected via the `mode` config field:
-      - **`webhook` (recommended)** — apiserver pushes audit events to AiSOC's
+      - **`webhook` (recommended)** — apiserver pushes audit events to Quarry's
         new dedicated `POST /v1/ingest/k8s-audit/{tenant_id}` route,
-        authenticated with a shared secret in the `X-AiSOC-K8s-Token` header
+        authenticated with a shared secret in the `X-Quarry-K8s-Token` header
         (constant-time compared so a partial-prefix attacker can't shave
         bytes off via timing). Legacy `/v1/inbox/{token}` path with the
         `k8s-audit` template is kept as a fallback for control planes that
         cannot inject custom headers into the audit-webhook kubeconfig.
-      - **`file_tail`** — AiSOC's connector pod tails a local `audit.log` using
+      - **`file_tail`** — Quarry's connector pod tails a local `audit.log` using
         a byte-position cursor (atomically written via `os.replace` to a
-        `.aisoc-cursor` sidecar) with rotation/truncation detection and a hard
+        `.quarry-cursor` sidecar) with rotation/truncation detection and a hard
         per-poll byte cap so a backlog can't blow up a single poll cycle.
 - [x] **`services/ingest/internal/handler/k8s_audit.go`** — Dedicated Go
       handler for the webhook route. Caps body size via
@@ -368,7 +368,7 @@ dual-mode connector that works on both managed and air-gapped clusters.
       severities (5/4/3/2/1).
 - [x] **`k8s-audit` inbox template**
       (`services/ingest/internal/normalizer/templates/k8s-audit.yaml`) —
-      maps apiserver `Event` payloads onto AiSOC's normalised event shape
+      maps apiserver `Event` payloads onto Quarry's normalised event shape
       for the legacy inbox-token path; severity is derived in the
       connector's `_classify_severity` heuristic so the same logic applies
       to both delivery modes.
@@ -412,7 +412,7 @@ Terraform skeleton equivalent to the existing AWS module.
       — file-tail of `/var/log/audit/audit.log` with multi-record
       reassembly by msg id, hex `proctitle`/`argv` decode, and
       `(inode, byte_offset)` cursor for log rotation. Ships with
-      `profiles/auditd/aisoc.rules` opinionated auditctl ruleset whose
+      `profiles/auditd/quarry.rules` opinionated auditctl ruleset whose
       `-k` keys map 1:1 to detection rules; 4 new detection rules pivot
       off `auditd_key` for sudoers / SSH / kernel-module / systemd
       tampering. 444-test full connectors suite green (excluding
@@ -423,12 +423,12 @@ Terraform skeleton equivalent to the existing AWS module.
 
 ### CLI
 
-- [x] **`aisoc plugin new <NAME> --type {enricher|connector|responder|detection|widget}`**
+- [x] **`quarry plugin new <NAME> --type {enricher|connector|responder|detection|widget}`**
       replaces the old hard-coded `plugin scaffold` with per-type templates
-      shipped inside the `aisoc-cli` wheel via `importlib.resources`.
+      shipped inside the `quarry-cli` wheel via `importlib.resources`.
       `string.Template` substitution for `${slug}`, `${name}`, `${author}`;
       tests parameterised across all five plugin types asserting manifest
-      validation and zero placeholder leakage. `aisoc plugin scaffold`
+      validation and zero placeholder leakage. `quarry plugin scaffold`
       retained as alias.
 
 ### Live Actions
@@ -477,7 +477,7 @@ Terraform skeleton equivalent to the existing AWS module.
       added for operator verification + air-gap audits. Pure mappers
       cover `ipv4`/`ipv6`, `domain-name`, `url`, `email-addr`,
       `file:hashes` (MD5/SHA-1/SHA-256/SHA-512) and `file:name`. Push
-      failures are non-fatal: AiSOC store remains source of truth, MISP is
+      failures are non-fatal: Quarry store remains source of truth, MISP is
       best-effort. Reuses the existing `enforce_airgap_for_url` chokepoint.
       76 new tests.
 
@@ -495,7 +495,7 @@ Terraform skeleton equivalent to the existing AWS module.
 ### Documentation
 
 - [x] **`apps/docs/docs/operations/notifications.md`** — complete inventory
-      of every notification surface in AiSOC (Web Push, Slack/Teams
+      of every notification surface in Quarry (Web Push, Slack/Teams
       ChatOps, playbook `notify_slack`, `create_ticket` simulation,
       honeytoken first-touch webhooks, connector freshness alerts, on-call
       gating, suppression / quiet-hours, per-mechanism testing recipe).
@@ -513,7 +513,7 @@ Terraform skeleton equivalent to the existing AWS module.
       operators at both endpoints.
 - [x] **`apps/docs/docs/connectors/{wazuh,auditd}.md`** + per-connector
       sidebar entries.
-- [x] **`apps/docs/docs/plugins/cli.md`** — documents the new `aisoc
+- [x] **`apps/docs/docs/plugins/cli.md`** — documents the new `quarry
       plugin new --type` surface.
 - [x] **`apps/docs/sidebars.ts`** — every new page registered in the
       correct category (Connectors, Plugin SDK, Operations, Integrations,

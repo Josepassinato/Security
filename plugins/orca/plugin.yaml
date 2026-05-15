@@ -8,9 +8,9 @@ description: >
   alerts across workload, container, cloud configuration, identity, and
   data-risk surfaces from the unified /api/alerts REST endpoint. One
   connector instance covers every Orca surface.
-author: AiSOC Core Team
+author: Quarry Core Team
 tags: [cloud, cnapp, cspm, cwpp, ciem, dspm, orca]
-homepage: https://github.com/beenuar/AiSOC/tree/main/services/connectors/app/connectors/orca.py
+homepage: https://github.com/beenuar/Quarry/tree/main/services/connectors/app/connectors/orca.py
 license: MIT
 min_aisoc_version: "7.1.0"
 config_schema:

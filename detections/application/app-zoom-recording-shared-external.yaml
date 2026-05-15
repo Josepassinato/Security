@@ -1,6 +1,6 @@
 id: det-application-061
 name: Zoom Cloud Recording Shared Externally
-description: AiSOC v1 curated detection. Triggers on the application signal described by 'Zoom Cloud Recording
+description: Quarry v1 curated detection. Triggers on the application signal described by 'Zoom Cloud Recording
   Shared Externally'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: medium
@@ -19,6 +19,6 @@ false_positives:
 - Customer-facing webinar recording
 playbook: tpl-exfiltration
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

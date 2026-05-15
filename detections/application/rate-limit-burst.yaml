@@ -1,6 +1,6 @@
 id: det-application-008
 name: Rate Limit Burst on Authentication Endpoint
-description: AiSOC v1 curated detection. Triggers on the application signal described by 'Rate Limit Burst
+description: Quarry v1 curated detection. Triggers on the application signal described by 'Rate Limit Burst
   on Authentication Endpoint'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: medium
@@ -21,6 +21,6 @@ false_positives:
 - Load testing against staging (src allowlist)
 playbook: tpl-account-compromise
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

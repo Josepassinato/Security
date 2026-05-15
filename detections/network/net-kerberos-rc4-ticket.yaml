@@ -1,6 +1,6 @@
 id: det-network-073
 name: Kerberos Service Ticket Issued With RC4 Encryption
-description: AiSOC v1 curated detection. Triggers on the network signal described by 'Kerberos Service
+description: Quarry v1 curated detection. Triggers on the network signal described by 'Kerberos Service
   Ticket Issued With RC4 Encryption'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: high
@@ -19,6 +19,6 @@ false_positives:
 - Legacy app forced RC4 (allow-listed)
 playbook: tpl-credential-access
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

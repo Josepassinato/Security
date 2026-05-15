@@ -4,7 +4,7 @@ sidebar_position: 1
 
 # Cases
 
-A **Case** is the central unit of work in AiSOC. Every security incident, alert,
+A **Case** is the central unit of work in Quarry. Every security incident, alert,
 or investigation is tracked as a Case.
 
 ## Case States
@@ -35,11 +35,11 @@ Click **Investigate with AI** to launch the multi-agent investigation pipeline:
 5. **ReportWriterAgent** — generates the PDF / Markdown executive report
 
 The full graph lives under
-[`services/agents/app/investigator/`](https://github.com/beenuar/AiSOC/tree/main/services/agents/app/investigator).
+[`services/agents/app/investigator/`](https://github.com/Josepassinato/quarry/tree/main/services/agents/app/investigator).
 
 ## Investigation Ledger
 
-The **Investigation Ledger** is the structural moat that separates AiSOC from
+The **Investigation Ledger** is the structural moat that separates Quarry from
 closed-source AI SOC vendors: every prompt sent to an LLM, every response
 received, every tool invocation, every evidence citation, and every decision
 branch is appended to a tenant-scoped, append-only ledger and rendered as a
@@ -77,15 +77,15 @@ For every agent step, the ledger captures:
 ### Where it lives
 
 - Schema:
-  [`services/api/migrations/008_investigation_ledger.sql`](https://github.com/beenuar/AiSOC/blob/main/services/api/migrations/008_investigation_ledger.sql)
+  [`services/api/migrations/008_investigation_ledger.sql`](https://github.com/Josepassinato/quarry/blob/main/services/api/migrations/008_investigation_ledger.sql)
 - Model:
-  [`services/api/app/models/investigation.py`](https://github.com/beenuar/AiSOC/blob/main/services/api/app/models/investigation.py)
+  [`services/api/app/models/investigation.py`](https://github.com/Josepassinato/quarry/blob/main/services/api/app/models/investigation.py)
 - API endpoints:
-  [`services/api/app/api/v1/endpoints/investigations.py`](https://github.com/beenuar/AiSOC/blob/main/services/api/app/api/v1/endpoints/investigations.py)
+  [`services/api/app/api/v1/endpoints/investigations.py`](https://github.com/Josepassinato/quarry/blob/main/services/api/app/api/v1/endpoints/investigations.py)
 - Agent-side writer:
-  [`services/agents/app/investigator/ledger.py`](https://github.com/beenuar/AiSOC/blob/main/services/agents/app/investigator/ledger.py)
+  [`services/agents/app/investigator/ledger.py`](https://github.com/Josepassinato/quarry/blob/main/services/agents/app/investigator/ledger.py)
 - UI:
-  [`apps/web/src/components/cases/InvestigationLedger.tsx`](https://github.com/beenuar/AiSOC/blob/main/apps/web/src/components/cases/InvestigationLedger.tsx)
+  [`apps/web/src/components/cases/InvestigationLedger.tsx`](https://github.com/Josepassinato/quarry/blob/main/apps/web/src/components/cases/InvestigationLedger.tsx)
 
 ### REST surface
 

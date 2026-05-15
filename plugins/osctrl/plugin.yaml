@@ -7,9 +7,9 @@ description: >
   osctrl — open-source osquery fleet manager. Pulls distributed-query results
   and node telemetry from the osctrl admin API. Synthesises severity from the
   osquery table queried so detection rules can promote interesting rows.
-author: AiSOC Core Team
+author: Quarry Core Team
 tags: [edr, osctrl, osquery, endpoint, open-source]
-homepage: https://github.com/beenuar/AiSOC/tree/main/services/connectors/app/connectors/osctrl.py
+homepage: https://github.com/beenuar/Quarry/tree/main/services/connectors/app/connectors/osctrl.py
 license: MIT
 min_aisoc_version: "4.0.0"
 config_schema:

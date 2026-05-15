@@ -1,7 +1,7 @@
 id: det-endpoint-303
 name: Kernel Module Load Or Unload Via auditd Watch
 description: |
-  Triggers when the AiSOC auditd profile records init_module / finit_module /
+  Triggers when the Quarry auditd profile records init_module / finit_module /
   delete_module syscalls or execution of /sbin/insmod, /sbin/rmmod, /sbin/modprobe.
   Pivots on auditd_key so the rule fires regardless of how the kernel module
   primitive was invoked. Loadable kernel modules are the standard delivery
@@ -28,6 +28,6 @@ false_positives:
 - Container runtime loading overlay/br_netfilter on host
 playbook: tpl-defense-evasion
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-12'
 modified: '2026-05-12'

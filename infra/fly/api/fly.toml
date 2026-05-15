@@ -1,15 +1,15 @@
 # ──────────────────────────────────────────────────────────────────────────────
-# AiSOC Demo - API service (FastAPI)
+# Quarry Demo - API service (FastAPI)
 #
-# Deployed at:    https://aisoc-demo-api.fly.dev
-# Public domain:  https://api.tryaisoc.com  (CNAME → aisoc-demo-api.fly.dev)
-# Internal name:  aisoc-demo-api.internal:8000
+# Deployed at:    https://quarry-demo-api.fly.dev
+# Public domain:  https://api.tryaisoc.com  (CNAME → quarry-demo-api.fly.dev)
+# Internal name:  quarry-demo-api.internal:8000
 #
 # Reads:  Postgres (Fly managed), Redis (Upstash via Fly), demo tenant
 # Writes: Postgres (cases, alerts, runs, events)
 # ──────────────────────────────────────────────────────────────────────────────
 
-app = "aisoc-demo-api"
+app = "quarry-demo-api"
 primary_region = "iad"          # us-east, lowest latency to tryaisoc.com
 kill_signal    = "SIGINT"
 kill_timeout   = "5s"
@@ -43,15 +43,15 @@ kill_timeout   = "5s"
   LOG_LEVEL        = "info"
   PORT             = "8000"
   # Demo gates: write actions return 403, mutating endpoints become read-only
-  AISOC_DEMO_MODE  = "true"
+  QUARRY_DEMO_MODE  = "true"
   # Tenant rotation runs daily; the seeder writes the canonical INC-RT-001 case
-  AISOC_DEMO_TENANT = "demo"
+  QUARRY_DEMO_TENANT = "demo"
   # Disable optional integrations (no Kafka/ClickHouse/OpenSearch on demo)
-  AISOC_DISABLE_KAFKA      = "true"
-  AISOC_DISABLE_CLICKHOUSE = "true"
-  AISOC_DISABLE_OPENSEARCH = "true"
-  AISOC_DISABLE_NEO4J      = "true"
-  AISOC_DISABLE_QDRANT     = "true"
+  QUARRY_DISABLE_KAFKA      = "true"
+  QUARRY_DISABLE_CLICKHOUSE = "true"
+  QUARRY_DISABLE_OPENSEARCH = "true"
+  QUARRY_DISABLE_NEO4J      = "true"
+  QUARRY_DISABLE_QDRANT     = "true"
   # Seeding runs automatically on deploy via [deploy].release_command above.
   # A daily cron machine (provisioned separately) re-runs the same seeder
   # to refresh demo-tenant data at 00:00 UTC. CORE_API_URL points at
@@ -59,18 +59,18 @@ kill_timeout   = "5s"
   # API, and AGENTS_API_URL crosses to the agents app over Fly's internal
   # 6PN DNS (.internal:port).
   CORE_API_URL    = "http://localhost:8000"
-  AGENTS_API_URL  = "http://aisoc-demo-agents.internal:8084"
+  AGENTS_API_URL  = "http://quarry-demo-agents.internal:8084"
   # Cross-origin allowlist for the browser. The Next.js app at tryaisoc.com
   # calls api.tryaisoc.com directly (see infra/fly/web/fly.toml's build args),
   # and we keep the .fly.dev hosts whitelisted as a fallback for direct
   # debugging without DNS. Comma-separated; parsed by Settings.parse_cors.
-  CORS_ORIGINS    = "https://tryaisoc.com,https://api.tryaisoc.com,https://aisoc-demo-web.fly.dev,https://aisoc-demo-api.fly.dev"
+  CORS_ORIGINS    = "https://tryaisoc.com,https://api.tryaisoc.com,https://quarry-demo-web.fly.dev,https://quarry-demo-api.fly.dev"
   # Realtime base used by the API for /api/v1/push/* fan-out. Internal-only.
-  REALTIME_BASE_URL = "http://aisoc-demo-realtime.internal:4000"
+  REALTIME_BASE_URL = "http://quarry-demo-realtime.internal:4000"
   # WebAuthn / passkey config. RP_ID is the eTLD+1 of the user-facing UI;
   # RP_ORIGINS must be the exact scheme+host the browser presents.
   PASSKEY_RP_ID      = "tryaisoc.com"
-  PASSKEY_RP_NAME    = "AiSOC"
+  PASSKEY_RP_NAME    = "Quarry"
   PASSKEY_RP_ORIGINS = "https://tryaisoc.com"
 
 [http_service]

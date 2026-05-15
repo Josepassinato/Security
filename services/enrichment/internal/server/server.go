@@ -8,19 +8,19 @@ import (
 	"strings"
 	"time"
 
-	"github.com/beenuar/aisoc/enrichment/internal/handler"
+	"github.com/beenuar/quarry/enrichment/internal/handler"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/rs/zerolog/log"
 )
 
-// resolveCORSOrigins reads “AISOC_CORS_ORIGINS“ (canonical) / “CORS_ORIGINS“
+// resolveCORSOrigins reads “QUARRY_CORS_ORIGINS“ (canonical) / “CORS_ORIGINS“
 // (legacy alias) so operators can lock the allow-list down per-deploy without
 // shipping a new image. /enrich is back-end-to-back-end (services/api calls us),
 // not browser-facing, so the default is conservative but not strict.
 func resolveCORSOrigins() []string {
-	for _, env := range []string{"AISOC_CORS_ORIGINS", "CORS_ORIGINS"} {
+	for _, env := range []string{"QUARRY_CORS_ORIGINS", "CORS_ORIGINS"} {
 		if v := strings.TrimSpace(os.Getenv(env)); v != "" {
 			parts := strings.Split(v, ",")
 			out := make([]string, 0, len(parts))

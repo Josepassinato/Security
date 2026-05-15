@@ -1,6 +1,6 @@
 id: det-network-054
 name: Large HTTP POST From Workstation To Public IP
-description: AiSOC v1 curated detection. Triggers on the network signal described by 'Large HTTP POST
+description: Quarry v1 curated detection. Triggers on the network signal described by 'Large HTTP POST
   From Workstation To Public IP'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: medium
@@ -22,6 +22,6 @@ false_positives:
 - Sanctioned cloud upload
 playbook: tpl-exfiltration
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

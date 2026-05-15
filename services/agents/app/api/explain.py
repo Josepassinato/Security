@@ -22,7 +22,7 @@ hallucinate IDs.
 Air-gap behaviour
 -----------------
 
-- ``AISOC_AIRGAPPED=true``                  → no outbound LLM call, ever
+- ``QUARRY_AIRGAPPED=true``                  → no outbound LLM call, ever
 - ``OPENAI_BASE_URL`` set to a non-OpenAI host (LiteLLM, Ollama, vLLM)
                                             → allowed in air-gap mode
 - Otherwise                                 → openai.com, gated on the
@@ -41,8 +41,8 @@ the grid) would burn token budget and stall every other analyst's
 drawer behind queued LLM calls. We use a per-tenant token bucket
 (``services/agents/app/core/rate_limit.py``):
 
-* ``AISOC_EXPLAIN_BURST`` — bucket capacity (default 20)
-* ``AISOC_EXPLAIN_RPM``   — refill, requests per minute (default 60).
+* ``QUARRY_EXPLAIN_BURST`` — bucket capacity (default 20)
+* ``QUARRY_EXPLAIN_RPM``   — refill, requests per minute (default 60).
                             Set to ``0`` to disable the limiter
                             entirely (used in tests and demos).
 
@@ -62,11 +62,11 @@ tenant overrides — base URL, model, API key — over the env baseline
 (``OPENAI_API_KEY`` / ``OPENAI_BASE_URL`` / ``OPENAI_MODEL``) and
 re-evaluate the air-gap policy against the *resolved* base URL. A
 tenant who BYOKs a private LiteLLM gateway therefore stays allowed
-under ``AISOC_AIRGAPPED=true``, exactly the same way the env-only
+under ``QUARRY_AIRGAPPED=true``, exactly the same way the env-only
 path does today.
 
 The resolver is failure-tolerant: a missing ``DATABASE_URL``, an
-unreachable database, an unconfigured ``AISOC_CREDENTIAL_KEY``, a
+unreachable database, an unconfigured ``QUARRY_CREDENTIAL_KEY``, a
 corrupt ciphertext, or a tenant row with ``enabled=false`` all
 silently degrade to the env baseline. The single source of truth
 for *which* config the path actually picked is the
@@ -130,7 +130,7 @@ router = APIRouter(prefix="/api/v1", tags=["explain"])
 #
 # Lazy-initialised at first request so the env vars can be patched per-test
 # without paying the cost of touching ``time.monotonic`` at import time.
-# A value of 0 for ``AISOC_EXPLAIN_RPM`` short-circuits the limiter
+# A value of 0 for ``QUARRY_EXPLAIN_RPM`` short-circuits the limiter
 # entirely — useful for the deterministic eval harness, where we want to
 # stream the same 200 incidents back-to-back without throttling noise.
 
@@ -151,8 +151,8 @@ def _get_explain_limiter() -> TokenBucketLimiter | None:
     if _explain_limiter is not None:
         return _explain_limiter
     try:
-        rpm = int(os.environ.get("AISOC_EXPLAIN_RPM", _DEFAULT_RPM))
-        burst = int(os.environ.get("AISOC_EXPLAIN_BURST", _DEFAULT_BURST))
+        rpm = int(os.environ.get("QUARRY_EXPLAIN_RPM", _DEFAULT_RPM))
+        burst = int(os.environ.get("QUARRY_EXPLAIN_BURST", _DEFAULT_BURST))
     except ValueError:
         rpm, burst = _DEFAULT_RPM, _DEFAULT_BURST
     if rpm <= 0 or burst <= 0:
@@ -593,7 +593,7 @@ async def _llm_summary(
             {
                 "role": "system",
                 "content": (
-                    "You are AiSOC's alert explainer. Given one security alert and a "
+                    "You are Quarry's alert explainer. Given one security alert and a "
                     "list of MITRE ATT&CK techniques already pulled from the local "
                     "corpus, write a tight 2–4 sentence summary for an L1/L2 SOC "
                     "analyst. Be concrete about WHAT happened and WHY it matters. "

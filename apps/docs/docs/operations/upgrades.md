@@ -1,12 +1,12 @@
 ---
 sidebar_position: 6
 title: Upgrades & versioning
-description: How AiSOC versions releases, what each digit means, the deprecation policy, and the procedure to upgrade in place.
+description: How Quarry versions releases, what each digit means, the deprecation policy, and the procedure to upgrade in place.
 ---
 
 # Upgrades and versioning
 
-AiSOC follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html) on a single shared version across the monorepo. The authoritative version lives in [`VERSION`](https://github.com/beenuar/AiSOC/blob/main/VERSION); every release tag, container image, and SDK package is stamped with the same number.
+Quarry follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html) on a single shared version across the monorepo. The authoritative version lives in [`VERSION`](https://github.com/Josepassinato/quarry/blob/main/VERSION); every release tag, container image, and SDK package is stamped with the same number.
 
 This page is what you read before running `git pull` against a new release.
 
@@ -18,9 +18,9 @@ This page is what you read before running `git pull` against a new release.
 | **Minor** (`x.Y.0`) | ~Every 1–3 weeks | New connectors, new agents, new endpoints. Backwards compatible — your existing config keeps working. |
 | **Major** (`X.0.0`) | When breaking changes accumulate | Schema migrations that require downtime, removed endpoints, renamed env vars. |
 
-Every release ships with a [CHANGELOG.md](https://github.com/beenuar/AiSOC/blob/main/CHANGELOG.md) entry that lists added features, behaviour changes, and any breaking notes. **Read it before upgrading across a major version.**
+Every release ships with a [CHANGELOG.md](https://github.com/Josepassinato/quarry/blob/main/CHANGELOG.md) entry that lists added features, behaviour changes, and any breaking notes. **Read it before upgrading across a major version.**
 
-## What "breaking" means in AiSOC
+## What "breaking" means in Quarry
 
 A change is breaking — and therefore lives in a major release — if any of these apply:
 
@@ -48,8 +48,8 @@ If you depend on something marked deprecated, open an issue — sometimes we ext
 Run through this list every time:
 
 1. **Read the CHANGELOG** between your current version and the target. Pay attention to anything labelled "Breaking", "Migration", or "Action required".
-2. **Back up your database.** `pg_dump` of the AiSOC schema is the minimum bar. For Kafka- and ClickHouse-backed deployments, snapshot those too.
-3. **Snapshot your `AISOC_CREDENTIAL_KEY`.** If you lose it during the upgrade, every encrypted connector credential in the database becomes unrecoverable. Treat the key the same way you treat your database backup.
+2. **Back up your database.** `pg_dump` of the Quarry schema is the minimum bar. For Kafka- and ClickHouse-backed deployments, snapshot those too.
+3. **Snapshot your `QUARRY_CREDENTIAL_KEY`.** If you lose it during the upgrade, every encrypted connector credential in the database becomes unrecoverable. Treat the key the same way you treat your database backup.
 4. **Confirm a maintenance window** for the API service. Migrations run inside a single transaction where possible; minor releases typically take seconds, major releases can take minutes on large `audit_log` tables.
 5. **Stage first.** If you operate a non-production tenant on the same code as production, upgrade it first and let it run for a day before promoting.
 
@@ -62,7 +62,7 @@ The supported upgrade path is "stop, pull, migrate, start". Rolling upgrades acr
 # 2. Stop the API service replicas. Connectors and ingest can keep running —
 #    they tolerate a temporary API outage and back-pressure into Kafka.
 
-cd /opt/aisoc                 # your install path
+cd /opt/quarry                 # your install path
 git fetch --tags
 git checkout v7.3.1           # the target tag
 
@@ -72,7 +72,7 @@ pnpm install --frozen-lockfile
 
 # 4. Run database migrations.
 #    From v7.3.1 onwards you can use the CLI directly:
-aisoc db upgrade
+quarry db upgrade
 #    (Equivalent to: cd services/api && uv run alembic upgrade head)
 
 # 5. Start the API service back up.
@@ -86,20 +86,20 @@ curl -fsS http://localhost:8000/healthz
 The v7.3.1 release made the close-to-7.x migrations (`005_compliance.sql`,
 `025_connectors_click_and_connect.sql`, and the new
 `042_alerts_schema_drift_fix.sql`) idempotent. If a previous upgrade left
-your `alerts` table partially migrated, just re-run `aisoc db upgrade` —
+your `alerts` table partially migrated, just re-run `quarry db upgrade` —
 the migration only adds columns that are missing instead of failing on
-already-present ones. See the [CHANGELOG](https://github.com/beenuar/AiSOC/blob/main/CHANGELOG.md#731)
+already-present ones. See the [CHANGELOG](https://github.com/Josepassinato/quarry/blob/main/CHANGELOG.md#731)
 for the full column list.
 :::
 
-For Kubernetes deployments, the same flow applies: scale the API deployment to zero, run the migration as a `Job`, then scale back up. The Helm chart in [`infra/helm/`](https://github.com/beenuar/AiSOC/tree/main/infra/helm) exposes this as `helm upgrade --set runMigrations=true`.
+For Kubernetes deployments, the same flow applies: scale the API deployment to zero, run the migration as a `Job`, then scale back up. The Helm chart in [`infra/helm/`](https://github.com/Josepassinato/quarry/tree/main/infra/helm) exposes this as `helm upgrade --set runMigrations=true`.
 
 ## Verifying the upgrade
 
 After a successful upgrade you should be able to:
 
 - Hit `/healthz` and `/readyz` and get `200 OK` with no `degraded` services in the body.
-- Run `aisoc-cli benchmark` (or `pnpm aisoc:benchmark`) and see the same or better numbers as before.
+- Run `quarry-cli benchmark` (or `pnpm quarry:benchmark`) and see the same or better numbers as before.
 - Open the analyst console and see the version footer match the new tag.
 - Check `/api/v1/system/version` and see the same number.
 
@@ -132,10 +132,10 @@ That means you can upgrade the API service to `6.1.0` while connectors are still
 
 ## Long-Term Support
 
-AiSOC does not currently offer formal LTS releases. The most recent major version is the supported version; security patches and CVE fixes are backported to the previous major for **90 days** after a new major lands, which is the window we expect operators to need to plan and execute their upgrade.
+Quarry does not currently offer formal LTS releases. The most recent major version is the supported version; security patches and CVE fixes are backported to the previous major for **90 days** after a new major lands, which is the window we expect operators to need to plan and execute their upgrade.
 
-If your environment requires a longer support window, raise it in [Discussions](https://github.com/beenuar/AiSOC/discussions) — we're happy to discuss commercial support arrangements with the community.
+If your environment requires a longer support window, raise it in [Discussions](https://github.com/Josepassinato/quarry/discussions) — we're happy to discuss commercial support arrangements with the community.
 
 ## Pre-1.0 history
 
-Versions `1.0.0` through `5.x` shipped during the original feature build-out and are documented in the [CHANGELOG](https://github.com/beenuar/AiSOC/blob/main/CHANGELOG.md). The `6.0.0` release in May 2026 was the first version we consider production-ready; new deployments should start from the latest tagged release (currently `v7.3.1`).
+Versions `1.0.0` through `5.x` shipped during the original feature build-out and are documented in the [CHANGELOG](https://github.com/Josepassinato/quarry/blob/main/CHANGELOG.md). The `6.0.0` release in May 2026 was the first version we consider production-ready; new deployments should start from the latest tagged release (currently `v7.3.1`).

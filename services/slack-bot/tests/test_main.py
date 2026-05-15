@@ -32,12 +32,12 @@ from typing import Any
 import pytest
 from app import main as main_module
 from app.interactions import APPROVE_ACTION_ID, DENY_ACTION_ID
-from app.services.aisoc_clients import AisocClientError
+from app.services.aisoc_clients import QuarryClientError
 from fastapi.testclient import TestClient
 
 
 class _StubActionsClient:
-    """Mock for :class:`AisocActionsClient` — only methods used by interactions."""
+    """Mock for :class:`QuarryActionsClient` — only methods used by interactions."""
 
     def __init__(self, *, raise_on: str | None = None) -> None:
         self._raise_on = raise_on
@@ -46,13 +46,13 @@ class _StubActionsClient:
 
     async def approve_action(self, action_id: str) -> dict[str, Any]:
         if self._raise_on == "approve":
-            raise AisocClientError("upstream boom", status_code=502)
+            raise QuarryClientError("upstream boom", status_code=502)
         self.approve_calls.append(action_id)
         return {"id": action_id, "status": "approved", "action_type": "isolate_host"}
 
     async def reject_action(self, action_id: str) -> dict[str, Any]:
         if self._raise_on == "reject":
-            raise AisocClientError("upstream boom", status_code=502)
+            raise QuarryClientError("upstream boom", status_code=502)
         self.reject_calls.append(action_id)
         return {"id": action_id, "status": "rejected", "action_type": "isolate_host"}
 
@@ -71,7 +71,7 @@ def test_health_endpoint_returns_expected_payload():
     with TestClient(main_module.app) as client:
         res = client.get("/health")
     assert res.status_code == 200
-    assert res.json() == {"status": "healthy", "service": "aisoc-slack-bot"}
+    assert res.json() == {"status": "healthy", "service": "quarry-slack-bot"}
 
 
 def test_slack_events_route_is_registered():
@@ -92,7 +92,7 @@ def test_health_route_is_registered():
 
 def test_lifespan_builds_and_closes_clients(monkeypatch):
     """
-    The lifespan must build singleton AisocApiClient + AisocActionsClient on
+    The lifespan must build singleton QuarryApiClient + QuarryActionsClient on
     startup and call ``aclose()`` on both during shutdown. Without this we'd
     leak an httpx pool on every reload.
     """
@@ -131,8 +131,8 @@ def test_lifespan_builds_and_closes_clients(monkeypatch):
         async def reject_action(self, action_id: str) -> dict[str, Any]:
             return {"id": action_id, "status": "rejected"}
 
-    monkeypatch.setattr(main_module, "AisocApiClient", _RecordingApiClient)
-    monkeypatch.setattr(main_module, "AisocActionsClient", _RecordingActionsClient)
+    monkeypatch.setattr(main_module, "QuarryApiClient", _RecordingApiClient)
+    monkeypatch.setattr(main_module, "QuarryActionsClient", _RecordingActionsClient)
 
     with TestClient(main_module.app) as client:
         # Trigger startup.

@@ -4,7 +4,7 @@ import (
 	"context"
 	"log"
 
-	"github.com/beenuar/aisoc/osquery-extensions/internal/aisocapi"
+	"github.com/beenuar/quarry/osquery-extensions/internal/quarryapi"
 	"github.com/osquery/osquery-go/plugin/table"
 )
 
@@ -21,8 +21,8 @@ func AlertCacheColumns() []table.ColumnDefinition {
 }
 
 // AlertCacheGenerate returns a GenerateFunc that fetches the last-24h alert
-// cache for this host from the AiSOC API.
-func AlertCacheGenerate(client *aisocapi.Client) table.GenerateFunc {
+// cache for this host from the Quarry API.
+func AlertCacheGenerate(client *quarryapi.Client) table.GenerateFunc {
 	return func(ctx context.Context, queryContext table.QueryContext) ([]map[string]string, error) {
 		alerts, err := client.GetAlertCache(ctx)
 		if err != nil {

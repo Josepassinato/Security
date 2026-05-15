@@ -223,7 +223,7 @@ function CustomTooltip({ active, payload, label }: any) {
 
 // ─── Drag-and-Drop Widget Layout (WS-F3) ──────────────────────────────────────
 
-const WIDGET_ORDER_KEY = 'aisoc:dashboard:widget-order';
+const WIDGET_ORDER_KEY = 'quarry:dashboard:widget-order';
 
 type WidgetId =
   | 'welcome'

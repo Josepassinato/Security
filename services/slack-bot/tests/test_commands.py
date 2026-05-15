@@ -1,8 +1,8 @@
 """
 Tests for ``app.commands``.
 
-We unit-test the dispatcher by stubbing out :class:`AisocApiClient` and
-:class:`AisocActionsClient` with simple async fakes that record the calls
+We unit-test the dispatcher by stubbing out :class:`QuarryApiClient` and
+:class:`QuarryActionsClient` with simple async fakes that record the calls
 they received. This keeps the suite hermetic and fast — no respx, no Bolt.
 
 The contract the dispatcher must hold is small but important:
@@ -25,13 +25,13 @@ from typing import Any
 
 import pytest
 from app.commands import handle_aisoc_command
-from app.services.aisoc_clients import AisocClientError
+from app.services.aisoc_clients import QuarryClientError
 
-WEB_BASE = "https://app.aisoc.test"
+WEB_BASE = "https://app.quarry.test"
 
 
 class FakeApiClient:
-    """In-memory stand-in for :class:`AisocApiClient`."""
+    """In-memory stand-in for :class:`QuarryApiClient`."""
 
     def __init__(
         self,
@@ -43,7 +43,7 @@ class FakeApiClient:
         raise_on: str | None = None,
     ) -> None:
         self._cases = cases or []
-        self._case = case or {"id": "c-1", "case_number": "AISOC-1", "title": "x"}
+        self._case = case or {"id": "c-1", "case_number": "QUARRY-1", "title": "x"}
         self._investigation = investigation or {"run_id": "run-xyz"}
         self._summary = summary or {"summary": "ok"}
         self._raise_on = raise_on
@@ -51,7 +51,7 @@ class FakeApiClient:
 
     def _maybe_raise(self, name: str) -> None:
         if self._raise_on == name:
-            raise AisocClientError("upstream boom", status_code=502)
+            raise QuarryClientError("upstream boom", status_code=502)
 
     async def list_open_cases(self, *, limit: int = 10, severity: str | None = None) -> list[dict[str, Any]]:
         self._maybe_raise("list_open_cases")
@@ -75,7 +75,7 @@ class FakeApiClient:
 
 
 class FakeActionsClient:
-    """In-memory stand-in for :class:`AisocActionsClient`."""
+    """In-memory stand-in for :class:`QuarryActionsClient`."""
 
     def __init__(
         self,
@@ -95,7 +95,7 @@ class FakeActionsClient:
 
     def _maybe_raise(self, name: str) -> None:
         if self._raise_on == name:
-            raise AisocClientError("actions boom", status_code=500)
+            raise QuarryClientError("actions boom", status_code=500)
 
     async def submit_action(self, **kwargs: Any) -> dict[str, Any]:
         self._maybe_raise("submit_action")
@@ -122,7 +122,7 @@ async def test_empty_text_returns_help_ephemeral():
     actions = FakeActionsClient()
     res = await handle_aisoc_command(text="", user_id="U1", api_client=api, actions_client=actions, web_base=WEB_BASE)
     assert res["response_type"] == "ephemeral"
-    assert "AiSOC Slack commands" in _flatten(res["blocks"])
+    assert "Quarry Slack commands" in _flatten(res["blocks"])
 
 
 @pytest.mark.asyncio
@@ -131,7 +131,7 @@ async def test_unknown_subcommand_returns_help_with_ephemeral_visibility():
     actions = FakeActionsClient()
     res = await handle_aisoc_command(text="frobnicate", user_id="U1", api_client=api, actions_client=actions, web_base=WEB_BASE)
     assert res["response_type"] == "ephemeral"
-    assert "AiSOC Slack commands" in _flatten(res["blocks"])
+    assert "Quarry Slack commands" in _flatten(res["blocks"])
 
 
 # ────────────────────────────────────────────────────────────────────────────
@@ -141,7 +141,7 @@ async def test_unknown_subcommand_returns_help_with_ephemeral_visibility():
 
 @pytest.mark.asyncio
 async def test_list_passes_severity_filter_and_uses_titled_header():
-    api = FakeApiClient(cases=[{"id": "c-1", "case_number": "AISOC-1", "title": "t", "severity": "high", "status": "investigating"}])
+    api = FakeApiClient(cases=[{"id": "c-1", "case_number": "QUARRY-1", "title": "t", "severity": "high", "status": "investigating"}])
     actions = FakeActionsClient()
     res = await handle_aisoc_command(
         text="list high",
@@ -204,19 +204,19 @@ async def test_investigate_requires_case_id():
 @pytest.mark.asyncio
 async def test_investigate_calls_get_case_then_launch_and_returns_in_channel():
     api = FakeApiClient(
-        case={"id": "c-9", "case_number": "AISOC-9"},
+        case={"id": "c-9", "case_number": "QUARRY-9"},
         investigation={"run_id": "run-42"},
     )
     actions = FakeActionsClient()
     res = await handle_aisoc_command(
-        text="investigate AISOC-9",
+        text="investigate QUARRY-9",
         user_id="U777",
         api_client=api,
         actions_client=actions,
         web_base=WEB_BASE,
     )
     assert res["response_type"] == "in_channel"
-    assert ("get_case", {"case_id": "AISOC-9"}) in api.calls
+    assert ("get_case", {"case_id": "QUARRY-9"}) in api.calls
     # alert_summary mentions the requesting Slack user so the case timeline
     # records who fired the run.
     launch_call = next(c for c in api.calls if c[0] == "launch_investigation")
@@ -229,7 +229,7 @@ async def test_investigate_translates_upstream_error_to_ephemeral_error():
     api = FakeApiClient(raise_on="launch_investigation")
     actions = FakeActionsClient()
     res = await handle_aisoc_command(
-        text="investigate AISOC-9",
+        text="investigate QUARRY-9",
         user_id="U1",
         api_client=api,
         actions_client=actions,
@@ -247,12 +247,12 @@ async def test_investigate_translates_upstream_error_to_ephemeral_error():
 @pytest.mark.asyncio
 async def test_explain_returns_in_channel_with_summary_and_recommendations():
     api = FakeApiClient(
-        case={"id": "c-1", "case_number": "AISOC-1", "title": "t", "severity": "high", "status": "investigating"},
+        case={"id": "c-1", "case_number": "QUARRY-1", "title": "t", "severity": "high", "status": "investigating"},
         summary={"summary": "DNS tunnelling suspected.", "recommendations": ["Isolate"]},
     )
     actions = FakeActionsClient()
     res = await handle_aisoc_command(
-        text="explain AISOC-1",
+        text="explain QUARRY-1",
         user_id="U1",
         api_client=api,
         actions_client=actions,
@@ -286,7 +286,7 @@ async def test_explain_requires_case_id():
 
 @pytest.mark.asyncio
 async def test_isolate_with_quoted_reason_parses_target_and_rationale():
-    api = FakeApiClient(case={"id": "case-7", "case_number": "AISOC-7"})
+    api = FakeApiClient(case={"id": "case-7", "case_number": "QUARRY-7"})
     actions = FakeActionsClient(
         action={
             "id": "act-1",
@@ -297,7 +297,7 @@ async def test_isolate_with_quoted_reason_parses_target_and_rationale():
         }
     )
     res = await handle_aisoc_command(
-        text='isolate host-42 AISOC-7 "confirmed beacon to known bad C2"',
+        text='isolate host-42 QUARRY-7 "confirmed beacon to known bad C2"',
         user_id="U1",
         api_client=api,
         actions_client=actions,
@@ -316,7 +316,7 @@ async def test_isolate_with_quoted_reason_parses_target_and_rationale():
 
 @pytest.mark.asyncio
 async def test_block_dispatches_block_ip_action_type():
-    api = FakeApiClient(case={"id": "case-7", "case_number": "AISOC-7"})
+    api = FakeApiClient(case={"id": "case-7", "case_number": "QUARRY-7"})
     actions = FakeActionsClient(
         action={
             "id": "act-2",
@@ -327,7 +327,7 @@ async def test_block_dispatches_block_ip_action_type():
         }
     )
     res = await handle_aisoc_command(
-        text="block 1.2.3.4 AISOC-7",
+        text="block 1.2.3.4 QUARRY-7",
         user_id="U99",
         api_client=api,
         actions_client=actions,
@@ -358,7 +358,7 @@ async def test_isolate_requires_target_and_case():
 
 @pytest.mark.asyncio
 async def test_auto_approved_action_renders_confirmation_without_buttons():
-    api = FakeApiClient(case={"id": "case-7", "case_number": "AISOC-7"})
+    api = FakeApiClient(case={"id": "case-7", "case_number": "QUARRY-7"})
     actions = FakeActionsClient(
         action={
             "id": "act-3",
@@ -369,7 +369,7 @@ async def test_auto_approved_action_renders_confirmation_without_buttons():
         }
     )
     res = await handle_aisoc_command(
-        text="isolate host-low AISOC-7 routine",
+        text="isolate host-low QUARRY-7 routine",
         user_id="U1",
         api_client=api,
         actions_client=actions,
@@ -385,7 +385,7 @@ async def test_isolate_translates_upstream_error_to_ephemeral_error():
     api = FakeApiClient(case={"id": "case-7"})
     actions = FakeActionsClient(raise_on="submit_action")
     res = await handle_aisoc_command(
-        text="isolate host-1 AISOC-7",
+        text="isolate host-1 QUARRY-7",
         user_id="U1",
         api_client=api,
         actions_client=actions,

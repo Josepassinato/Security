@@ -35,7 +35,7 @@ logger = structlog.get_logger()
 #
 # osctrl is a query/event platform — it does not emit "alerts" with vendor
 # severity. We synthesise severity from the table queried so the rest of
-# the AiSOC pipeline (which assumes events carry severity) has something
+# the Quarry pipeline (which assumes events carry severity) has something
 # to work with. Operators tune the mapping per environment via the
 # detection layer; the defaults here just pick sensible "this is worth
 # looking at by default" buckets.
@@ -157,7 +157,7 @@ class OsctrlConnector(BaseConnector):
         return {
             "Authorization": f"Bearer {self._api_token}",
             "Accept": "application/json",
-            "User-Agent": "AiSOC/connectors-osctrl",
+            "User-Agent": "Quarry/connectors-osctrl",
         }
 
     # ---- runtime ------------------------------------------------------
@@ -270,7 +270,7 @@ class OsctrlConnector(BaseConnector):
         # Flatten osquery row columns to the top level so detection
         # rules can reference them directly in match_when clauses
         # (the matcher only reads top-level fields). We start with the
-        # row dict and let the AiSOC-canonical fields below win on
+        # row dict and let the Quarry-canonical fields below win on
         # collision so source/category/severity stay correct.
         event: dict[str, Any] = {}
         if isinstance(row, dict):

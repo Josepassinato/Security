@@ -1,8 +1,8 @@
-# AiSOC Proposed Issues — 2026-05-12
+# Quarry Proposed Issues — 2026-05-12
 
 This file holds 23 implementation tickets distilled from the
-[community feedback synthesis](./AiSOC_Community_Feedback_Synthesis.md)
-and slotted into the [Now / Next / Later roadmap](./AiSOC_ROADMAP.md).
+[community feedback synthesis](./Quarry_Community_Feedback_Synthesis.md)
+and slotted into the [Now / Next / Later roadmap](./Quarry_ROADMAP.md).
 
 Each ticket is a faithful issue draft. When opening on GitHub:
 
@@ -28,7 +28,7 @@ Each ticket is a faithful issue draft. When opening on GitHub:
 
 ### Problem
 
-OSS-leaning adopters cannot deploy AiSOC end-to-end without first paying
+OSS-leaning adopters cannot deploy Quarry end-to-end without first paying
 for a commercial EDR. Wazuh is the dominant OSS endpoint stack and is
 absent from the connector matrix.
 
@@ -43,7 +43,7 @@ absent from the connector matrix.
 - Subscribes to a Wazuh manager's `archives.json` socket *or* polls the
   Wazuh REST API (configurable via the connector schema).
 - Normalizes events to OCSF in the connector's `normalize()` method,
-  collapsing Wazuh's severity ladder into AiSOC's
+  collapsing Wazuh's severity ladder into Quarry's
   `info | low | medium | high`.
 - Ships with detection content for the top-5 Wazuh-native rule families
   under `detections/endpoint/wazuh/`.
@@ -61,7 +61,7 @@ absent from the connector matrix.
 
 ---
 
-## Issue #2 — `[F001]` connectors+agents: `aisoc-host-agent` skeleton
+## Issue #2 — `[F001]` connectors+agents: `quarry-host-agent` skeleton
 
 **Labels:** `area:connectors`, `area:agents`, `priority:high`
 **Bucket:** Now
@@ -74,14 +74,14 @@ than installing two third-party tools (Wazuh + osquery).
 
 ### Acceptance criteria
 
-- New Go module at `services/aisoc-host-agent/` (matching the existing
+- New Go module at `services/quarry-host-agent/` (matching the existing
   Go service layout under `services/`).
 - Emits OCSF-shaped JSON events to `services/ingest /v1/ingest/batch`
   with the `X-Tenant-ID` header per `AGENTS.md`.
 - Ingest handler accepts the new event source and tags it
-  `source.product = "aisoc-host-agent"`.
-- Plugin manifest at `plugins/aisoc-host-agent/plugin.yaml`.
-- Setup doc at `apps/docs/docs/connectors/aisoc-host-agent.md`.
+  `source.product = "quarry-host-agent"`.
+- Plugin manifest at `plugins/quarry-host-agent/plugin.yaml`.
+- Setup doc at `apps/docs/docs/connectors/quarry-host-agent.md`.
 - Skeleton-only: process listing + file-event watcher + outbound HTTPS
   with a static bearer token. **No** persistence, no live-response, no
   auto-update — those are Next-bucket follow-ups.
@@ -108,7 +108,7 @@ Windows/mac event sources.
 
 - New connector at `services/connectors/app/connectors/auditd.py`
   parsing the audit.d ruleset emitted by a sidecar shipper (Vector,
-  Filebeat, or the new `aisoc-host-agent` once #2 lands).
+  Filebeat, or the new `quarry-host-agent` once #2 lands).
 - 8 detection rules under `detections/endpoint/linux/auditd/`:
   - 2 privilege-escalation (sudo abuse, setuid drop)
   - 2 persistence (cron, systemd unit creation)
@@ -269,7 +269,7 @@ Adopters can't pick an endpoint stack without reading the source.
 ### Acceptance criteria
 
 - New page `apps/docs/docs/operations/endpoint-stack-decision.md`.
-- Comparison table: OSS (Wazuh, audit.d, `aisoc-host-agent`) vs.
+- Comparison table: OSS (Wazuh, audit.d, `quarry-host-agent`) vs.
   commercial (CrowdStrike, SentinelOne, Defender) on coverage, cost,
   operational effort, live-action support.
 - Adoption guidance for the 3 most common shapes (homelab, mid-market,
@@ -296,11 +296,11 @@ First-contributor ramp is 2–4 hours.
   `services/connectors/app/connectors/_examples/hello_httpbin.py` that
   polls `https://httpbin.org/uuid` and ingests one event per minute.
   Marked clearly as an example (skipped from registration unless
-  `AISOC_ENABLE_EXAMPLE_CONNECTORS=1`).
+  `QUARRY_ENABLE_EXAMPLE_CONNECTORS=1`).
 - Smoke test at
   `services/connectors/tests/connectors/test_hello_httpbin.py` that
   asserts the example normalizes and ingests one event end-to-end with
-  the scheduler disabled (`AISOC_CONNECTORS_DISABLE_SCHEDULER=1`).
+  the scheduler disabled (`QUARRY_CONNECTORS_DISABLE_SCHEDULER=1`).
 - Target: ≤30 minutes from `git clone` to "I see my event in the UI",
   measured against a fresh contributor before merge.
 
@@ -323,7 +323,7 @@ First-contributor ramp is 2–4 hours.
 
 ---
 
-## Issue #12 — `[F012]` cli+dx: `aisoc-cli plugin new`
+## Issue #12 — `[F012]` cli+dx: `quarry-cli plugin new`
 
 **Labels:** `area:dx`, `area:cli`, `priority:medium`
 **Bucket:** Now
@@ -331,7 +331,7 @@ First-contributor ramp is 2–4 hours.
 
 ### Acceptance criteria
 
-- New subcommand `aisoc-cli plugin new <type> <name>` where `<type>`
+- New subcommand `quarry-cli plugin new <type> <name>` where `<type>`
   is one of `connector | detection-pack | playbook`.
 - Templates at `plugins/templates/connector/`,
   `plugins/templates/detection-pack/`,
@@ -369,7 +369,7 @@ threat-actor profile read endpoint.
 
 ---
 
-## Issue #14 — `[F014]` infra: `terraform-aws-aisoc` module shape
+## Issue #14 — `[F014]` infra: `terraform-aws-quarry` module shape
 
 **Labels:** `area:infra`, `area:deployment`, `priority:high`
 **Bucket:** Now
@@ -377,7 +377,7 @@ threat-actor profile read endpoint.
 
 ### Acceptance criteria
 
-- New module at `infra/terraform/modules/aws-aisoc/`.
+- New module at `infra/terraform/modules/aws-quarry/`.
 - Variant: VPC + ECS Fargate + RDS Postgres + ElastiCache Redis +
   Secrets Manager.
 - Outputs: API URL, web URL, Postgres connection string (sensitive),
@@ -388,7 +388,7 @@ threat-actor profile read endpoint.
 
 ---
 
-## Issue #15 — `[F014]` infra: `terraform-gcp-aisoc` skeleton
+## Issue #15 — `[F014]` infra: `terraform-gcp-quarry` skeleton
 
 **Labels:** `area:infra`, `area:deployment`, `priority:medium`
 **Bucket:** Now
@@ -536,7 +536,7 @@ threat-actor profile read endpoint.
 
 ## Cross-references
 
-- [Strategic roadmap](./AiSOC_ROADMAP.md)
-- [Feedback synthesis](./AiSOC_Community_Feedback_Synthesis.md)
+- [Strategic roadmap](./Quarry_ROADMAP.md)
+- [Feedback synthesis](./Quarry_Community_Feedback_Synthesis.md)
 - [Contributor invariants & eval gates](../../../AGENTS.md)
 - [v7.0.x reconciliation](../../../CHANGELOG.md)

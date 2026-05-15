@@ -9,7 +9,7 @@ description: >
   and subnet-router updates, OIDC/SAML configuration mutations, and more.
   Supports both long-lived API keys and OAuth 2.0 client-credential flow for
   production deployments.
-author: AiSOC Core Team
+author: Quarry Core Team
 tags:
   - network
   - zero-trust
@@ -17,7 +17,7 @@ tags:
   - tailscale
   - audit
   - iam
-homepage: https://github.com/beenuar/AiSOC/tree/main/plugins/tailscale-connector
+homepage: https://github.com/beenuar/Quarry/tree/main/plugins/tailscale-connector
 license: MIT
 min_aisoc_version: "4.0.0"
 config_schema:

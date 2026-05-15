@@ -52,7 +52,7 @@ def test_guardduty_schema_category_is_cloud():
 @pytest.mark.parametrize(
     "score,expected",
     [
-        # GuardDuty's 9.0-10.0 band maps to AiSOC's ``critical`` tier
+        # GuardDuty's 9.0-10.0 band maps to Quarry's ``critical`` tier
         # (P1 SLA) — these are the highest-confidence active-threat
         # findings and warrant the 15-minute MTTD target.
         (10.0, "critical"),

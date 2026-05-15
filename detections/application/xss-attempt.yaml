@@ -1,6 +1,6 @@
 id: det-application-002
 name: Cross-Site Scripting Attempt
-description: AiSOC v1 curated detection. Triggers on the application signal described by 'Cross-Site Scripting
+description: Quarry v1 curated detection. Triggers on the application signal described by 'Cross-Site Scripting
   Attempt'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: high
@@ -18,6 +18,6 @@ false_positives:
 - Encoded HTML in legitimate CMS posts (encode-on-output)
 playbook: tpl-webattack
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

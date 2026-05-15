@@ -2,7 +2,7 @@
  * Case-facing tools.
  *
  * `aisoc_list_cases` and `aisoc_get_case` mirror the alerts tools.
- * `aisoc_run_investigation` is the marquee tool — it kicks off the AiSOC
+ * `aisoc_run_investigation` is the marquee tool — it kicks off the Quarry
  * investigator agent on a case and returns the run_id that the agent can
  * subsequently poll via `aisoc_replay_decision`.
  *
@@ -140,7 +140,7 @@ const RunInvestigationSchema = z
       .string()
       .optional()
       .describe(
-        "Optional human-readable summary used to seed the recon agent. If omitted, AiSOC builds one from linked alerts.",
+        "Optional human-readable summary used to seed the recon agent. If omitted, Quarry builds one from linked alerts.",
       ),
   })
   .strict();
@@ -149,7 +149,7 @@ export const runInvestigationTool: ToolDefinition<typeof RunInvestigationSchema>
   metadata: {
     name: "aisoc_run_investigation",
     description:
-      "Kick off the AiSOC multi-agent investigator on a case. Returns a run_id immediately; use `aisoc_replay_decision` to fetch the resulting decision ledger.",
+      "Kick off the Quarry multi-agent investigator on a case. Returns a run_id immediately; use `aisoc_replay_decision` to fetch the resulting decision ledger.",
     inputSchema: zodToJsonSchema(RunInvestigationSchema),
   },
   schema: RunInvestigationSchema,

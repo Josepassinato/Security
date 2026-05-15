@@ -1,7 +1,7 @@
 {
   "name": "@quarry/ui",
   "version": "0.1.0",
-  "description": "AiSOC shared React UI component library",
+  "description": "Quarry shared React UI component library",
   "license": "MIT",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

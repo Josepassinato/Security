@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# restore.sh — AiSOC full-stack restore from S3/R2
+# restore.sh — Quarry full-stack restore from S3/R2
 #
 # Restores:
 #   1. PostgreSQL (download + gunzip + psql)
@@ -26,18 +26,18 @@ set -euo pipefail
 
 # ── defaults ──────────────────────────────────────────────────────────────────
 BACKUP_S3_BUCKET="${BACKUP_S3_BUCKET:-}"
-BACKUP_S3_PREFIX="${BACKUP_S3_PREFIX:-aisoc-backups}"
+BACKUP_S3_PREFIX="${BACKUP_S3_PREFIX:-quarry-backups}"
 POSTGRES_URL="${POSTGRES_URL:-}"
 CLICKHOUSE_HOST="${CLICKHOUSE_HOST:-localhost}"
 CLICKHOUSE_PORT="${CLICKHOUSE_PORT:-8123}"
 CLICKHOUSE_USER="${CLICKHOUSE_USER:-default}"
 CLICKHOUSE_PASSWORD="${CLICKHOUSE_PASSWORD:-}"
-CLICKHOUSE_DATABASE="${CLICKHOUSE_DATABASE:-aisoc}"
+CLICKHOUSE_DATABASE="${CLICKHOUSE_DATABASE:-quarry}"
 TIMESTAMP=""
 COMPONENT="all"
 DO_LIST=false
 USE_LATEST=false
-RESTORE_DIR="/tmp/aisoc-restore-$$"
+RESTORE_DIR="/tmp/quarry-restore-$$"
 
 # ── arg parsing ───────────────────────────────────────────────────────────────
 while [[ $# -gt 0 ]]; do
@@ -126,7 +126,7 @@ resolve_timestamp
 mkdir -p "$RESTORE_DIR"
 trap 'rm -rf "$RESTORE_DIR"' EXIT
 
-log "=== AiSOC Restore started: timestamp=${TIMESTAMP} ==="
+log "=== Quarry Restore started: timestamp=${TIMESTAMP} ==="
 log "Component: ${COMPONENT}"
 
 # ── confirmation prompt ────────────────────────────────────────────────────────

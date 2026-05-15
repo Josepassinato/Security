@@ -4,7 +4,7 @@
 We mount *only* the explain router into a fresh FastAPI app so the test
 suite does not pull in the heavyweight ``services/agents/app/main.py``
 lifespan (LangGraph, model loaders, MITRE corpus prefetch, etc.). The
-LLM is forced off via ``AISOC_AIRGAPPED=true`` and a missing
+LLM is forced off via ``QUARRY_AIRGAPPED=true`` and a missing
 ``OPENAI_API_KEY`` so every stream is deterministic.
 
 Each test resets the module-level explain-limiter singleton via
@@ -33,7 +33,7 @@ if str(_AGENTS_ROOT) not in sys.path:
 # Force the LLM off *before* importing app.api.explain so its module-level
 # default ladder is consistent with what the tests assume.
 os.environ.pop("OPENAI_API_KEY", None)
-os.environ["AISOC_AIRGAPPED"] = "true"
+os.environ["QUARRY_AIRGAPPED"] = "true"
 
 from app.api.explain import (  # noqa: E402
     _frame,
@@ -114,10 +114,10 @@ def test_explain_streams_grounded_ndjson(monkeypatch: pytest.MonkeyPatch) -> Non
       * ATO-tagged alert recommends ``ato-impossible-travel-block-v1``
       * Evidence frame surfaces the user from ``rawEvent``
     """
-    monkeypatch.setenv("AISOC_EXPLAIN_RPM", "120")
-    monkeypatch.setenv("AISOC_EXPLAIN_BURST", "60")
+    monkeypatch.setenv("QUARRY_EXPLAIN_RPM", "120")
+    monkeypatch.setenv("QUARRY_EXPLAIN_BURST", "60")
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
-    monkeypatch.setenv("AISOC_AIRGAPPED", "true")
+    monkeypatch.setenv("QUARRY_AIRGAPPED", "true")
 
     client = TestClient(_build_app())
     response = client.post(
@@ -178,10 +178,10 @@ def test_explain_uses_default_tenant_when_omitted(
     rate-limit-key resolver explicitly treats as "no tenant — fall back
     to client IP", so the call must not 500 on a missing field.
     """
-    monkeypatch.setenv("AISOC_EXPLAIN_RPM", "120")
-    monkeypatch.setenv("AISOC_EXPLAIN_BURST", "60")
+    monkeypatch.setenv("QUARRY_EXPLAIN_RPM", "120")
+    monkeypatch.setenv("QUARRY_EXPLAIN_BURST", "60")
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
-    monkeypatch.setenv("AISOC_AIRGAPPED", "true")
+    monkeypatch.setenv("QUARRY_AIRGAPPED", "true")
 
     client = TestClient(_build_app())
     response = client.post(
@@ -208,10 +208,10 @@ def test_explain_throttles_with_429_and_ndjson_error_frame(
     ``error`` frame so SSE/EventSource clients that ignore HTTP status
     still see a structured failure.
     """
-    monkeypatch.setenv("AISOC_EXPLAIN_RPM", "1")
-    monkeypatch.setenv("AISOC_EXPLAIN_BURST", "1")
+    monkeypatch.setenv("QUARRY_EXPLAIN_RPM", "1")
+    monkeypatch.setenv("QUARRY_EXPLAIN_BURST", "1")
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
-    monkeypatch.setenv("AISOC_AIRGAPPED", "true")
+    monkeypatch.setenv("QUARRY_AIRGAPPED", "true")
 
     client = TestClient(_build_app())
     body = {
@@ -240,10 +240,10 @@ def test_explain_throttles_with_429_and_ndjson_error_frame(
 
 def test_explain_buckets_are_per_tenant(monkeypatch: pytest.MonkeyPatch) -> None:
     """Draining tenant-a's bucket must not throttle tenant-b."""
-    monkeypatch.setenv("AISOC_EXPLAIN_RPM", "1")
-    monkeypatch.setenv("AISOC_EXPLAIN_BURST", "1")
+    monkeypatch.setenv("QUARRY_EXPLAIN_RPM", "1")
+    monkeypatch.setenv("QUARRY_EXPLAIN_BURST", "1")
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
-    monkeypatch.setenv("AISOC_AIRGAPPED", "true")
+    monkeypatch.setenv("QUARRY_AIRGAPPED", "true")
 
     client = TestClient(_build_app())
 
@@ -269,11 +269,11 @@ def test_explain_buckets_are_per_tenant(monkeypatch: pytest.MonkeyPatch) -> None
 def test_explain_limiter_disabled_when_rpm_zero(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """``AISOC_EXPLAIN_RPM=0`` is the documented opt-out for self-hosters."""
-    monkeypatch.setenv("AISOC_EXPLAIN_RPM", "0")
-    monkeypatch.setenv("AISOC_EXPLAIN_BURST", "0")
+    """``QUARRY_EXPLAIN_RPM=0`` is the documented opt-out for self-hosters."""
+    monkeypatch.setenv("QUARRY_EXPLAIN_RPM", "0")
+    monkeypatch.setenv("QUARRY_EXPLAIN_BURST", "0")
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
-    monkeypatch.setenv("AISOC_AIRGAPPED", "true")
+    monkeypatch.setenv("QUARRY_AIRGAPPED", "true")
 
     client = TestClient(_build_app())
     response = client.post(
@@ -290,10 +290,10 @@ def test_explain_limiter_handles_invalid_env_values(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Garbage env values must fall back to defaults, not crash startup."""
-    monkeypatch.setenv("AISOC_EXPLAIN_RPM", "not-a-number")
-    monkeypatch.setenv("AISOC_EXPLAIN_BURST", "also-bad")
+    monkeypatch.setenv("QUARRY_EXPLAIN_RPM", "not-a-number")
+    monkeypatch.setenv("QUARRY_EXPLAIN_BURST", "also-bad")
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
-    monkeypatch.setenv("AISOC_AIRGAPPED", "true")
+    monkeypatch.setenv("QUARRY_AIRGAPPED", "true")
 
     client = TestClient(_build_app())
     response = client.post(

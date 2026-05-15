@@ -1,12 +1,12 @@
 ---
 sidebar_position: 6
 title: GCP Security Command Center
-description: Posture and threat findings from Google Cloud Security Command Center (SCC) into AiSOC.
+description: Posture and threat findings from Google Cloud Security Command Center (SCC) into Quarry.
 ---
 
 # GCP Security Command Center
 
-The SCC connector pulls **findings** from Google Cloud Security Command Center — vulnerabilities, misconfigurations, threats, and posture violations across the GCP organization — into AiSOC.
+The SCC connector pulls **findings** from Google Cloud Security Command Center — vulnerabilities, misconfigurations, threats, and posture violations across the GCP organization — into Quarry.
 
 ## What you get
 
@@ -33,7 +33,7 @@ Events are normalized with `category: cloud_posture` (vulnerability/misconfig) o
 ### 2. Create the service account
 
 1. **GCP Console → IAM & Admin → Service Accounts** in any project (we recommend a dedicated `security-tools` project).
-2. **Create service account** → name `aisoc-scc-reader`.
+2. **Create service account** → name `quarry-scc-reader`.
 
 ### 3. Grant org-level access
 
@@ -42,10 +42,10 @@ Events are normalized with `category: cloud_posture` (vulnerability/misconfig) o
 
 This must be at the **organization** level, not at a project level. SCC findings are an org-scoped resource.
 
-### 4. Mint the JSON key and add to AiSOC
+### 4. Mint the JSON key and add to Quarry
 
 1. Service account → **Keys → Add key → Create new key → JSON**.
-2. **AiSOC → Connectors → Add connector → GCP Security Command Center**.
+2. **Quarry → Connectors → Add connector → GCP Security Command Center**.
 3. `organization_id` = the numeric org ID (e.g. `123456789012`, not `example.com`).
 4. `service_account_json` = paste the JSON.
 5. **Test connection** → calls `findings.list` with `pageSize=1` against the org.
@@ -58,9 +58,9 @@ This must be at the **organization** level, not at a project level. SCC findings
 
 ## Severity mapping
 
-SCC carries explicit severity; AiSOC uses it directly:
+SCC carries explicit severity; Quarry uses it directly:
 
-| SCC severity | AiSOC severity |
+| SCC severity | Quarry severity |
 |---|---|
 | `CRITICAL` | `critical` |
 | `HIGH` | `high` |
@@ -70,7 +70,7 @@ SCC carries explicit severity; AiSOC uses it directly:
 
 `category` mapping:
 
-| SCC `findingClass` | AiSOC category |
+| SCC `findingClass` | Quarry category |
 |---|---|
 | `THREAT` | `threat` |
 | `VULNERABILITY` | `cloud_posture` |

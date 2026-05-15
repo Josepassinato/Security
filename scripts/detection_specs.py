@@ -1,5 +1,5 @@
 """
-AiSOC Detection Pack v1 - Rule Specifications
+Quarry Detection Pack v1 - Rule Specifications
 ==============================================
 
 Single source of truth for the 200-rule curated detection pack.

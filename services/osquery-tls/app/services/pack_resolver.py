@@ -7,7 +7,7 @@ response.
 Tenant pack assignments are stored in the ``OsqueryPackAssignment`` table
 (added in PR4's Alembic migration).  When a tenant has no explicit
 assignments the resolver falls back to the curated *baseline* packs
-(aisoc-fim-baseline, aisoc-inventory-baseline).
+(quarry-fim-baseline, quarry-inventory-baseline).
 """
 
 from __future__ import annotations
@@ -25,8 +25,8 @@ from app.services.pack_loader import get_pack
 # ---------------------------------------------------------------------------
 
 _DEFAULT_PACK_IDS: list[str] = [
-    "aisoc-fim-baseline",
-    "aisoc-inventory-baseline",
+    "quarry-fim-baseline",
+    "quarry-inventory-baseline",
 ]
 
 

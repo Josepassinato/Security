@@ -7,9 +7,9 @@ description: >
   VMware Carbon Black Cloud (formerly Carbon Black Defense). Pulls alerts and
   audit log entries via API key authentication. Supports host isolation and hash
   banning via agent capabilities.
-author: AiSOC Core Team
+author: Quarry Core Team
 tags: [edr, carbon-black, vmware, endpoint]
-homepage: https://github.com/beenuar/AiSOC/tree/main/services/connectors/app/connectors/carbon_black.py
+homepage: https://github.com/beenuar/Quarry/tree/main/services/connectors/app/connectors/carbon_black.py
 license: MIT
 min_aisoc_version: "4.0.0"
 config_schema:

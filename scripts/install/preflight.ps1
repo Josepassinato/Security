@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    AiSOC preflight checks for Windows.
+    Quarry preflight checks for Windows.
 
 .DESCRIPTION
     Mirror of scripts/install/preflight.sh, but for the Windows + WSL2
@@ -24,8 +24,8 @@
         6.  WSL2 is installed and has a default distro
         7.  Docker Desktop service / engine is reachable (best effort)
         8.  Required ports (3000/5432/6379/8000/8001/8086/9092) are free
-            OR held by an existing AiSOC container we can reuse
-        9.  No leftover/conflicting AiSOC containers from a prior run
+            OR held by an existing Quarry container we can reuse
+        9.  No leftover/conflicting Quarry containers from a prior run
         10. Hyper-V vs WSL2 sanity check (warn if both seem half-on)
 
     Each check produces one of three states:
@@ -150,7 +150,7 @@ function script:Pf-CheckArch {
         "ARM64" { Pf-Pass "CPU architecture: arm64"; return }
         default {
             Pf-Fail "CPU architecture '$arch' is not supported." `
-                "AiSOC requires amd64 or arm64. ARM32/x86 won't work — Docker Desktop doesn't even run there."
+                "Quarry requires amd64 or arm64. ARM32/x86 won't work — Docker Desktop doesn't even run there."
         }
     }
 }
@@ -161,7 +161,7 @@ function script:Pf-CheckRam {
         $ramMb = [int]($cs.TotalPhysicalMemory / 1MB)
         if ($ramMb -lt 4096) {
             Pf-Fail "Only ${ramMb} MB of RAM detected (need >= 4096 MB)." `
-                "AiSOC won't fit. Close apps, reboot, or run on a bigger machine."
+                "Quarry won't fit. Close apps, reboot, or run on a bigger machine."
         } elseif ($ramMb -lt 8192) {
             Pf-Warn "Only ${ramMb} MB of RAM detected (recommend 8 GB+)." `
                 "The demo will run but may be slow. Close other heavy apps before launching."
@@ -304,9 +304,9 @@ function script:Pf-CheckPorts {
             if ($proc) { $owner = "$($proc.ProcessName) (pid $($proc.Id))" }
         } catch { }
 
-        if ($owner -match 'docker|com\.docker|aisoc') {
-            Pf-Warn "Port $port ($name) is held by an existing AiSOC/Docker container ($owner)." `
-                "We'll reuse it — but if a previous demo crashed, run 'pnpm aisoc:demo:down' first."
+        if ($owner -match 'docker|com\.docker|quarry') {
+            Pf-Warn "Port $port ($name) is held by an existing Quarry/Docker container ($owner)." `
+                "We'll reuse it — but if a previous demo crashed, run 'pnpm quarry:demo:down' first."
             $reused++
         } else {
             Pf-Fail "Port $port ($name) is in use by $owner." `
@@ -327,11 +327,11 @@ function script:Pf-CheckStaleContainers {
         # Containers in 'created' or 'exited' state from a previous run
         # will block 'docker compose up' with a name conflict. Detect
         # them so install.ps1 can offer to clean up.
-        $stale = & docker ps -a --filter "name=aisoc-" --filter "status=exited" --filter "status=created" --format "{{.Names}}" 2>$null
+        $stale = & docker ps -a --filter "name=quarry-" --filter "status=exited" --filter "status=created" --format "{{.Names}}" 2>$null
         if ($LASTEXITCODE -eq 0 -and $stale) {
             $count = ($stale -split "`n" | Where-Object { $_ -ne '' }).Count
-            Pf-Warn "Found $count stopped AiSOC container(s) from a previous run." `
-                "Run 'docker rm -f `$(docker ps -aq --filter name=aisoc-)' or 'pnpm aisoc:demo:down' to clean up."
+            Pf-Warn "Found $count stopped Quarry container(s) from a previous run." `
+                "Run 'docker rm -f `$(docker ps -aq --filter name=quarry-)' or 'pnpm quarry:demo:down' to clean up."
         }
     } catch {
         # Don't fail preflight just because docker query was flaky
@@ -381,10 +381,10 @@ function script:Pf-Summary {
     return $true
 }
 
-# Note the casing — install.ps1 calls this as Invoke-AiSOCPreflight to
+# Note the casing — install.ps1 calls this as Invoke-QuarryPreflight to
 # match the project name. PowerShell function names are case-insensitive,
 # but matching the project casing makes greps useful.
-function Invoke-AiSOCPreflight {
+function Invoke-QuarryPreflight {
     Write-Host ""
     Write-Host "Preflight checks" -ForegroundColor Cyan
     Pf-CheckWindowsVersion
@@ -402,7 +402,7 @@ function Invoke-AiSOCPreflight {
 
 # When run standalone (not dot-sourced), execute and exit with a
 # conventional shell exit code. When dot-sourced, install.ps1 calls
-# Invoke-AiSOCPreflight itself and inspects the boolean return value.
+# Invoke-QuarryPreflight itself and inspects the boolean return value.
 if ($MyInvocation.InvocationName -ne '.') {
-    if (Invoke-AiSOCPreflight) { exit 0 } else { exit 1 }
+    if (Invoke-QuarryPreflight) { exit 0 } else { exit 1 }
 }

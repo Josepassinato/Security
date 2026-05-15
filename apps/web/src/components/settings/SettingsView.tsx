@@ -96,8 +96,8 @@ const DEFAULT_PREFS: Preferences = {
   copilotAutoOpen: false,
 };
 
-const STORAGE_KEY = 'aisoc:settings:preferences';
-const PROFILE_KEY = 'aisoc:settings:profile';
+const STORAGE_KEY = 'quarry:settings:preferences';
+const PROFILE_KEY = 'quarry:settings:profile';
 
 interface ProfileData {
   displayName: string;
@@ -331,7 +331,7 @@ const TABS: { id: TabId; label: string; description: string }[] = [
   {
     id: 'notifications',
     label: 'Notifications',
-    description: 'How and when AiSOC should ping you.',
+    description: 'How and when Quarry should ping you.',
   },
   {
     id: 'appearance',
@@ -342,7 +342,7 @@ const TABS: { id: TabId; label: string; description: string }[] = [
     id: 'deployment',
     label: 'Deployment & AI',
     description:
-      'Live air-gap policy and LLM provider snapshot for this AiSOC pod.',
+      'Live air-gap policy and LLM provider snapshot for this Quarry pod.',
   },
   {
     id: 'audit',
@@ -650,7 +650,7 @@ function WorkspacePanel() {
         description="Tenant identity and locale settings. Available to workspace administrators."
       />
       <div className="grid gap-5 px-6 py-5 sm:grid-cols-2">
-        <InfoTile label="Workspace name" value="AiSOC Demo" />
+        <InfoTile label="Workspace name" value="Quarry Demo" />
         <InfoTile label="Tenant ID" value="tenant_demo_01H0XE4T2WJ9N6" mono />
         <InfoTile label="Plan" value="Open-source (MIT)" />
         <InfoTile label="Region" value="us-east-1 / Multi-AZ" />
@@ -773,7 +773,7 @@ function IntegrationsPanel() {
     <div>
       <PanelHeader
         title="Integrations"
-        description="Manage the connectors that stream telemetry into AiSOC."
+        description="Manage the connectors that stream telemetry into Quarry."
         action={
           <Link
             href="/connectors/new"
@@ -808,7 +808,7 @@ function IntegrationsPanel() {
         ) : connectors.length === 0 ? (
           <EmptyState
             title="No connectors yet"
-            description="Add your first integration to start streaming events into AiSOC."
+            description="Add your first integration to start streaming events into Quarry."
             action={
               <Link
                 href="/connectors/new"
@@ -1119,7 +1119,7 @@ function NotificationsPanel() {
     <div>
       <PanelHeader
         title="Notifications"
-        description="How AiSOC pings you when things happen."
+        description="How Quarry pings you when things happen."
       />
       <div className="space-y-3 px-6 py-5">
         <Toggle
@@ -1224,7 +1224,7 @@ function AppearancePanel() {
     <div>
       <PanelHeader
         title="Appearance"
-        description="Tune how AiSOC looks and animates on this device."
+        description="Tune how Quarry looks and animates on this device."
       />
       <div className="space-y-5 px-6 py-5">
         {/* Theme */}
@@ -1369,7 +1369,7 @@ function DeploymentAIPanel() {
     <div>
       <PanelHeader
         title="Deployment & AI"
-        description="Air-gap policy, LLM provider snapshot, and per-tenant BYOK overrides for this AiSOC pod."
+        description="Air-gap policy, LLM provider snapshot, and per-tenant BYOK overrides for this Quarry pod."
       />
       <div className="space-y-5 px-6 py-5">
         {isLoading && !airgap.data && !llm.data ? (
@@ -1406,7 +1406,7 @@ function DeploymentAIPanel() {
               from this pod and mirror the egress gate exactly. To change them
               cluster-wide, update environment variables and redeploy. See{' '}
               <a
-                href="https://beenuar.github.io/AiSOC/docs/operations/airgap/"
+                href="https://beenuar.github.io/Quarry/docs/operations/airgap/"
                 target="_blank"
                 rel="noreferrer"
                 className="text-blue-400 hover:text-blue-300 hover:underline"
@@ -1527,7 +1527,7 @@ function LlmCard({
             <code className="font-mono">{llm.host || '—'}</code> is not in the
             operator allowlist. Live AI calls will refuse and Explain will fall
             back to the deterministic OCSF/MITRE summary. Add the host to{' '}
-            <code className="font-mono">AISOC_AIRGAP_ALLOWLIST</code> or switch
+            <code className="font-mono">QUARRY_AIRGAP_ALLOWLIST</code> or switch
             to a private LLM endpoint.
           </p>
         </div>
@@ -1850,7 +1850,7 @@ function BYOKCard({
               )}
             </div>
             <p className="mt-1 text-xs text-gray-500">
-              Per-tenant override for this AiSOC workspace. The platform
+              Per-tenant override for this Quarry workspace. The platform
               uses these settings instead of the pod-level defaults.
             </p>
           </div>
@@ -2201,22 +2201,22 @@ function AboutPanel() {
   return (
     <div>
       <PanelHeader
-        title="About AiSOC"
+        title="About Quarry"
         description="Open-source SOC platform — community-built, MIT licensed."
       />
       <div className="grid gap-4 px-6 py-5 sm:grid-cols-2">
         <InfoTile label="Version" value="v6.0.1" />
         <InfoTile label="Build" value="local • dev" />
         <InfoTile label="License" value="MIT" />
-        <InfoTile label="Source" value="github.com/beenuar/AiSOC" mono />
+        <InfoTile label="Source" value="github.com/beenuar/Quarry" mono />
       </div>
       <div className="border-t border-gray-800 px-6 py-5 text-sm text-gray-400">
         <p>
-          AiSOC is community-driven. Issues, ideas, and PRs welcome on GitHub.
+          Quarry is community-driven. Issues, ideas, and PRs welcome on GitHub.
           See the{' '}
           <a
             className="text-blue-400 hover:text-blue-300"
-            href="https://github.com/beenuar/AiSOC/blob/main/CONTRIBUTING.md"
+            href="https://github.com/beenuar/Quarry/blob/main/CONTRIBUTING.md"
             target="_blank"
             rel="noreferrer"
           >
@@ -2227,7 +2227,7 @@ function AboutPanel() {
         <div className="mt-4 flex flex-wrap gap-2">
           <a
             className="rounded-lg border border-gray-700 bg-gray-900 px-3 py-1.5 text-xs text-gray-200 hover:bg-gray-800"
-            href="https://github.com/beenuar/AiSOC"
+            href="https://github.com/beenuar/Quarry"
             target="_blank"
             rel="noreferrer"
           >
@@ -2235,7 +2235,7 @@ function AboutPanel() {
           </a>
           <a
             className="rounded-lg border border-gray-700 bg-gray-900 px-3 py-1.5 text-xs text-gray-200 hover:bg-gray-800"
-            href="https://github.com/beenuar/AiSOC/blob/main/CHANGELOG.md"
+            href="https://github.com/beenuar/Quarry/blob/main/CHANGELOG.md"
             target="_blank"
             rel="noreferrer"
           >
@@ -2243,7 +2243,7 @@ function AboutPanel() {
           </a>
           <a
             className="rounded-lg border border-gray-700 bg-gray-900 px-3 py-1.5 text-xs text-gray-200 hover:bg-gray-800"
-            href="https://github.com/beenuar/AiSOC/blob/main/SECURITY.md"
+            href="https://github.com/beenuar/Quarry/blob/main/SECURITY.md"
             target="_blank"
             rel="noreferrer"
           >

@@ -98,7 +98,7 @@ class RawAlert(BaseModel):
 class ConfidenceLabel(str, Enum):
     """High/medium/low confidence label surfaced on every alert.
 
-    Wave 1 of the AiSOC v6 capability roadmap — every alert ships with a
+    Wave 1 of the Quarry v6 capability roadmap — every alert ships with a
     transparent confidence label and a chain of contributing factors so the
     analyst can decide whether to action it without re-deriving the score.
     """

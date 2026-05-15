@@ -34,7 +34,7 @@ STARTER_PLAYBOOKS: list[dict] = [
                 },
             },
         ],
-        "author": "AiSOC",
+        "author": "Quarry",
         "enabled": True,
     },
     # 2 ─ Ransomware Response
@@ -75,7 +75,7 @@ STARTER_PLAYBOOKS: list[dict] = [
                 },
             },
         ],
-        "author": "AiSOC",
+        "author": "Quarry",
         "enabled": True,
     },
     # 3 ─ Credential Stuffing
@@ -106,7 +106,7 @@ STARTER_PLAYBOOKS: list[dict] = [
                 "params": {"project": "SOC", "type": "Incident"},
             },
         ],
-        "author": "AiSOC",
+        "author": "Quarry",
         "enabled": True,
     },
     # 4 ─ Insider Threat Investigation
@@ -140,7 +140,7 @@ STARTER_PLAYBOOKS: list[dict] = [
                 },
             },
         ],
-        "author": "AiSOC",
+        "author": "Quarry",
         "enabled": True,
     },
     # 5 ─ Malware IOC Enrichment
@@ -171,7 +171,7 @@ STARTER_PLAYBOOKS: list[dict] = [
                 "params": {"ioc_type": "domain"},
             },
         ],
-        "author": "AiSOC",
+        "author": "Quarry",
         "enabled": True,
     },
     # 6 ─ Cloud Misconfiguration Alert
@@ -205,7 +205,7 @@ STARTER_PLAYBOOKS: list[dict] = [
                 "params": {"project": "CLOUD", "type": "Remediation"},
             },
         ],
-        "author": "AiSOC",
+        "author": "Quarry",
         "enabled": True,
     },
     # 7 ─ Lateral Movement Detection
@@ -236,7 +236,7 @@ STARTER_PLAYBOOKS: list[dict] = [
                 "params": {},
             },
         ],
-        "author": "AiSOC",
+        "author": "Quarry",
         "enabled": True,
     },
     # 8 ─ Data Exfiltration Alert
@@ -276,7 +276,7 @@ STARTER_PLAYBOOKS: list[dict] = [
                 "params": {"project": "DLP"},
             },
         ],
-        "author": "AiSOC",
+        "author": "Quarry",
         "enabled": True,
     },
     # 9 ─ Zero-Day Exploit
@@ -316,7 +316,7 @@ STARTER_PLAYBOOKS: list[dict] = [
                 "params": {"project": "SEC", "type": "P0-Incident"},
             },
         ],
-        "author": "AiSOC",
+        "author": "Quarry",
         "enabled": True,
     },
     # 10 ─ BEC (Business Email Compromise)
@@ -350,7 +350,7 @@ STARTER_PLAYBOOKS: list[dict] = [
                 "params": {"project": "FRAUD"},
             },
         ],
-        "author": "AiSOC",
+        "author": "Quarry",
         "enabled": True,
     },
     # 11 ─ Supply Chain Alert
@@ -384,7 +384,7 @@ STARTER_PLAYBOOKS: list[dict] = [
                 "params": {},
             },
         ],
-        "author": "AiSOC",
+        "author": "Quarry",
         "enabled": True,
     },
     # 12 ─ Auto-close Informational
@@ -409,7 +409,7 @@ STARTER_PLAYBOOKS: list[dict] = [
                 "params": {},
             },
         ],
-        "author": "AiSOC",
+        "author": "Quarry",
         "enabled": True,
     },
 ]

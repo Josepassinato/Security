@@ -49,19 +49,19 @@ from sqlglot import exp
 
 
 # Tables agents and operators may query directly. Anything else — including
-# system tables, temporary tables, CSV-injected URLs, and the ``aisoc`` config
+# system tables, temporary tables, CSV-injected URLs, and the ``quarry`` config
 # tables that live in Postgres — is denied at parse time.
 ALLOWED_TABLES: Final[frozenset[str]] = frozenset(
     {
-        "aisoc.raw_events",
-        "aisoc.alert_metrics",
-        "aisoc.ioc_enrichments",
+        "quarry.raw_events",
+        "quarry.alert_metrics",
+        "quarry.ioc_enrichments",
     }
 )
 
 # Default schema (ClickHouse database) we resolve unqualified ``FROM <name>``
 # references against. Lets agents write ``FROM raw_events`` for terseness.
-DEFAULT_SCHEMA: Final[str] = "aisoc"
+DEFAULT_SCHEMA: Final[str] = "quarry"
 
 # Default max rows the rewriter will let a query return. Keeps a pathological
 # ``SELECT *`` from raw_events from blowing up the agent's context window or

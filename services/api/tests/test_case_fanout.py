@@ -1,6 +1,6 @@
 """Unit tests for the case → ITSM fan-out service (Workstream 8).
 
-The fan-out service projects AiSOC case lifecycle events onto external
+The fan-out service projects Quarry case lifecycle events onto external
 ITSM systems via the connectors microservice. The behaviour we care
 about most:
 
@@ -95,7 +95,7 @@ def _make_case_row(
     """
     return {
         "id": case_id or uuid.uuid4(),
-        "case_number": "AISOC-1234",
+        "case_number": "QUARRY-1234",
         "title": title,
         "description": "Operator notes",
         "severity": severity,
@@ -353,7 +353,7 @@ async def test_fanout_create_case_happy_path_persists_external_ref() -> None:
             case_row=case,
             tenant_id=tenant_id,
             connector_ids=[connector.id],
-            pushed_by="operator@aisoc.dev",
+            pushed_by="operator@quarry.dev",
         )
 
     assert len(results) == 1
@@ -566,7 +566,7 @@ async def test_fanout_status_change_happy_path_updates_external_status() -> None
             tenant_id=tenant_id,
             old_status="open",
             new_status="resolved",
-            pushed_by="operator@aisoc.dev",
+            pushed_by="operator@quarry.dev",
         )
 
     assert len(results) == 1

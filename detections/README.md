@@ -1,8 +1,8 @@
-# AiSOC Detection Rules
+# Quarry Detection Rules
 
-This directory contains AiSOC detection content in a Sigma-inspired YAML format.
+This directory contains Quarry detection content in a Sigma-inspired YAML format.
 Rules are organized into four **tiers** based on origin, quality bar, and what
-the AiSOC engine can do with them out of the box.
+the Quarry engine can do with them out of the box.
 
 | Tier      | Where it lives                            | Status when shipped | Quality bar                                       |
 | --------- | ----------------------------------------- | ------------------- | ------------------------------------------------- |
@@ -23,7 +23,7 @@ commits.
 
 ## Native tier (`detections/<category>/`)
 
-The strict-quality, AiSOC-authored layer. Every rule has:
+The strict-quality, Quarry-authored layer. Every rule has:
 
 - A positive fixture under `detections/fixtures/positive/<slug>.json` (a
   synthetic event that should fire it).
@@ -69,7 +69,7 @@ false_positives:
   - Description of known benign triggers
 playbook: tpl-<playbook-id>     # Optional: auto-trigger this playbook
 enabled: true
-author: AiSOC
+author: Quarry
 created: "YYYY-MM-DD"
 modified: "YYYY-MM-DD"
 ```
@@ -103,7 +103,7 @@ python3 scripts/validate_detections.py --strict-fixtures
 
 ## Imported tiers (`detections/<source>-imports/`)
 
-Imported rules are normalized into the AiSOC schema by the source-specific
+Imported rules are normalized into the Quarry schema by the source-specific
 importers under [`tools/detection_import/`](../tools/detection_import/). Each
 imported rule carries a populated `provenance` block so we can prove the
 redistribution chain.
@@ -117,7 +117,7 @@ severity: low | medium | high | critical
 category: network | endpoint | cloud | identity | application | data-exfil
 enabled: true | false       # see "Quarantine" below
 quarantine_reason: >        # required when enabled: false on import
-  short reason — usually "requires manual translation to AiSOC engine"
+  short reason — usually "requires manual translation to Quarry engine"
 detection:
   # tier-specific block: condition+fields for Sigma, splunk_spl for Splunk,
   # chronicle_yaral for Chronicle, native fields for CAR.
@@ -142,7 +142,7 @@ imported content.
 
 A rule lives under `detections/<source>-imports/_quarantine/<category>/` when:
 
-- It parses cleanly into the AiSOC schema, **but**
+- It parses cleanly into the Quarry schema, **but**
 - The engine cannot execute the upstream query as-is (Splunk SPL, Chronicle
   YARA-L, MITRE CAR pseudocode).
 

@@ -1,4 +1,4 @@
-# AiSOC Teams Bot
+# Quarry Teams Bot
 
 ChatOps surface for Microsoft Teams. Mirrors the Slack bot's interactive
 approval flow using Adaptive Cards instead of Block Kit.
@@ -40,22 +40,22 @@ Approve / Deny / Need-Info buttons are `Action.Submit` actions whose
 
 `signature` is `HMAC-SHA256(secret, "<verb>|<action_id>|<case_id>|<issued_at>")`.
 The callback handler rejects any payload whose signature is missing,
-malformed, or older than `AISOC_TEAMS_CALLBACK_MAX_AGE_SECONDS` (default
+malformed, or older than `QUARRY_TEAMS_CALLBACK_MAX_AGE_SECONDS` (default
 600 — the human's decision window, well under Teams' own card TTL).
 
 ## Configuration
 
 | Variable                                | Required | Description                                              |
 | --------------------------------------- | -------- | -------------------------------------------------------- |
-| `AISOC_TEAMS_APP_ID`                    | yes      | Microsoft App ID for the bot registration.               |
-| `AISOC_TEAMS_APP_PASSWORD`              | yes      | Bot framework secret.                                    |
-| `AISOC_TEAMS_CALLBACK_SECRET`           | yes      | Shared HMAC secret used to sign + verify card payloads.  |
-| `AISOC_TEAMS_CALLBACK_MAX_AGE_SECONDS`  | no       | Replay window for signed payloads. Default `600`.        |
-| `AISOC_API_BASE_URL`                    | yes      | `services/api` base URL — same env var as the Slack bot. |
-| `AISOC_ACTIONS_BASE_URL`                | yes      | `services/actions` base URL.                             |
-| `AISOC_API_SERVICE_TOKEN`               | yes      | API key with `cases:read,cases:write`.                   |
-| `AISOC_ACTIONS_SERVICE_TOKEN`           | yes      | API key with `actions:write`.                            |
-| `AISOC_DEFAULT_TENANT_ID`               | yes      | Tenant UUID this Teams tenant maps to.                   |
+| `QUARRY_TEAMS_APP_ID`                    | yes      | Microsoft App ID for the bot registration.               |
+| `QUARRY_TEAMS_APP_PASSWORD`              | yes      | Bot framework secret.                                    |
+| `QUARRY_TEAMS_CALLBACK_SECRET`           | yes      | Shared HMAC secret used to sign + verify card payloads.  |
+| `QUARRY_TEAMS_CALLBACK_MAX_AGE_SECONDS`  | no       | Replay window for signed payloads. Default `600`.        |
+| `QUARRY_API_BASE_URL`                    | yes      | `services/api` base URL — same env var as the Slack bot. |
+| `QUARRY_ACTIONS_BASE_URL`                | yes      | `services/actions` base URL.                             |
+| `QUARRY_API_SERVICE_TOKEN`               | yes      | API key with `cases:read,cases:write`.                   |
+| `QUARRY_ACTIONS_SERVICE_TOKEN`           | yes      | API key with `actions:write`.                            |
+| `QUARRY_DEFAULT_TENANT_ID`               | yes      | Tenant UUID this Teams tenant maps to.                   |
 
 ## Tests
 

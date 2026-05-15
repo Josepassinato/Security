@@ -8,9 +8,9 @@ description: >
   (success / warning / failed / killed) and tenant audit events (workflow
   edits, credential changes, role assignments) via the Torq Public API.
   Requires an API key pair (key_id + secret) issued under Settings → API Keys.
-author: AiSOC Core Team
+author: Quarry Core Team
 tags: [saas, soar, automation, audit, torq]
-homepage: https://github.com/beenuar/AiSOC/tree/main/services/connectors/app/connectors/torq.py
+homepage: https://github.com/beenuar/Quarry/tree/main/services/connectors/app/connectors/torq.py
 license: MIT
 min_aisoc_version: "4.0.0"
 config_schema:

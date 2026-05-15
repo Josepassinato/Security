@@ -6,9 +6,9 @@ tier: stable
 description: >
   Prisma Cloud cloud security platform. Pulls open alerts across CSPM,
   CWPP, CIEM, and DSPM surfaces via the v1 REST API (/alert).
-author: AiSOC Core Team
+author: Quarry Core Team
 tags: [cloud, prisma-cloud, cnapp, cspm, cwpp, ciem, dspm, palo-alto]
-homepage: https://github.com/beenuar/AiSOC/tree/main/services/connectors/app/connectors/prisma_cloud.py
+homepage: https://github.com/beenuar/Quarry/tree/main/services/connectors/app/connectors/prisma_cloud.py
 license: MIT
 min_aisoc_version: "7.1.0"
 config_schema:

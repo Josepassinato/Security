@@ -21,7 +21,7 @@ Resolution rules (must match the agents resolver exactly)
 2.  Look up ``tenant_llm_credentials`` for this tenant. If a row
     exists and ``enabled=true``, layer non-NULL fields over the env
     baseline and decrypt the ciphertext via :class:`CredentialVault`.
-3.  Apply air-gap policy: when ``AISOC_AIRGAPPED`` is on, only allow
+3.  Apply air-gap policy: when ``QUARRY_AIRGAPPED`` is on, only allow
     base URLs that point at a non-``api.openai.com`` host.
 4.  Return an :class:`LlmConfig` describing whether a live call is
     permitted and the effective ``(base_url, model, api_key)`` triple.
@@ -89,11 +89,11 @@ def _env_baseline() -> tuple[str, str, str | None]:
     and the agents-side resolver so the three code paths can never
     disagree about what "the env baseline" actually is. We accept
     both modern ``LLM_*`` names and legacy ``OPENAI_*`` /
-    ``AISOC_LLM_MODEL`` because every deployment in the field today
+    ``QUARRY_LLM_MODEL`` because every deployment in the field today
     uses some mix of the two.
     """
     base_url = os.getenv("OPENAI_BASE_URL", "").strip() or os.getenv("LLM_BASE_URL", "").strip()
-    model = os.getenv("OPENAI_MODEL", "").strip() or os.getenv("LLM_MODEL", "").strip() or os.getenv("AISOC_LLM_MODEL", "").strip()
+    model = os.getenv("OPENAI_MODEL", "").strip() or os.getenv("LLM_MODEL", "").strip() or os.getenv("QUARRY_LLM_MODEL", "").strip()
     api_key = os.getenv("OPENAI_API_KEY", "").strip() or os.getenv("LLM_API_KEY", "").strip()
     return base_url, model, (api_key or None)
 
@@ -109,7 +109,7 @@ def _airgap_blocks(base_url: str) -> tuple[bool, str]:
     decision. The two paths must agree on the same hostname rule
     (no ``api.openai.com``), and they do.
     """
-    airgapped = os.getenv("AISOC_AIRGAPPED", "").lower() in ("1", "true", "yes")
+    airgapped = os.getenv("QUARRY_AIRGAPPED", "").lower() in ("1", "true", "yes")
     if not airgapped:
         return False, ""
 
@@ -117,7 +117,7 @@ def _airgap_blocks(base_url: str) -> tuple[bool, str]:
     if not base:
         return (
             True,
-            "AISOC_AIRGAPPED is on and no base_url is configured (would default to api.openai.com).",
+            "QUARRY_AIRGAPPED is on and no base_url is configured (would default to api.openai.com).",
         )
     try:
         hostname = (urlparse(base).hostname or "").lower()
@@ -126,7 +126,7 @@ def _airgap_blocks(base_url: str) -> tuple[bool, str]:
     # Exact hostname or subdomain match — substring matching would
     # let ``evil.com/api.openai.com`` slip through.
     if hostname == "api.openai.com" or hostname.endswith(".api.openai.com"):
-        return True, "AISOC_AIRGAPPED is on and base_url points at api.openai.com."
+        return True, "QUARRY_AIRGAPPED is on and base_url points at api.openai.com."
     return False, ""
 
 
@@ -134,7 +134,7 @@ def _decrypt_vault_token(vault_token: str, tenant_id: uuid.UUID) -> str | None:
     """Decrypt a stored ``vault:v1:<base64>`` token; ``None`` on failure.
 
     The vault may be unconfigured on operator boxes that haven't
-    migrated to BYOK yet (``AISOC_CREDENTIAL_KEY`` not set) — log
+    migrated to BYOK yet (``QUARRY_CREDENTIAL_KEY`` not set) — log
     once and fall back rather than treating it as an error.
     """
     try:

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Download the CICIDS-2017 dataset for the AiSOC fidelity benchmark.
+"""Download the CICIDS-2017 dataset for the Quarry fidelity benchmark.
 
 Usage:
     python scripts/datasets/download_cicids.py [--out datasets/cicids2017]
@@ -112,7 +112,7 @@ Citation:
   Traffic Characterization. ICISSP 2018.
 
 By passing --accept-license you confirm you have read and agreed to
-the upstream terms. AiSOC does NOT redistribute these files; the
+the upstream terms. Quarry does NOT redistribute these files; the
 repo only contains a synthetic micro fixture for CI.
 ============================================================
 """
@@ -129,7 +129,7 @@ def _sha256(path: Path) -> str:
 def _download(url: str, dest: Path) -> None:
     dest.parent.mkdir(parents=True, exist_ok=True)
     logger.info("downloading %s -> %s", url, dest)
-    req = urlrequest.Request(url, headers={"User-Agent": "aisoc-fidelity/1.0"})
+    req = urlrequest.Request(url, headers={"User-Agent": "quarry-fidelity/1.0"})
     try:
         with urlrequest.urlopen(req, timeout=60) as resp:  # noqa: S310 - opt-in download
             with dest.open("wb") as fh:

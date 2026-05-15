@@ -105,7 +105,7 @@ const EMPTY_PLAYBOOK: Playbook = {
   tags: [],
   trigger: { on: 'manual' },
   steps: [],
-  author: 'AiSOC',
+  author: 'Quarry',
   enabled: true,
   created_at: '',
   updated_at: '',
@@ -410,7 +410,7 @@ export function PlaybookEditor({ playbookId }: PlaybookEditorProps) {
                 name: s.name,
               })),
             }}
-            eyebrow="Ask AiSOC about this playbook"
+            eyebrow="Ask Quarry about this playbook"
           />
         </div>
       ) : null}

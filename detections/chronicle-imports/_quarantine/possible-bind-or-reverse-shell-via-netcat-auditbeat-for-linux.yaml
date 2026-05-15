@@ -37,4 +37,4 @@ provenance:
   upstream_path: rules/_deprecated/soc_prime_rules/threat_hunting/linux/possible_bind_or_reverse_shell_via_netcat__auditbeat_for_linux.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

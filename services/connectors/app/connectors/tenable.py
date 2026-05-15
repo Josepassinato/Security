@@ -112,7 +112,7 @@ class TenableConnector(BaseConnector):
 
     def normalize(self, raw: dict[str, Any]) -> dict[str, Any]:
         # Tenable.io exposes the CVSSv3 severity ladder (0=Info, 1=Low,
-        # 2=Medium, 3=High, 4=Critical). Mirror it directly into AiSOC's
+        # 2=Medium, 3=High, 4=Critical). Mirror it directly into Quarry's
         # five-tier ladder so genuine Critical vulnerabilities are not
         # silently downgraded to High.
         sev_int = raw.get("severity")

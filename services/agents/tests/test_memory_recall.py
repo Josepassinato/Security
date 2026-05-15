@@ -1,7 +1,7 @@
 """
 Memory Recall Eval — Three-Tier Fidelity Gate
 ==============================================
-Cross-cutting eval for the AiSOC capability roadmap (2026 H2): the agent's
+Cross-cutting eval for the Quarry capability roadmap (2026 H2): the agent's
 three-tier memory (session → working → institutional) must store values
 faithfully, return them on recall, respect tier priority ordering, and
 maintain cross-tenant isolation.

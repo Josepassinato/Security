@@ -11,7 +11,7 @@ Operationally there are two supported deployments:
 
 1. **Sidecar tail** — Vault writes audit JSON-lines to a file device,
    a sidecar uploads each line to ``POST /v1/_/audit_ingest`` on the
-   AiSOC connectors service which buffers them in memory. This
+   Quarry connectors service which buffers them in memory. This
    connector's ``fetch_alerts()`` drains the buffer.
 2. **Pull** — for small / single-node Vault deployments operators set
    ``audit_log_path`` and the connector tails the file directly. We

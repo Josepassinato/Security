@@ -6,7 +6,7 @@ There are two common shapes for ingesting Falco events:
 
 1. **falcosidekick HTTP output** — falcosidekick is the de-facto
    forwarder that sits next to Falco, receives the rule-engine output,
-   and fans it out to dozens of sinks. AiSOC ships an inbound webhook
+   and fans it out to dozens of sinks. Quarry ships an inbound webhook
    that accepts the standard falcosidekick JSON envelope (a JSON list
    of rule hits, each with ``rule``, ``priority``, ``output``,
    ``output_fields``, ``time``, ``hostname``).
@@ -69,7 +69,7 @@ class FalcoConnector(BaseConnector):
                     "Webhook path",
                     default="/v1/webhooks/falco",
                     placeholder="/v1/webhooks/falco",
-                    help_text=("Path on the AiSOC ingest service where Falco / falcosidekick should POST events."),
+                    help_text=("Path on the Quarry ingest service where Falco / falcosidekick should POST events."),
                 ),
                 Field(
                     "shared_secret",

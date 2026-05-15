@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="PURPLE_TEAM_", env_file=".env", extra="ignore")
 
     # Database
-    database_url: str = "postgresql+asyncpg://aisoc:aisoc@localhost:5432/aisoc"
+    database_url: str = "postgresql+asyncpg://quarry:aisoc@localhost:5432/quarry"
 
     # Caldera integration
     caldera_url: str = "http://localhost:8888"
@@ -24,7 +24,7 @@ class Settings(BaseSettings):
 
     # OTel
     otel_endpoint: str = "http://localhost:4317"
-    service_name: str = "aisoc-purple-team"
+    service_name: str = "quarry-purple-team"
 
     # API
     host: str = "0.0.0.0"

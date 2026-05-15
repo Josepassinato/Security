@@ -34,4 +34,4 @@ provenance:
   upstream_path: rules/_deprecated/soc_prime_rules/proactive_exploit_detection/sysmon/code42_server_dll_search_order_hijack.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

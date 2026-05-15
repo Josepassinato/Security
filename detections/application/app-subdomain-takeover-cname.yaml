@@ -1,6 +1,6 @@
 id: det-application-043
 name: CNAME Pointing To Deleted SaaS Tenant
-description: AiSOC v1 curated detection. Triggers on the application signal described by 'CNAME Pointing
+description: Quarry v1 curated detection. Triggers on the application signal described by 'CNAME Pointing
   To Deleted SaaS Tenant'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: high
@@ -21,6 +21,6 @@ false_positives:
 - Pending tenant migration (verify ticket)
 playbook: tpl-initial-access
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

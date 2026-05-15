@@ -32,4 +32,4 @@ provenance:
   upstream_path: rules/_deprecated/soc_prime_rules/proactive_exploit_detection/windows/scanner_poc_for_cve_2019_0708_rdp_rce_vuln.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

@@ -68,4 +68,4 @@ provenance:
   upstream_path: rules/community/microsoft/windows/mitre_attack_T1021_002_windows_admin_share_with_user_entity.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

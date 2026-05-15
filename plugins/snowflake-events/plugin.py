@@ -1,4 +1,4 @@
-"""Snowflake events connector plugin for AiSOC.
+"""Snowflake events connector plugin for Quarry.
 
 Pulls login_history and query_history from SNOWFLAKE.ACCOUNT_USAGE.
 

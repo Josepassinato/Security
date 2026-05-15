@@ -1,6 +1,6 @@
-# AiSOC Multi-Region Operations
+# Quarry Multi-Region Operations
 
-> **Audience**: Platform / SRE teams running AiSOC in production across multiple cloud regions.
+> **Audience**: Platform / SRE teams running Quarry in production across multiple cloud regions.
 > **Last updated**: auto-generated (see `scripts/generate_runbook.py`)
 
 ---
@@ -22,7 +22,7 @@
 
 ## 1. Architecture overview
 
-AiSOC is deployed as a set of independent microservices managed by Helm. In a multi-region setup each region runs a full replica of the control plane with:
+Quarry is deployed as a set of independent microservices managed by Helm. In a multi-region setup each region runs a full replica of the control plane with:
 
 - **Active–passive** PostgreSQL: one writer in the primary region; read replicas in secondary regions promoted on failover.
 - **Active–active** ClickHouse: distributed cluster with per-shard replicas across regions; ZooKeeper or ClickHouse Keeper runs in every region.
@@ -65,13 +65,13 @@ AiSOC is deployed as a set of independent microservices managed by Helm. In a mu
 ```bash
 # 1. Provision cluster (Terraform / eksctl / etc.)
 # 2. Install cert-manager, nginx-ingress, external-secrets
-# 3. Deploy AiSOC chart pointing to existing secrets store
-helm upgrade --install aisoc infra/helm/aisoc \
-  --namespace aisoc \
+# 3. Deploy Quarry chart pointing to existing secrets store
+helm upgrade --install quarry infra/helm/quarry \
+  --namespace quarry \
   --create-namespace \
   --set global.environment=production \
-  --set ingress.hosts[0].host=aisoc-eu.example.com \
-  -f infra/helm/aisoc/values-eu-west-1.yaml
+  --set ingress.hosts[0].host=quarry-eu.example.com \
+  -f infra/helm/quarry/values-eu-west-1.yaml
 
 # 4. Register region in Global LB (health-check /api/health)
 # 5. Stream Postgres WAL to new replica (pg_basebackup)
@@ -140,7 +140,7 @@ curl -X PATCH "https://api.cloudflare.com/client/v4/zones/${cf_zone_id}/dns_reco
 3. Execute **runbook** `RB-003-region-failover` (auto-generated; see §7).
 4. Postgres: promote replica via Patroni or `aws rds promote-read-replica`.
 5. Update `DATABASE_URL` secret in secondary region to the new writer endpoint.
-6. Restart API pods: `kubectl rollout restart deployment -n aisoc -l app.kubernetes.io/name=api`.
+6. Restart API pods: `kubectl rollout restart deployment -n quarry -l app.kubernetes.io/name=api`.
 
 ---
 
@@ -150,8 +150,8 @@ curl -X PATCH "https://api.cloudflare.com/client/v4/zones/${cf_zone_id}/dns_reco
 
 ```bash
 # Bump image tag in CI/CD (GitHub Actions), then:
-helm upgrade aisoc infra/helm/aisoc \
-  --namespace aisoc \
+helm upgrade quarry infra/helm/quarry \
+  --namespace quarry \
   --atomic \
   --timeout 5m \
   --set services.api.image.tag=${GIT_SHA} \
@@ -162,7 +162,7 @@ helm upgrade aisoc infra/helm/aisoc \
 
 ### Blue/green release
 
-1. Deploy new version to a parallel namespace (`aisoc-green`).
+1. Deploy new version to a parallel namespace (`quarry-green`).
 2. Run smoke tests against `green` ingress host.
 3. Switch LB to `green` namespace via weighted routing.
 4. Keep `blue` idle for 1 hour (rollback window).
@@ -171,17 +171,17 @@ helm upgrade aisoc infra/helm/aisoc \
 ### Rollback
 
 ```bash
-helm rollback aisoc 0 --namespace aisoc   # 0 = previous release
+helm rollback quarry 0 --namespace quarry   # 0 = previous release
 # or target a specific revision:
-helm history aisoc --namespace aisoc
-helm rollback aisoc <REVISION> --namespace aisoc
+helm history quarry --namespace quarry
+helm rollback quarry <REVISION> --namespace quarry
 ```
 
 ---
 
 ## 6. Observability & alerting
 
-AiSOC emits **OpenTelemetry** traces, metrics, and structured logs to a configurable OTLP endpoint (`global.otelEndpoint` in `values.yaml`).
+Quarry emits **OpenTelemetry** traces, metrics, and structured logs to a configurable OTLP endpoint (`global.otelEndpoint` in `values.yaml`).
 
 ### Key SLIs
 
@@ -197,24 +197,24 @@ AiSOC emits **OpenTelemetry** traces, metrics, and structured logs to a configur
 ### Recommended dashboards
 
 - **Service map**: trace-based topology from OTLP backend (Tempo, Jaeger, Honeycomb).
-- **Golden signals**: per-service latency / error / saturation / traffic (Grafana `aisoc-golden-signals.json`).
-- **SLA tracker**: AiSOC built-in `/sla` dashboard (`/apps/web/src/app/(app)/sla/page.tsx`).
+- **Golden signals**: per-service latency / error / saturation / traffic (Grafana `quarry-golden-signals.json`).
+- **SLA tracker**: Quarry built-in `/sla` dashboard (`/apps/web/src/app/(app)/sla/page.tsx`).
 
 ### Alerting rules (Prometheus/AlertManager)
 
 ```yaml
 # Example PrometheusRule
-- alert: AiSOCHighErrorRate
+- alert: QuarryHighErrorRate
   expr: |
-    rate(http_requests_total{service="aisoc-api",status=~"5.."}[5m])
-    / rate(http_requests_total{service="aisoc-api"}[5m]) > 0.005
+    rate(http_requests_total{service="quarry-api",status=~"5.."}[5m])
+    / rate(http_requests_total{service="quarry-api"}[5m]) > 0.005
   for: 3m
   labels:
     severity: page
   annotations:
-    summary: "AiSOC API error rate > 0.5%"
+    summary: "Quarry API error rate > 0.5%"
 
-- alert: AiSOCIngestLag
+- alert: QuarryIngestLag
   expr: histogram_quantile(0.99, rate(ingest_lag_seconds_bucket[5m])) > 2
   for: 5m
   labels:
@@ -291,7 +291,7 @@ Run monthly in the `staging` environment:
 |---|---|---|---|
 | P1 – Production down | On-call SRE (PagerDuty) | Engineering lead | 15 min response |
 | P2 – Degraded performance | On-call SRE | Engineering lead | 1 h response |
-| P3 – Non-critical issue | Slack `#aisoc-ops` | — | Next business day |
+| P3 – Non-critical issue | Slack `#quarry-ops` | — | Next business day |
 | P4 – Informational | Ticketing system | — | Best effort |
 
 ---

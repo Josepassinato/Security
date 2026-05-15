@@ -2,7 +2,7 @@
 #
 # Maps the v2 webhook envelope (event.data.{title,urgency,...}) onto an
 # OCSF Security Finding so that PagerDuty incidents flow into the same
-# detection / response surface as native AiSOC alerts.
+# detection / response surface as native Quarry alerts.
 #
 # References:
 #   https://developer.pagerduty.com/docs/db0fa8c8984fc-overview

@@ -3,7 +3,7 @@
 
 The natural-language query translator lives under ``services/agents/app/nl_query``
 and is consumed by both the agents runtime and the API's ``/nl-query/*``
-endpoints. Because the ``aisoc-api`` Docker image is built with
+endpoints. Because the ``quarry-api`` Docker image is built with
 ``services/api`` as its build context, anything under ``services/agents`` is
 not available at runtime. To keep the API container self-contained we ship a
 vendored mirror of ``nl_query`` inside the API package.

@@ -1,6 +1,6 @@
 id: det-endpoint-216
 name: screencapture Binary Used
-description: AiSOC v1 curated detection. Triggers on the endpoint signal described by 'screencapture Binary
+description: Quarry v1 curated detection. Triggers on the endpoint signal described by 'screencapture Binary
   Used'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: low
@@ -19,6 +19,6 @@ false_positives:
 - User-driven screenshot (very common)
 playbook: tpl-collection
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

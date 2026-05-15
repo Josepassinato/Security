@@ -22,7 +22,7 @@ from app.connectors.gcp_scc import GCPSCCConnector
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 
-_PROJECT = "aisoc-test-project"
+_PROJECT = "quarry-test-project"
 _ORG = "1234567890"
 
 
@@ -47,7 +47,7 @@ def fake_sa_json() -> str:
             "project_id": _PROJECT,
             "private_key_id": "abc123",
             "private_key": pem,
-            "client_email": "aisoc-bot@aisoc-test-project.iam.gserviceaccount.com",
+            "client_email": "quarry-bot@quarry-test-project.iam.gserviceaccount.com",
             "client_id": "111111111111111111111",
             "token_uri": "https://oauth2.googleapis.com/token",
         }
@@ -190,7 +190,7 @@ def test_cloud_audit_normalize_critical_log_severity_is_high(fake_sa_json):
 
 
 def test_scc_normalize_critical_preserves_critical(fake_sa_json):
-    # SCC CRITICAL findings mirror directly into AiSOC's ``critical``
+    # SCC CRITICAL findings mirror directly into Quarry's ``critical``
     # tier (P1, 15-minute MTTD SLA) — the highest-impact GCP findings
     # must not be silently downgraded.
     connector = GCPSCCConnector(_ORG, fake_sa_json)

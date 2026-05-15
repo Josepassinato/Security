@@ -1,13 +1,13 @@
 ---
 sidebar_position: 20
 title: osquery Extensions
-description: Custom osquery virtual tables that surface AiSOC data directly in the osquery shell.
+description: Custom osquery virtual tables that surface Quarry data directly in the osquery shell.
 ---
 
-# AiSOC osquery Extensions
+# Quarry osquery Extensions
 
-The `aisoc-extension` binary adds five osquery virtual tables that surface
-AiSOC operational data directly inside any osquery query, scheduled pack, or
+The `quarry-extension` binary adds five osquery virtual tables that surface
+Quarry operational data directly inside any osquery query, scheduled pack, or
 live investigation session.
 
 | Virtual table | Description |
@@ -23,7 +23,7 @@ live investigation session.
 ## Prerequisites
 
 - osquery ≥ 5.10
-- Network access from the host to the AiSOC osquery-tls service
+- Network access from the host to the Quarry osquery-tls service
 - An API token with the `extensions:read` scope
 
 ---
@@ -40,42 +40,42 @@ binary.
 ```bash
 # Example: Linux amd64
 VERSION=ext-v1.0.0
-curl -fsSL -o /opt/aisoc/aisoc-extension \
-  "https://github.com/beenuar/AiSOC/releases/download/${VERSION}/aisoc-extension-linux-amd64"
+curl -fsSL -o /opt/quarry/aisoc-extension \
+  "https://github.com/Josepassinato/quarry/releases/download/${VERSION}/quarry-extension-linux-amd64"
 
 # Verify the signature (optional but recommended)
 cosign verify-blob \
-  --certificate    "aisoc-extension-linux-amd64.pem" \
-  --signature      "aisoc-extension-linux-amd64.sig" \
-  --certificate-identity-regexp "https://github.com/beenuar/AiSOC" \
+  --certificate    "quarry-extension-linux-amd64.pem" \
+  --signature      "quarry-extension-linux-amd64.sig" \
+  --certificate-identity-regexp "https://github.com/Josepassinato/quarry" \
   --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
-  "aisoc-extension-linux-amd64"
+  "quarry-extension-linux-amd64"
 
-chmod +x /opt/aisoc/aisoc-extension
+chmod +x /opt/quarry/aisoc-extension
 ```
 
 ### 2 — Configure environment variables
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `AISOC_API_URL` | `http://localhost:8000` | Base URL of the osquery-tls service |
-| `AISOC_API_TOKEN` | _(empty)_ | Bearer token for authentication |
-| `AISOC_HOST_ID` | system hostname | Identifies the host in API calls |
+| `QUARRY_API_URL` | `http://localhost:8000` | Base URL of the osquery-tls service |
+| `QUARRY_API_TOKEN` | _(empty)_ | Bearer token for authentication |
+| `QUARRY_HOST_ID` | system hostname | Identifies the host in API calls |
 
 ### 3a — Launch with osquery flags (daemon mode)
 
 Add the following to `/etc/osquery/osquery.flags` (or your equivalent):
 
 ```
---extensions_autoload=/opt/aisoc/extensions.load
+--extensions_autoload=/opt/quarry/extensions.load
 --extensions_timeout=10
 --extensions_interval=3
 ```
 
-Create `/opt/aisoc/extensions.load` containing the absolute path to the binary:
+Create `/opt/quarry/extensions.load` containing the absolute path to the binary:
 
 ```
-/opt/aisoc/aisoc-extension
+/opt/quarry/aisoc-extension
 ```
 
 The extension is passed `--socket <path>` automatically by osqueryd.
@@ -83,16 +83,16 @@ The extension is passed `--socket <path>` automatically by osqueryd.
 ### 3b — Launch as a systemd service (Linux)
 
 ```ini
-# /etc/systemd/system/aisoc-extension.service
+# /etc/systemd/system/quarry-extension.service
 [Unit]
-Description=AiSOC osquery extension
+Description=Quarry osquery extension
 After=osqueryd.service
 Requires=osqueryd.service
 
 [Service]
-EnvironmentFile=/etc/aisoc/extension.env
+EnvironmentFile=/etc/quarry/extension.env
 ExecStartPre=/bin/sleep 3
-ExecStart=/opt/aisoc/aisoc-extension \
+ExecStart=/opt/quarry/aisoc-extension \
     --socket /var/osquery/osquery.em \
     --timeout 30
 Restart=on-failure
@@ -103,30 +103,30 @@ WantedBy=multi-user.target
 ```
 
 ```ini
-# /etc/aisoc/extension.env
-AISOC_API_URL=https://osquery-tls.internal.example.com
-AISOC_API_TOKEN=eyJ...
-AISOC_HOST_ID=web-prod-01
+# /etc/quarry/extension.env
+QUARRY_API_URL=https://osquery-tls.internal.example.com
+QUARRY_API_TOKEN=eyJ...
+QUARRY_HOST_ID=web-prod-01
 ```
 
 ```bash
 systemctl daemon-reload
-systemctl enable --now aisoc-extension
+systemctl enable --now quarry-extension
 ```
 
 ### 3c — macOS (launchd)
 
 ```xml
-<!-- /Library/LaunchDaemons/com.aisoc.extension.plist -->
+<!-- /Library/LaunchDaemons/com.quarry.extension.plist -->
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
   "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-  <key>Label</key>             <string>com.aisoc.extension</string>
+  <key>Label</key>             <string>com.quarry.extension</string>
   <key>ProgramArguments</key>
   <array>
-    <string>/opt/aisoc/aisoc-extension</string>
+    <string>/opt/quarry/aisoc-extension</string>
     <string>--socket</string>
     <string>/private/var/osquery/osquery.em</string>
     <string>--timeout</string>
@@ -134,8 +134,8 @@ systemctl enable --now aisoc-extension
   </array>
   <key>EnvironmentVariables</key>
   <dict>
-    <key>AISOC_API_URL</key>   <string>https://osquery-tls.example.com</string>
-    <key>AISOC_API_TOKEN</key> <string>eyJ...</string>
+    <key>QUARRY_API_URL</key>   <string>https://osquery-tls.example.com</string>
+    <key>QUARRY_API_TOKEN</key> <string>eyJ...</string>
   </dict>
   <key>RunAtLoad</key>         <true/>
   <key>KeepAlive</key>         <true/>
@@ -144,7 +144,7 @@ systemctl enable --now aisoc-extension
 ```
 
 ```bash
-launchctl load /Library/LaunchDaemons/com.aisoc.extension.plist
+launchctl load /Library/LaunchDaemons/com.quarry.extension.plist
 ```
 
 ---
@@ -199,8 +199,8 @@ All endpoints accept `?host_identifier=<string>` and, for the alert cache,
 ## Building from source
 
 ```bash
-git clone https://github.com/beenuar/AiSOC.git
-cd AiSOC/services/osquery-extensions
+git clone https://github.com/Josepassinato/quarry.git
+cd Quarry/services/osquery-extensions
 
 # Run tests
 make test
@@ -219,16 +219,16 @@ make release
 | Symptom | Likely cause | Fix |
 |---|---|---|
 | Extension not appearing in osquery | Socket path wrong | Verify `--extensions_autoload` path and socket location |
-| All tables return zero rows | API unreachable | Check `AISOC_API_URL`, firewall, and token |
+| All tables return zero rows | API unreachable | Check `QUARRY_API_URL`, firewall, and token |
 | `aisoc_kernel_modules_verified` empty | Non-Linux host | Expected; the table reads `/proc/modules` |
-| Slow query times | High `AISOC_HTTP_TIMEOUT` default | Set a shorter `HTTPTimeout` in config |
+| Slow query times | High `QUARRY_HTTP_TIMEOUT` default | Set a shorter `HTTPTimeout` in config |
 
 ---
 
 ## Security notes
 
 - The extension binary should be owned `root:root` and mode `0755`.
-- Store `AISOC_API_TOKEN` in the systemd/launchd environment file with mode
+- Store `QUARRY_API_TOKEN` in the systemd/launchd environment file with mode
   `0600`, not in the unit file or command line.
 - Release binaries are signed with cosign keyless signing; verify before
   deploying in production.

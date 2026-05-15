@@ -1,5 +1,5 @@
 """
-FastAPI entrypoint for the AiSOC Teams bot.
+FastAPI entrypoint for the Quarry Teams bot.
 
 The Teams bot is intentionally smaller than the Slack bot today: it
 ships exactly one webhook (``/teams/messages``) that consumes the Bot
@@ -30,7 +30,7 @@ from fastapi import FastAPI, Request
 from app.callbacks import callback_max_age_seconds, handle_card_action
 
 app = FastAPI(
-    title="AiSOC Teams Bot",
+    title="Quarry Teams Bot",
     description=(
         "ChatOps adapter for Microsoft Teams. Renders Adaptive Card "
         "approval prompts and verifies the signed callback payload."
@@ -41,7 +41,7 @@ app = FastAPI(
 
 @app.get("/health")
 async def health() -> dict[str, str]:
-    return {"status": "healthy", "service": "aisoc-teams-bot"}
+    return {"status": "healthy", "service": "quarry-teams-bot"}
 
 
 def _resolve_approver(activity: dict[str, Any]) -> str:
@@ -116,7 +116,7 @@ async def _startup() -> None:  # pragma: no cover - thin runtime wiring
     """Wire HTTP clients + audit sink at startup."""
     from app.services.aisoc_clients import build_actions_client, build_audit_sink
 
-    app.state.callback_secret = os.environ.get("AISOC_TEAMS_CALLBACK_SECRET", "")
+    app.state.callback_secret = os.environ.get("QUARRY_TEAMS_CALLBACK_SECRET", "")
     app.state.actions_client = build_actions_client()
     app.state.audit_sink = build_audit_sink()
 

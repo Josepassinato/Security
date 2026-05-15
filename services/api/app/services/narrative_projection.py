@@ -22,7 +22,7 @@ We're deliberately conservative: any field that can't be pulled cleanly
 stays ``None`` and the narrative builder skips that signal — it is
 designed to degrade gracefully.
 
-AiSOC — open-source AI Security Operations Center (MIT License)
+Quarry — open-source AI Security Operations Center (MIT License)
 Author: Beenu Arora <beenu@cyble.com>
 """
 

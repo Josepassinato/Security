@@ -1,5 +1,5 @@
 """
-AiSOC Connectors Service.
+Quarry Connectors Service.
 
 Hosts the connector catalog/test endpoints and runs the in-process
 ``ConnectorScheduler`` that polls every enabled connector instance on its
@@ -10,7 +10,7 @@ We use FastAPI's ``lifespan`` context manager (rather than the deprecated
 async lifecycle hangs off the same event loop ``uvicorn`` runs the HTTP
 server on.
 
-The scheduler is opt-out via ``AISOC_CONNECTORS_DISABLE_SCHEDULER=1`` so unit
+The scheduler is opt-out via ``QUARRY_CONNECTORS_DISABLE_SCHEDULER=1`` so unit
 tests, one-shot CLI entrypoints, and the schema-only catalog mode can keep
 running this app without spinning up a polling loop.
 """
@@ -29,7 +29,7 @@ from app.db.engine import dispose_engine
 from app.scheduler import ConnectorScheduler, scheduler_disabled
 from app.security.cors import build_cors_kwargs
 
-logger = logging.getLogger("aisoc.connectors.main")
+logger = logging.getLogger("quarry.connectors.main")
 
 
 @asynccontextmanager
@@ -37,7 +37,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """Start/stop the scheduler alongside the HTTP server."""
     scheduler: ConnectorScheduler | None = None
     if scheduler_disabled():
-        logger.info("connector.scheduler.disabled AISOC_CONNECTORS_DISABLE_SCHEDULER set; HTTP only mode")
+        logger.info("connector.scheduler.disabled QUARRY_CONNECTORS_DISABLE_SCHEDULER set; HTTP only mode")
     else:
         try:
             scheduler = ConnectorScheduler()
@@ -67,7 +67,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
 
 app = FastAPI(
-    title="AiSOC Connectors",
+    title="Quarry Connectors",
     description="Security source connectors: CrowdStrike, Splunk, AWS Security Hub, Okta, Microsoft Sentinel",
     version="0.1.0",
     lifespan=lifespan,

@@ -43,13 +43,13 @@ pytestmark = pytest.mark.integration
 
 
 # Test config — env-overridable so CI can point at the dockerised stack.
-INGEST_BASE_URL = os.environ.get("AISOC_INGEST_URL", "http://localhost:8080")
+INGEST_BASE_URL = os.environ.get("QUARRY_INGEST_URL", "http://localhost:8080")
 KAFKA_BOOTSTRAP = os.environ.get(
     "KAFKA_BOOTSTRAP_SERVERS", os.environ.get("KAFKA_BROKERS", "localhost:9092")
 )
-NEO4J_URI = os.environ.get("AISOC_NEO4J_URI", "bolt://localhost:7687")
-NEO4J_USER = os.environ.get("AISOC_NEO4J_USER", "neo4j")
-NEO4J_PASSWORD = os.environ.get("AISOC_NEO4J_PASSWORD", "neo4j")
+NEO4J_URI = os.environ.get("QUARRY_NEO4J_URI", "bolt://localhost:7687")
+NEO4J_USER = os.environ.get("QUARRY_NEO4J_USER", "neo4j")
+NEO4J_PASSWORD = os.environ.get("QUARRY_NEO4J_PASSWORD", "neo4j")
 
 # T1.1 acceptance gate — graph projection must land within 2s p95.
 P95_LATENCY_BUDGET_S = 2.0

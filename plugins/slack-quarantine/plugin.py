@@ -1,12 +1,12 @@
 """
-Slack Quarantine Notifier — AiSOC Reference Plugin
+Slack Quarantine Notifier — Quarry Reference Plugin
 ====================================================
 Posts quarantine / isolation events to Slack using Block Kit formatting.
 
 Payload keys:
   host        (str)  : Hostname or IP being quarantined.
   user        (str)  : (optional) Associated user account.
-  case_id     (str)  : AiSOC case identifier.
+  case_id     (str)  : Quarry case identifier.
   reason      (str)  : Brief description of why the host is being isolated.
   severity    (str)  : "info" | "low" | "medium" | "high" | "critical"
   action      (str)  : "quarantine" | "unquarantine" | "update"
@@ -56,7 +56,7 @@ def _build_blocks(payload: dict) -> list[dict]:
     title = f"{act_emoji} Host {action.title()}: `{host}`"
 
     return [
-        {"type": "header", "text": {"type": "plain_text", "text": f"AiSOC — {action.title()} Event", "emoji": True}},
+        {"type": "header", "text": {"type": "plain_text", "text": f"Quarry — {action.title()} Event", "emoji": True}},
         {"type": "section", "text": {"type": "mrkdwn", "text": title}},
         {"type": "divider"},
         {
@@ -69,7 +69,7 @@ def _build_blocks(payload: dict) -> list[dict]:
             ],
         },
         {"type": "section", "text": {"type": "mrkdwn", "text": f"*Reason*\n{reason}"}},
-        {"type": "context", "elements": [{"type": "mrkdwn", "text": "Powered by *AiSOC Autonomous SOC v4.0*"}]},
+        {"type": "context", "elements": [{"type": "mrkdwn", "text": "Powered by *Quarry Autonomous SOC v4.0*"}]},
     ]
 
 

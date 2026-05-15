@@ -1,7 +1,7 @@
 // Package graph implements the ingest-side graph writer (T1.1).
 //
 // Every normalised OCSF event flowing through the Kafka ingest path is
-// projected into the AiSOC entity graph (Neo4j) before fusion sees it. The
+// projected into the Quarry entity graph (Neo4j) before fusion sees it. The
 // graph writer is the foundation for downstream reasoning:
 //
 //   - T1.2 — versioned config snapshots tied to {ts, snapshot_id}

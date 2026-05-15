@@ -6,7 +6,7 @@ description: Declarative, per-connector pre-ingest filter rules that drop or kee
 
 # Security data pipeline and tiered retention
 
-Most SIEMs treat ingest as a tax: every event goes in at the same cost, and you pay until the bill forces you to drop sources. AiSOC takes a different stance — **decide what to keep before it crosses the wire**, with simple, declarative rules that are easy to read in a code review.
+Most SIEMs treat ingest as a tax: every event goes in at the same cost, and you pay until the bill forces you to drop sources. Quarry takes a different stance — **decide what to keep before it crosses the wire**, with simple, declarative rules that are easy to read in a code review.
 
 ## The pre-ingest filter
 

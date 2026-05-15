@@ -60,4 +60,4 @@ provenance:
   upstream_path: rules/community/network/suspicious_asn.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

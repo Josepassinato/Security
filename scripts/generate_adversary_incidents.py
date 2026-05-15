@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-AiSOC AI-vs-AI adversary scenario generator (Wave 2 — w2-aivai).
+Quarry AI-vs-AI adversary scenario generator (Wave 2 — w2-aivai).
 =================================================================
 
 Takes the deterministic 200-incident benchmark and produces a parallel
@@ -583,7 +583,7 @@ def main() -> None:
         report = adversary_coverage_report(mutated)
         print()
         print("=" * 78)
-        print("  AiSOC AI-vs-AI adversary dataset — graceful-degradation report")
+        print("  Quarry AI-vs-AI adversary dataset — graceful-degradation report")
         print("=" * 78)
         print(f"  Incidents:                {report['incidents']}")
         print(

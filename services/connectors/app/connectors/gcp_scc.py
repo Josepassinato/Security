@@ -276,7 +276,7 @@ class GCPSCCConnector(BaseConnector):
         resource = raw.get("resource", {}) or {}
 
         # SCC severity comes through as one of CRITICAL / HIGH / MEDIUM /
-        # LOW / SEVERITY_UNSPECIFIED. Map directly to AiSOC's 5-tier ladder
+        # LOW / SEVERITY_UNSPECIFIED. Map directly to Quarry's 5-tier ladder
         # (info | low | medium | high | critical) so P1 SCC findings keep
         # their original priority rather than getting collapsed into ``high``.
         scc_sev = (finding.get("severity") or "").upper()

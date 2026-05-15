@@ -1,4 +1,4 @@
-# AiSOC Roadmap (Now / Next / Later) — 2026-05-12
+# Quarry Roadmap (Now / Next / Later) — 2026-05-12
 
 > **Source of truth for active prioritization.** See
 > [`README.md`](./README.md) for how this doc relates to `/ROADMAP.md` and
@@ -7,9 +7,9 @@
 This roadmap is organized into three rolling buckets — **Now** (≤30 days),
 **Next** (30–90 days), and **Later** (90+ days) — with each item tagged by
 its originating feedback theme (`Fxxx`) from
-[`AiSOC_Community_Feedback_Synthesis.md`](./AiSOC_Community_Feedback_Synthesis.md).
+[`Quarry_Community_Feedback_Synthesis.md`](./Quarry_Community_Feedback_Synthesis.md).
 Implementation tickets live in
-[`AiSOC_Proposed_Issues.md`](./AiSOC_Proposed_Issues.md).
+[`Quarry_Proposed_Issues.md`](./Quarry_Proposed_Issues.md).
 
 ---
 
@@ -17,7 +17,7 @@ Implementation tickets live in
 
 1. **OSS-first telemetry coverage.** Every commercial connector (CrowdStrike,
    SentinelOne, Defender, etc.) ships alongside an OSS-native equivalent
-   (Wazuh, `aisoc-host-agent`, audit.d, osquery). Closes the "I cannot adopt
+   (Wazuh, `quarry-host-agent`, audit.d, osquery). Closes the "I cannot adopt
    this without a paid EDR" objection raised across `F001`, `F004`, `F011`.
 2. **Reasoning quality > connector count.** A new connector earns its keep
    only if it ships with detection content + an eval-gated baseline. False
@@ -26,7 +26,7 @@ Implementation tickets live in
    afterthoughts.
 3. **Contributor on-ramp under 30 minutes.** A new contributor should land
    their first connector, hunt, or plugin within half an hour using
-   `HELLO_*.md` walkthroughs and the `aisoc-cli plugin new` scaffolder
+   `HELLO_*.md` walkthroughs and the `quarry-cli plugin new` scaffolder
    (`F008`, `F012`, `F022`).
 4. **Multi-tenant safety as a hard invariant.** Cross-tenant data exposure
    bugs (`F013`, `F019`) are P0; every new endpoint that touches
@@ -49,7 +49,7 @@ sequencing matters it is called out inline.
   Subscribes to a Wazuh manager's `archives.json` socket / API, normalizes
   to OCSF, ships with detection content for the top-5 Wazuh-native rules.
   Eval gate: ≥0.9 detection precision on synthetic Wazuh corpus.
-- **#2 — `aisoc-host-agent` skeleton** (`area:connectors`,
+- **#2 — `quarry-host-agent` skeleton** (`area:connectors`,
   `area:agents`). Lightweight Go agent emitting OCSF-compatible host
   telemetry to `services/ingest /v1/ingest/batch`. Skeleton + ingest handler
   + plugin manifest only — production hardening is a Next-bucket follow-up.
@@ -98,7 +98,7 @@ sequencing matters it is called out inline.
   connector + smoke test. Every step copy-pasteable. Target: 30 min from
   `git clone` to ingested event.
 - **#11 — `HELLO_HUNT.md` + `HELLO_PLUGIN.md`** completing the trio.
-- **#12 — `aisoc-cli plugin new`** scaffolder + `plugins/templates/` with
+- **#12 — `quarry-cli plugin new`** scaffolder + `plugins/templates/` with
   three starters (connector, detection pack, playbook).
 
 ### Multi-tenant safety (`F013`)
@@ -111,10 +111,10 @@ sequencing matters it is called out inline.
 
 ### Deployment leverage (`F014`)
 
-- **#14 — `terraform-aws-aisoc` module shape**. Establish the module
+- **#14 — `terraform-aws-quarry` module shape**. Establish the module
   layout and ship a working VPC + ECS Fargate + RDS variant; mark advanced
   variants (multi-AZ, KMS-CMK, private link) as Next-bucket polish.
-- **#15 — `terraform-gcp-aisoc` skeleton**. Same shape, GKE + Cloud SQL.
+- **#15 — `terraform-gcp-quarry` skeleton**. Same shape, GKE + Cloud SQL.
   Skeleton-only in Now; productionization in Next.
 
 ### Search & query UX (`F009`)
@@ -221,8 +221,8 @@ re-prioritization.
 
 ## Cross-references
 
-- **Stable feedback IDs:** [`AiSOC_Community_Feedback_Synthesis.md`](./AiSOC_Community_Feedback_Synthesis.md)
-- **Implementation tickets:** [`AiSOC_Proposed_Issues.md`](./AiSOC_Proposed_Issues.md)
+- **Stable feedback IDs:** [`Quarry_Community_Feedback_Synthesis.md`](./Quarry_Community_Feedback_Synthesis.md)
+- **Implementation tickets:** [`Quarry_Proposed_Issues.md`](./Quarry_Proposed_Issues.md)
 - **Historical roadmap:** [`/ROADMAP.md`](../../../ROADMAP.md)
 - **Active progress tracker:** [`/PROGRESS.md`](../../../PROGRESS.md)
 - **Contributor invariants & eval gates:** [`/AGENTS.md`](../../../AGENTS.md)

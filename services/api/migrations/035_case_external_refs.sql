@@ -1,7 +1,7 @@
 -- Migration 035: Bidirectional ITSM ticket linkage (Workstream 8)
 --
--- ``case_external_refs`` records the mapping between an AiSOC case and an
--- external ticketing system (Jira, ServiceNow, Linear, etc.). One AiSOC
+-- ``case_external_refs`` records the mapping between an Quarry case and an
+-- external ticketing system (Jira, ServiceNow, Linear, etc.). One Quarry
 -- case may have multiple external refs — a single security incident can
 -- legitimately fan out to a Jira issue (for the engineering owner), a
 -- ServiceNow incident (for the SOC's audit trail), and an internal
@@ -16,14 +16,14 @@
 --     retries after a transient 502 — the ``UNIQUE (connector_instance_id,
 --     external_id)`` constraint below makes that impossible);
 --   * inbound lookups ("a ServiceNow webhook just told us
---     ``incident:INC0010023`` was closed — which AiSOC case does that
+--     ``incident:INC0010023`` was closed — which Quarry case does that
 --     map to?" — answered by a single index hit on
 --     ``(connector_instance_id, external_id)``);
 --   * audit ("who pushed this case to which system, and when?").
 --
 -- Columns:
 --   id                      stable PK so timeline events can reference a ref
---   case_id                 the AiSOC case (FK + cascade for tenant deletion)
+--   case_id                 the Quarry case (FK + cascade for tenant deletion)
 --   connector_instance_id   the per-tenant connector row that did the push;
 --                           ties the ref to a specific Jira project / ServiceNow
 --                           instance / etc., not just to the connector class.
@@ -70,7 +70,7 @@ CREATE INDEX IF NOT EXISTS case_external_refs_case_idx
 
 -- Reverse lookup: "an inbound webhook just told us
 -- ``connector_instance=...`` and ``external_id=INC0010023`` — find the
--- AiSOC case to update". The unique constraint above already creates
+-- Quarry case to update". The unique constraint above already creates
 -- the index, so we don't need a separate one for this path.
 
 -- Vendor-level dashboards: "how many cases did we sync to Jira this
@@ -103,7 +103,7 @@ CREATE TRIGGER case_external_refs_set_updated_at
     BEFORE UPDATE ON case_external_refs
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
-COMMENT ON TABLE  case_external_refs              IS 'WS8: AiSOC case ↔ external ticket mapping (Jira/ServiceNow/etc.).';
+COMMENT ON TABLE  case_external_refs              IS 'WS8: Quarry case ↔ external ticket mapping (Jira/ServiceNow/etc.).';
 COMMENT ON COLUMN case_external_refs.connector_instance_id IS 'Row in connectors table that owns the push; ties ref to a specific Jira project / ServiceNow instance.';
 COMMENT ON COLUMN case_external_refs.external_id  IS 'Vendor handle (Jira issue key, ServiceNow sys_id, etc.). Unique per connector instance.';
 COMMENT ON COLUMN case_external_refs.external_status IS 'Last known status on the external side; used to short-circuit no-op status pushes.';

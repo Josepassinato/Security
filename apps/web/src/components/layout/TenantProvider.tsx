@@ -67,7 +67,7 @@ function toOption(t: MyTenant | (ChildTenant & { domain?: string | null })): Ten
  *
  * Switching writes the new tenant ID through `setActiveTenantId()` so the
  * shared `request()` helper picks it up on the *next* API call — callers
- * that need to refetch should listen for `window.dispatchEvent('aisoc:tenant-switched')`
+ * that need to refetch should listen for `window.dispatchEvent('quarry:tenant-switched')`
  * and call SWR `mutate(() => true)`. Today we hard-reload the page (see
  * `setTenant()` below) which is the safest option given how many SWR keys
  * are tenant-scoped — a future iteration can wire that into a dedicated
@@ -177,7 +177,7 @@ export function TenantProvider({ children }: { children: ReactNode }) {
       // the old tenant scope baked in, and patching every consumer to
       // re-key on `current.id` is a future workstream. Reloading guarantees
       // a clean read.
-      window.dispatchEvent(new CustomEvent('aisoc:tenant-switched', { detail: { tenantId } }));
+      window.dispatchEvent(new CustomEvent('quarry:tenant-switched', { detail: { tenantId } }));
       window.location.reload();
     }
   }, [available]);

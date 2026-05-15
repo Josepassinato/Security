@@ -74,7 +74,7 @@ async def get_cost_dashboard(
     * **by_model** — spend, tokens, runs, and average latency per model
       with the imputed public-list cost for context.
     * **top_cases** — the most expensive ``case_id`` values, the closest
-      proxy AiSOC has for "top-cost playbook runs" since each playbook
+      proxy Quarry has for "top-cost playbook runs" since each playbook
       run lives under a case (no separate ``playbook_runs`` table).
     * **action_counts** — ``audit_log`` action distribution so operators
       can see how much SOC activity their LLM spend is buying.

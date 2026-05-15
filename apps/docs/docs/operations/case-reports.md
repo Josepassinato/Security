@@ -1,6 +1,6 @@
 # Case Reports: Auto-Summary & Blameless Post-mortem
 
-Every case in AiSOC ships with two deterministic, on-demand reports:
+Every case in Quarry ships with two deterministic, on-demand reports:
 
 | Endpoint | Audience | Question it answers |
 |---|---|---|
@@ -41,12 +41,12 @@ Both endpoints accept a `format` query parameter:
 
 ```bash
 # Structured payload — feed into a wider pipeline
-curl -H "Authorization: Bearer $AISOC_TOKEN" \
-  "$AISOC_API/api/v1/cases/CASE-1234/postmortem"
+curl -H "Authorization: Bearer $QUARRY_TOKEN" \
+  "$QUARRY_API/api/v1/cases/CASE-1234/postmortem"
 
 # Print-ready HTML — drop into the runbook archive
-curl -H "Authorization: Bearer $AISOC_TOKEN" \
-  "$AISOC_API/api/v1/cases/CASE-1234/postmortem?format=html" \
+curl -H "Authorization: Bearer $QUARRY_TOKEN" \
+  "$QUARRY_API/api/v1/cases/CASE-1234/postmortem?format=html" \
   -o case-1234-postmortem.html
 ```
 
@@ -102,7 +102,7 @@ The post-mortem is **explicitly blameless**:
   into individual feedback.
 
 This is the same property the testsuite enforces: see
-[`tests/test_case_postmortem.py::test_render_case_postmortem_html_omits_analyst_names`](https://github.com/beenuar/AiSOC/blob/main/services/api/tests/test_case_postmortem.py).
+[`tests/test_case_postmortem.py::test_render_case_postmortem_html_omits_analyst_names`](https://github.com/Josepassinato/quarry/blob/main/services/api/tests/test_case_postmortem.py).
 
 ## Determinism & audit
 
@@ -130,12 +130,12 @@ review.
 
 | Concern | File |
 |---|---|
-| Auto-summary builder + Pydantic schema | [`services/api/app/services/case_summary.py`](https://github.com/beenuar/AiSOC/blob/main/services/api/app/services/case_summary.py) |
-| Auto-summary HTML renderer | [`services/api/app/services/case_summary_html.py`](https://github.com/beenuar/AiSOC/blob/main/services/api/app/services/case_summary_html.py) |
-| Post-mortem builder + Pydantic schema | [`services/api/app/services/case_postmortem.py`](https://github.com/beenuar/AiSOC/blob/main/services/api/app/services/case_postmortem.py) |
-| Post-mortem HTML renderer | [`services/api/app/services/case_postmortem_html.py`](https://github.com/beenuar/AiSOC/blob/main/services/api/app/services/case_postmortem_html.py) |
-| HTTP endpoints | [`services/api/app/api/v1/endpoints/cases.py`](https://github.com/beenuar/AiSOC/blob/main/services/api/app/api/v1/endpoints/cases.py) |
-| Tests | [`services/api/tests/test_case_summary.py`](https://github.com/beenuar/AiSOC/blob/main/services/api/tests/test_case_summary.py) · [`tests/test_case_postmortem.py`](https://github.com/beenuar/AiSOC/blob/main/services/api/tests/test_case_postmortem.py) |
+| Auto-summary builder + Pydantic schema | [`services/api/app/services/case_summary.py`](https://github.com/Josepassinato/quarry/blob/main/services/api/app/services/case_summary.py) |
+| Auto-summary HTML renderer | [`services/api/app/services/case_summary_html.py`](https://github.com/Josepassinato/quarry/blob/main/services/api/app/services/case_summary_html.py) |
+| Post-mortem builder + Pydantic schema | [`services/api/app/services/case_postmortem.py`](https://github.com/Josepassinato/quarry/blob/main/services/api/app/services/case_postmortem.py) |
+| Post-mortem HTML renderer | [`services/api/app/services/case_postmortem_html.py`](https://github.com/Josepassinato/quarry/blob/main/services/api/app/services/case_postmortem_html.py) |
+| HTTP endpoints | [`services/api/app/api/v1/endpoints/cases.py`](https://github.com/Josepassinato/quarry/blob/main/services/api/app/api/v1/endpoints/cases.py) |
+| Tests | [`services/api/tests/test_case_summary.py`](https://github.com/Josepassinato/quarry/blob/main/services/api/tests/test_case_summary.py) · [`tests/test_case_postmortem.py`](https://github.com/Josepassinato/quarry/blob/main/services/api/tests/test_case_postmortem.py) |
 
 ## Operational tip — automate the runbook archive
 

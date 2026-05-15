@@ -1,13 +1,13 @@
 ---
 sidebar_position: 16
 title: Wiz
-description: Wiz cloud security findings (CSPM, CWPP, CIEM, container, code) into AiSOC via the Wiz GraphQL API.
+description: Wiz cloud security findings (CSPM, CWPP, CIEM, container, code) into Quarry via the Wiz GraphQL API.
 ---
 
 # Wiz
 
 The Wiz connector pulls **cloud security issues from the Wiz GraphQL API**
-into AiSOC. One connector instance covers every Wiz product surface — CSPM,
+into Quarry. One connector instance covers every Wiz product surface — CSPM,
 CWPP, CIEM, container, and code findings — because Wiz exposes them all as
 `Issue` objects on the same GraphQL graph.
 
@@ -44,12 +44,12 @@ only needs to be overridden for **gov-cloud tenants** (e.g.
 4. Note the **API Endpoint URL** from **Settings → Tenant → API Endpoint**
    (region-specific, e.g. `https://api.us20.app.wiz.io/graphql`).
 
-### 2. Add the connector in AiSOC
+### 2. Add the connector in Quarry
 
 1. **Connectors → Add connector → Wiz**.
 2. Enter **Client ID**, **Client Secret**, and **API Endpoint URL**.
 3. Leave **Auth URL** blank unless you are on a gov-cloud tenant.
-4. **Test connection** → AiSOC exchanges the credentials for an OAuth bearer
+4. **Test connection** → Quarry exchanges the credentials for an OAuth bearer
    token and runs a 1-row `issues` query against the GraphQL endpoint.
 5. **Save**.
 
@@ -62,10 +62,10 @@ only needs to be overridden for **gov-cloud tenants** (e.g.
 
 ## Severity mapping
 
-Wiz ships a 5-tier severity ladder. AiSOC collapses it into the canonical
+Wiz ships a 5-tier severity ladder. Quarry collapses it into the canonical
 4-tier ladder used across the platform:
 
-| Wiz severity | AiSOC severity |
+| Wiz severity | Quarry severity |
 |---|---|
 | `CRITICAL` | `high` |
 | `HIGH` | `high` |

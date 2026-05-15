@@ -104,7 +104,7 @@ class ConfluenceAuditConnector(BaseConnector):
         return {
             "Authorization": f"Basic {creds}",
             "Accept": "application/json",
-            "User-Agent": "AiSOC-Connector/1.0",
+            "User-Agent": "Quarry-Connector/1.0",
         }
 
     # ------------------------- contract -------------------------

@@ -1,17 +1,17 @@
 /**
- * Unit tests for @quarry/sdk AiSOCClient.
+ * Unit tests for @quarry/sdk QuarryClient.
  *
  * All HTTP calls are intercepted via fetch mocking — no real server needed.
  */
 
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import { AiSOCClient, AiSOCError } from "./client.js";
+import { QuarryClient, QuarryError } from "./client.js";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function makeClient() {
-  return new AiSOCClient({
-    baseUrl: "https://aisoc.test",
+  return new QuarryClient({
+    baseUrl: "https://quarry.test",
     token: "aisoc_test_token",
   });
 }
@@ -29,7 +29,7 @@ function mockFetch(body: unknown, status = 200) {
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
-describe("AiSOCClient construction", () => {
+describe("QuarryClient construction", () => {
   it("exposes all resource sub-clients", () => {
     const client = makeClient();
     expect(client.alerts).toBeDefined();
@@ -101,19 +101,19 @@ describe("cases", () => {
 describe("error handling", () => {
   beforeEach(() => vi.restoreAllMocks());
 
-  it("throws AiSOCError on 4xx", async () => {
+  it("throws QuarryError on 4xx", async () => {
     mockFetch({ detail: "Not found" }, 404);
     const client = makeClient();
-    await expect(client.alerts.get("missing")).rejects.toBeInstanceOf(AiSOCError);
+    await expect(client.alerts.get("missing")).rejects.toBeInstanceOf(QuarryError);
   });
 
-  it("AiSOCError carries status code", async () => {
+  it("QuarryError carries status code", async () => {
     mockFetch({ detail: "Forbidden" }, 403);
     const client = makeClient();
     try {
       await client.alerts.get("x");
     } catch (e) {
-      expect((e as AiSOCError).status).toBe(403);
+      expect((e as QuarryError).status).toBe(403);
     }
   });
 });
@@ -121,8 +121,8 @@ describe("error handling", () => {
 describe("auth header", () => {
   it("includes Bearer token in every request", async () => {
     const mock = mockFetch({ items: [], total: 0, page: 1, pageSize: 20 });
-    const client = new AiSOCClient({
-      baseUrl: "https://aisoc.test",
+    const client = new QuarryClient({
+      baseUrl: "https://quarry.test",
       token: "aisoc_super_secret",
     });
     await client.alerts.list();

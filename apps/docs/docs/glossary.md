@@ -4,13 +4,13 @@ sidebar_position: 99
 
 # Glossary
 
-A reference for terminology used across AiSOC docs, code, and the UI.
+A reference for terminology used across Quarry docs, code, and the UI.
 Terms are grouped so you can find them by area; everything is also
 alphabetized within each group.
 
 ## Core platform
 
-**AiSOC** — Open-source AI Security Operations Center. The agent itself is
+**Quarry** — Open-source AI Security Operations Center. The agent itself is
 MIT-licensed and self-hostable, with a public eval harness gating every PR
 that touches the substrate.
 
@@ -27,7 +27,7 @@ API (EDR, SIEM, cloud, IAM, SaaS, VCS, network) and pushes normalized OCSF
 records into the ingest spine. See the [connector catalog](./connectors).
 
 **Detection rule** — A query (Sigma / YARA / KQL / EQL) that fires an
-alert when matching events are seen. AiSOC ships ~800 native rules plus
+alert when matching events are seen. Quarry ships ~800 native rules plus
 ~6,000 imported from public catalogs, each tagged with provenance.
 
 **Investigation Ledger** — Append-only, replayable record of every
@@ -35,7 +35,7 @@ prompt, tool call, evidence citation, and decision the agent emits while
 working a case. See [Concepts → Cases](./concepts/cases).
 
 **MCP (Model Context Protocol)** — Protocol used by `@quarry/mcp` to expose
-AiSOC tools to IDE-side LLM clients (Claude Desktop, Cursor, Continue,
+Quarry tools to IDE-side LLM clients (Claude Desktop, Cursor, Continue,
 Cody). See [Integrations → MCP](./integrations/mcp).
 
 **Playbook** — Visual, reusable automation workflow built from trigger,
@@ -82,7 +82,7 @@ execution.
 **Indicator (IOC)** — Indicator of Compromise. An observable (IP,
 domain, hash, email, URL) used in detection and enrichment.
 
-**MITRE ATT&CK** — Adversary tactics-and-techniques framework that AiSOC
+**MITRE ATT&CK** — Adversary tactics-and-techniques framework that Quarry
 uses for tagging detections, tracking coverage, and grading agent
 accuracy in the eval harness.
 
@@ -91,7 +91,7 @@ risk points to entities (user, host, IP, domain). Crossing a configurable
 threshold promotes the entity to an incident with contributing alerts
 attached.
 
-**Sigma** — Generic, vendor-agnostic detection rule format. AiSOC stores
+**Sigma** — Generic, vendor-agnostic detection rule format. Quarry stores
 all native rules in a Sigma-shaped schema and translates at query time.
 
 **UEBA (User and Entity Behavior Analytics)** — Per-entity online
@@ -124,23 +124,23 @@ notifications via the Responder PWA when high-priority alerts or
 approval requests arrive.
 
 **Triage** — First-pass classification of an alert as true positive,
-false positive, or benign. AiSOC's auto-triage agent assigns a confidence
+false positive, or benign. Quarry's auto-triage agent assigns a confidence
 score; high-confidence false positives close automatically, uncertain
 alerts escalate to humans.
 
 ## Threat intelligence
 
-**MISP** — Open-source threat intel platform. AiSOC ingests MISP feeds
+**MISP** — Open-source threat intel platform. Quarry ingests MISP feeds
 into its triple-storage model (search · vector · graph).
 
 **OTX** — AlienVault Open Threat Exchange. Ingested alongside MISP and
 TAXII feeds.
 
-**STIX 2.1** — Structured Threat Information eXpression. AiSOC publishes
+**STIX 2.1** — Structured Threat Information eXpression. Quarry publishes
 and consumes STIX 2.1 bundles for bidirectional intel sharing.
 
 **TAXII 2.1** — Trusted Automated eXchange of Indicator Information.
-Transport layer for STIX. AiSOC supports TAXII collection management
+Transport layer for STIX. Quarry supports TAXII collection management
 and pull-based ingestion.
 
 ## Identity, access, security
@@ -153,9 +153,9 @@ See [Operations → Security](./operations/security).
 the plaintext is shown exactly once at creation.
 
 **Credential vault** — Application-layer Fernet (AES-128-CBC + HMAC-
-SHA256) encryption for connector secrets. Key in `AISOC_CREDENTIAL_KEY`;
+SHA256) encryption for connector secrets. Key in `QUARRY_CREDENTIAL_KEY`;
 rotation supported via `MultiFernet` and
-`AISOC_CREDENTIAL_KEY_ROTATION_FROM`. Vault tokens are formatted
+`QUARRY_CREDENTIAL_KEY_ROTATION_FROM`. Vault tokens are formatted
 `vault:v1:<base64>`. See [Operations → Credentials](./operations/credentials).
 
 **JWT** — JSON Web Token used as the session credential between the web
@@ -169,7 +169,7 @@ primary auth on the Responder PWA and as an MFA factor on the desktop
 console.
 
 **RBAC (Role-Based Access Control)** — Permissions granted via roles.
-AiSOC ships `viewer`, `analyst`, `responder`, `admin`, and `owner` roles
+Quarry ships `viewer`, `analyst`, `responder`, `admin`, and `owner` roles
 with granular per-resource scopes.
 
 **RLS (Row-Level Security)** — Postgres feature used to enforce multi-
@@ -207,10 +207,10 @@ images and signed plugin bundles. See [Operations → Air-gapped](./operations/a
 (per-instance polling) and Hunt-as-Code (continuous hunt execution).
 
 **Demo profile** — Slim Docker Compose stack (`docker-compose.demo.yml`)
-spun up by `pnpm aisoc:demo`. Pulls prebuilt GHCR images, seeds canonical
+spun up by `pnpm quarry:demo`. Pulls prebuilt GHCR images, seeds canonical
 data, and lands you on a live case.
 
-**Doctor** — `pnpm aisoc:doctor` health-check that walks ports,
+**Doctor** — `pnpm quarry:doctor` health-check that walks ports,
 containers, demo data, the API, and the WebSocket gateway, and tells you
 exactly what's red.
 
@@ -220,7 +220,7 @@ latency end-to-end.
 
 ## Compliance & governance
 
-**DORA** — EU Digital Operational Resilience Act. AiSOC ships a DORA
+**DORA** — EU Digital Operational Resilience Act. Quarry ships a DORA
 evidence dashboard alongside SOC 2, ISO 27001, NIST CSF, PCI-DSS, and
 HIPAA.
 
@@ -232,13 +232,13 @@ alerts, and risk scoring.
 result, attestation) collected automatically from connected sources and
 mapped to control IDs.
 
-**MSSP** — Managed Security Service Provider. AiSOC's MSSP dashboard
+**MSSP** — Managed Security Service Provider. Quarry's MSSP dashboard
 gives cross-tenant aggregated KPIs and per-tenant risk scoring.
 
 ## Plugin & SDK
 
 **Marketplace** — In-app catalog (`/marketplace`) of plugins, playbooks,
-and detection packs, surfaced via [`marketplace/index.json`](https://github.com/beenuar/AiSOC/tree/main/marketplace)
+and detection packs, surfaced via [`marketplace/index.json`](https://github.com/Josepassinato/quarry/tree/main/marketplace)
 and filterable by tier (`stable` / `beta` / `imported` / `community`).
 
 **Plugin manifest** — `plugin.yaml` mirroring a connector's `schema()`
@@ -248,7 +248,7 @@ classmethod. Required for marketplace listing.
 plugin SDKs. Plugins are Ed25519-signed at publish time.
 
 **Tier** — Marketplace quality bucket. `stable` plugins/rules ship and
-are supported by the AiSOC project; `beta` are usable but evolving;
+are supported by the Quarry project; `beta` are usable but evolving;
 `imported` come from public catalogs (SigmaHQ, Splunk Security Content,
 Chronicle, MITRE CAR); `community` are user-contributed.
 

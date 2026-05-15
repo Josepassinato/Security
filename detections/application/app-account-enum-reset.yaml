@@ -1,6 +1,6 @@
 id: det-application-040
 name: High Volume Of Password Reset Requests From Single IP
-description: AiSOC v1 curated detection. Triggers on the application signal described by 'High Volume
+description: Quarry v1 curated detection. Triggers on the application signal described by 'High Volume
   Of Password Reset Requests From Single IP'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: medium
@@ -19,6 +19,6 @@ false_positives:
 - Internal load test
 playbook: tpl-credential-access
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

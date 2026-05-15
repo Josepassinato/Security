@@ -1,6 +1,6 @@
 id: det-endpoint-099
 name: DPAPI Master Key File Read From Roaming Dir
-description: AiSOC v1 curated detection. Triggers on the endpoint signal described by 'DPAPI Master Key
+description: Quarry v1 curated detection. Triggers on the endpoint signal described by 'DPAPI Master Key
   File Read From Roaming Dir'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: high
@@ -20,6 +20,6 @@ false_positives:
 - Migration / profile fix-up tool
 playbook: tpl-credential-access
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

@@ -28,7 +28,7 @@ Disabling
 
 Default-on, but flipped off in test environments and for operators who
 run the API behind a separate scheduler service. Set
-``AISOC_HUNT_SCHEDULER_ENABLED=false`` to disable. ``main.py`` honours
+``QUARRY_HUNT_SCHEDULER_ENABLED=false`` to disable. ``main.py`` honours
 the flag the same way it gates ``oauth_refresh`` and
 ``weekly_digest``.
 

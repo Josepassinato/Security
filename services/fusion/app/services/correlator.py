@@ -14,8 +14,8 @@ from app.models.alert import AlertSeverity, IncidentSummary, RawAlert
 
 logger = structlog.get_logger()
 
-_CORRELATION_PREFIX = "aisoc:fusion:correlation:"
-_INCIDENT_PREFIX = "aisoc:fusion:incident:"
+_CORRELATION_PREFIX = "quarry:fusion:correlation:"
+_INCIDENT_PREFIX = "quarry:fusion:incident:"
 
 _SEVERITY_ORDER = {
     AlertSeverity.CRITICAL: 5,

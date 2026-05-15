@@ -7,10 +7,10 @@ sidebar_position: 2
 ## Installation
 
 ```bash
-pip install aisoc-plugin-sdk
+pip install quarry-plugin-sdk
 ```
 
-The PyPI distribution is `aisoc-plugin-sdk`; the import path is
+The PyPI distribution is `quarry-plugin-sdk`; the import path is
 `aisoc_plugin_sdk`. The source lives in `packages/plugin-sdk-py/`.
 
 ## Quick Start: Enricher

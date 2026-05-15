@@ -1,4 +1,4 @@
-"""Tailscale ACL action plugin for AiSOC.
+"""Tailscale ACL action plugin for Quarry.
 
 Supported actions:
   - list_devices: list all devices in the tailnet

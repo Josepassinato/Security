@@ -1,5 +1,5 @@
 """
-Pure-Python slash-command dispatcher for ``/aisoc``.
+Pure-Python slash-command dispatcher for ``/quarry``.
 
 We deliberately keep the dispatcher independent of Slack Bolt: it consumes
 plain values (text, user id) and returns a Slack response payload as a dict.
@@ -47,9 +47,9 @@ from app.blocks import (
     investigation_started_blocks,
 )
 from app.services.aisoc_clients import (
-    AisocActionsClient,
-    AisocApiClient,
-    AisocClientError,
+    QuarryActionsClient,
+    QuarryApiClient,
+    QuarryClientError,
 )
 
 # ────────────────────────────────────────────────────────────────────────────
@@ -95,7 +95,7 @@ def _parse_tokens(text: str) -> list[str]:
 async def _cmd_list(
     args: list[str],
     *,
-    api_client: AisocApiClient,
+    api_client: QuarryApiClient,
     web_base: str,
 ) -> dict[str, Any]:
     severity = args[0].lower() if args else None
@@ -103,7 +103,7 @@ async def _cmd_list(
         return _error(f"Unknown severity `{severity}`. Use low|medium|high|critical.")
     try:
         cases = await api_client.list_open_cases(limit=10, severity=severity)
-    except AisocClientError as exc:
+    except QuarryClientError as exc:
         return _error(f"Could not load cases: {exc}")
 
     title = "Open cases" if not severity else f"Open cases · {severity.title()}"
@@ -114,19 +114,19 @@ async def _cmd_list(
 async def _cmd_investigate(
     args: list[str],
     *,
-    api_client: AisocApiClient,
+    api_client: QuarryApiClient,
     web_base: str,
     user_id: str,
 ) -> dict[str, Any]:
     if not args:
-        return _error("Usage: `/aisoc investigate <case_id>`")
+        return _error("Usage: `/quarry investigate <case_id>`")
     case_id = args[0]
     try:
         case = await api_client.get_case(case_id)
         # Use the requesting Slack user id as a lightweight rationale source so
         # the case timeline records who fired the run from chat.
         investigation = await api_client.launch_investigation(case_id, alert_summary=f"investigation requested by Slack user {user_id}")
-    except AisocClientError as exc:
+    except QuarryClientError as exc:
         return _error(f"Investigation failed: {exc}")
 
     blocks = investigation_started_blocks(case, investigation, web_base=web_base)
@@ -136,16 +136,16 @@ async def _cmd_investigate(
 async def _cmd_explain(
     args: list[str],
     *,
-    api_client: AisocApiClient,
+    api_client: QuarryApiClient,
     web_base: str,
 ) -> dict[str, Any]:
     if not args:
-        return _error("Usage: `/aisoc explain <case_id>`")
+        return _error("Usage: `/quarry explain <case_id>`")
     case_id = args[0]
     try:
         case = await api_client.get_case(case_id)
         summary = await api_client.get_case_summary(case_id)
-    except AisocClientError as exc:
+    except QuarryClientError as exc:
         return _error(f"Could not summarise case: {exc}")
 
     blocks = case_explanation_blocks(case, summary, web_base=web_base)
@@ -155,8 +155,8 @@ async def _cmd_explain(
 async def _cmd_action(
     args: list[str],
     *,
-    api_client: AisocApiClient,
-    actions_client: AisocActionsClient,
+    api_client: QuarryApiClient,
+    actions_client: QuarryActionsClient,
     web_base: str,
     user_id: str,
     action_type: str,
@@ -185,7 +185,7 @@ async def _cmd_action(
             rationale=rationale,
             requested_by=user_id,
         )
-    except AisocClientError as exc:
+    except QuarryClientError as exc:
         return _error(f"Action submission failed: {exc}")
 
     status = (action.get("status") or "").lower()
@@ -232,25 +232,25 @@ async def handle_aisoc_command(
     *,
     text: str,
     user_id: str,
-    api_client: AisocApiClient,
-    actions_client: AisocActionsClient,
+    api_client: QuarryApiClient,
+    actions_client: QuarryActionsClient,
     web_base: str,
 ) -> dict[str, Any]:
     """
-    Dispatch a parsed ``/aisoc`` command to the right subcommand.
+    Dispatch a parsed ``/quarry`` command to the right subcommand.
 
     The function never raises — every exception path is converted to an
     ephemeral error block so the user always gets useful feedback in Slack.
     """
     tokens = _parse_tokens(text)
     if not tokens:
-        return _ephemeral(help_blocks(), fallback="AiSOC Slack help")
+        return _ephemeral(help_blocks(), fallback="Quarry Slack help")
 
     sub, *rest = tokens
     sub = sub.lower()
 
     if sub in {"help", "?", "-h", "--help"}:
-        return _ephemeral(help_blocks(), fallback="AiSOC Slack help")
+        return _ephemeral(help_blocks(), fallback="Quarry Slack help")
 
     if sub == "list":
         return await _cmd_list(rest, api_client=api_client, web_base=web_base)
@@ -269,7 +269,7 @@ async def handle_aisoc_command(
             web_base=web_base,
             user_id=user_id,
             action_type="isolate_host",
-            usage="/aisoc isolate <host> <case_id> [reason]",
+            usage="/quarry isolate <host> <case_id> [reason]",
         )
 
     if sub == "block":
@@ -280,10 +280,10 @@ async def handle_aisoc_command(
             web_base=web_base,
             user_id=user_id,
             action_type="block_ip",
-            usage="/aisoc block <ip|domain> <case_id> [reason]",
+            usage="/quarry block <ip|domain> <case_id> [reason]",
         )
 
     return _ephemeral(
         help_blocks(),
-        fallback=f"Unknown subcommand `{sub}`. See `/aisoc help`.",
+        fallback=f"Unknown subcommand `{sub}`. See `/quarry help`.",
     )

@@ -131,7 +131,7 @@ describe('AuditLogView export buttons', () => {
     seedAuditPage([sampleEvent]);
     exportCsvMock.mockResolvedValueOnce({
       body: 'id,action\nevt-1,cases:create\n',
-      filename: 'aisoc-audit-20260501T120000Z.csv',
+      filename: 'quarry-audit-20260501T120000Z.csv',
     });
 
     render(<AuditLogView />);
@@ -144,7 +144,7 @@ describe('AuditLogView export buttons', () => {
     expect(exportCsvMock).toHaveBeenCalledWith({});
     await waitFor(() =>
       expect(toastSuccess).toHaveBeenCalledWith(
-        expect.stringContaining('aisoc-audit-20260501T120000Z.csv'),
+        expect.stringContaining('quarry-audit-20260501T120000Z.csv'),
       ),
     );
   });
@@ -162,7 +162,7 @@ describe('AuditLogView export buttons', () => {
     );
     exportCsvMock.mockResolvedValueOnce({
       body: 'id,action\nevt-1,cases:create\n',
-      filename: 'aisoc-audit-filtered.csv',
+      filename: 'quarry-audit-filtered.csv',
     });
 
     render(<AuditLogView />);
@@ -189,7 +189,7 @@ describe('AuditLogView export buttons', () => {
     seedAuditPage([sampleEvent]);
     exportHtmlMock.mockResolvedValueOnce({
       html: '<!doctype html><html><body><h1>Audit Log Export</h1></body></html>',
-      filename: 'aisoc-audit-20260501T120000Z.html',
+      filename: 'quarry-audit-20260501T120000Z.html',
     });
 
     render(<AuditLogView />);

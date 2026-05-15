@@ -1,4 +1,4 @@
-"""Jamf Pro MDM connector for AiSOC.
+"""Jamf Pro MDM connector for Quarry.
 
 Supports OAuth client-credentials auth, computer/device lookup, lock + wipe
 commands, and compliance metadata retrieval against the Jamf Pro REST API.

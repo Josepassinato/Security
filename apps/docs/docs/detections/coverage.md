@@ -1,7 +1,7 @@
 ---
 title: Detection Coverage
 description: |
-  AiSOC v1.0 ships a curated set of MITRE ATT&CK-mapped
+  Quarry v1.0 ships a curated set of MITRE ATT&CK-mapped
   detections covering the eight buyer-prioritised threat
   families. This page is generated from the on-disk corpus
   via ``scripts/curate_detections.py`` — it is the source
@@ -58,5 +58,5 @@ Generated: `2026-05-14T12:28:25Z`
 
 ## How to audit
 
-The curated rule IDs are listed in [`marketplace/curated.json`](https://github.com/aisoc-platform/aisoc/blob/main/marketplace/curated.json) under each family. Every entry has a `path` field pointing at the on-disk YAML. Run `pnpm marketplace:curate --check` in CI to enforce drift; run `python3 scripts/curate_detections.py` locally to regenerate.
+The curated rule IDs are listed in [`marketplace/curated.json`](https://github.com/quarry-platform/quarry/blob/main/marketplace/curated.json) under each family. Every entry has a `path` field pointing at the on-disk YAML. Run `pnpm marketplace:curate --check` in CI to enforce drift; run `python3 scripts/curate_detections.py` locally to regenerate.
 

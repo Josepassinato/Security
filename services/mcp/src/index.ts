@@ -98,14 +98,14 @@ async function cmdInstall(args: ParsedArgs): Promise<void> {
   if (!isHost(hostFlag)) {
     process.stderr.write(
       [
-        "aisoc-mcp install — choose a host:",
+        "quarry-mcp install — choose a host:",
         "  --host claude    Claude Desktop",
         "  --host cursor    Cursor IDE",
         "  --host continue  Continue.dev",
         "  --host cody      Sourcegraph Cody (prints snippet)",
         "",
-        "  --aisoc-url <url>          AiSOC API base URL (default http://localhost:8081)",
-        "  --api-key <token>          API key to embed (or set AISOC_API_KEY)",
+        "  --quarry-url <url>          Quarry API base URL (default http://localhost:8081)",
+        "  --api-key <token>          API key to embed (or set QUARRY_API_KEY)",
         "  --dry-run                  Show what would be written without changing files",
         "  --list-paths               Print where each host's config lives, as JSON",
         "",
@@ -129,7 +129,7 @@ async function cmdInstall(args: ParsedArgs): Promise<void> {
   if (dryRun) {
     process.stdout.write(
       `[dry-run] would write to ${result.configPath ?? "(no file)"}\n` +
-        JSON.stringify({ aisoc: result.snippet }, null, 2) +
+        JSON.stringify({ quarry: result.snippet }, null, 2) +
         "\n",
     );
     return;
@@ -149,7 +149,7 @@ function isHost(s: string): s is Host {
 function printHelp(): void {
   process.stdout.write(
     [
-      "@quarry/mcp — connect AiSOC to MCP-aware assistants",
+      "@quarry/mcp — connect Quarry to MCP-aware assistants",
       "",
       "Usage:",
       "  npx @quarry/mcp <command> [options]",
@@ -157,20 +157,20 @@ function printHelp(): void {
       "Commands:",
       "  serve              Run the stdio MCP server (default).",
       "  install --host <h> Configure Claude Desktop / Cursor / Continue / Cody to launch this server.",
-      "  doctor             Verify env, network reachability, and AiSOC API auth.",
+      "  doctor             Verify env, network reachability, and Quarry API auth.",
       "  help               Show this message.",
       "  version            Print the package version.",
       "",
       "Common options:",
-      "  --aisoc-url <url>      Base URL of the AiSOC API. Env: AISOC_URL.",
+      "  --quarry-url <url>      Base URL of the Quarry API. Env: QUARRY_URL.",
       "                         Default: http://localhost:8081",
-      "  --api-key <token>      API key (aisoc_… or JWT). Env: AISOC_API_KEY.",
-      "  --timeout <ms>         Per-request timeout. Env: AISOC_TIMEOUT_MS. Default 20000.",
+      "  --api-key <token>      API key (aisoc_… or JWT). Env: QUARRY_API_KEY.",
+      "  --timeout <ms>         Per-request timeout. Env: QUARRY_TIMEOUT_MS. Default 20000.",
       "  --verbose              Log lifecycle events to stderr.",
       "",
       "Examples:",
-      "  npx @quarry/mcp install --host claude --aisoc-url https://aisoc.acme.corp --api-key aisoc_xxxx",
-      "  AISOC_URL=https://aisoc.acme.corp AISOC_API_KEY=aisoc_xxxx npx @quarry/mcp doctor",
+      "  npx @quarry/mcp install --host claude --quarry-url https://quarry.acme.corp --api-key aisoc_xxxx",
+      "  QUARRY_URL=https://quarry.acme.corp QUARRY_API_KEY=aisoc_xxxx npx @quarry/mcp doctor",
       "  npx @quarry/mcp serve   # invoked by the host, not by you",
       "",
     ].join("\n"),
@@ -186,6 +186,6 @@ main().catch((err: unknown) => {
   // errors; this catches programmer mistakes that escape both. We write to
   // stderr so we don't poison the JSON-RPC stream if this fires during serve.
   const msg = err instanceof Error ? err.stack ?? err.message : String(err);
-  process.stderr.write(`aisoc-mcp: fatal: ${msg}\n`);
+  process.stderr.write(`quarry-mcp: fatal: ${msg}\n`);
   process.exit(1);
 });

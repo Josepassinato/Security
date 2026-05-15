@@ -8,9 +8,9 @@ description: >
   permission, and user/group audit events via the Confluence Cloud REST
   API. Requires an Atlassian Cloud API token; the calling user needs
   site-admin access to read the full audit log.
-author: AiSOC Core Team
+author: Quarry Core Team
 tags: [saas, atlassian, confluence, audit, wiki, permissions]
-homepage: https://github.com/beenuar/AiSOC/tree/main/services/connectors/app/connectors/confluence_audit.py
+homepage: https://github.com/beenuar/Quarry/tree/main/services/connectors/app/connectors/confluence_audit.py
 license: MIT
 min_aisoc_version: "4.0.0"
 config_schema:

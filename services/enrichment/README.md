@@ -1,11 +1,11 @@
-# AiSOC Enrichment Service
+# Quarry Enrichment Service
 
 A Go service that enriches IOCs (IPs, domains, URLs, file hashes) by fanning
 out to a curated set of open-source and commercial threat-intelligence
 providers in parallel, then merging the responses into a single normalized
 `EnrichmentResult`.
 
-The service is part of the AiSOC platform and is consumed by the analysis
+The service is part of the Quarry platform and is consumed by the analysis
 pipeline, the AI Copilot, the case workspace, and the hunt UI.
 
 ---

@@ -1,12 +1,12 @@
 ---
 sidebar_position: 8
 title: Google Workspace
-description: Admin, login, drive, and token activity from Google Workspace (formerly G Suite) into AiSOC via the Reports API.
+description: Admin, login, drive, and token activity from Google Workspace (formerly G Suite) into Quarry via the Reports API.
 ---
 
 # Google Workspace
 
-The Google Workspace connector pulls **activity reports** from the Reports API — admin actions, user logins, Drive file events, OAuth token grants, and more — into AiSOC. It is the identity-and-collaboration counterpart to the Microsoft 365 connector.
+The Google Workspace connector pulls **activity reports** from the Reports API — admin actions, user logins, Drive file events, OAuth token grants, and more — into Quarry. It is the identity-and-collaboration counterpart to the Microsoft 365 connector.
 
 ## What you get
 
@@ -33,7 +33,7 @@ Events are normalized with `source: google_workspace` and `category` derived fro
 ### 1. Create the service account
 
 1. **GCP Console → IAM & Admin → Service Accounts → Create**.
-2. Name: `aisoc-workspace-reports`.
+2. Name: `quarry-workspace-reports`.
 3. Skip the "grant access to project" step — domain-wide delegation is what matters here.
 4. Open the service account → **Keys → Add key → JSON**. Download.
 
@@ -51,9 +51,9 @@ Events are normalized with `source: google_workspace` and `category` derived fro
 
 ### 4. Pick an admin email to impersonate
 
-The Reports API will not return events unless the credential is acting as a super-admin. Pick a dedicated `aisoc@yourdomain.com` super-admin if possible — easier to audit than impersonating a human admin.
+The Reports API will not return events unless the credential is acting as a super-admin. Pick a dedicated `quarry@yourdomain.com` super-admin if possible — easier to audit than impersonating a human admin.
 
-### 5. Add the connector in AiSOC
+### 5. Add the connector in Quarry
 
 1. **Connectors → Add connector → Google Workspace**.
 2. `admin_email` = the super-admin to impersonate.

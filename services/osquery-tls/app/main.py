@@ -1,4 +1,4 @@
-"""AiSOC osquery TLS service — FastAPI application entry point."""
+"""Quarry osquery TLS service — FastAPI application entry point."""
 
 from __future__ import annotations
 
@@ -13,9 +13,9 @@ from app.core.config import settings
 logging.basicConfig(level=getattr(logging, settings.log_level.upper(), logging.INFO))
 
 app = FastAPI(
-    title="AiSOC osquery TLS",
+    title="Quarry osquery TLS",
     description=(
-        "Implements the osquery TLS plugin spec so osqueryd agents can be pointed at AiSOC directly, without a separate fleet manager."
+        "Implements the osquery TLS plugin spec so osqueryd agents can be pointed at Quarry directly, without a separate fleet manager."
     ),
     version="0.1.0",
     docs_url="/docs",

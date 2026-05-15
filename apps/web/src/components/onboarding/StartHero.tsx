@@ -9,7 +9,7 @@ import { authApi } from '@/lib/api';
 import { demoDeeplink } from '@/lib/demoMode';
 
 /**
- * Onboarding hero for the AiSOC root (`/`).
+ * Onboarding hero for the Quarry root (`/`).
  *
  * Implements the three CTAs from `aisoc_v1.0__buyer-value_plan` WS-A2:
  *
@@ -49,8 +49,8 @@ export function StartHero() {
     // landing page and explain how to seed. We do NOT redirect to /login
     // because the empty error state on a fresh self-host is more
     // informative than a generic password prompt.
-    const email = process.env.NEXT_PUBLIC_DEMO_AUTOLOGIN_EMAIL?.trim() || 'demo@aisoc.dev';
-    const password = process.env.NEXT_PUBLIC_DEMO_AUTOLOGIN_PASSWORD?.trim() || 'aisoc-demo';
+    const email = process.env.NEXT_PUBLIC_DEMO_AUTOLOGIN_EMAIL?.trim() || 'demo@quarry.dev';
+    const password = process.env.NEXT_PUBLIC_DEMO_AUTOLOGIN_PASSWORD?.trim() || 'quarry-demo';
 
     try {
       if (!authApi.isAuthenticated()) {
@@ -86,7 +86,7 @@ export function StartHero() {
           </h1>
 
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-gray-300 md:text-xl">
-            AiSOC ships four named agents — Detect, Triage, Hunt, and
+            Quarry ships four named agents — Detect, Triage, Hunt, and
             Respond — wired to a 200-incident eval harness, a pre-seeded
             LockBit 3.0 investigation, and 26 click-and-connect security
             sources. Pick how you want to start: every option lands you in a
@@ -98,7 +98,7 @@ export function StartHero() {
               identity, cloud, insider) are capabilities of Triage, never
               first-class names here. */}
           <ul
-            aria-label="The four AiSOC agents"
+            aria-label="The four Quarry agents"
             className="mt-8 grid grid-cols-2 gap-2 sm:grid-cols-4"
           >
             {[
@@ -235,7 +235,7 @@ export function StartHero() {
 function DemoScreencast() {
   return (
     <aside
-      aria-label="AiSOC 90-second product demo"
+      aria-label="Quarry 90-second product demo"
       className="mt-8 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03]"
     >
       <a
@@ -249,7 +249,7 @@ function DemoScreencast() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/demo-thumbnail.svg"
-            alt="AiSOC 90-second product demo thumbnail showing the four canonical cases (phishing, cloud takeover, insider exfil, ransomware)"
+            alt="Quarry 90-second product demo thumbnail showing the four canonical cases (phishing, cloud takeover, insider exfil, ransomware)"
             width={1280}
             height={720}
             className="block h-auto w-full"
@@ -269,7 +269,7 @@ function DemoScreencast() {
             4 cases in 4 minutes
           </span>
           <span className="text-xs leading-relaxed text-gray-400">
-            90-second walkthrough of <span className="font-mono">pnpm aisoc:demo --quick</span>:
+            90-second walkthrough of <span className="font-mono">pnpm quarry:demo --quick</span>:
             phishing, cloud takeover, insider exfil, and a LockBit ransomware
             response — every alert deterministic, every action audited.
           </span>
@@ -314,7 +314,7 @@ function HeroVisual() {
           <span className="h-2.5 w-2.5 rounded-full bg-rose-400/80" />
           <span className="h-2.5 w-2.5 rounded-full bg-amber-400/80" />
           <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/80" />
-          <span className="ml-3 text-xs font-medium text-gray-500">aisoc · INC-RT-001 · live</span>
+          <span className="ml-3 text-xs font-medium text-gray-500">quarry · INC-RT-001 · live</span>
           <span className="ml-auto inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-rose-300">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-rose-400" />
             In-flight
@@ -331,7 +331,7 @@ function HeroVisual() {
       >
         <div className="mb-2 flex items-center gap-2 text-xs font-semibold text-gray-400">
           <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-brand-500 text-[11px] font-bold text-white">A</span>
-          AiSOC Agent
+          Quarry Agent
           <span className="ml-auto text-[10px] font-medium uppercase tracking-wider text-emerald-300">streaming</span>
         </div>
         <p className="text-sm leading-relaxed text-gray-200">

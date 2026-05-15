@@ -5,7 +5,7 @@ These tests follow the same pattern as ``test_saas_connectors.py``:
 
   1. Schema sanity — the wizard form has the fields the docs promise and
      the secret-typed fields are masked.
-  2. ``normalize()`` produces the canonical AiSOC alert shape and applies
+  2. ``normalize()`` produces the canonical Quarry alert shape and applies
      the table-driven severity ladder.
   3. HTTP routing through ``respx`` exercises the real ``httpx`` paths
      and proves we hit the documented osctrl / Fleet endpoints.

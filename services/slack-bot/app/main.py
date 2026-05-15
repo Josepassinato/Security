@@ -1,5 +1,5 @@
 """
-FastAPI + Slack Bolt entrypoint for the AiSOC Slack bot.
+FastAPI + Slack Bolt entrypoint for the Quarry Slack bot.
 
 Architecture (one diagram, then code)::
 
@@ -16,13 +16,13 @@ Design choices
 --------------
 
 * **Bolt is mounted under FastAPI** rather than running standalone so we
-  keep one ASGI app per service (matches every other AiSOC service) and
+  keep one ASGI app per service (matches every other Quarry service) and
   one health-check endpoint for compose / Fly.io.
 * **All Slack-side logic lives behind an async-friendly Bolt app**; the
   actual command/interaction logic stays in :mod:`app.commands` and
   :mod:`app.interactions` so it can be tested without touching Bolt.
-* **Per-process singleton clients** (`AisocApiClient`,
-  `AisocActionsClient`). Each holds an ``httpx.AsyncClient`` with
+* **Per-process singleton clients** (`QuarryApiClient`,
+  `QuarryActionsClient`). Each holds an ``httpx.AsyncClient`` with
   connection pooling — building one per request would defeat the pool.
 * **Signing-secret-aware bootstrap**: Bolt requires a signing secret in
   production. For local pytest / docker-without-secrets we set the Bolt
@@ -59,17 +59,17 @@ from app.interactions import (
     NEED_INFO_ACTION_ID,
     handle_action_decision,
 )
-from app.services.aisoc_clients import AisocActionsClient, AisocApiClient
+from app.services.aisoc_clients import QuarryActionsClient, QuarryApiClient
 from app.services.approval_audit import StructlogAuditSink
 from app.services.approval_timeout import ApprovalTimeoutScheduler
 
 # Configure structlog before anything else so module-level loggers
 # (httpx, slack_bolt, …) inherit the JSON renderer.
 configure_logging()
-logger = structlog.get_logger("aisoc.slack_bot")
+logger = structlog.get_logger("quarry.slack_bot")
 
 
-def _build_bolt_app(api_client: AisocApiClient, actions_client: AisocActionsClient) -> AsyncApp:
+def _build_bolt_app(api_client: QuarryApiClient, actions_client: QuarryActionsClient) -> AsyncApp:
     """
     Construct the Bolt :class:`AsyncApp` and register every Slack handler.
 
@@ -107,13 +107,13 @@ def _build_bolt_app(api_client: AisocApiClient, actions_client: AisocActionsClie
             note=("SLACK_BOT_TOKEN is empty — outbound Slack API calls will fail. Required before submitting the Slack app for review."),
         )
 
-    web_base = settings.AISOC_WEB_BASE_URL
+    web_base = settings.QUARRY_WEB_BASE_URL
 
-    # ── Slash command: /aisoc -------------------------------------------------
-    @bolt.command("/aisoc")
+    # ── Slash command: /quarry -------------------------------------------------
+    @bolt.command("/quarry")
     async def _on_slash_aisoc(ack, command, respond):
         # Slack requires an ack within 3 seconds. We ack immediately so
-        # the slow path (HTTP calls into AiSOC services) doesn't blow the
+        # the slow path (HTTP calls into Quarry services) doesn't blow the
         # 3s budget on a cold cache.
         await ack()
         text = command.get("text") or ""
@@ -127,7 +127,7 @@ def _build_bolt_app(api_client: AisocApiClient, actions_client: AisocActionsClie
                 web_base=web_base,
             )
         except Exception as exc:  # noqa: BLE001 — last-resort guard
-            # Defensive: handle_aisoc_command swallows AisocClientError but a
+            # Defensive: handle_aisoc_command swallows QuarryClientError but a
             # programming bug could still raise. We never want a stack
             # trace to land in Slack.
             logger.error("slash_command_unhandled_exception", error=str(exc))
@@ -190,7 +190,7 @@ async def _route_action_decision(
     event_action_id: str,
     body: dict,
     respond,
-    actions_client: AisocActionsClient,
+    actions_client: QuarryActionsClient,
 ) -> None:
     """
     Pull the routing value out of the Slack ``block_actions`` payload and
@@ -239,14 +239,14 @@ async def _route_action_decision(
 @asynccontextmanager
 async def _lifespan(app: FastAPI) -> AsyncIterator[None]:
     """
-    Build the AiSOC HTTP clients on startup, tear them down on shutdown.
+    Build the Quarry HTTP clients on startup, tear them down on shutdown.
 
     The clients each own an ``httpx.AsyncClient`` with a connection pool
     — sharing them across requests is a 10× win versus building a fresh
     client per Slack event.
     """
-    api_client = AisocApiClient.from_settings()
-    actions_client = AisocActionsClient.from_settings()
+    api_client = QuarryApiClient.from_settings()
+    actions_client = QuarryActionsClient.from_settings()
     bolt_app = _build_bolt_app(api_client, actions_client)
 
     # The timeout scheduler is shared across the process — one task per
@@ -279,9 +279,9 @@ async def _lifespan(app: FastAPI) -> AsyncIterator[None]:
 
 
 app = FastAPI(
-    title="AiSOC Slack Bot",
+    title="Quarry Slack Bot",
     description=(
-        "ChatOps adapter for AiSOC. Forwards `/aisoc …` slash commands and "
+        "ChatOps adapter for Quarry. Forwards `/quarry …` slash commands and "
         "approval-card button clicks to services/api and services/actions. "
         "Holds no state of its own."
     ),
@@ -299,7 +299,7 @@ async def health() -> dict[str, str]:
     couple liveness to an availability concern that is better tracked
     via a separate readiness probe.
     """
-    return {"status": "healthy", "service": "aisoc-slack-bot"}
+    return {"status": "healthy", "service": "quarry-slack-bot"}
 
 
 @app.post("/slack/events")

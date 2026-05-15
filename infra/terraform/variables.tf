@@ -1,5 +1,5 @@
 /**
- * AiSOC Terraform Variables
+ * Quarry Terraform Variables
  */
 
 variable "aws_region" {
@@ -74,13 +74,13 @@ variable "kafka_instance_type" {
 }
 
 variable "osquery_tls_image_tag" {
-  description = "Container image tag for aisoc-osquery-tls"
+  description = "Container image tag for quarry-osquery-tls"
   type        = string
   default     = "latest"
 }
 
 variable "osquery_tls_replicas" {
-  description = "Baseline pod replica count for aisoc-osquery-tls"
+  description = "Baseline pod replica count for quarry-osquery-tls"
   type        = number
   default     = 2
 }

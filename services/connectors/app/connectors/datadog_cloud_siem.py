@@ -138,7 +138,7 @@ class DatadogCloudSIEMConnector(BaseConnector):
     def normalize(self, raw: dict[str, Any]) -> dict[str, Any]:
         # Datadog Cloud SIEM signal severities cover the standard
         # info/low/medium/high/critical ladder. Mirror critical directly
-        # so the highest-impact signals survive into AiSOC's ladder
+        # so the highest-impact signals survive into Quarry's ladder
         # instead of being collapsed to high.
         attrs = raw.get("attributes") or {}
         sev_raw = (attrs.get("severity") or "").lower()

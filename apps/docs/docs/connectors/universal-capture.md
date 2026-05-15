@@ -8,7 +8,7 @@ description: Webhook URLs, email relay, CEF syslog, and Splunk HEC — accept an
 
 The polling connector catalog covers ~26 vendors. **Universal capture** is the escape hatch for everything else.
 
-If a tool can do any of the following, AiSOC can ingest it:
+If a tool can do any of the following, Quarry can ingest it:
 
 - POST a webhook to a URL.
 - Send email to a mailbox.
@@ -72,7 +72,7 @@ curl -X POST https://ingest.tryaisoc.com/v1/inbox/aisoc_inbox_xxxxx \
 |---|---|---|
 | `Content-Type` | yes | `application/json` or `application/x-ndjson` |
 | `X-Signature` / `X-Hub-Signature-256` | if signing secret set | `hex(HMAC-SHA256(secret, body))`, optionally prefixed `sha256=` |
-| `X-AiSOC-Idempotency-Key` | optional | If set, repeated POSTs with the same key inside 24h are deduped |
+| `X-Quarry-Idempotency-Key` | optional | If set, repeated POSTs with the same key inside 24h are deduped |
 
 **Response**
 
@@ -163,7 +163,7 @@ constants:
 
 ## Email Inbox as last resort
 
-When the vendor can't be configured to push at all but **can** email alerts, run the [Email Inbox connector](https://github.com/beenuar/AiSOC/tree/main/plugins/email-inbox). It polls a dedicated mailbox over IMAPS, marks messages `\Seen`, and feeds each one through the `email-forwarded` template — the same pipeline `/v1/inbox/email` uses, just polled from your side instead of pushed from theirs.
+When the vendor can't be configured to push at all but **can** email alerts, run the [Email Inbox connector](https://github.com/Josepassinato/quarry/tree/main/plugins/email-inbox). It polls a dedicated mailbox over IMAPS, marks messages `\Seen`, and feeds each one through the `email-forwarded` template — the same pipeline `/v1/inbox/email` uses, just polled from your side instead of pushed from theirs.
 
 Required config:
 
@@ -171,7 +171,7 @@ Required config:
 |---|---|
 | `host` | e.g. `imap.gmail.com` |
 | `port` | Defaults to `993` (IMAPS) |
-| `username` | Mailbox login (e.g. `aisoc-alerts@example.com`) |
+| `username` | Mailbox login (e.g. `quarry-alerts@example.com`) |
 | `password` | **App-specific password** — never the primary account password; encrypted at rest in the credential vault |
 | `mailbox` | Defaults to `INBOX` |
 | `max_messages` | Per-poll cap; defaults to 50 |
@@ -196,7 +196,7 @@ The console connector cards expose a **Push** tab next to **Polling** that surfa
 - **Scope:** A token is bound to a single template + tenant. It cannot pivot to other templates, other tenants, or any non-write API. There is no read surface on `/v1/inbox/*`.
 - **Signing:** Optional HMAC-SHA256 secret on mint. When set, requests without a valid `X-Signature` are rejected with 401 even if the token resolves.
 - **RLS:** `tenant_inbox_tokens` is row-level-secured by `tenant_id`. The API service only ever queries with the caller's tenant context.
-- **Network:** The token URL is unguessable, but treat it like a credential. Use the per-tenant rate limit (`AISOC_INBOX_RATE_LIMIT_PER_MIN`, default 600/min) to cap blast radius if it leaks.
+- **Network:** The token URL is unguessable, but treat it like a credential. Use the per-tenant rate limit (`QUARRY_INBOX_RATE_LIMIT_PER_MIN`, default 600/min) to cap blast radius if it leaks.
 
 ## Troubleshooting
 
@@ -205,6 +205,6 @@ The console connector cards expose a **Push** tab next to **Polling** that surfa
 | `401 invalid token` | Token rotated or revoked; mint a new one |
 | `401 invalid signature` | Wrong signing secret, or vendor canonicalized the body before signing — check vendor docs |
 | `400 unknown template` | Token's template was removed from `ALLOWED_TEMPLATE_IDS`; revoke and re-mint |
-| `413 body too large` | Body exceeded `AISOC_INBOX_MAX_BODY_BYTES` (default 10MiB); check for vendor-side pagination misconfig |
-| `429 too many requests` | Tenant rate limit hit; increase `AISOC_INBOX_RATE_LIMIT_PER_MIN` or have the vendor batch |
+| `413 body too large` | Body exceeded `QUARRY_INBOX_MAX_BODY_BYTES` (default 10MiB); check for vendor-side pagination misconfig |
+| `429 too many requests` | Tenant rate limit hit; increase `QUARRY_INBOX_RATE_LIMIT_PER_MIN` or have the vendor batch |
 | Events accepted but never appear | Almost always a template mismatch — check `aisoc_ingest_inbox_events_total{template="..."}` to confirm and inspect the OCSF event in the lake |

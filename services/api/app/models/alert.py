@@ -89,7 +89,7 @@ class Alert(Base):
     tags: Mapped[list] = mapped_column(JSONB, default=list)
 
     # Client-supplied idempotency key for the direct-write submit path
-    # (POST /alerts/submit, used by the `aisoc submit` CLI and at-least-once
+    # (POST /alerts/submit, used by the `quarry submit` CLI and at-least-once
     # connector retries). Scoped per-tenant via a partial unique index so a
     # retry of the same logical alert resolves to the existing row instead
     # of creating a duplicate. NULL for rows produced by the Kafka detect/

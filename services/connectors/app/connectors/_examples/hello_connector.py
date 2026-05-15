@@ -25,7 +25,7 @@ Layout of this file mirrors the order a real connector usually grows:
 4. ``__init__`` — accept exactly the fields the schema declares.
 5. ``test_connection()`` — pre-save sanity check.
 6. ``fetch_alerts()`` — the polling read path.
-7. ``normalize()`` — vendor JSON → AiSOC's common alert shape.
+7. ``normalize()`` — vendor JSON → Quarry's common alert shape.
 
 If you copy this file as a starting point for a new connector, remember
 to:
@@ -237,7 +237,7 @@ class HelloConnector(BaseConnector):
     # ---- runtime: normalization ------------------------------------------
 
     def normalize(self, raw: dict[str, Any]) -> dict[str, Any]:
-        """Map vendor JSON → the common alert shape AiSOC ingests.
+        """Map vendor JSON → the common alert shape Quarry ingests.
 
         The contract for the returned dict is documented in
         ``services/ingest`` and includes (at minimum) ``source``,

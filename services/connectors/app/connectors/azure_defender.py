@@ -214,7 +214,7 @@ class AzureDefenderConnector(BaseConnector):
 
     def normalize(self, raw: dict[str, Any]) -> dict[str, Any]:
         # Graph alerts_v2 uses {low, medium, high, informational}; map
-        # informational → info to match the AiSOC scale.
+        # informational → info to match the Quarry scale.
         sev_in = (raw.get("severity") or "medium").lower()
         severity = {"informational": "info"}.get(sev_in, sev_in)
 

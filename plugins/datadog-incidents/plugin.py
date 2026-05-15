@@ -1,4 +1,4 @@
-"""Datadog incidents/signals connector plugin for AiSOC."""
+"""Datadog incidents/signals connector plugin for Quarry."""
 from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta

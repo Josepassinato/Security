@@ -15,7 +15,7 @@ interface TenantSwitcherProps {
  * operator flip to a child tenant. Selection delegates to
  * `TenantProvider.setTenant`, which:
  *   - writes the chosen tenant id to localStorage,
- *   - dispatches `aisoc:tenant-switched`,
+ *   - dispatches `quarry:tenant-switched`,
  *   - reloads the page to flush every SWR cache and re-issue API calls with
  *     the new `X-Tenant-Id`.
  *

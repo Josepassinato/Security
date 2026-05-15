@@ -1,6 +1,6 @@
 id: det-endpoint-240
 name: 'Pod Created With hostNetwork: true'
-description: 'AiSOC v1 curated detection. Triggers on the endpoint signal described by ''Pod Created With
+description: 'Quarry v1 curated detection. Triggers on the endpoint signal described by ''Pod Created With
   hostNetwork: true''. Watch the 1 documented false-positive case before tuning.'
 version: 1.0.0
 severity: high
@@ -19,6 +19,6 @@ false_positives:
 - Sanctioned CNI plugin
 playbook: tpl-privilege-escalation
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

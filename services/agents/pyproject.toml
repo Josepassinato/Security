@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "quarry-agents"
 version = "0.1.0"
-description = "AiSOC AI Agent Orchestrator - LangGraph-based autonomous investigation and response"
+description = "Quarry AI Agent Orchestrator - LangGraph-based autonomous investigation and response"
 authors = ["Beenu Arora <beenu@cyble.com>"]
 license = "MIT"
 

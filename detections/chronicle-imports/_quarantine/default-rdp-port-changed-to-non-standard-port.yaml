@@ -58,4 +58,4 @@ provenance:
   upstream_path: rules/community/microsoft/windows/default_rdp_port_changed_to_non_standard_port.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

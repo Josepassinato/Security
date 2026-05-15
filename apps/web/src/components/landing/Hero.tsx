@@ -58,7 +58,7 @@ export function Hero() {
               Open console
             </Link>
             <a
-              href="https://github.com/beenuar/AiSOC"
+              href="https://github.com/beenuar/Quarry"
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-2 rounded-lg border border-white/15 bg-white/[0.04] px-5 py-3 text-sm font-semibold text-gray-200 transition hover:border-white/30 hover:bg-white/[0.08]"
@@ -134,7 +134,7 @@ function HeroVisual() {
           <span className="h-2.5 w-2.5 rounded-full bg-rose-400/80" />
           <span className="h-2.5 w-2.5 rounded-full bg-amber-400/80" />
           <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/80" />
-          <span className="ml-3 text-xs font-medium text-gray-500">aisoc · attack graph (preview)</span>
+          <span className="ml-3 text-xs font-medium text-gray-500">quarry · attack graph (preview)</span>
           <span className="ml-auto inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-gray-400">
             <span className="h-1.5 w-1.5 rounded-full bg-gray-400" />
             Preview
@@ -155,7 +155,7 @@ function HeroVisual() {
           <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-brand-500 text-[11px] font-bold text-white">
             A
           </span>
-          AiSOC Copilot
+          Quarry Copilot
           <span className="ml-auto text-[10px] font-medium uppercase tracking-wider text-emerald-300">
             ⌘K
           </span>

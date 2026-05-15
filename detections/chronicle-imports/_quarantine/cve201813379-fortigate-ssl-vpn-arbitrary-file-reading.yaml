@@ -34,4 +34,4 @@ provenance:
   upstream_path: rules/_deprecated/soc_prime_rules/proactive_exploit_detection/webserver/cve_2018_13379_fortigate_ssl_vpn_arbitrary_file_reading.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

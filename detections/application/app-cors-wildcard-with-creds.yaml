@@ -1,6 +1,6 @@
 id: det-application-044
 name: CORS Response With Wildcard Origin And Credentials Allowed
-description: AiSOC v1 curated detection. Triggers on the application signal described by 'CORS Response
+description: Quarry v1 curated detection. Triggers on the application signal described by 'CORS Response
   With Wildcard Origin And Credentials Allowed'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: medium
@@ -20,6 +20,6 @@ false_positives:
 - Public unauthenticated API
 playbook: tpl-defense-evasion
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

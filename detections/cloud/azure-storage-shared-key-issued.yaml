@@ -1,6 +1,6 @@
 id: det-cloud-123
 name: Azure Storage Shared Access Signature Generated With Long TTL
-description: AiSOC v1 curated detection. Triggers on the cloud signal described by 'Azure Storage Shared
+description: Quarry v1 curated detection. Triggers on the cloud signal described by 'Azure Storage Shared
   Access Signature Generated With Long TTL'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: medium
@@ -19,6 +19,6 @@ false_positives:
 - Sanctioned automation/IaC pipeline
 playbook: tpl-credential-access
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

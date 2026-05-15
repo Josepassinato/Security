@@ -1,7 +1,7 @@
 ---
 sidebar_position: 11
 title: Tailscale
-description: Zero-trust network audit logs from Tailscale into AiSOC — ACL changes, device approvals, key rotations, and more.
+description: Zero-trust network audit logs from Tailscale into Quarry — ACL changes, device approvals, key rotations, and more.
 ---
 
 # Tailscale
@@ -29,7 +29,7 @@ Events are normalized with `source: tailscale`, `category: network`.
 1. Go to **Tailscale admin console → Settings → Keys**.
 2. Click **Generate API key**.
 3. Copy the key (it starts with `tskey-api-…`) — you will not be able to see it again.
-4. In AiSOC, go to **Connectors → Add connector → Tailscale**.
+4. In Quarry, go to **Connectors → Add connector → Tailscale**.
 5. Fill in:
    - **Tailnet**: your organisation slug or email (e.g. `example.com`). Use `-` to auto-detect from the key.
    - **API Key**: paste the key.
@@ -41,7 +41,7 @@ Events are normalized with `source: tailscale`, `category: network`.
 2. Click **Generate OAuth client**.
 3. Grant the **`audit:read`** scope.
 4. Copy the **Client ID** and **Client Secret**.
-5. In AiSOC, go to **Connectors → Add connector → Tailscale**.
+5. In Quarry, go to **Connectors → Add connector → Tailscale**.
 6. Fill in:
    - **Tailnet**: your organisation slug.
    - **OAuth Client ID**: paste the client ID.
@@ -90,7 +90,7 @@ The connector automatically refreshes the access token before expiry — no manu
 
 - Misconfigured CI/CD runners that trigger ACL validation via the Tailscale CLI.
 - Automated key rotation scripts that cycle `auth_key` or `tailnet_key` on a schedule.
-- Red-team / penetration tests: ensure exercises are documented in the change management system and acknowledged as false positives in AiSOC.
+- Red-team / penetration tests: ensure exercises are documented in the change management system and acknowledged as false positives in Quarry.
 
 ## Related
 

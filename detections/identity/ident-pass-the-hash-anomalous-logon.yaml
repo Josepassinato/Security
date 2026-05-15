@@ -1,6 +1,6 @@
 id: det-identity-099
 name: 'Pass-The-Hash Indicator: NTLMv2 With NewCredentials'
-description: 'AiSOC v1 curated detection. Triggers on the identity signal described by ''Pass-The-Hash
+description: 'Quarry v1 curated detection. Triggers on the identity signal described by ''Pass-The-Hash
   Indicator: NTLMv2 With NewCredentials''. Watch the 1 documented false-positive case before tuning.'
 version: 1.0.0
 severity: high
@@ -20,6 +20,6 @@ false_positives:
 - RunAs /netonly use
 playbook: tpl-lateral-movement
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

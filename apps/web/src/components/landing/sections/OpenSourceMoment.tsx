@@ -8,7 +8,7 @@
  *   - Left: eyebrow + H2 + sub-head + primary/secondary CTAs.
  *   - Right: a "repo card" rendered as a stylised README header with a
  *     `BorderBeam` and a `bash` snippet underneath. Three commands —
- *     the same `git clone … pnpm aisoc:demo` shorthand the
+ *     the same `git clone … pnpm quarry:demo` shorthand the
  *     `landing-page-content.md` doc specifies.
  *
  * No live GitHub API call for the star count; it is intentionally
@@ -22,11 +22,11 @@ import { ArrowRight, GitBranch, Star, Terminal } from 'lucide-react';
 import { BorderBeam } from '@/components/magicui/BorderBeam';
 import { GithubMark } from './icons';
 
-const REPO_URL = 'https://github.com/beenuar/AiSOC';
-const CONTRIBUTING_URL = 'https://github.com/beenuar/AiSOC/blob/main/CONTRIBUTING.md';
-const SNIPPET = `git clone https://github.com/beenuar/AiSOC.git
-cd AiSOC
-pnpm aisoc:demo`;
+const REPO_URL = 'https://github.com/beenuar/Quarry';
+const CONTRIBUTING_URL = 'https://github.com/beenuar/Quarry/blob/main/CONTRIBUTING.md';
+const SNIPPET = `git clone https://github.com/beenuar/Quarry.git
+cd Quarry
+pnpm quarry:demo`;
 
 export function OpenSourceMoment() {
   const prefersReducedMotion = useReducedMotion();
@@ -98,7 +98,7 @@ export function OpenSourceMoment() {
                   <span className="h-2.5 w-2.5 rounded-full bg-amber-400/70" />
                   <span className="h-2.5 w-2.5 rounded-full bg-emerald-500/70" />
                 </span>
-                <span className="ml-2 font-mono">github.com/beenuar/AiSOC</span>
+                <span className="ml-2 font-mono">github.com/beenuar/Quarry</span>
               </div>
               <div className="space-y-4 p-6">
                 <div className="flex items-start gap-3">
@@ -110,7 +110,7 @@ export function OpenSourceMoment() {
                   </span>
                   <div>
                     <p className="text-sm font-semibold text-fg-primary">
-                      beenuar / AiSOC
+                      beenuar / Quarry
                     </p>
                     <p className="text-xs text-fg-muted">
                       <span aria-label="GitHub stars">★ 2.3k</span> · MIT · TypeScript / Python / Go
@@ -124,15 +124,15 @@ export function OpenSourceMoment() {
                   <code className="block whitespace-pre font-mono">
                     <span className="select-none text-fg-muted">$ </span>
                     <span className="text-brand-300">git clone</span>{' '}
-                    <span className="text-fg-primary">https://github.com/beenuar/AiSOC.git</span>
+                    <span className="text-fg-primary">https://github.com/beenuar/Quarry.git</span>
                     {'\n'}
                     <span className="select-none text-fg-muted">$ </span>
                     <span className="text-brand-300">cd</span>{' '}
-                    <span className="text-fg-primary">AiSOC</span>
+                    <span className="text-fg-primary">Quarry</span>
                     {'\n'}
                     <span className="select-none text-fg-muted">$ </span>
                     <span className="text-brand-300">pnpm</span>{' '}
-                    <span className="text-fg-primary">aisoc:demo</span>
+                    <span className="text-fg-primary">quarry:demo</span>
                   </code>
                 </pre>
                 <div className="flex items-center gap-2 text-xs text-fg-muted">

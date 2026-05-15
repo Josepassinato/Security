@@ -16,7 +16,7 @@ from typing import Any
 import yaml
 from pydantic import BaseModel, Field, ValidationError
 
-logger = logging.getLogger("aisoc.hunt.loader")
+logger = logging.getLogger("quarry.hunt.loader")
 
 
 # ---------------------------------------------------------------------------
@@ -118,11 +118,11 @@ class HuntDefinition(BaseModel):
 def _resolve_corpus_dir() -> Path:
     """Find the ``hunts/`` directory.
 
-    Honours ``AISOC_HUNTS_DIR`` first, then walks parents of this file looking
+    Honours ``QUARRY_HUNTS_DIR`` first, then walks parents of this file looking
     for a sibling ``hunts/`` (matches the playbook ``_resolve_repo_root`` trick
     so this works both on the host and inside the agents Docker image).
     """
-    env_dir = os.getenv("AISOC_HUNTS_DIR", "").strip()
+    env_dir = os.getenv("QUARRY_HUNTS_DIR", "").strip()
     if env_dir:
         return Path(env_dir).expanduser().resolve()
     here = Path(__file__).resolve()

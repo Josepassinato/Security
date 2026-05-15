@@ -1,6 +1,6 @@
 id: det-endpoint-159
 name: SGID Bit Set On Newly Created Binary
-description: AiSOC v1 curated detection. Triggers on the endpoint signal described by 'SGID Bit Set On
+description: Quarry v1 curated detection. Triggers on the endpoint signal described by 'SGID Bit Set On
   Newly Created Binary'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: medium
@@ -20,6 +20,6 @@ false_positives:
 - Approved deploy
 playbook: tpl-privilege-escalation
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

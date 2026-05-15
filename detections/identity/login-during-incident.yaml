@@ -1,6 +1,6 @@
 id: det-identity-015
 name: Authentication During Active P0/P1 Incident Window
-description: AiSOC v1 curated detection. Triggers on the identity signal described by 'Authentication
+description: Quarry v1 curated detection. Triggers on the identity signal described by 'Authentication
   During Active P0/P1 Incident Window'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: medium
@@ -21,6 +21,6 @@ false_positives:
 - IR team members not in the responder allowlist (rare; tag and continue)
 playbook: tpl-incident-anomaly
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

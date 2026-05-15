@@ -94,4 +94,4 @@ provenance:
   upstream_path: rules/community/microsoft/windows/suspicious_file_downloaded_from_file_sharing_website_via_certutil_exe.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

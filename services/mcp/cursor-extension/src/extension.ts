@@ -1,5 +1,5 @@
 /**
- * AiSOC IDE extension — activation + command wiring.
+ * Quarry IDE extension — activation + command wiring.
  *
  * Lifecycle:
  *
@@ -13,9 +13,9 @@
  *      and opens a side-panel webview with the response.
  *
  * API-key handling: the API key is **never** read from settings.json
- * (the `aisoc.apiKey` setting is documented as "do not put your key
+ * (the `quarry.apiKey` setting is documented as "do not put your key
  * here"). Instead we use `context.secrets` (the host's secure storage)
- * and a dedicated `AiSOC: Set API Key…` command that uses a masked
+ * and a dedicated `Quarry: Set API Key…` command that uses a masked
  * `vscode.window.showInputBox`. This matches the workspace rule that
  * forbids committing secrets and ensures the key never lands in
  * synced settings.
@@ -25,33 +25,33 @@ import * as vscode from "vscode";
 import { McpClient, McpClientError } from "./mcpClient";
 import { logLine, showToolResultWebview } from "./views";
 
-const SECRET_KEY = "aisoc.apiKey";
-const CONFIG_SECTION = "aisoc";
+const SECRET_KEY = "quarry.apiKey";
+const CONFIG_SECTION = "quarry";
 
 export function activate(context: vscode.ExtensionContext): void {
-  logLine(`AiSOC extension activated (vscode ${vscode.version}).`);
+  logLine(`Quarry extension activated (vscode ${vscode.version}).`);
 
   const disposables: vscode.Disposable[] = [
-    vscode.commands.registerCommand("aisoc.runTriage", () =>
+    vscode.commands.registerCommand("quarry.runTriage", () =>
       withErrorHandling("Run Triage", () => commandRunTriage(context)),
     ),
-    vscode.commands.registerCommand("aisoc.replayDecision", () =>
+    vscode.commands.registerCommand("quarry.replayDecision", () =>
       withErrorHandling("Replay Investigation Step", () =>
         commandReplayDecision(context),
       ),
     ),
-    vscode.commands.registerCommand("aisoc.explainStep", () =>
+    vscode.commands.registerCommand("quarry.explainStep", () =>
       withErrorHandling("Explain Step", () => commandExplainStep(context)),
     ),
-    vscode.commands.registerCommand("aisoc.queryDetections", () =>
+    vscode.commands.registerCommand("quarry.queryDetections", () =>
       withErrorHandling("Find Detections", () =>
         commandQueryDetections(context),
       ),
     ),
-    vscode.commands.registerCommand("aisoc.setApiKey", () =>
+    vscode.commands.registerCommand("quarry.setApiKey", () =>
       withErrorHandling("Set API Key", () => commandSetApiKey(context)),
     ),
-    vscode.commands.registerCommand("aisoc.clearApiKey", () =>
+    vscode.commands.registerCommand("quarry.clearApiKey", () =>
       withErrorHandling("Clear API Key", () => commandClearApiKey(context)),
     ),
   ];
@@ -60,7 +60,7 @@ export function activate(context: vscode.ExtensionContext): void {
 }
 
 export function deactivate(): void {
-  logLine("AiSOC extension deactivated.");
+  logLine("Quarry extension deactivated.");
 }
 
 // ---------------------------------------------------------------------------
@@ -71,7 +71,7 @@ async function commandRunTriage(
   context: vscode.ExtensionContext,
 ): Promise<void> {
   const caseId = await vscode.window.showInputBox({
-    title: "AiSOC: Run Triage on Case",
+    title: "Quarry: Run Triage on Case",
     prompt: "Case UUID to investigate.",
     placeHolder: "e.g. f47ac10b-58cc-4372-a567-0e02b2c3d479",
     ignoreFocusOut: true,
@@ -80,7 +80,7 @@ async function commandRunTriage(
   if (!caseId) return;
 
   const alertSummary = await vscode.window.showInputBox({
-    title: "AiSOC: Optional alert summary",
+    title: "Quarry: Optional alert summary",
     prompt:
       "Optional human-readable summary used to seed the recon agent. Leave empty to use linked alerts.",
     placeHolder: "Suspicious oauth grant from new geography on alice@acme.corp",
@@ -104,7 +104,7 @@ async function commandReplayDecision(
   context: vscode.ExtensionContext,
 ): Promise<void> {
   const runId = await vscode.window.showInputBox({
-    title: "AiSOC: Replay Investigation Step",
+    title: "Quarry: Replay Investigation Step",
     prompt: "Investigation run UUID.",
     placeHolder: "e.g. 8a7c3e2f-…",
     ignoreFocusOut: true,
@@ -113,7 +113,7 @@ async function commandReplayDecision(
   if (!runId) return;
 
   const stepRaw = await vscode.window.showInputBox({
-    title: "AiSOC: Cursor (since_seq)",
+    title: "Quarry: Cursor (since_seq)",
     prompt:
       "Optional. Return only events with seq > this value. Leave empty for the full run.",
     placeHolder: "0",
@@ -136,7 +136,7 @@ async function commandExplainStep(
   context: vscode.ExtensionContext,
 ): Promise<void> {
   const runId = await vscode.window.showInputBox({
-    title: "AiSOC: Explain Why the Agent Did This",
+    title: "Quarry: Explain Why the Agent Did This",
     prompt: "Investigation run UUID.",
     placeHolder: "e.g. 8a7c3e2f-…",
     ignoreFocusOut: true,
@@ -145,7 +145,7 @@ async function commandExplainStep(
   if (!runId) return;
 
   const stepRaw = await vscode.window.showInputBox({
-    title: "AiSOC: Step (seq number)",
+    title: "Quarry: Step (seq number)",
     prompt: "Event seq number to deep-dive into.",
     placeHolder: "e.g. 7",
     ignoreFocusOut: true,
@@ -176,7 +176,7 @@ async function commandQueryDetections(
       : "";
 
   const technique = await vscode.window.showInputBox({
-    title: "AiSOC: Find Detections",
+    title: "Quarry: Find Detections",
     prompt:
       "MITRE technique id (T1059.003) or free-text query (matches name, tags, description).",
     placeHolder: "T1110.001 or 'aws iam'",
@@ -200,9 +200,9 @@ async function commandSetApiKey(
   context: vscode.ExtensionContext,
 ): Promise<void> {
   const value = await vscode.window.showInputBox({
-    title: "AiSOC: Set API Key",
+    title: "Quarry: Set API Key",
     prompt:
-      "Paste your AiSOC API key (aisoc_pat_…). Stored only in your IDE's secret storage.",
+      "Paste your Quarry API key (aisoc_pat_…). Stored only in your IDE's secret storage.",
     placeHolder: "aisoc_pat_…",
     ignoreFocusOut: true,
     password: true,
@@ -211,7 +211,7 @@ async function commandSetApiKey(
   if (!value) return;
   await context.secrets.store(SECRET_KEY, value);
   logLine("API key stored in secret storage.");
-  await vscode.window.showInformationMessage("AiSOC API key saved.");
+  await vscode.window.showInformationMessage("Quarry API key saved.");
 }
 
 async function commandClearApiKey(
@@ -219,7 +219,7 @@ async function commandClearApiKey(
 ): Promise<void> {
   await context.secrets.delete(SECRET_KEY);
   logLine("API key cleared from secret storage.");
-  await vscode.window.showInformationMessage("AiSOC API key cleared.");
+  await vscode.window.showInformationMessage("Quarry API key cleared.");
 }
 
 // ---------------------------------------------------------------------------
@@ -238,7 +238,7 @@ async function getClient(
   const endpoint = config.get<string>("mcpEndpoint", "http://localhost:8765/mcp");
   const timeoutMs = config.get<number>("requestTimeoutMs", 30000);
 
-  // The `aisoc.apiKey` setting is intentionally a decoy (so anyone
+  // The `quarry.apiKey` setting is intentionally a decoy (so anyone
   // browsing settings.json sees an explicit "do not paste keys here"
   // doc string). We read it as a *fallback* for local dev only, and
   // prefer the secret storage value when present.
@@ -269,12 +269,12 @@ async function withErrorHandling(
           : String(err);
     logLine(`error in ${commandLabel}: ${message}`, err);
     const action = await vscode.window.showErrorMessage(
-      `AiSOC ${commandLabel} failed: ${message}`,
+      `Quarry ${commandLabel} failed: ${message}`,
       "Show details",
     );
     if (action === "Show details") {
       // Reveal the output channel; the error has already been logged.
-      const channel = vscode.window.createOutputChannel("AiSOC");
+      const channel = vscode.window.createOutputChannel("Quarry");
       channel.show(true);
     }
   }

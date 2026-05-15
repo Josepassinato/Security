@@ -7,9 +7,9 @@ description: >
   Opsgenie on-call platform connector. Pulls alerts and tenant audit log
   events (API key issuance, role changes, integration edits, escalation
   policy changes) via the REST API. Supports both US and EU data residencies.
-author: AiSOC Core Team
+author: Quarry Core Team
 tags: [saas, oncall, paging, alerts, audit, opsgenie]
-homepage: https://github.com/beenuar/AiSOC/tree/main/services/connectors/app/connectors/opsgenie.py
+homepage: https://github.com/beenuar/Quarry/tree/main/services/connectors/app/connectors/opsgenie.py
 license: MIT
 min_aisoc_version: "4.0.0"
 config_schema:

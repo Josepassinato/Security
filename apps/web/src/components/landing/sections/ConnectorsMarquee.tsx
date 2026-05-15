@@ -203,7 +203,7 @@ export function ConnectorsMarquee() {
                 TypeScript, and Go.
               </p>
               <Link
-                href="https://docs.aisoc.dev/connectors/sdk"
+                href="https://docs.quarry.dev/connectors/sdk"
                 className="group mt-5 inline-flex items-center gap-1 text-sm font-semibold text-brand-300 transition-colors duration-200 hover:text-brand-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-base"
               >
                 Read the connector SDK

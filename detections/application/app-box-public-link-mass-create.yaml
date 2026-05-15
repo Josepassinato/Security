@@ -1,6 +1,6 @@
 id: det-application-062
 name: Box Created Many Public Links In Short Window
-description: AiSOC v1 curated detection. Triggers on the application signal described by 'Box Created
+description: Quarry v1 curated detection. Triggers on the application signal described by 'Box Created
   Many Public Links In Short Window'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: high
@@ -20,6 +20,6 @@ false_positives:
 - Marketing campaign content drop
 playbook: tpl-exfiltration
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

@@ -249,7 +249,7 @@ function NLHero({ value, onChange, onSubmit, pending }: NLHeroProps) {
         <svg className="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden>
           <path d="M10 3.5a.75.75 0 01.75.75v.578l4.97 1.243a.75.75 0 01.531.97l-1.5 5.25a.75.75 0 01-.5.51l-3.501 1.167V16h2.5a.75.75 0 010 1.5h-6.5a.75.75 0 010-1.5h2.5v-2.032l-3.5-1.166a.75.75 0 01-.5-.51l-1.5-5.25a.75.75 0 01.53-.971l4.97-1.243V4.25A.75.75 0 0110 3.5z" />
         </svg>
-        AiSOC Hunt
+        Quarry Hunt
       </div>
       <h1 className="mt-2 text-2xl font-semibold tracking-tight text-white sm:text-3xl">
         Hunt at the speed of thought.

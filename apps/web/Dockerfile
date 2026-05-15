@@ -1,4 +1,4 @@
-# AiSOC Web Frontend Dockerfile
+# Quarry Web Frontend Dockerfile
 # Multi-stage build for production. Build context = monorepo root.
 
 FROM node:20-alpine AS base
@@ -61,12 +61,12 @@ ENV NEXT_PUBLIC_WS_URL=${NEXT_PUBLIC_WS_URL}
 # image (e.g. CI's publish-images.yml) ships a demo-ready bundle. Production
 # customers override NEXT_PUBLIC_DEMO_MODE="" at build time to suppress all
 # demo affordances. The api/agents/realtime images are unaffected — demo gating
-# in those services is runtime via AISOC_DEMO_MODE, not build-time.
+# in those services is runtime via QUARRY_DEMO_MODE, not build-time.
 ARG NEXT_PUBLIC_DEMO_MODE="true"
 ARG NEXT_PUBLIC_DEMO_DEEPLINK="/cases/INC-RT-001?tab=ledger"
 ARG NEXT_PUBLIC_DEMO_BANNER="Demo data resets daily at 00:00 UTC. All write actions are disabled."
-ARG NEXT_PUBLIC_DEMO_AUTOLOGIN_EMAIL="demo@aisoc.dev"
-ARG NEXT_PUBLIC_DEMO_AUTOLOGIN_PASSWORD="aisoc-demo"
+ARG NEXT_PUBLIC_DEMO_AUTOLOGIN_EMAIL="demo@quarry.dev"
+ARG NEXT_PUBLIC_DEMO_AUTOLOGIN_PASSWORD="quarry-demo"
 ENV NEXT_PUBLIC_DEMO_MODE=${NEXT_PUBLIC_DEMO_MODE}
 ENV NEXT_PUBLIC_DEMO_DEEPLINK=${NEXT_PUBLIC_DEMO_DEEPLINK}
 ENV NEXT_PUBLIC_DEMO_BANNER=${NEXT_PUBLIC_DEMO_BANNER}
@@ -78,9 +78,9 @@ ENV NEXT_PUBLIC_DEMO_AUTOLOGIN_PASSWORD=${NEXT_PUBLIC_DEMO_AUTOLOGIN_PASSWORD}
 RUN pnpm install --no-frozen-lockfile
 
 # Build workspace packages then the Next.js app.
-RUN pnpm --filter @aisoc/types build && \
-    pnpm --filter @aisoc/ui build && \
-    pnpm --filter @aisoc/web build
+RUN pnpm --filter @quarry/types build && \
+    pnpm --filter @quarry/ui build && \
+    pnpm --filter @quarry/web build
 
 # ─── Runner ───────────────────────────────────────────────────────────────────
 FROM base AS runner

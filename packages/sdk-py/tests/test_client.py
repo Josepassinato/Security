@@ -1,4 +1,4 @@
-"""Unit tests for the aisoc-sdk Python client.
+"""Unit tests for the quarry-sdk Python client.
 
 Uses pytest-httpx to intercept outgoing requests — no real server needed.
 """
@@ -8,11 +8,11 @@ from __future__ import annotations
 import pytest
 from pytest_httpx import HTTPXMock
 
-from aisoc_sdk import AiSOCClient, AiSOCError
-from aisoc_sdk.models import AlertSeverity, AlertStatus
+from quarry_sdk import QuarryClient, QuarryError
+from quarry_sdk.models import AlertSeverity, AlertStatus
 
 
-BASE_URL = "https://aisoc.test"
+BASE_URL = "https://quarry.test"
 TOKEN = "aisoc_test_token"
 
 
@@ -21,7 +21,7 @@ TOKEN = "aisoc_test_token"
 
 @pytest.fixture
 async def client():
-    async with AiSOCClient(base_url=BASE_URL, token=TOKEN) as c:
+    async with QuarryClient(base_url=BASE_URL, token=TOKEN) as c:
         yield c
 
 
@@ -50,7 +50,7 @@ async def test_alerts_list(httpx_mock: HTTPXMock):
     }
     httpx_mock.add_response(json=page_data)
 
-    async with AiSOCClient(base_url=BASE_URL, token=TOKEN) as client:
+    async with QuarryClient(base_url=BASE_URL, token=TOKEN) as client:
         page = await client.alerts.list()
 
     assert page.total == 1
@@ -73,7 +73,7 @@ async def test_alerts_get(httpx_mock: HTTPXMock):
     }
     httpx_mock.add_response(json=alert_data)
 
-    async with AiSOCClient(base_url=BASE_URL, token=TOKEN) as client:
+    async with QuarryClient(base_url=BASE_URL, token=TOKEN) as client:
         alert = await client.alerts.get("a42")
 
     assert alert.id == "a42"
@@ -99,7 +99,7 @@ async def test_cases_create(httpx_mock: HTTPXMock):
     }
     httpx_mock.add_response(status_code=201, json=case_data)
 
-    async with AiSOCClient(base_url=BASE_URL, token=TOKEN) as client:
+    async with QuarryClient(base_url=BASE_URL, token=TOKEN) as client:
         case = await client.cases.create(title="Incident", priority="high")
 
     assert case.id == "c1"
@@ -110,7 +110,7 @@ async def test_cases_create(httpx_mock: HTTPXMock):
 async def test_cases_delete(httpx_mock: HTTPXMock):
     httpx_mock.add_response(status_code=204)
 
-    async with AiSOCClient(base_url=BASE_URL, token=TOKEN) as client:
+    async with QuarryClient(base_url=BASE_URL, token=TOKEN) as client:
         result = await client.cases.delete("c1")
 
     assert result is None
@@ -123,8 +123,8 @@ async def test_cases_delete(httpx_mock: HTTPXMock):
 async def test_raises_aisoc_error_on_404(httpx_mock: HTTPXMock):
     httpx_mock.add_response(status_code=404, json={"detail": "Not found"})
 
-    async with AiSOCClient(base_url=BASE_URL, token=TOKEN) as client:
-        with pytest.raises(AiSOCError) as exc_info:
+    async with QuarryClient(base_url=BASE_URL, token=TOKEN) as client:
+        with pytest.raises(QuarryError) as exc_info:
             await client.alerts.get("missing")
 
     assert exc_info.value.status_code == 404
@@ -135,8 +135,8 @@ async def test_raises_aisoc_error_on_404(httpx_mock: HTTPXMock):
 async def test_raises_aisoc_error_on_403(httpx_mock: HTTPXMock):
     httpx_mock.add_response(status_code=403, json={"detail": "Forbidden"})
 
-    async with AiSOCClient(base_url=BASE_URL, token=TOKEN) as client:
-        with pytest.raises(AiSOCError) as exc_info:
+    async with QuarryClient(base_url=BASE_URL, token=TOKEN) as client:
+        with pytest.raises(QuarryError) as exc_info:
             await client.cases.list()
 
     assert exc_info.value.status_code == 403
@@ -149,7 +149,7 @@ async def test_raises_aisoc_error_on_403(httpx_mock: HTTPXMock):
 async def test_bearer_token_is_sent(httpx_mock: HTTPXMock):
     httpx_mock.add_response(json={"items": [], "total": 0, "page": 1, "page_size": 20})
 
-    async with AiSOCClient(base_url=BASE_URL, token="aisoc_my_secret") as client:
+    async with QuarryClient(base_url=BASE_URL, token="aisoc_my_secret") as client:
         await client.alerts.list()
 
     request = httpx_mock.get_requests()[0]
@@ -161,7 +161,7 @@ async def test_bearer_token_is_sent(httpx_mock: HTTPXMock):
 
 @pytest.mark.asyncio
 async def test_context_manager_required():
-    client = AiSOCClient(base_url=BASE_URL, token=TOKEN)
+    client = QuarryClient(base_url=BASE_URL, token=TOKEN)
     with pytest.raises(RuntimeError):
         await client.graphql("{ __typename }")
 
@@ -173,7 +173,7 @@ async def test_context_manager_required():
 async def test_graphql_query(httpx_mock: HTTPXMock):
     httpx_mock.add_response(json={"data": {"__typename": "Query"}})
 
-    async with AiSOCClient(base_url=BASE_URL, token=TOKEN) as client:
+    async with QuarryClient(base_url=BASE_URL, token=TOKEN) as client:
         result = await client.graphql("{ __typename }")
 
     assert result["data"]["__typename"] == "Query"

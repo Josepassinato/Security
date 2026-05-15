@@ -1,7 +1,7 @@
 """Tenant inbox token management — Workstream 6 (universal capture).
 
 For closed-proprietary tools that have neither a read API nor an OAuth
-flow, AiSOC mints a per-tenant, rotatable inbox URL. The customer
+flow, Quarry mints a per-tenant, rotatable inbox URL. The customer
 points the vendor's existing webhook at that URL; ``services/ingest``
 resolves the token to a tenant + vendor template and reuses the
 existing OCSF normalizer + Kafka publisher.
@@ -91,7 +91,7 @@ def _generate_inbox_token() -> str:
 
     32 bytes of entropy = ~256 bits, with the ``aitnb_`` prefix making
     it grep-able in logs / SIEMs and immediately distinguishable from
-    other AiSOC token types (``aisoc_`` API keys, ``ait_`` per-connector
+    other Quarry token types (``aisoc_`` API keys, ``ait_`` per-connector
     push tokens).
     """
     return f"aitnb_{secrets.token_urlsafe(32)}"
@@ -114,7 +114,7 @@ def _build_inbox_url(token: str, template_id: str | None = None) -> str:
 
     1. Need a database transaction to update aisoc_cases / case_external_refs.
     2. Need to look up case_fanout's earlier outbound projection to find
-       the AiSOC case ID, which lives in the api-service-managed schema.
+       the Quarry case ID, which lives in the api-service-managed schema.
     3. Are pinned to a specific connector instance, so the URL carries a
        ``{connector_instance_id}`` placeholder that the operator fills in
        when they paste it into Jira/ServiceNow's webhook config.

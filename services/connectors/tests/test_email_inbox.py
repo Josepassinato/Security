@@ -168,7 +168,7 @@ def test_test_connection_reports_login_failure(monkeypatch: pytest.MonkeyPatch):
 def _build_plaintext_message(
     subject: str = "PagerDuty Alert: prod-db-1 high CPU",
     sender: str = "noreply@pagerduty.com",
-    to: str = "aisoc-alerts@example.com",
+    to: str = "quarry-alerts@example.com",
     body: str = "Service prod-db-1 is at 95% CPU. Please investigate.",
     date: str = "Tue, 05 May 2026 11:30:00 -0700",
     msg_id: str = "<incident-12345@pagerduty.com>",
@@ -196,7 +196,7 @@ def test_fetch_alerts_returns_normalized_event_for_plaintext(
     e = events[0]
     assert e["subject"] == "PagerDuty Alert: prod-db-1 high CPU"
     assert e["from"] == "noreply@pagerduty.com"
-    assert e["to"] == "aisoc-alerts@example.com"
+    assert e["to"] == "quarry-alerts@example.com"
     assert e["message_id"] == "<incident-12345@pagerduty.com>"
     # Body is preserved verbatim — the ingest-side template handles parsing.
     assert "prod-db-1 is at 95% CPU" in e["body"]
@@ -215,7 +215,7 @@ def test_fetch_alerts_extracts_text_from_multipart(
     msg = MIMEMultipart("alternative")
     msg["Subject"] = "Weekly Vulnerability Digest"
     msg["From"] = "security@example.com"
-    msg["To"] = "aisoc-alerts@example.com"
+    msg["To"] = "quarry-alerts@example.com"
     msg["Date"] = "Wed, 06 May 2026 09:00:00 +0000"
     msg.attach(MIMEText("12 new CVEs this week. CVE-2026-12345 is critical.", "plain"))
     msg.attach(

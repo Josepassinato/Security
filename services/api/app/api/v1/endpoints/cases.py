@@ -120,7 +120,7 @@ class CreateCaseRequest(BaseModel):
     # out to those external systems and persists the linkage in
     # ``case_external_refs``. Connector instances must be tenant-owned,
     # enabled, and declare ``Capability.PUSH_CASE`` (e.g. Jira,
-    # ServiceNow). Empty list = case stays AiSOC-only.
+    # ServiceNow). Empty list = case stays Quarry-only.
     push_to_connector_ids: list[uuid.UUID] = Field(default_factory=list)
 
 
@@ -499,7 +499,7 @@ async def create_case(body: CreateCaseRequest, db: DBSession, user: AuthUser) ->
             await db.commit()
             response.fanout_results = results
         except Exception:
-            # Persistence of external refs failed but the AiSOC case
+            # Persistence of external refs failed but the Quarry case
             # itself is fine; surface the partial result and move on.
             logger.exception("cases.create.fanout_persistence_failed case=%s", row.id)
             await db.rollback()
@@ -599,7 +599,7 @@ async def update_case(case_id: str, body: UpdateCaseRequest, db: DBSession, user
     # transition onto every connector this case is already linked to.
     # ``fanout_status_change`` no-ops when the case has no
     # ``case_external_refs`` rows yet, so the call is cheap for
-    # AiSOC-only cases.
+    # Quarry-only cases.
     if body.status and body.status != existing.status:
         try:
             results = await fanout_status_change(
@@ -1214,7 +1214,7 @@ async def _emit_summary_breadcrumb(
             id=uuid.uuid4(),
             case_id=case_id,
             tenant_id=tenant_id,
-            author="aisoc",
+            author="quarry",
             body=body,
             now=datetime.now(UTC),
         )

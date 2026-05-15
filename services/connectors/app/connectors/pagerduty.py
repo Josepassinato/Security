@@ -5,7 +5,7 @@ Pulls two streams from the PagerDuty REST API:
 
 1. **Incidents** — ``GET /incidents`` returns the full incident
    timeline. We page through incidents updated in the poll window and
-   normalise their ``urgency`` / ``status`` into AiSOC severity.
+   normalise their ``urgency`` / ``status`` into Quarry severity.
 2. **Audit records** — ``GET /audit/records`` returns the tenant audit
    trail (user role changes, service config edits, API key issuance,
    webhook subscriptions). This is the on-call security surface we
@@ -98,7 +98,7 @@ class PagerDutyConnector(BaseConnector):
             "Authorization": f"Token token={self._api_key}",
             "Accept": "application/vnd.pagerduty+json;version=2",
             "Content-Type": "application/json",
-            "User-Agent": "AiSOC-Connector/1.0",
+            "User-Agent": "Quarry-Connector/1.0",
         }
 
     # ------------------------- contract -------------------------
@@ -234,7 +234,7 @@ class PagerDutyConnector(BaseConnector):
 
     # ----------------------- normalize --------------------------
 
-    # PagerDuty incident urgency × status → AiSOC severity. Severity
+    # PagerDuty incident urgency × status → Quarry severity. Severity
     # follows the urgency primarily; resolved incidents collapse to
     # ``info`` so closed pages aren't re-surfaced as live alerts.
     _URGENCY_SEVERITY = {"high": "high", "low": "low"}

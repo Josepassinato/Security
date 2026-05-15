@@ -1,6 +1,6 @@
 id: det-endpoint-258
 name: Device Marked Out Of MDM Compliance
-description: AiSOC v1 curated detection. Triggers on the endpoint signal described by 'Device Marked Out
+description: Quarry v1 curated detection. Triggers on the endpoint signal described by 'Device Marked Out
   Of MDM Compliance'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: medium
@@ -19,6 +19,6 @@ false_positives:
 - Pending OS patch window
 playbook: tpl-credential-access
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

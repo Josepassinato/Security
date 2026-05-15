@@ -81,10 +81,10 @@ jobs:
       - run: pnpm build
 
   # ──────────────────────────────────────────────
-  # @aisoc/mcp — MCP server for Claude/Cursor/Cody
+  # @quarry/mcp — MCP server for Claude/Cursor/Cody
   #   Typechecks, runs the vitest contract tests (config + tools registry +
   #   installer file-write behaviour), and builds the dist bundle so the
-  #   `bin/aisoc-mcp` shebang is exercised on the same Node version we
+  #   `bin/quarry-mcp` shebang is exercised on the same Node version we
   #   publish under. Lives in the pnpm workspace; we reuse the root
   #   lockfile to keep installs fast and reproducible.
   # ──────────────────────────────────────────────
@@ -102,11 +102,11 @@ jobs:
       - name: Install workspace deps
         run: pnpm install --frozen-lockfile
       - name: Type-check
-        run: pnpm --filter @aisoc/mcp typecheck
+        run: pnpm --filter @quarry/mcp typecheck
       - name: Test
-        run: pnpm --filter @aisoc/mcp test
+        run: pnpm --filter @quarry/mcp test
       - name: Build
-        run: pnpm --filter @aisoc/mcp build
+        run: pnpm --filter @quarry/mcp build
 
   # ──────────────────────────────────────────────
   # Python API & services
@@ -129,7 +129,7 @@ jobs:
         run: ruff check services/
       - name: Ruff format check (all services)
         run: ruff format --check services/
-      # The aisoc-api Docker image is built with `services/api` as its build
+      # The quarry-api Docker image is built with `services/api` as its build
       # context, so anything under `services/agents` is *not* shipped in the
       # container. The natural-language query translator is consumed by both
       # the agents runtime and the API's `/nl-query/*` endpoints, so we keep
@@ -243,24 +243,24 @@ jobs:
           cache: pip
       - name: Install SDKs in editable mode (with dev extras)
         # Each `[dev]` extra pins pytest + pytest-asyncio; pytest-httpx is
-        # only needed by `aisoc-sdk` (the typed client tests), so we add it
+        # only needed by `quarry-sdk` (the typed client tests), so we add it
         # explicitly rather than expanding the package extras.
         run: |
           pip install --quiet \
             -e packages/plugin-sdk-py \
             -e packages/sdk-py \
-            -e packages/aisoc-cli \
+            -e packages/quarry-cli \
             pytest pytest-asyncio pytest-httpx
-      - name: Run aisoc-plugin-sdk tests
+      - name: Run quarry-plugin-sdk tests
         run: pytest packages/plugin-sdk-py/tests/ -v --tb=short
-      - name: Run aisoc-sdk tests
+      - name: Run quarry-sdk tests
         run: pytest packages/sdk-py/tests/ -v --tb=short
-      - name: Run aisoc-cli tests
-        run: pytest packages/aisoc-cli/tests/ -v --tb=short
+      - name: Run quarry-cli tests
+        run: pytest packages/quarry-cli/tests/ -v --tb=short
 
   # ──────────────────────────────────────────────
   # SDK packages (TypeScript)
-  #   `@aisoc/sdk` is a typed openapi-fetch client with a self-contained
+  #   `@quarry/sdk` is a typed openapi-fetch client with a self-contained
   #   vitest suite (HTTP mocked, no real server). Same pnpm workspace
   #   pattern as the MCP job — install once at the root, then filter.
   # ──────────────────────────────────────────────
@@ -278,11 +278,11 @@ jobs:
       - name: Install workspace deps
         run: pnpm install --frozen-lockfile
       - name: Type-check
-        run: pnpm --filter @aisoc/sdk typecheck
+        run: pnpm --filter @quarry/sdk typecheck
       - name: Test
-        run: pnpm --filter @aisoc/sdk test
+        run: pnpm --filter @quarry/sdk test
       - name: Build
-        run: pnpm --filter @aisoc/sdk build
+        run: pnpm --filter @quarry/sdk build
 
   # ──────────────────────────────────────────────
   # Go services (enrichment, ingest, demo-producer)
@@ -418,7 +418,7 @@ jobs:
           python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
           import json, pathlib
           d = json.loads(pathlib.Path("eval_report.json").read_text())
-          print("## AiSOC Pillar-1 Eval Harness — 200-incident synthetic dataset\n")
+          print("## Quarry Pillar-1 Eval Harness — 200-incident synthetic dataset\n")
           print("Alert-reduction is a real measurement; the other three suites are substrate self-consistency gates.\n")
           print(f"Dataset: {d['dataset']}  ")
           print(f"Generated: {d['generated_at']}\n")
@@ -437,7 +437,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: aisoc-eval-report
+          name: quarry-eval-report
           path: eval_report.json
       - name: Publish historical numbers to eval-results branch
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -469,7 +469,7 @@ jobs:
           # Identity policy: every commit on this repo must be authored by
           # Beenu Arora <beenu@cyble.com>. The eval-results branch is no
           # exception — even though it is machine-written by CI, attributing
-          # it to a separate "AiSOC CI" identity would re-pollute the
+          # it to a separate "Quarry CI" identity would re-pollute the
           # contributors graph after the 2026-05-08 history rewrite.
           git config user.email "beenu@cyble.com"
           git config user.name "Beenu Arora"

@@ -10,34 +10,34 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/beenuar/aisoc/plugin-sdk-go/aisoc"
+	"github.com/beenuar/quarry/plugin-sdk-go/quarry"
 )
 
-// DatadogConnector implements aisoc.Connector for the Datadog Incidents/Signals APIs.
+// DatadogConnector implements quarry.Connector for the Datadog Incidents/Signals APIs.
 type DatadogConnector struct {
-	aisoc.BasePlugin
+	quarry.BasePlugin
 
 	httpClient *http.Client
 }
 
-func (d *DatadogConnector) Manifest() aisoc.PluginManifest {
-	return aisoc.PluginManifest{
+func (d *DatadogConnector) Manifest() quarry.PluginManifest {
+	return quarry.PluginManifest{
 		ID:          "datadog-incidents",
 		Name:        "Datadog Incidents Connector",
 		Version:     "1.0.0",
-		PluginType:  aisoc.PluginTypeConnector,
-		Description: "Pulls open Datadog incidents and security signals into AiSOC.",
-		Author:      "AiSOC Core Team",
+		PluginType:  quarry.PluginTypeConnector,
+		Description: "Pulls open Datadog incidents and security signals into Quarry.",
+		Author:      "Quarry Core Team",
 		Tags:        []string{"observability", "datadog", "incidents", "signals", "connector"},
 	}
 }
 
-func (d *DatadogConnector) OnLoad(ctx context.Context, pctx aisoc.PluginContext) error {
+func (d *DatadogConnector) OnLoad(ctx context.Context, pctx quarry.PluginContext) error {
 	d.httpClient = &http.Client{Timeout: 30 * time.Second}
 	return nil
 }
 
-func (d *DatadogConnector) baseURL(pctx aisoc.PluginContext) string {
+func (d *DatadogConnector) baseURL(pctx quarry.PluginContext) string {
 	site, _ := pctx.Config["site"].(string)
 	if site == "" {
 		site = "datadoghq.com"
@@ -45,7 +45,7 @@ func (d *DatadogConnector) baseURL(pctx aisoc.PluginContext) string {
 	return "https://api." + site
 }
 
-func (d *DatadogConnector) headers(pctx aisoc.PluginContext) (http.Header, error) {
+func (d *DatadogConnector) headers(pctx quarry.PluginContext) (http.Header, error) {
 	apiKey, _ := pctx.Config["api_key"].(string)
 	appKey, _ := pctx.Config["app_key"].(string)
 	if apiKey == "" || appKey == "" {
@@ -82,7 +82,7 @@ func (d *DatadogConnector) get(
 
 func (d *DatadogConnector) TestConnection(
 	ctx context.Context,
-	pctx aisoc.PluginContext,
+	pctx quarry.PluginContext,
 ) (bool, error) {
 	headers, err := d.headers(pctx)
 	if err != nil {
@@ -102,7 +102,7 @@ func (d *DatadogConnector) TestConnection(
 
 func (d *DatadogConnector) FetchEvents(
 	ctx context.Context,
-	pctx aisoc.PluginContext,
+	pctx quarry.PluginContext,
 	since string,
 ) (<-chan map[string]any, error) {
 	out := make(chan map[string]any)
@@ -164,7 +164,7 @@ func (d *DatadogConnector) FetchEvents(
 }
 
 func main() {
-	registry := aisoc.NewRegistry()
+	registry := quarry.NewRegistry()
 	if err := registry.Register(&DatadogConnector{}); err != nil {
 		panic(err)
 	}

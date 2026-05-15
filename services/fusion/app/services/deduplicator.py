@@ -10,7 +10,7 @@ from app.models.alert import RawAlert
 
 logger = structlog.get_logger()
 
-_DEDUP_PREFIX = "aisoc:fusion:dedup:"
+_DEDUP_PREFIX = "quarry:fusion:dedup:"
 
 
 class Deduplicator:

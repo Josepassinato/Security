@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     )
 
     database_url: str = Field(
-        default="postgresql+asyncpg://aisoc:aisoc@localhost:5432/aisoc",
+        default="postgresql+asyncpg://quarry:aisoc@localhost:5432/quarry",
         validation_alias=AliasChoices("DATABASE_URL", "UEBA_DATABASE_URL"),
     )
 
@@ -54,7 +54,7 @@ class Settings(BaseSettings):
         validation_alias=AliasChoices("OTEL_ENDPOINT", "UEBA_OTEL_ENDPOINT"),
     )
     service_name: str = Field(
-        default="aisoc-ueba",
+        default="quarry-ueba",
         validation_alias=AliasChoices("SERVICE_NAME", "UEBA_SERVICE_NAME"),
     )
 

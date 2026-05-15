@@ -5,7 +5,7 @@
  * then.
  *
  * The script:
- *   1. reads `localStorage["aisoc-theme"]` ("light" | "dark" | "system"),
+ *   1. reads `localStorage["quarry-theme"]` ("light" | "dark" | "system"),
  *   2. resolves "system" against `prefers-color-scheme`, defaulting to
  *      "dark" when localStorage is empty (the historical default),
  *   3. writes the resolved theme to `<html data-theme="…">`,
@@ -16,7 +16,7 @@
  * can throw on iOS private browsing, and we'd rather render dark than
  * crash the page.
  */
-export const THEME_STORAGE_KEY = 'aisoc-theme';
+export const THEME_STORAGE_KEY = 'quarry-theme';
 
 export const themeBootstrapScript = `
 (function () {

@@ -4,7 +4,7 @@ Unit tests for app.services.plugin_manager
 These tests run without any external services; they exercise the
 PluginManager against temporary on-disk plugin fixtures.
 
-MIT License — AiSOC (open-source AI Security Operations Center)
+MIT License — Quarry (open-source AI Security Operations Center)
 """
 
 from __future__ import annotations
@@ -47,7 +47,7 @@ def _write_plugin(
 ) -> Path:
     """
     Write a minimal plugin directory:
-      base/<name>/aisoc-plugin.json
+      base/<name>/quarry-plugin.json
       base/<name>/plugin.py
     Returns the plugin directory.
     """
@@ -61,7 +61,7 @@ def _write_plugin(
         "plugin_type": plugin_type,
         "tags": [plugin_type, "test"],
     }
-    (d / "aisoc-plugin.json").write_text(json.dumps(manifest))
+    (d / "quarry-plugin.json").write_text(json.dumps(manifest))
 
     code = plugin_code or textwrap.dedent(
         """\
@@ -114,7 +114,7 @@ async def test_discover_skips_missing_manifest(tmp_path):
 async def test_discover_skips_invalid_manifest(tmp_path):
     d = tmp_path / "bad-plugin"
     d.mkdir()
-    (d / "aisoc-plugin.json").write_text("{not valid json")
+    (d / "quarry-plugin.json").write_text("{not valid json")
     (d / "plugin.py").write_text("class Plugin:\n    pass\n")
     mgr = PluginManager(plugins_dir=tmp_path)
     loaded = await mgr.discover()
@@ -125,7 +125,7 @@ async def test_discover_skips_invalid_manifest(tmp_path):
 async def test_discover_skips_missing_required_field(tmp_path):
     d = tmp_path / "no-type"
     d.mkdir()
-    (d / "aisoc-plugin.json").write_text(json.dumps({"id": "x", "name": "X", "version": "1"}))
+    (d / "quarry-plugin.json").write_text(json.dumps({"id": "x", "name": "X", "version": "1"}))
     (d / "plugin.py").write_text("class Plugin:\n    pass\n")
     mgr = PluginManager(plugins_dir=tmp_path)
     loaded = await mgr.discover()
@@ -136,7 +136,7 @@ async def test_discover_skips_missing_required_field(tmp_path):
 async def test_discover_skips_invalid_plugin_type(tmp_path):
     d = tmp_path / "weird"
     d.mkdir()
-    (d / "aisoc-plugin.json").write_text(json.dumps({"id": "x", "name": "X", "version": "1", "plugin_type": "magic"}))
+    (d / "quarry-plugin.json").write_text(json.dumps({"id": "x", "name": "X", "version": "1", "plugin_type": "magic"}))
     (d / "plugin.py").write_text("class Plugin:\n    pass\n")
     mgr = PluginManager(plugins_dir=tmp_path)
     loaded = await mgr.discover()
@@ -147,7 +147,7 @@ async def test_discover_skips_invalid_plugin_type(tmp_path):
 async def test_discover_skips_missing_plugin_py(tmp_path):
     d = tmp_path / "no-code"
     d.mkdir()
-    (d / "aisoc-plugin.json").write_text(json.dumps({"id": "x", "name": "X", "version": "1", "plugin_type": "enricher"}))
+    (d / "quarry-plugin.json").write_text(json.dumps({"id": "x", "name": "X", "version": "1", "plugin_type": "enricher"}))
     mgr = PluginManager(plugins_dir=tmp_path)
     loaded = await mgr.discover()
     assert loaded == []
@@ -157,7 +157,7 @@ async def test_discover_skips_missing_plugin_py(tmp_path):
 async def test_discover_skips_plugin_without_plugin_class(tmp_path):
     d = tmp_path / "no-class"
     d.mkdir()
-    (d / "aisoc-plugin.json").write_text(json.dumps({"id": "x", "name": "X", "version": "1", "plugin_type": "enricher"}))
+    (d / "quarry-plugin.json").write_text(json.dumps({"id": "x", "name": "X", "version": "1", "plugin_type": "enricher"}))
     (d / "plugin.py").write_text("# no Plugin class here\n")
     mgr = PluginManager(plugins_dir=tmp_path)
     loaded = await mgr.discover()
@@ -468,13 +468,13 @@ def _signed_plugin(
     else:
         signer = trusted_priv
 
-    raw = json.loads((plugin_dir / "aisoc-plugin.json").read_text())
+    raw = json.loads((plugin_dir / "quarry-plugin.json").read_text())
     digest = _canonical_plugin_digest(plugin_dir, raw)
     sig = signer.sign(digest)
     if corrupt_signature:
         sig = bytes([sig[0] ^ 0xFF]) + sig[1:]
 
-    # Hex is the documented on-disk format produced by ``aisoc plugin sign``.
+    # Hex is the documented on-disk format produced by ``quarry plugin sign``.
     (plugin_dir / "plugin.sig").write_text(sig.hex())
     return plugin_dir, f"test.{name}"
 
@@ -610,13 +610,13 @@ class TestPluginSignatureGate:
 
         d = tmp_path / "stable"
         d.mkdir()
-        (d / "aisoc-plugin.json").write_text(json.dumps({"id": "x", "name": "X", "version": "1", "plugin_type": "enricher"}))
+        (d / "quarry-plugin.json").write_text(json.dumps({"id": "x", "name": "X", "version": "1", "plugin_type": "enricher"}))
         (d / "plugin.py").write_text("class Plugin: pass\n")
         # Adding the optional .sig file must NOT change the digest — it is
         # the artefact we are signing, not part of the input.
         (d / "plugin.sig").write_bytes(b"placeholder")
 
-        raw = json.loads((d / "aisoc-plugin.json").read_text())
+        raw = json.loads((d / "quarry-plugin.json").read_text())
         digest_a = _canonical_plugin_digest(d, raw)
         digest_b = _canonical_plugin_digest(d, raw)
         assert digest_a == digest_b
@@ -628,9 +628,9 @@ class TestPluginSignatureGate:
 
         d = tmp_path / "mutating"
         d.mkdir()
-        (d / "aisoc-plugin.json").write_text(json.dumps({"id": "x", "name": "X", "version": "1", "plugin_type": "enricher"}))
+        (d / "quarry-plugin.json").write_text(json.dumps({"id": "x", "name": "X", "version": "1", "plugin_type": "enricher"}))
         (d / "plugin.py").write_text("class Plugin: pass\n")
-        raw = json.loads((d / "aisoc-plugin.json").read_text())
+        raw = json.loads((d / "quarry-plugin.json").read_text())
         before = _canonical_plugin_digest(d, raw)
 
         (d / "plugin.py").write_text("class Plugin:\n    POISONED = True\n")
@@ -767,7 +767,7 @@ class TestAssertNoSymlinks:
     def test_passes_on_clean_tree(self, tmp_path):
         from app.services.plugin_manager import _assert_no_symlinks  # noqa: PLC0415
 
-        (tmp_path / "aisoc-plugin.json").write_text("{}")
+        (tmp_path / "quarry-plugin.json").write_text("{}")
         sub = tmp_path / "sub"
         sub.mkdir()
         (sub / "plugin.py").write_text("class Plugin: pass\n")
@@ -833,7 +833,7 @@ class TestSelectExtractedPluginDir:
     def test_flat_layout_with_json_manifest(self, tmp_path):
         from app.services.plugin_manager import _select_extracted_plugin_dir  # noqa: PLC0415
 
-        (tmp_path / "aisoc-plugin.json").write_text("{}")
+        (tmp_path / "quarry-plugin.json").write_text("{}")
         assert _select_extracted_plugin_dir(tmp_path) == tmp_path
 
     def test_single_subdir_with_manifest_is_picked(self, tmp_path):
@@ -841,7 +841,7 @@ class TestSelectExtractedPluginDir:
 
         plugin = tmp_path / "real-plugin"
         plugin.mkdir()
-        (plugin / "aisoc-plugin.json").write_text("{}")
+        (plugin / "quarry-plugin.json").write_text("{}")
         # A sibling "docs" dir that historically would have been order-
         # dependent ("d" sorts before "r"): the selector must skip it.
         docs = tmp_path / "docs"
@@ -856,7 +856,7 @@ class TestSelectExtractedPluginDir:
         for name in ("first", "second"):
             d = tmp_path / name
             d.mkdir()
-            (d / "aisoc-plugin.json").write_text("{}")
+            (d / "quarry-plugin.json").write_text("{}")
 
         with pytest.raises(PluginError, match="multiple plugin directories"):
             _select_extracted_plugin_dir(tmp_path)
@@ -899,7 +899,7 @@ class TestSafeCopytree:
         src = tmp_path / "src"
         src.mkdir()
         (src / "plugin.py").write_text("class Plugin: pass\n")
-        (src / "aisoc-plugin.json").write_text('{"id": "x"}')
+        (src / "quarry-plugin.json").write_text('{"id": "x"}')
         sub = src / "sub"
         sub.mkdir()
         (sub / "more.py").write_text("# more\n")
@@ -908,7 +908,7 @@ class TestSafeCopytree:
         _safe_copytree(src, dest)
 
         assert (dest / "plugin.py").read_text() == "class Plugin: pass\n"
-        assert (dest / "aisoc-plugin.json").read_text() == '{"id": "x"}'
+        assert (dest / "quarry-plugin.json").read_text() == '{"id": "x"}'
         assert (dest / "sub" / "more.py").read_text() == "# more\n"
 
     def test_preserves_symlinks_as_links(self, tmp_path):
@@ -1113,7 +1113,7 @@ class TestInstallFromOciHardening:
         def populate(tp: Path) -> None:
             d = tp / "evil-plugin"
             d.mkdir()
-            (d / "aisoc-plugin.json").write_text(
+            (d / "quarry-plugin.json").write_text(
                 json.dumps(
                     {
                         "id": "../escape",
@@ -1179,7 +1179,7 @@ class TestInstallFromOciHardening:
 
         assert loaded_id == "test.happy"
         assert (plugins_dir / "test.happy" / "plugin.py").exists()
-        assert (plugins_dir / "test.happy" / "aisoc-plugin.json").exists()
+        assert (plugins_dir / "test.happy" / "quarry-plugin.json").exists()
         assert mgr.get_plugin("test.happy") is not None
 
     @pytest.mark.asyncio

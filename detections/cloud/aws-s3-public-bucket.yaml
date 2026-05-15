@@ -20,6 +20,6 @@ false_positives:
 - Open data publication
 playbook: tpl-data-exposure
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

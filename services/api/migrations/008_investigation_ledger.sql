@@ -1,4 +1,4 @@
--- AiSOC Investigation Ledger migration (Phase 1A)
+-- Quarry Investigation Ledger migration (Phase 1A)
 -- Persistent, append-only record of every agent investigation run.
 -- Replaces the in-memory `_runs` dict in services/agents/app/api/investigate.py
 -- so every run is queryable, replayable, and signable for compliance.

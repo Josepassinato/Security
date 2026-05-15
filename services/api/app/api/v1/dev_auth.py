@@ -30,8 +30,8 @@ DEMO_TENANT_ID: uuid.UUID = uuid.UUID("00000000-0000-0000-0000-000000000001")
 DEMO_USER_ID: uuid.UUID = uuid.UUID("00000000-0000-0000-0000-000000000002")
 # Use a real TLD (not `.local`, which is reserved for mDNS and rejected by
 # pydantic ``EmailStr``). Deterministic, public-demo-only credentials.
-DEMO_USER_EMAIL: str = "demo@aisoc.dev"
-DEMO_USER_PASSWORD: str = "aisoc-demo"
+DEMO_USER_EMAIL: str = "demo@quarry.dev"
+DEMO_USER_PASSWORD: str = "quarry-demo"
 DEMO_USER_ROLE: str = "admin"
 
 

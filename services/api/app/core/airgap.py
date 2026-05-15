@@ -1,7 +1,7 @@
 """
 Air-gap egress enforcement (Tier 3.1 — air-gapped certification).
 
-When ``AISOC_AIRGAPPED`` is True, every outbound HTTP call from the API
+When ``QUARRY_AIRGAPPED`` is True, every outbound HTTP call from the API
 service must be validated against this module before the request is
 issued. The contract is intentionally tiny so it can be wrapped around
 ``httpx.AsyncClient.post()`` / ``httpx.get()`` call sites without
@@ -15,7 +15,7 @@ restructuring them:
 
 The default policy is permissive: private addresses (RFC1918, loopback,
 link-local), ``.local`` / ``.internal`` / ``.lan`` / ``.intranet`` TLDs,
-and any host explicitly enumerated in ``AISOC_AIRGAP_ALLOWLIST`` pass.
+and any host explicitly enumerated in ``QUARRY_AIRGAP_ALLOWLIST`` pass.
 Everything else (api.openai.com, api.anthropic.com, virustotal.com, …)
 is blocked.
 
@@ -24,7 +24,7 @@ network policy at the egress firewall — but it's enough to (a) stop
 accidental phone-home from a misconfigured ``.env`` and (b) earn the
 "air-gap certified" claim in the docs.
 
-The check is best-effort: when ``AISOC_AIRGAPPED`` is False (the
+The check is best-effort: when ``QUARRY_AIRGAPPED`` is False (the
 default) the helpers are no-ops. They log via ``structlog`` so SOC
 operators can audit egress decisions in their existing log pipeline.
 """
@@ -76,7 +76,7 @@ def _is_private_address(host: str) -> bool:
     routing, not to verify whether ``api.openai.com`` happens to
     currently resolve to a private CIDR for this customer's split-horizon
     DNS. (Operators who want to allow that exact host should add it to
-    ``AISOC_AIRGAP_ALLOWLIST`` so the intent is auditable.)
+    ``QUARRY_AIRGAP_ALLOWLIST`` so the intent is auditable.)
     """
     if not host:
         return False
@@ -115,7 +115,7 @@ def is_host_allowed_for_airgap(host: str, allowlist: list[str] | None = None) ->
     host = host.lower().strip()
     if _is_private_address(host):
         return True
-    allowlist = allowlist if allowlist is not None else settings.AISOC_AIRGAP_ALLOWLIST
+    allowlist = allowlist if allowlist is not None else settings.QUARRY_AIRGAP_ALLOWLIST
     for entry in allowlist or []:
         entry = entry.strip().lower()
         if not entry:
@@ -130,10 +130,10 @@ def is_host_allowed_for_airgap(host: str, allowlist: list[str] | None = None) ->
 def enforce_airgap_for_url(url: str) -> None:
     """Raise :class:`AirgapViolation` if ``url`` would breach the air-gap policy.
 
-    No-op when ``AISOC_AIRGAPPED`` is False. Safe to call unconditionally
+    No-op when ``QUARRY_AIRGAPPED`` is False. Safe to call unconditionally
     around every outbound HTTP request.
     """
-    if not settings.AISOC_AIRGAPPED:
+    if not settings.QUARRY_AIRGAPPED:
         return
     parsed = urlparse(url)
     host = (parsed.hostname or "").lower()
@@ -144,10 +144,10 @@ def enforce_airgap_for_url(url: str) -> None:
         "airgap.block",
         host=host,
         url=url,
-        message="Outbound request refused by AISOC_AIRGAPPED policy",
+        message="Outbound request refused by QUARRY_AIRGAPPED policy",
     )
     raise AirgapViolation(
-        f"Air-gapped mode is enabled and host '{host}' is not in AISOC_AIRGAP_ALLOWLIST. "
+        f"Air-gapped mode is enabled and host '{host}' is not in QUARRY_AIRGAP_ALLOWLIST. "
         "Point this integration at a local mirror or add the host to the allowlist."
     )
 
@@ -160,15 +160,15 @@ def airgap_status() -> dict[str, object]:
     their config end-to-end without parsing logs.
     """
     return {
-        "enabled": settings.AISOC_AIRGAPPED,
-        "allowlist": list(settings.AISOC_AIRGAP_ALLOWLIST or []),
+        "enabled": settings.QUARRY_AIRGAPPED,
+        "allowlist": list(settings.QUARRY_AIRGAP_ALLOWLIST or []),
         "implicit_private_suffixes": list(_PRIVATE_SUFFIXES),
         "policy": (
             "All outbound HTTP is blocked except to private/loopback/link-local "
             "addresses, hosts ending in known internal suffixes (.local, .internal, "
             ".lan, .intranet, .corp, .home, .localdomain, localhost), and hosts "
-            "explicitly listed in AISOC_AIRGAP_ALLOWLIST."
-            if settings.AISOC_AIRGAPPED
+            "explicitly listed in QUARRY_AIRGAP_ALLOWLIST."
+            if settings.QUARRY_AIRGAPPED
             else "Air-gapped mode is OFF — outbound HTTP is unrestricted."
         ),
     }

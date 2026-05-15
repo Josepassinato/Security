@@ -43,4 +43,4 @@ provenance:
   upstream_path: rules/_deprecated/soc_prime_rules/active_directory_security/security/remote_desktop_from_internet__via_audit.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

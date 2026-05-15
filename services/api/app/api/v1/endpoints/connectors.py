@@ -988,7 +988,7 @@ _TROUBLESHOOT_RULES: list[tuple[re.Pattern[str], str, list[str], str | None]] = 
         "The connector couldn't reach the upstream API in time.",
         [
             "Check that the API endpoint URL is correct and matches your tenant region.",
-            "If the upstream is internal, confirm AiSOC has network connectivity / VPN routing.",
+            "If the upstream is internal, confirm Quarry has network connectivity / VPN routing.",
             "Try lowering the test payload size in connector_config (when applicable).",
         ],
         None,

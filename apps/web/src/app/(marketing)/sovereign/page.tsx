@@ -12,21 +12,21 @@ import { Footer } from '@/components/landing/Footer';
  * already shipping in the repo:
  *
  *   - Air-gapped overlay  → `docker-compose.airgap.yml` + the Ollama sidecar.
- *   - On-prem / Helm      → `infra/helm/aisoc/`.
+ *   - On-prem / Helm      → `infra/helm/quarry/`.
  *   - Public cloud / BYOC → `infra/terraform/{aws,gcp,byoc}/`.
- *   - BYO LLM endpoint    → `AISOC_LLM_*` env vars + tenant LLM credential vault.
+ *   - BYO LLM endpoint    → `QUARRY_LLM_*` env vars + tenant LLM credential vault.
  *
  * The page is intentionally text-and-grid heavy — buyers in regulated sectors
  * scan for keywords (air-gap, EU, GDPR, Helm, Terraform) before reading.
  */
 
 export const metadata: Metadata = {
-  title: 'Sovereign + air-gap deployment — AiSOC',
+  title: 'Sovereign + air-gap deployment — Quarry',
   description:
-    'AiSOC runs anywhere: air-gapped, on-prem, hybrid, public cloud, or managed SaaS — with cloud LLM APIs, a local Ollama sidecar, or a bring-your-own LLM endpoint. EU, US, India, or custom data residency.',
+    'Quarry runs anywhere: air-gapped, on-prem, hybrid, public cloud, or managed SaaS — with cloud LLM APIs, a local Ollama sidecar, or a bring-your-own LLM endpoint. EU, US, India, or custom data residency.',
   alternates: { canonical: '/sovereign' },
   openGraph: {
-    title: 'AiSOC runs where you do — sovereign by default',
+    title: 'Quarry runs where you do — sovereign by default',
     description:
       'Air-gapped, on-prem, hybrid, public cloud, managed SaaS · cloud LLM, local Ollama, or BYO endpoint · EU / US / India / custom residency.',
     type: 'article',
@@ -50,16 +50,16 @@ const DEPLOYMENT_MODES: DeploymentMode[] = [
     compliance: 'SOC 2 · ISO 27001 · GDPR · DPDP',
     artefact: 'docker-compose.airgap.yml',
     artefactHref:
-      'https://github.com/beenuar/AiSOC/blob/main/docker-compose.airgap.yml',
+      'https://github.com/beenuar/Quarry/blob/main/docker-compose.airgap.yml',
   },
   {
     name: 'On-prem',
     llm: 'Local Ollama or BYO endpoint',
     residency: 'Operator-defined',
     compliance: 'SOC 2 · ISO 27001 · GDPR · DPDP',
-    artefact: 'Helm chart (infra/helm/aisoc)',
+    artefact: 'Helm chart (infra/helm/quarry)',
     artefactHref:
-      'https://github.com/beenuar/AiSOC/blob/main/infra/helm/aisoc/Chart.yaml',
+      'https://github.com/beenuar/Quarry/blob/main/infra/helm/quarry/Chart.yaml',
   },
   {
     name: 'Hybrid',
@@ -68,7 +68,7 @@ const DEPLOYMENT_MODES: DeploymentMode[] = [
     compliance: 'SOC 2 · ISO 27001 · GDPR · DPDP',
     artefact: 'Terraform (infra/terraform/byoc)',
     artefactHref:
-      'https://github.com/beenuar/AiSOC/tree/main/infra/terraform/byoc',
+      'https://github.com/beenuar/Quarry/tree/main/infra/terraform/byoc',
   },
   {
     name: 'Public cloud',
@@ -77,22 +77,22 @@ const DEPLOYMENT_MODES: DeploymentMode[] = [
     compliance: 'SOC 2 · ISO 27001 · GDPR · DPDP',
     artefact: 'Terraform (infra/terraform/{aws,gcp})',
     artefactHref:
-      'https://github.com/beenuar/AiSOC/tree/main/infra/terraform',
+      'https://github.com/beenuar/Quarry/tree/main/infra/terraform',
   },
   {
     name: 'Managed SaaS (waitlist)',
     llm: 'Cloud APIs (default) · BYO',
     residency: 'EU · US · India',
     compliance: 'SOC 2 · GDPR (target)',
-    artefact: 'app.aisoc.dev',
-    artefactHref: 'mailto:hello@aisoc.dev?subject=AiSOC%20managed%20waitlist',
+    artefact: 'app.quarry.dev',
+    artefactHref: 'mailto:hello@quarry.dev?subject=Quarry%20managed%20waitlist',
   },
 ];
 
 const PILLARS = [
   {
     label: 'Air-gap by config flag',
-    body: 'Set AISOC_AIRGAPPED=true and the platform refuses to make outbound calls — no LLM provider, no threat-intel feed, no telemetry. The Ollama overlay ships a pinned local model so the demo seed runs end-to-end with zero external calls.',
+    body: 'Set QUARRY_AIRGAPPED=true and the platform refuses to make outbound calls — no LLM provider, no threat-intel feed, no telemetry. The Ollama overlay ships a pinned local model so the demo seed runs end-to-end with zero external calls.',
     cite: 'docker-compose.airgap.yml',
   },
   {
@@ -103,7 +103,7 @@ const PILLARS = [
   {
     label: 'Helm + Terraform first-class',
     body: 'A single Helm release deploys every service into your cluster; Terraform modules cover AWS EKS, GCP Cloud Run, and a generic BYOC blueprint. Bring your own VPC, KMS, and IAM — the modules consume them rather than reinventing them.',
-    cite: 'infra/helm/aisoc · infra/terraform/{aws,gcp,byoc}',
+    cite: 'infra/helm/quarry · infra/terraform/{aws,gcp,byoc}',
   },
   {
     label: 'Data residency by VPC',
@@ -142,7 +142,7 @@ export default function SovereignPage() {
             </span>
           </div>
           <h1 className="text-4xl font-bold tracking-tight text-white md:text-5xl">
-            AiSOC runs where you do.
+            Quarry runs where you do.
             <br />
             <span className="text-brand-300">Sovereign by default.</span>
           </h1>
@@ -155,7 +155,7 @@ export default function SovereignPage() {
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <a
-              href="mailto:hello@aisoc.dev?subject=AiSOC%20sovereign%20deployment"
+              href="mailto:hello@quarry.dev?subject=Quarry%20sovereign%20deployment"
               className="inline-flex items-center gap-2 rounded-md bg-brand-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-400"
             >
               Talk to us about sovereign deployment
@@ -169,7 +169,7 @@ export default function SovereignPage() {
               </svg>
             </a>
             <a
-              href="https://github.com/beenuar/AiSOC/blob/main/docker-compose.airgap.yml"
+              href="https://github.com/beenuar/Quarry/blob/main/docker-compose.airgap.yml"
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-2 rounded-md border border-white/10 bg-white/[0.03] px-4 py-2 text-sm font-medium text-gray-300 transition hover:border-white/20 hover:bg-white/[0.06] hover:text-white"
@@ -371,31 +371,31 @@ export default function SovereignPage() {
             <RepoArtefact
               label="Air-gap overlay"
               path="docker-compose.airgap.yml"
-              href="https://github.com/beenuar/AiSOC/blob/main/docker-compose.airgap.yml"
-              body="Compose overlay that adds an Ollama sidecar with a pinned model and flips AISOC_AIRGAPPED=true on every service that calls an LLM."
+              href="https://github.com/beenuar/Quarry/blob/main/docker-compose.airgap.yml"
+              body="Compose overlay that adds an Ollama sidecar with a pinned model and flips QUARRY_AIRGAPPED=true on every service that calls an LLM."
             />
             <RepoArtefact
               label="Helm chart"
-              path="infra/helm/aisoc/"
-              href="https://github.com/beenuar/AiSOC/tree/main/infra/helm/aisoc"
+              path="infra/helm/quarry/"
+              href="https://github.com/beenuar/Quarry/tree/main/infra/helm/quarry"
               body="Single Helm release for every backend service, the web console, and the realtime gateway. Production-shaped values for resource limits, secrets, and ingress."
             />
             <RepoArtefact
               label="Terraform modules"
               path="infra/terraform/"
-              href="https://github.com/beenuar/AiSOC/tree/main/infra/terraform"
+              href="https://github.com/beenuar/Quarry/tree/main/infra/terraform"
               body="AWS EKS, GCP Cloud Run, and a BYOC blueprint that consumes your VPC, KMS, and IAM rather than reinventing them."
             />
             <RepoArtefact
               label="Credential vault"
               path="services/api/app/services/credentials.py"
-              href="https://github.com/beenuar/AiSOC/blob/main/services/api/app/services/credentials.py"
+              href="https://github.com/beenuar/Quarry/blob/main/services/api/app/services/credentials.py"
               body="Fernet AES-128-CBC + HMAC-SHA256. Per-tenant LLM credentials, connector secrets, and webhook tokens never leave the vault in plaintext."
             />
             <RepoArtefact
               label="Investigation ledger"
               path="services/agents/app/ledger/"
-              href="https://github.com/beenuar/AiSOC#investigation-ledger"
+              href="https://github.com/beenuar/Quarry#investigation-ledger"
               body="Every prompt, tool call, evidence row, and decision the agent makes — durable and replayable. The auditor reads the events directly, not a vendor summary."
             />
             <RepoArtefact
@@ -422,10 +422,10 @@ export default function SovereignPage() {
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <a
-              href="mailto:hello@aisoc.dev?subject=AiSOC%20sovereign%20deployment"
+              href="mailto:hello@quarry.dev?subject=Quarry%20sovereign%20deployment"
               className="inline-flex items-center gap-2 rounded-md bg-brand-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-400"
             >
-              Email hello@aisoc.dev
+              Email hello@quarry.dev
             </a>
             <Link
               href="/customers"
@@ -434,7 +434,7 @@ export default function SovereignPage() {
               See who runs it in production
             </Link>
             <a
-              href="https://github.com/beenuar/AiSOC"
+              href="https://github.com/beenuar/Quarry"
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-2 rounded-md border border-white/10 bg-white/[0.03] px-4 py-2 text-sm font-medium text-gray-300 transition hover:border-white/20 hover:bg-white/[0.06] hover:text-white"

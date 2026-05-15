@@ -26,7 +26,7 @@ every read is `select(...)` + `await db.execute(...)`. No write paths.
 This keeps the lazy-fill flow in the alerts endpoint trivially
 restartable on failure — the rail data is a view, not a side-effect.
 
-AiSOC — open-source AI Security Operations Center (MIT License)
+Quarry — open-source AI Security Operations Center (MIT License)
 Author: Beenu Arora <beenu@cyble.com>
 """
 

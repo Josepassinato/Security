@@ -1,12 +1,12 @@
 ---
 sidebar_position: 3
 title: Azure Activity Logs
-description: Subscription-scope control-plane events from Azure Resource Manager into AiSOC — IAM grants, policy edits, resource changes.
+description: Subscription-scope control-plane events from Azure Resource Manager into Quarry — IAM grants, policy edits, resource changes.
 ---
 
 # Azure Activity Logs
 
-The Azure Activity connector streams **subscription-scope control-plane events** from the Azure Resource Manager (ARM) Activity Log into AiSOC. This is your primary signal for cloud-plane attack patterns: privilege escalation via `roleAssignments/write`, defense evasion via policy or NSG deletes, and high-blast-radius operations like `Microsoft.Authorization/roleDefinitions/write`.
+The Azure Activity connector streams **subscription-scope control-plane events** from the Azure Resource Manager (ARM) Activity Log into Quarry. This is your primary signal for cloud-plane attack patterns: privilege escalation via `roleAssignments/write`, defense evasion via policy or NSG deletes, and high-blast-radius operations like `Microsoft.Authorization/roleDefinitions/write`.
 
 ## What you get
 
@@ -39,9 +39,9 @@ If you already created one for Entra, skip to step 2. Otherwise follow the [Entr
 
 In the Subscription Overview blade, copy the **Subscription ID** (a GUID).
 
-### 4. Add the connector in AiSOC
+### 4. Add the connector in Quarry
 
-1. AiSOC console → **Connectors → Add connector → Azure Activity Logs**.
+1. Quarry console → **Connectors → Add connector → Azure Activity Logs**.
 2. Fill in `tenant_id`, `client_id`, `client_secret`, and `subscription_id`.
 3. **Test connection** → calls the Activity Log API and asks for at most 1 entry to validate auth and scope.
 4. **Save**.
@@ -57,7 +57,7 @@ In the Subscription Overview blade, copy the **Subscription ID** (a GUID).
 
 `normalize()` flags operations whose **resource/verb tail** matches a high-blast-radius pattern:
 
-| Pattern | AiSOC severity |
+| Pattern | Quarry severity |
 |---|---|
 | `microsoft.authorization/roleassignments/write` | `high` (privilege grant — T1098.003 territory) |
 | `microsoft.authorization/roledefinitions/write` | `high` (custom role with elevated rights) |

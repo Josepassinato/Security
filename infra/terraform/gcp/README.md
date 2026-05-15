@@ -1,12 +1,12 @@
-# AiSOC on Google Cloud — Terraform skeleton
+# Quarry on Google Cloud — Terraform skeleton
 
-A serverless-first deployment of the AiSOC stack on Google Cloud Platform:
+A serverless-first deployment of the Quarry stack on Google Cloud Platform:
 
 - **Cloud Run v2** for the API (FastAPI), web console (Next.js), and ingest gateway
 - **Cloud SQL for PostgreSQL 16** for the application database (private IP)
 - **Memorystore for Redis 7.2** for queues, rate limits, and websocket fan-out
 - **Secret Manager** for the application secrets (DB password, `SECRET_KEY`,
-  `AISOC_CREDENTIAL_KEY`, Redis auth, optional `OPENAI_API_KEY`)
+  `QUARRY_CREDENTIAL_KEY`, Redis auth, optional `OPENAI_API_KEY`)
 - **Artifact Registry** as the container registry CI pushes to
 - **Serverless VPC Access connector** so Cloud Run can reach Cloud SQL and
   Memorystore over private IPs
@@ -75,17 +75,17 @@ For anything shared across operators, use GCS:
 
 1. Create the state bucket once (outside Terraform), versioning enabled:
    ```bash
-   gcloud storage buckets create gs://aisoc-tfstate-<project-id> \
+   gcloud storage buckets create gs://quarry-tfstate-<project-id> \
      --project=<project-id> \
      --location=us-central1 \
      --uniform-bucket-level-access
-   gcloud storage buckets update gs://aisoc-tfstate-<project-id> \
+   gcloud storage buckets update gs://quarry-tfstate-<project-id> \
      --versioning
    ```
 2. Uncomment the `backend "gcs"` block at the top of `versions.tf`:
    ```hcl
    backend "gcs" {
-     bucket = "aisoc-tfstate-<project-id>"
+     bucket = "quarry-tfstate-<project-id>"
      prefix = "gcp"
    }
    ```
@@ -94,7 +94,7 @@ For anything shared across operators, use GCS:
 ## Container images
 
 The defaults point at the public GHCR demo images
-(`ghcr.io/beenuar/aisoc-{api,web,ingest}:latest`) so the skeleton runs with
+(`ghcr.io/beenuar/quarry-{api,web,ingest}:latest`) so the skeleton runs with
 zero CI work. For a real deployment, push your own images to the Artifact
 Registry repo this stack provisions:
 
@@ -125,7 +125,7 @@ PASSWORD=$(gcloud secrets versions access latest \
   --secret=$(terraform output -raw secret_postgres_password_id))
 
 cloud-sql-proxy --port 5432 "$INSTANCE" &
-PGPASSWORD="$PASSWORD" psql -h 127.0.0.1 -U aisoc aisoc
+PGPASSWORD="$PASSWORD" psql -h 127.0.0.1 -U quarry aisoc
 ```
 
 ## Costs
@@ -160,7 +160,7 @@ This is the **skeleton**, not the full migration. Known gaps:
   certificate that's fine for the skeleton. Wire a Global External
   HTTPS Load Balancer + Cloud Armor in front of the API for a custom domain
   and WAF.
-- **No Kafka / message bus.** The AiSOC ingest path can run on Redis Streams
+- **No Kafka / message bus.** The Quarry ingest path can run on Redis Streams
   alone for the buyer-value demo. For higher throughput, swap in
   Confluent Cloud or run Kafka on GKE.
 - **No BYOK envelope encryption.** Secret Manager is the secret store;
@@ -168,7 +168,7 @@ This is the **skeleton**, not the full migration. Known gaps:
   Artifact Registry are a one-line addition (`encryption_key_name = ...`)
   and intentionally left out of the skeleton to keep the trust boundary
   small.
-- **Demo image source.** `ghcr.io/beenuar/aisoc-*` is the default for the
+- **Demo image source.** `ghcr.io/beenuar/quarry-*` is the default for the
   zero-config experience; don't ship that to production. See *Container
   images* above.
 

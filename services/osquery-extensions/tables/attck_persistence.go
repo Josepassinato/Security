@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/beenuar/aisoc/osquery-extensions/internal/aisocapi"
+	"github.com/beenuar/quarry/osquery-extensions/internal/quarryapi"
 	"github.com/osquery/osquery-go/plugin/table"
 )
 
@@ -22,9 +22,9 @@ func ATTCKPersistenceColumns() []table.ColumnDefinition {
 }
 
 // ATTCKPersistenceGenerate returns a GenerateFunc that fetches the approved
-// persistence baseline from the AiSOC API, so analysts can diff it against
+// persistence baseline from the Quarry API, so analysts can diff it against
 // what osquery actually finds on the host.
-func ATTCKPersistenceGenerate(client *aisocapi.Client) table.GenerateFunc {
+func ATTCKPersistenceGenerate(client *quarryapi.Client) table.GenerateFunc {
 	return func(ctx context.Context, queryContext table.QueryContext) ([]map[string]string, error) {
 		entries, err := client.GetPersistenceBaseline(ctx)
 		if err != nil {
@@ -55,7 +55,7 @@ func ATTCKPersistenceGenerate(client *aisocapi.Client) table.GenerateFunc {
 // the osquery extension registry.
 func ATTCKPersistenceDescription() string {
 	return fmt.Sprintf(
-		"AiSOC-managed persistence baseline (T1547). " +
+		"Quarry-managed persistence baseline (T1547). " +
 			"JOIN against startup_items / launchd / crontab to surface unapproved entries.",
 	)
 }

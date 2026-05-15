@@ -57,4 +57,4 @@ provenance:
   upstream_path: rules/community/microsoft/entra_id/entra_id_login_activity_to_uncommon_mscloud_apps.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

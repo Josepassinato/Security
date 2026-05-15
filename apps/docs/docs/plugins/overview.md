@@ -4,7 +4,7 @@ sidebar_position: 1
 
 # Plugin Overview
 
-AiSOC's plugin system lets the community extend the platform with new enrichers, actions, and connectors — all without forking the core.
+Quarry's plugin system lets the community extend the platform with new enrichers, actions, and connectors — all without forking the core.
 
 ## Plugin Types
 
@@ -54,7 +54,7 @@ Choose your SDK:
 Every plugin must be signed with an Ed25519 keypair before publishing:
 
 ```bash
-plugin-sdk sign --key ~/.aisoc/signing.key plugin.zip
+plugin-sdk sign --key ~/.quarry/signing.key plugin.zip
 ```
 
 The platform verifies the signature on install. Unsigned plugins are rejected.

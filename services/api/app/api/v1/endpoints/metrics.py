@@ -108,7 +108,7 @@ class MitreCoverage(BaseModel):
       * an enabled tenant/platform detection rule
         (``DetectionRule.mitre_techniques`` where ``status == 'enabled'``).
 
-    ``total`` is configurable via ``AISOC_FUNNEL_MITRE_TOTAL`` and defaults to
+    ``total`` is configurable via ``QUARRY_FUNNEL_MITRE_TOTAL`` and defaults to
     the MITRE ATT&CK Enterprise v17 technique count (201) so the ratio is
     interpretable as "% of ATT&CK we're watching for". The ratio is clamped to
     ``[0.0, 1.0]`` even if operators downsize the universe.
@@ -680,17 +680,17 @@ def _pct_delta(current: float, previous: float) -> float:
 async def _events_of_interest(db, tenant_id, start, end) -> int:
     """Count tenant raw events that landed in the analytical lake.
 
-    Primary source is ``aisoc.raw_events`` in ClickHouse — the same table the
+    Primary source is ``quarry.raw_events`` in ClickHouse — the same table the
     fusion correlator reads — which is the source-of-truth for "events of
     interest" (i.e. anything an ingest connector emitted after enrichment but
     before alerting).
 
     Falls back to a PostgreSQL-derived count (sum of distinct
     ``source_event_ids`` across alerts in the window) when ClickHouse is
-    disabled via ``AISOC_DISABLE_CLICKHOUSE`` or unreachable. This keeps the
+    disabled via ``QUARRY_DISABLE_CLICKHOUSE`` or unreachable. This keeps the
     endpoint usable in air-gapped / Postgres-only deployments and in tests.
     """
-    if getattr(settings, "AISOC_DISABLE_CLICKHOUSE", False):
+    if getattr(settings, "QUARRY_DISABLE_CLICKHOUSE", False):
         return await _events_of_interest_from_alerts(db, tenant_id, start, end)
 
     try:
@@ -705,7 +705,7 @@ async def _events_of_interest(db, tenant_id, start, end) -> int:
 
     sql = (
         "SELECT count() AS cnt "
-        "FROM aisoc.raw_events "
+        "FROM quarry.raw_events "
         f"WHERE ingested_at >= toDateTime('{start.strftime('%Y-%m-%d %H:%M:%S')}') "
         f"AND ingested_at < toDateTime('{end.strftime('%Y-%m-%d %H:%M:%S')}')"
     )
@@ -945,7 +945,7 @@ async def get_funnel_metrics(
     prev_end = start
     prev_start = prev_end - delta
 
-    mitre_total = int(getattr(settings, "AISOC_FUNNEL_MITRE_TOTAL", 201)) or 201
+    mitre_total = int(getattr(settings, "QUARRY_FUNNEL_MITRE_TOTAL", 201)) or 201
 
     current = await _funnel_window(db, user.tenant_id, start, end, mitre_total=mitre_total)
     previous = await _funnel_window(db, user.tenant_id, prev_start, prev_end, mitre_total=mitre_total)

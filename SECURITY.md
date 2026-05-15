@@ -1,6 +1,6 @@
 # Security policy
 
-AiSOC is security software, so we take vulnerabilities in our own stack seriously. This document explains how to report issues responsibly and what to expect from us.
+Quarry is security software, so we take vulnerabilities in our own stack seriously. This document explains how to report issues responsibly and what to expect from us.
 
 ## Supported versions
 
@@ -14,14 +14,14 @@ AiSOC is security software, so we take vulnerabilities in our own stack seriousl
 
 Please **do not** open a public GitHub issue or PR for security problems.
 
-Use [GitHub's private vulnerability reporting](https://github.com/beenuar/AiSOC/security/advisories/new) to send us a report directly. Include as much detail as possible:
+Use [GitHub's private vulnerability reporting](https://github.com/Josepassinato/quarry/security/advisories/new) to send us a report directly. Include as much detail as possible:
 
 - A clear description of the issue and its impact
 - Steps to reproduce, ideally a minimal proof of concept
 - Affected version, commit SHA, or container digest
 - Your name / handle if you'd like to be credited
 
-If GitHub's reporting flow is not workable for your situation, you can instead reach the maintainers through the [SECURITY contact in the repository profile](https://github.com/beenuar/AiSOC). Please request our PGP key in your first message and we'll respond out-of-band before you send sensitive details (payloads, tokens, customer data).
+If GitHub's reporting flow is not workable for your situation, you can instead reach the maintainers through the [SECURITY contact in the repository profile](https://github.com/Josepassinato/quarry). Please request our PGP key in your first message and we'll respond out-of-band before you send sensitive details (payloads, tokens, customer data).
 
 ## What to expect
 
@@ -44,23 +44,23 @@ In scope:
 
 Out of scope:
 
-- Third-party services that AiSOC integrates with (CrowdStrike, Splunk, AWS, etc.)
+- Third-party services that Quarry integrates with (CrowdStrike, Splunk, AWS, etc.)
 - Self-hosted deployments that have been customized
 - Issues requiring physical access to a host
 
 ## Hardening guidance
 
-If you operate AiSOC, please review:
+If you operate Quarry, please review:
 
 - [`docs/runbooks/HARDENING.md`](docs/runbooks/HARDENING.md) for production hardening steps
-- [`infra/helm/aisoc/values.yaml`](infra/helm/aisoc/values.yaml) for the security-related defaults
+- [`infra/helm/quarry/values.yaml`](infra/helm/quarry/values.yaml) for the security-related defaults
 - [`services/api/app/core/security.py`](services/api/app/core/security.py) and [`services/api/app/auth/`](services/api/app/auth/) for our auth, RBAC, and SSO primitives
 - [`services/api/app/middleware/`](services/api/app/middleware/) for rate limiting, audit logging, and request hardening
 
 ## Bounty
 
-AiSOC is an open-source project and does not currently operate a paid bounty program. We deeply appreciate responsible reports and will credit researchers in advisories and the hall of fame.
+Quarry is an open-source project and does not currently operate a paid bounty program. We deeply appreciate responsible reports and will credit researchers in advisories and the hall of fame.
 
 ## Hall of fame
 
-We publicly thank researchers who report valid issues. Once a fix has shipped, we credit reporters (with their consent) in the corresponding [GitHub Security Advisory](https://github.com/beenuar/AiSOC/security/advisories) and the relevant `CHANGELOG.md` entry.
+We publicly thank researchers who report valid issues. Once a fix has shipped, we credit reporters (with their consent) in the corresponding [GitHub Security Advisory](https://github.com/Josepassinato/quarry/security/advisories) and the relevant `CHANGELOG.md` entry.

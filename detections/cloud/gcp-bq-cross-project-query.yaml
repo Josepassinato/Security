@@ -1,6 +1,6 @@
 id: det-cloud-159
 name: BigQuery Query Across External Project
-description: AiSOC v1 curated detection. Triggers on the cloud signal described by 'BigQuery Query Across
+description: Quarry v1 curated detection. Triggers on the cloud signal described by 'BigQuery Query Across
   External Project'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: medium
@@ -19,6 +19,6 @@ false_positives:
 - Cross-project analytics by design
 playbook: tpl-discovery
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

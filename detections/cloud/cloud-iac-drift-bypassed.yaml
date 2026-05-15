@@ -1,6 +1,6 @@
 id: det-cloud-187
 name: Infra-As-Code Drift Bypassed With Manual Override
-description: AiSOC v1 curated detection. Triggers on the cloud signal described by 'Infra-As-Code Drift
+description: Quarry v1 curated detection. Triggers on the cloud signal described by 'Infra-As-Code Drift
   Bypassed With Manual Override'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: medium
@@ -20,6 +20,6 @@ false_positives:
 - Documented break-glass procedure
 playbook: tpl-impact
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

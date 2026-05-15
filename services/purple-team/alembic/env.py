@@ -20,7 +20,7 @@ target_metadata = Base.metadata
 
 DATABASE_URL = os.environ.get(
     "PURPLE_TEAM_DATABASE_URL",
-    "postgresql+asyncpg://aisoc:aisoc@localhost:5432/aisoc",
+    "postgresql+asyncpg://quarry:aisoc@localhost:5432/quarry",
 )
 
 

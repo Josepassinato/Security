@@ -1,5 +1,5 @@
 /**
- * Web Push registration + delivery for the AiSOC mobile responder PWA.
+ * Web Push registration + delivery for the Quarry mobile responder PWA.
  *
  * Phase 4B. Subscriptions are stored in Redis keyed by tenant + user, and
  * delivered via the standard `web-push` VAPID flow. The push module is
@@ -9,10 +9,10 @@
  *
  * Storage layout (Redis):
  *
- *   aisoc:push:sub:<id>                 → JSON SubscriptionRecord
- *   aisoc:push:tenant:<tenant_id>       → SET of subscription ids
- *   aisoc:push:user:<tenant>:<user_id>  → SET of subscription ids
- *   aisoc:push:topic:<tenant>:<topic>   → SET of subscription ids
+ *   quarry:push:sub:<id>                 → JSON SubscriptionRecord
+ *   quarry:push:tenant:<tenant_id>       → SET of subscription ids
+ *   quarry:push:user:<tenant>:<user_id>  → SET of subscription ids
+ *   quarry:push:topic:<tenant>:<topic>   → SET of subscription ids
  *
  * That layout lets us:
  *   - fan out to a whole tenant on a P0 alert,
@@ -86,7 +86,7 @@ const SUB_TTL_SECONDS = SUB_TTL_DAYS * 24 * 60 * 60;
 const DEFAULT_TOPICS = ['p0_alert', 'agent_approval', 'oncall_handoff'];
 
 function key(...parts: string[]): string {
-  return ['aisoc', 'push', ...parts].join(':');
+  return ['quarry', 'push', ...parts].join(':');
 }
 
 function tenantOf(req: Request): string {
@@ -474,12 +474,12 @@ export class PushManager {
         ? { tenant_id: tenantId, user_ids: [userId] }
         : { tenant_id: tenantId },
       {
-        title: 'AiSOC test page',
+        title: 'Quarry test page',
         body: 'If you can read this, push is working on this device.',
         url: '/responder',
         topic: 'test',
         severity: 'info',
-        tag: 'aisoc-test',
+        tag: 'quarry-test',
       },
     );
     res.json({ sent: stats.delivered, ...stats });

@@ -1,9 +1,9 @@
 # ──────────────────────────────────────────────────────────────────────────────
-# AiSOC Demo - Realtime service (WebSocket)
+# Quarry Demo - Realtime service (WebSocket)
 #
-# Deployed at:    https://aisoc-demo-realtime.fly.dev
-# Internal name:  aisoc-demo-realtime.internal:4000
-# Public WS:      wss://ws.tryaisoc.com  (CNAME → aisoc-demo-realtime.fly.dev)
+# Deployed at:    https://quarry-demo-realtime.fly.dev
+# Internal name:  quarry-demo-realtime.internal:4000
+# Public WS:      wss://ws.tryaisoc.com  (CNAME → quarry-demo-realtime.fly.dev)
 #
 # The web frontend connects directly over wss:// using NEXT_PUBLIC_WS_URL.
 # In demo mode the realtime service multiplexes Redis pub/sub for "alert
@@ -11,7 +11,7 @@
 # to keep the demo lean.
 # ──────────────────────────────────────────────────────────────────────────────
 
-app = "aisoc-demo-realtime"
+app = "quarry-demo-realtime"
 primary_region = "iad"
 kill_signal    = "SIGINT"
 kill_timeout   = "5s"
@@ -24,14 +24,14 @@ kill_timeout   = "5s"
 [env]
   NODE_ENV         = "production"
   PORT             = "4000"
-  AISOC_DEMO_MODE  = "true"
-  AISOC_DISABLE_KAFKA = "true"
+  QUARRY_DEMO_MODE  = "true"
+  QUARRY_DISABLE_KAFKA = "true"
   # WebSocket origin allowlist: anything the browser can plausibly load the
   # UI from. tryaisoc.com is the canonical public origin; the .fly.dev host
   # stays on the list as a fallback (direct app access for debugging) and
   # ws.tryaisoc.com is harmless because origin checks compare the loading
   # page's origin, not the WS hostname.
-  ALLOWED_ORIGINS  = "https://tryaisoc.com,https://aisoc-demo-web.fly.dev"
+  ALLOWED_ORIGINS  = "https://tryaisoc.com,https://quarry-demo-web.fly.dev"
 
 [http_service]
   internal_port       = 4000

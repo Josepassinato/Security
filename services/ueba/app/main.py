@@ -46,14 +46,14 @@ LOG = logging.getLogger(__name__)
 from app.api.routes import router  # noqa: E402  (after OTel init)
 
 app = FastAPI(
-    title="AiSOC UEBA Service",
+    title="Quarry UEBA Service",
     description="User & Entity Behaviour Analytics — baseline, anomaly scoring, peer-group analysis.",
     version="0.1.0",
 )
 
 # UEBA endpoints don't carry browser session cookies (the API service does),
 # so we can stay with allow_credentials=False and a permissive default. Setting
-# AISOC_CORS_ORIGINS still tightens this in production deploys without code
+# QUARRY_CORS_ORIGINS still tightens this in production deploys without code
 # changes.
 app.add_middleware(
     CORSMiddleware,

@@ -11,31 +11,31 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/beenuar/aisoc/plugin-sdk-go/aisoc"
+	"github.com/beenuar/quarry/plugin-sdk-go/quarry"
 )
 
 const apiBase = "https://api.notion.com/v1"
 
-// NotionAction implements aisoc.Action for syncing incidents to a Notion database.
+// NotionAction implements quarry.Action for syncing incidents to a Notion database.
 type NotionAction struct {
-	aisoc.BasePlugin
+	quarry.BasePlugin
 
 	httpClient *http.Client
 }
 
-func (n *NotionAction) Manifest() aisoc.PluginManifest {
-	return aisoc.PluginManifest{
+func (n *NotionAction) Manifest() quarry.PluginManifest {
+	return quarry.PluginManifest{
 		ID:          "notion-incidents",
 		Name:        "Notion Incidents Sync",
 		Version:     "1.0.0",
-		PluginType:  aisoc.PluginTypeAction,
-		Description: "Syncs AiSOC incidents to a Notion database for runbook archives.",
-		Author:      "AiSOC Core Team",
+		PluginType:  quarry.PluginTypeAction,
+		Description: "Syncs Quarry incidents to a Notion database for runbook archives.",
+		Author:      "Quarry Core Team",
 		Tags:        []string{"collaboration", "notion", "incidents", "postmortem", "action"},
 	}
 }
 
-func (n *NotionAction) OnLoad(_ context.Context, _ aisoc.PluginContext) error {
+func (n *NotionAction) OnLoad(_ context.Context, _ quarry.PluginContext) error {
 	n.httpClient = &http.Client{Timeout: 30 * time.Second}
 	return nil
 }
@@ -50,10 +50,10 @@ func (n *NotionAction) SupportedActions() []string {
 
 func (n *NotionAction) Execute(
 	ctx context.Context,
-	req aisoc.ActionRequest,
-	pctx aisoc.PluginContext,
-) (aisoc.ActionResult, error) {
-	result := aisoc.ActionResult{
+	req quarry.ActionRequest,
+	pctx quarry.PluginContext,
+) (quarry.ActionResult, error) {
+	result := quarry.ActionResult{
 		ActionID: req.ActionID,
 		DryRun:   req.DryRun,
 		Details:  map[string]any{},
@@ -171,7 +171,7 @@ func (n *NotionAction) Execute(
 func buildProps(params map[string]any) map[string]any {
 	title, _ := params["title"].(string)
 	if title == "" {
-		title = "AiSOC Incident"
+		title = "Quarry Incident"
 	}
 	severity, _ := params["severity"].(string)
 	if severity == "" {
@@ -189,7 +189,7 @@ func buildProps(params map[string]any) map[string]any {
 		"Status":   map[string]any{"select": map[string]any{"name": status}},
 	}
 	if u, ok := params["case_url"].(string); ok && u != "" {
-		props["AiSOC Case"] = map[string]any{"url": u}
+		props["Quarry Case"] = map[string]any{"url": u}
 	}
 	return props
 }
@@ -250,7 +250,7 @@ func truncate(s string, n int) string {
 }
 
 func main() {
-	registry := aisoc.NewRegistry()
+	registry := quarry.NewRegistry()
 	if err := registry.Register(&NotionAction{}); err != nil {
 		panic(err)
 	}

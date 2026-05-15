@@ -352,7 +352,7 @@ def test_render_digest_html_contains_sections(baseline_inputs: DigestInputs) -> 
     html = render_digest_html(digest)
 
     assert "<!DOCTYPE html>" in html
-    assert "AiSOC weekly executive digest" in html
+    assert "Quarry weekly executive digest" in html
     assert digest.period.label in html
     assert "Headline metrics" in html
     assert "Severity distribution" in html

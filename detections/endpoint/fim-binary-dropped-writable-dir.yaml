@@ -35,7 +35,7 @@ false_positives:
   - Legitimate Python/Ruby scripts deployed to /tmp by config management
 playbook: tpl-defense-evasion
 enabled: true
-author: AiSOC
+author: Quarry
 references:
   - https://attack.mitre.org/techniques/T1036/005/
   - https://attack.mitre.org/techniques/T1059/

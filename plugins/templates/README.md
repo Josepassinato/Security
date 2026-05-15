@@ -1,12 +1,12 @@
 # Plugin templates
 
 This directory is intentionally a documentation pointer. The canonical
-plugin scaffolding templates live inside the `aisoc-cli` package so they
+plugin scaffolding templates live inside the `quarry-cli` package so they
 can be loaded at runtime via `importlib.resources` and bundled into the
 distributed wheel:
 
 ```
-packages/aisoc-cli/src/aisoc_cli/templates/
+packages/quarry-cli/src/aisoc_cli/templates/
 ├── enricher/
 │   ├── plugin.yaml.tmpl
 │   ├── plugin.py.tmpl
@@ -32,9 +32,9 @@ packages/aisoc-cli/src/aisoc_cli/templates/
 ## Scaffolding a new plugin
 
 ```bash
-aisoc plugin new "My Plugin" --type connector --output-dir plugins/
+quarry plugin new "My Plugin" --type connector --output-dir plugins/
 # or, for backwards compatibility:
-aisoc plugin scaffold "My Plugin" --type connector --output-dir plugins/
+quarry plugin scaffold "My Plugin" --type connector --output-dir plugins/
 ```
 
 Supported `--type` values: `enricher | connector | responder | detection | widget`.
@@ -46,10 +46,10 @@ placeholder is followed by an identifier character).
 
 ## Editing the templates
 
-Edit the `.tmpl` files in `packages/aisoc-cli/src/aisoc_cli/templates/<type>/`
+Edit the `.tmpl` files in `packages/quarry-cli/src/aisoc_cli/templates/<type>/`
 directly. They are loaded via `importlib.resources` at runtime, so changes
-are picked up by an editable install (`pip install -e packages/aisoc-cli`).
+are picked up by an editable install (`pip install -e packages/quarry-cli`).
 
 Tests for the scaffolder live at
-`packages/aisoc-cli/tests/test_cli.py::test_plugin_new_per_type` and exercise
+`packages/quarry-cli/tests/test_cli.py::test_plugin_new_per_type` and exercise
 every plugin type end-to-end.

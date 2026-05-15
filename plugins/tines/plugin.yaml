@@ -7,9 +7,9 @@ description: >
   Tines automation platform connector. Pulls story / agent / credential audit
   events plus case lifecycle events via the Tines REST API. Requires a
   Personal Access Token with at least read-only scope on the target tenant.
-author: AiSOC Core Team
+author: Quarry Core Team
 tags: [saas, soar, automation, audit, tines]
-homepage: https://github.com/beenuar/AiSOC/tree/main/services/connectors/app/connectors/tines.py
+homepage: https://github.com/beenuar/Quarry/tree/main/services/connectors/app/connectors/tines.py
 license: MIT
 min_aisoc_version: "4.0.0"
 config_schema:

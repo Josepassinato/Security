@@ -93,7 +93,7 @@ def _header_block(case: CaseSummaryHeader, lifecycle: CaseLifecycleTimings, head
     return (
         "<header>"
         '<div style="font-size:11px;color:#64748b;text-transform:uppercase;'
-        'letter-spacing:0.08em;">AiSOC case auto-summary</div>'
+        'letter-spacing:0.08em;">Quarry case auto-summary</div>'
         f"<h1>{_esc(label)} — {_esc(case.title)}</h1>"
         f'<div style="margin-top:6px;">{_severity_chip(case.severity)} '
         f'<span style="display:inline-block;padding:2px 8px;border-radius:9999px;'
@@ -276,7 +276,7 @@ def render_case_summary_html(summary: CaseAutoSummary) -> str:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>AiSOC Case Summary — {_esc(summary.case.case_number or summary.case.title)}</title>
+<title>Quarry Case Summary — {_esc(summary.case.case_number or summary.case.title)}</title>
 <style>
   @page {{ margin: 18mm; }}
   body {{
@@ -316,7 +316,7 @@ def render_case_summary_html(summary: CaseAutoSummary) -> str:
   {_recommendation_block(summary.recommendations)}
 
   <footer style="margin-top:32px;color:#94a3b8;font-size:11px;text-align:center;">
-    AiSOC — open-source AI Security Operations Center.
+    Quarry — open-source AI Security Operations Center.
     Print this page (Ctrl/Cmd-P → Save as PDF) for case-file archival.
   </footer>
 </body>

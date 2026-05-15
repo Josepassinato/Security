@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Curate the AiSOC v1.0 buyer-promised detection set.
+"""Curate the Quarry v1.0 buyer-promised detection set.
 
 The repo contains thousands of detection files across native (``detections/<category>/``)
 and four upstream import tiers (``sigma-imports/``, ``car-imports/``,
@@ -258,7 +258,7 @@ FAMILIES: dict[str, dict[str, Any]] = {
     },
 }
 
-# Categories that are considered native AiSOC tiers (executable-by-default).
+# Categories that are considered native Quarry tiers (executable-by-default).
 NATIVE_CATEGORIES = {
     "cloud",
     "identity",
@@ -773,7 +773,7 @@ def build_manifest(
             technique_counts[t] = technique_counts.get(t, 0) + 1
 
     return {
-        "$schema": "https://aisoc.example.com/schemas/curated/v1.json",
+        "$schema": "https://quarry.example.com/schemas/curated/v1.json",
         "version": "1.0.0",
         "generated": _utc_now(),
         "stats": {
@@ -804,7 +804,7 @@ def build_report(manifest: dict[str, Any]) -> str:
     lines.append("---")
     lines.append("title: Detection Coverage")
     lines.append("description: |")
-    lines.append("  AiSOC v1.0 ships a curated set of MITRE ATT&CK-mapped")
+    lines.append("  Quarry v1.0 ships a curated set of MITRE ATT&CK-mapped")
     lines.append("  detections covering the eight buyer-prioritised threat")
     lines.append("  families. This page is generated from the on-disk corpus")
     lines.append("  via ``scripts/curate_detections.py`` — it is the source")
@@ -859,7 +859,7 @@ def build_report(manifest: dict[str, Any]) -> str:
     lines.append("")
     lines.append(
         "The curated rule IDs are listed in "
-        "[`marketplace/curated.json`](https://github.com/aisoc-platform/aisoc/blob/main/marketplace/curated.json) "
+        "[`marketplace/curated.json`](https://github.com/quarry-platform/quarry/blob/main/marketplace/curated.json) "
         "under each family. Every entry has a `path` field pointing at the "
         "on-disk YAML. Run `pnpm marketplace:curate --check` in CI to enforce "
         "drift; run `python3 scripts/curate_detections.py` locally to regenerate."

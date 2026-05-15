@@ -1,6 +1,6 @@
 # Community Playbooks
 
-This directory holds response playbooks contributed by the AiSOC community.
+This directory holds response playbooks contributed by the Quarry community.
 
 Drop your playbook as
 `playbooks/community/<your-pack>/<your-playbook>.playbook.json` and it will

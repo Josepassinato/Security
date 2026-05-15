@@ -8,16 +8,16 @@ import { ComparisonTable } from './ComparisonTable';
 // VENDORS, etc.) and to guard the honesty claims we deliberately rolled back
 // from gimmick land in P1.
 describe('ComparisonTable', () => {
-  it('renders the AiSOC row plus both competitor categories', () => {
+  it('renders the Quarry row plus both competitor categories', () => {
     render(<ComparisonTable />);
 
-    expect(screen.getByText('AiSOC')).toBeInTheDocument();
+    expect(screen.getByText('Quarry')).toBeInTheDocument();
     expect(screen.getByText('Closed-source AI SOC')).toBeInTheDocument();
     expect(screen.getByText('Closed-source SOAR')).toBeInTheDocument();
   });
 
   it('declares the reproducibility claim as PR-gated, not "every commit"', () => {
-    // P1 honesty fix — the AiSOC reduction cell must say "main / develop",
+    // P1 honesty fix — the Quarry reduction cell must say "main / develop",
     // never "every commit". If someone sneaks the old wording back in, this
     // test fails.
     render(<ComparisonTable />);

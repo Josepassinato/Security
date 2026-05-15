@@ -162,7 +162,7 @@ class AlertStatsResponse(BaseModel):
 class AlertSubmitRequest(BaseModel):
     """Direct-write alert submission payload.
 
-    The founder-flow demo (`aisoc submit <file>`) and any operator who wants
+    The founder-flow demo (`quarry submit <file>`) and any operator who wants
     to land a hand-crafted alert on the local dev stack without a connector
     POST one of these. The body intentionally mirrors the ingest envelope
     used by real connectors so the same fixture works against either path:
@@ -187,7 +187,7 @@ class AlertSubmitRequest(BaseModel):
     tags: list[str] | None = None
 
 
-# Map vendor-native severity strings to the canonical AiSOC severity ladder.
+# Map vendor-native severity strings to the canonical Quarry severity ladder.
 # Keep this in sync with the five-tier ladder documented in AGENTS.md
 # (info | low | medium | high | critical).
 _SEVERITY_MAP = {
@@ -285,7 +285,7 @@ def _synthesise_alert_from_events(
     first = events[0] if events else {}
 
     # Title
-    title = override_title or first.get("displayMessage") or first.get("eventType") or first.get("name") or "AiSOC submitted alert"
+    title = override_title or first.get("displayMessage") or first.get("eventType") or first.get("name") or "Quarry submitted alert"
 
     # Severity: pick the highest in the batch unless overridden
     severities = [_normalize_severity(e.get("severity")) for e in events]
@@ -293,7 +293,7 @@ def _synthesise_alert_from_events(
     priority = _SEVERITY_PRIORITY[severity]
 
     # Description: count + first event hint
-    description = override_description or (f"Submitted via aisoc submit / API. {len(events)} event(s) in batch. First event: {title}.")
+    description = override_description or (f"Submitted via quarry submit / API. {len(events)} event(s) in batch. First event: {title}.")
 
     # Affected entities
     affected_ips: list[str] = []
@@ -385,7 +385,7 @@ def _synthesise_alert_from_events(
         raw_event={
             "events": events,
             "connector_type": connector_type,
-            "source": "aisoc-submit-api",
+            "source": "quarry-submit-api",
             "timestamps_clamped": any_clamped,
         },
         event_time=event_time,
@@ -421,7 +421,7 @@ async def submit_alert(
 ) -> AlertResponse:
     """Submit one alert directly from an OCSF event batch.
 
-    This is the destination for `aisoc submit <file>` and the local-dev fast
+    This is the destination for `quarry submit <file>` and the local-dev fast
     path documented in the quickstart. We deliberately bypass the Kafka
     detect/correlate/fuse pipeline (which fresh clones don't run by default)
     so that a hand-crafted fixture lands in the database — and therefore in
@@ -431,9 +431,9 @@ async def submit_alert(
 
     * **Payload caps** — events are first run through
       :func:`app.services.event_sanitiser.sanitise_event_batch`, which
-      enforces ``AISOC_SUBMIT_MAX_EVENTS`` (default 200), per-event size
-      ``AISOC_SUBMIT_MAX_EVENT_BYTES`` (default 64 KiB), and total batch
-      size ``AISOC_SUBMIT_MAX_TOTAL_BYTES`` (default 1 MiB). Violations
+      enforces ``QUARRY_SUBMIT_MAX_EVENTS`` (default 200), per-event size
+      ``QUARRY_SUBMIT_MAX_EVENT_BYTES`` (default 64 KiB), and total batch
+      size ``QUARRY_SUBMIT_MAX_TOTAL_BYTES`` (default 1 MiB). Violations
       return ``413 Payload Too Large`` rather than the 200 OK + truncated
       alert we used to silently emit.
     * **Secret redaction** — the sanitiser also redacts keys matching
@@ -446,7 +446,7 @@ async def submit_alert(
       via a partial unique index (migration ``044``). A retry of the
       same key resolves to the existing row and returns HTTP ``200``
       instead of creating a duplicate, so at-least-once connectors and
-      the ``aisoc submit`` CLI can retry safely on network blips.
+      the ``quarry submit`` CLI can retry safely on network blips.
     * **Timestamp bounds** — event timestamps outside the configured
       retention window are clamped (see
       :mod:`app.services.timestamp_bounds`); the resulting alert is
@@ -454,7 +454,7 @@ async def submit_alert(
 
     Authorisation: requires ``alerts:write``. In development mode the
     auth bypass in :mod:`app.api.v1.deps` resolves to the deterministic
-    demo tenant, so the documented ``aisoc submit`` CLI works against a
+    demo tenant, so the documented ``quarry submit`` CLI works against a
     fresh clone with no token plumbing.
     """
     if not payload.events:

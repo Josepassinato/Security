@@ -7,9 +7,9 @@ description: >
   policy, suspends devices, and pushes ACL updates via the Tailscale API.
   Useful as an isolation step in account-takeover and lateral-movement
   playbooks.
-author: AiSOC Core Team
+author: Quarry Core Team
 tags: [network, tailscale, zerotrust, response, isolation]
-homepage: https://github.com/beenuar/AiSOC/tree/main/plugins/tailscale-acl
+homepage: https://github.com/beenuar/Quarry/tree/main/plugins/tailscale-acl
 license: MIT
 min_aisoc_version: "4.0.0"
 config_schema:

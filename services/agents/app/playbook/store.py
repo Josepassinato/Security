@@ -23,7 +23,7 @@ from typing import Any
 
 from .models import Playbook
 
-logger = logging.getLogger("aisoc.playbook.store")
+logger = logging.getLogger("quarry.playbook.store")
 
 _DEFAULT_STORE_DIR = Path(__file__).parent.parent.parent / "data" / "playbooks"
 

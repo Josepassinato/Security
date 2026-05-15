@@ -63,8 +63,8 @@ Each stage's status follows the same ladder used by
 thresholds for latency-driven stages are read from two configurable
 knobs in ``app.core.config``:
 
-* ``AISOC_PIPELINE_STALE_WARN_SECONDS`` (default 600) — green ceiling
-* ``AISOC_PIPELINE_STALE_DOWN_SECONDS`` (default 1800) — yellow ceiling
+* ``QUARRY_PIPELINE_STALE_WARN_SECONDS`` (default 600) — green ceiling
+* ``QUARRY_PIPELINE_STALE_DOWN_SECONDS`` (default 1800) — yellow ceiling
 
 Any stage with no data in the window collapses to ``unknown`` rather
 than ``green``, mirroring the "never paint green on absence of data"
@@ -223,7 +223,7 @@ async def _normalize_stage(
 ) -> PipelineStage:
     """Build the ``normalize`` row from event_time → created_at lag.
 
-    The "normalize" step in the AiSOC pipeline is the transition from
+    The "normalize" step in the Quarry pipeline is the transition from
     raw event JSON (carrying a vendor-side ``event_time``) to a fully
     structured ``Alert`` row in Postgres. The p95 lag between the two
     is the most honest single-number proxy for normalization latency.
@@ -467,8 +467,8 @@ async def get_pipeline_health(
     window_start = now - timedelta(hours=1)
     window_end = now
 
-    warn_seconds = int(getattr(settings, "AISOC_PIPELINE_STALE_WARN_SECONDS", 600) or 600)
-    down_seconds = int(getattr(settings, "AISOC_PIPELINE_STALE_DOWN_SECONDS", 1800) or 1800)
+    warn_seconds = int(getattr(settings, "QUARRY_PIPELINE_STALE_WARN_SECONDS", 600) or 600)
+    down_seconds = int(getattr(settings, "QUARRY_PIPELINE_STALE_DOWN_SECONDS", 1800) or 1800)
 
     stages = [
         await _ingest_stage(db, user.tenant_id, now=now),

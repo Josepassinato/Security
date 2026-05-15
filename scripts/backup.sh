@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# backup.sh — AiSOC full-stack backup to S3/R2
+# backup.sh — Quarry full-stack backup to S3/R2
 #
 # Backs up:
 #   1. PostgreSQL (pg_dump → gzip → upload)
@@ -8,13 +8,13 @@
 #
 # Required environment variables:
 #   BACKUP_S3_BUCKET      — s3://your-bucket or r2://your-bucket (s3-compatible)
-#   BACKUP_S3_PREFIX      — key prefix inside bucket, e.g. "aisoc-backups"
+#   BACKUP_S3_PREFIX      — key prefix inside bucket, e.g. "quarry-backups"
 #   POSTGRES_URL          — postgresql://user:pass@host:5432/dbname
 #   CLICKHOUSE_HOST       — ClickHouse HTTP endpoint host (default: localhost)
 #   CLICKHOUSE_PORT       — ClickHouse HTTP port (default: 8123)
 #   CLICKHOUSE_USER       — ClickHouse user (default: default)
 #   CLICKHOUSE_PASSWORD   — ClickHouse password
-#   CLICKHOUSE_DATABASE   — ClickHouse database to back up (default: aisoc)
+#   CLICKHOUSE_DATABASE   — ClickHouse database to back up (default: quarry)
 #   AWS_ACCESS_KEY_ID     — S3/R2 access key
 #   AWS_SECRET_ACCESS_KEY — S3/R2 secret key
 #   AWS_ENDPOINT_URL      — R2 or custom S3 endpoint (optional)
@@ -28,19 +28,19 @@ set -euo pipefail
 
 # ── defaults ──────────────────────────────────────────────────────────────────
 BACKUP_S3_BUCKET="${BACKUP_S3_BUCKET:-}"
-BACKUP_S3_PREFIX="${BACKUP_S3_PREFIX:-aisoc-backups}"
+BACKUP_S3_PREFIX="${BACKUP_S3_PREFIX:-quarry-backups}"
 POSTGRES_URL="${POSTGRES_URL:-}"
 CLICKHOUSE_HOST="${CLICKHOUSE_HOST:-localhost}"
 CLICKHOUSE_PORT="${CLICKHOUSE_PORT:-8123}"
 CLICKHOUSE_USER="${CLICKHOUSE_USER:-default}"
 CLICKHOUSE_PASSWORD="${CLICKHOUSE_PASSWORD:-}"
-CLICKHOUSE_DATABASE="${CLICKHOUSE_DATABASE:-aisoc}"
+CLICKHOUSE_DATABASE="${CLICKHOUSE_DATABASE:-quarry}"
 BACKUP_RETENTION_DAYS="${BACKUP_RETENTION_DAYS:-30}"
 SLACK_WEBHOOK_URL="${SLACK_WEBHOOK_URL:-}"
 DRY_RUN=false
 COMPONENT="all"
 TIMESTAMP=$(date -u +"%Y%m%dT%H%M%SZ")
-BACKUP_DIR="/tmp/aisoc-backup-${TIMESTAMP}"
+BACKUP_DIR="/tmp/quarry-backup-${TIMESTAMP}"
 ERRORS=0
 
 # ── arg parsing ───────────────────────────────────────────────────────────────
@@ -106,7 +106,7 @@ notify_slack() {
   [[ "$status" != "success" ]] && prefix="[FAIL]"
   curl -s -X POST "$SLACK_WEBHOOK_URL" \
     -H 'Content-Type: application/json' \
-    -d "{\"text\":\"${prefix} AiSOC Backup [${TIMESTAMP}]: ${message}\"}" \
+    -d "{\"text\":\"${prefix} Quarry Backup [${TIMESTAMP}]: ${message}\"}" \
     || true
 }
 
@@ -121,7 +121,7 @@ require curl
 mkdir -p "$BACKUP_DIR"
 trap 'rm -rf "$BACKUP_DIR"' EXIT
 
-log "=== AiSOC Backup started: ${TIMESTAMP} ==="
+log "=== Quarry Backup started: ${TIMESTAMP} ==="
 log "Component: ${COMPONENT} | Dry-run: ${DRY_RUN}"
 
 # ── 1. PostgreSQL ─────────────────────────────────────────────────────────────

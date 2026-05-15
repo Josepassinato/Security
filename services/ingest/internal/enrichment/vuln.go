@@ -4,7 +4,7 @@
 // the CISA Known Exploited Vulnerabilities catalogue and emits structured
 // VulnMatch objects for each hit.
 //
-// AiSOC — open-source AI Security Operations Center (MIT License)
+// Quarry — open-source AI Security Operations Center (MIT License)
 package enrichment
 
 import (

@@ -1,1 +1,1 @@
-"""AiSOC Slack bot service."""
+"""Quarry Slack bot service."""

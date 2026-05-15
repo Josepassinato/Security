@@ -78,7 +78,7 @@ class SigmaImportError(Exception):
 class SigmaImportResult:
     """The outcome for a single Sigma rule.
 
-    ``rule_id`` is the AiSOC ``detection_rules.id`` (a UUID).
+    ``rule_id`` is the Quarry ``detection_rules.id`` (a UUID).
     ``source_id`` is the upstream Sigma rule id (also a UUID, but
     that's a coincidence — for non-Sigma sources it could be
     ``CAR-2021-04-001`` etc.).
@@ -145,7 +145,7 @@ def _result_to_dict(r: SigmaImportResult) -> dict[str, Any]:
 #
 # These mirror the offline importer's policy in
 # ``tools/detection_import/sigma_importer.py`` — keep them in sync. The
-# AiSOC ``status`` column maps loosely to detection lifecycle: ``testing``
+# Quarry ``status`` column maps loosely to detection lifecycle: ``testing``
 # is the conservative default for community-imported content.
 
 # Sigma statuses that we drop entirely.
@@ -155,7 +155,7 @@ _SIGMA_SKIP_STATUSES = frozenset({"deprecated", "unsupported"})
 # can flip them on once they've vetted the upstream rule.
 _SIGMA_QUARANTINE_STATUSES = frozenset({"experimental", "test"})
 
-# Severity normalisation. Sigma uses ``level``; we normalise to AiSOC's
+# Severity normalisation. Sigma uses ``level``; we normalise to Quarry's
 # four-tier ``severity`` ladder. Anything we don't recognise becomes
 # ``medium`` — never ``critical`` (would be a foot-gun for paging).
 _SEVERITY_MAP: dict[str, str] = {
@@ -273,7 +273,7 @@ def _extract_mitre_tactics(tags: list[Any] | None) -> list[str]:
     return out
 
 
-# Map upstream Sigma logsource buckets to AiSOC's six-folder taxonomy.
+# Map upstream Sigma logsource buckets to Quarry's six-folder taxonomy.
 # Mirrors ``tools/detection_import/common.py::normalise_categories``.
 _CATEGORY_ALIASES: dict[str, str] = {
     "aws": "cloud",
@@ -314,7 +314,7 @@ _NATIVE_CATEGORIES = frozenset(
 
 
 def _category_for(logsource: dict[str, Any] | None) -> str:
-    """Pick the AiSOC category folder for a Sigma rule.
+    """Pick the Quarry category folder for a Sigma rule.
 
     Tries ``logsource.product`` first (most reliable for cloud rules),
     then ``logsource.category``, then ``logsource.service``. Falls back
@@ -340,7 +340,7 @@ def _category_for(logsource: dict[str, Any] | None) -> str:
 
 
 def _map_severity(level: Any) -> str:
-    """Coerce Sigma's ``level`` field into AiSOC's severity enum.
+    """Coerce Sigma's ``level`` field into Quarry's severity enum.
 
     See :data:`_SEVERITY_MAP` for the policy. Anything unrecognised
     becomes ``medium`` — never ``critical``, to avoid auto-paging on
@@ -423,7 +423,7 @@ def _normalise_rule(
     license_url: str,
     upstream_path: str | None,
 ) -> _NormalisedRule | None:
-    """Convert one Sigma rule dict into the AiSOC-shaped record.
+    """Convert one Sigma rule dict into the Quarry-shaped record.
 
     Returns ``None`` when the rule should be skipped entirely (deprecated
     upstream, missing detection block, etc.). Quarantined rules (Sigma

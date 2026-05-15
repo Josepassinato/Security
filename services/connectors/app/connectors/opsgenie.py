@@ -5,7 +5,7 @@ Pulls Opsgenie alerts and audit logs via the REST API.
 
 1. **Alerts** — ``GET /v2/alerts`` lists active and recently closed
    alerts. We filter by ``createdAt`` to scope the window and read the
-   vendor priority (P1..P5) as the AiSOC severity input.
+   vendor priority (P1..P5) as the Quarry severity input.
 2. **Audit logs** — ``GET /v2/audit-logs?type=customer`` exposes the
    tenant audit trail: API key issuance, role changes, integration
    create/delete, escalation policy edits. This is the on-call security
@@ -89,7 +89,7 @@ class OpsgenieConnector(BaseConnector):
         return {
             "Authorization": f"GenieKey {self._api_key}",
             "Accept": "application/json",
-            "User-Agent": "AiSOC-Connector/1.0",
+            "User-Agent": "Quarry-Connector/1.0",
         }
 
     # ------------------------- contract -------------------------
@@ -184,7 +184,7 @@ class OpsgenieConnector(BaseConnector):
 
     # ----------------------- normalize --------------------------
 
-    # Opsgenie alert ``priority`` (P1..P5) → AiSOC severity. P1/P2 are
+    # Opsgenie alert ``priority`` (P1..P5) → Quarry severity. P1/P2 are
     # operational pages that map to high/medium; P3 lands at low and
     # P4/P5 are informational.
     _PRIORITY_SEVERITY = {

@@ -241,19 +241,19 @@ class TestAllowPrivate:
             validate_outbound_url("http://metadata.google.internal/", allow_private=True)
 
     def test_allow_private_env_var(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.setenv("AISOC_SSRF_ALLOW_PRIVATE", "1")
+        monkeypatch.setenv("QUARRY_SSRF_ALLOW_PRIVATE", "1")
         _patch_dns(monkeypatch, {"intra.example": ["192.168.1.10"]})
         url = "https://intra.example/"
         assert validate_outbound_url(url) == url
 
     def test_allow_private_env_var_off_blocks(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.delenv("AISOC_SSRF_ALLOW_PRIVATE", raising=False)
+        monkeypatch.delenv("QUARRY_SSRF_ALLOW_PRIVATE", raising=False)
         _patch_dns(monkeypatch, {"intra.example": ["192.168.1.10"]})
         with pytest.raises(SSRFError, match="private"):
             validate_outbound_url("https://intra.example/")
 
     def test_allow_private_arg_overrides_env(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.setenv("AISOC_SSRF_ALLOW_PRIVATE", "1")
+        monkeypatch.setenv("QUARRY_SSRF_ALLOW_PRIVATE", "1")
         _patch_dns(monkeypatch, {"intra.example": ["192.168.1.10"]})
         # Caller explicitly disables, env should not win.
         with pytest.raises(SSRFError, match="private"):
@@ -267,14 +267,14 @@ class TestAllowPrivate:
 
 class TestOperatorExtensions:
     def test_extra_blocked_hosts_env(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.setenv("AISOC_SSRF_EXTRA_BLOCKED_HOSTS", "secrets.internal,vault.svc")
+        monkeypatch.setenv("QUARRY_SSRF_EXTRA_BLOCKED_HOSTS", "secrets.internal,vault.svc")
         _patch_dns(monkeypatch, {"secrets.internal": ["8.8.8.8"]})
         with pytest.raises(SSRFError, match="blocklist"):
             validate_outbound_url("https://secrets.internal/api/v1/secret")
 
     def test_allowed_schemes_env_extension(self, monkeypatch: pytest.MonkeyPatch) -> None:
         # Sanity check: operator can broaden allowed schemes if needed.
-        monkeypatch.setenv("AISOC_SSRF_ALLOWED_SCHEMES", "https")
+        monkeypatch.setenv("QUARRY_SSRF_ALLOWED_SCHEMES", "https")
         with pytest.raises(SSRFError, match="scheme"):
             validate_outbound_url("http://example.com/")
 

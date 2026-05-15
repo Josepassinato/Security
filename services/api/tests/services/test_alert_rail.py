@@ -22,7 +22,7 @@ The contracts we're guarding:
 * recommended actions accept both structured dicts AND legacy strings,
 * priority normalisation clamps to ``>= 1`` and risk to ``low|medium|high``.
 
-AiSOC — open-source AI Security Operations Center (MIT License)
+Quarry — open-source AI Security Operations Center (MIT License)
 Author: Beenu Arora <beenu@cyble.com>
 """
 

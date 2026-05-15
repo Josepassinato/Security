@@ -1,7 +1,7 @@
 """Tests for Tier 3.1 — air-gapped certification.
 
 Pins the contract that ``enforce_airgap_for_url`` is a true egress
-chokepoint when ``AISOC_AIRGAPPED=1``: it must let private/loopback/
+chokepoint when ``QUARRY_AIRGAPPED=1``: it must let private/loopback/
 internal-suffix hosts and explicit allowlist entries through, and it
 must refuse everything else (api.openai.com, virustotal.com, …) so a
 misconfigured integration can never accidentally phone home from an
@@ -23,16 +23,16 @@ from app.core.airgap import (
 @pytest.fixture
 def airgapped(monkeypatch: pytest.MonkeyPatch):
     """Force-enable air-gap mode for the duration of a test."""
-    monkeypatch.setattr(airgap.settings, "AISOC_AIRGAPPED", True)
-    monkeypatch.setattr(airgap.settings, "AISOC_AIRGAP_ALLOWLIST", [])
+    monkeypatch.setattr(airgap.settings, "QUARRY_AIRGAPPED", True)
+    monkeypatch.setattr(airgap.settings, "QUARRY_AIRGAP_ALLOWLIST", [])
     yield
 
 
 @pytest.fixture
 def airgap_off(monkeypatch: pytest.MonkeyPatch):
     """Pin air-gap mode OFF so disabled-mode invariants are tested."""
-    monkeypatch.setattr(airgap.settings, "AISOC_AIRGAPPED", False)
-    monkeypatch.setattr(airgap.settings, "AISOC_AIRGAP_ALLOWLIST", [])
+    monkeypatch.setattr(airgap.settings, "QUARRY_AIRGAPPED", False)
+    monkeypatch.setattr(airgap.settings, "QUARRY_AIRGAP_ALLOWLIST", [])
     yield
 
 
@@ -51,7 +51,7 @@ class TestAirgapDisabled:
 
 
 class TestAirgapEnabled:
-    """When AISOC_AIRGAPPED=1, the policy is enforced."""
+    """When QUARRY_AIRGAPPED=1, the policy is enforced."""
 
     def test_blocks_public_llm_provider(self, airgapped):
         with pytest.raises(AirgapViolation):
@@ -84,7 +84,7 @@ class TestAirgapEnabled:
     def test_allowlist_exact_match(self, airgapped, monkeypatch):
         monkeypatch.setattr(
             airgap.settings,
-            "AISOC_AIRGAP_ALLOWLIST",
+            "QUARRY_AIRGAP_ALLOWLIST",
             ["mirror.example.com"],
         )
         enforce_airgap_for_url("https://mirror.example.com/v1/chat")
@@ -97,7 +97,7 @@ class TestAirgapEnabled:
         # internal mirror.
         monkeypatch.setattr(
             airgap.settings,
-            "AISOC_AIRGAP_ALLOWLIST",
+            "QUARRY_AIRGAP_ALLOWLIST",
             ["example.com"],
         )
         enforce_airgap_for_url("https://mirror.example.com/")
@@ -113,7 +113,7 @@ class TestAirgapEnabled:
     def test_status_reports_enabled(self, airgapped, monkeypatch):
         monkeypatch.setattr(
             airgap.settings,
-            "AISOC_AIRGAP_ALLOWLIST",
+            "QUARRY_AIRGAP_ALLOWLIST",
             ["internal-mirror.example.com"],
         )
         status = airgap_status()

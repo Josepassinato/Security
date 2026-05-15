@@ -66,7 +66,7 @@ class DefenderClient:
             machines = resp.json().get("value", [])
             return machines[0] if machines else None
 
-    async def isolate_machine(self, hostname: str, comment: str = "AiSOC automated isolation") -> dict[str, Any]:
+    async def isolate_machine(self, hostname: str, comment: str = "Quarry automated isolation") -> dict[str, Any]:
         """Isolate a machine from the network via MDE."""
         async with httpx.AsyncClient(timeout=30.0) as client:
             await self._ensure_token(client)
@@ -89,7 +89,7 @@ class DefenderClient:
                 "mde_action_id": action.get("id"),
             }
 
-    async def unisolate_machine(self, hostname: str, comment: str = "AiSOC automated lift") -> dict[str, Any]:
+    async def unisolate_machine(self, hostname: str, comment: str = "Quarry automated lift") -> dict[str, Any]:
         """Remove a machine from isolation."""
         async with httpx.AsyncClient(timeout=30.0) as client:
             await self._ensure_token(client)
@@ -109,7 +109,7 @@ class DefenderClient:
         self,
         indicator_type: str,
         indicator_value: str,
-        title: str = "AiSOC block",
+        title: str = "Quarry block",
         severity: str = "High",
     ) -> dict[str, Any]:
         """Add a block indicator (IP, URL, domain, file hash) to MDE.
@@ -163,7 +163,7 @@ class DefenderClient:
             resp = await client.post(
                 f"{_MDE_BASE}/machines/{machine_id}/runAntiVirusScan",
                 headers=self._headers(),
-                json={"Comment": "AiSOC automated AV scan", "ScanType": scan_type},
+                json={"Comment": "Quarry automated AV scan", "ScanType": scan_type},
             )
             resp.raise_for_status()
             action = resp.json()

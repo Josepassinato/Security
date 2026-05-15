@@ -1,10 +1,10 @@
 // Package main is the MTTR dashboard widget reference plugin in Go.
 //
 // Computes Mean Time To Respond (MTTR) and Mean Time To Detect (MTTD)
-// metrics from the AiSOC case database and returns a renderer-ready payload
+// metrics from the Quarry case database and returns a renderer-ready payload
 // for the dashboard widget grid.
 //
-// Implements aisoc.Widget. The Python sibling at ../plugin.py is the
+// Implements quarry.Widget. The Python sibling at ../plugin.py is the
 // canonical reference; this file mirrors its semantics so dashboards
 // rendering either plugin produce the same shape of output.
 package main
@@ -22,38 +22,38 @@ import (
 	"strings"
 	"time"
 
-	"github.com/beenuar/aisoc/plugin-sdk-go/aisoc"
+	"github.com/beenuar/quarry/plugin-sdk-go/quarry"
 )
 
 const defaultAPIBase = "http://api:8000"
 
 // MTTRWidget computes MTTR/MTTD breakdowns for the dashboard.
 type MTTRWidget struct {
-	aisoc.BasePlugin
+	quarry.BasePlugin
 
 	httpClient *http.Client
 }
 
 // Manifest declares this plugin to the runtime.
-func (m *MTTRWidget) Manifest() aisoc.PluginManifest {
-	return aisoc.PluginManifest{
+func (m *MTTRWidget) Manifest() quarry.PluginManifest {
+	return quarry.PluginManifest{
 		ID:          "mttr-widget",
 		Name:        "MTTR Dashboard Widget",
 		Version:     "1.0.0",
-		PluginType:  aisoc.PluginTypeWidget,
-		Description: "Computes MTTR/MTTD across closed AiSOC cases for the dashboard widget grid.",
-		Author:      "AiSOC Core Team",
+		PluginType:  quarry.PluginTypeWidget,
+		Description: "Computes MTTR/MTTD across closed Quarry cases for the dashboard widget grid.",
+		Author:      "Quarry Core Team",
 		Tags:        []string{"metrics", "mttr", "mttd", "dashboard", "widget"},
 	}
 }
 
-// OnLoad initialises the HTTP client used to query the AiSOC API.
-func (m *MTTRWidget) OnLoad(ctx context.Context, pctx aisoc.PluginContext) error {
+// OnLoad initialises the HTTP client used to query the Quarry API.
+func (m *MTTRWidget) OnLoad(ctx context.Context, pctx quarry.PluginContext) error {
 	m.httpClient = &http.Client{Timeout: 30 * time.Second}
 	return nil
 }
 
-// caseRecord is a minimal projection of the AiSOC `Case` object covering only
+// caseRecord is a minimal projection of the Quarry `Case` object covering only
 // the fields this widget needs.
 type caseRecord struct {
 	CreatedAt  string `json:"created_at"`
@@ -67,9 +67,9 @@ type caseRecord struct {
 // front-end widgets can target either implementation interchangeably.
 func (m *MTTRWidget) Compute(
 	ctx context.Context,
-	req aisoc.WidgetRequest,
-	pctx aisoc.PluginContext,
-) (aisoc.WidgetResult, error) {
+	req quarry.WidgetRequest,
+	pctx quarry.PluginContext,
+) (quarry.WidgetResult, error) {
 	cfg := pctx.Config
 	if cfg == nil {
 		cfg = map[string]any{}
@@ -120,11 +120,11 @@ func (m *MTTRWidget) Compute(
 
 	cases, err := m.fetchCases(ctx, apiURL, apiKey, q)
 	if err != nil {
-		return aisoc.WidgetResult{Error: err.Error()}, err
+		return quarry.WidgetResult{Error: err.Error()}, err
 	}
 
 	if len(cases) == 0 {
-		return aisoc.WidgetResult{
+		return quarry.WidgetResult{
 			Data: map[string]any{
 				"sample_size":  0,
 				"mttr_seconds": map[string]any{},
@@ -206,7 +206,7 @@ func (m *MTTRWidget) Compute(
 		})
 	}
 
-	return aisoc.WidgetResult{
+	return quarry.WidgetResult{
 		SampleSize: len(mttrVals),
 		Data: map[string]any{
 			"sample_size":  len(mttrVals),
@@ -239,7 +239,7 @@ func (m *MTTRWidget) fetchCases(
 	defer resp.Body.Close()
 	body, _ := io.ReadAll(resp.Body)
 	if resp.StatusCode >= 400 {
-		return nil, fmt.Errorf("aisoc cases api: %s: %s", resp.Status, string(body))
+		return nil, fmt.Errorf("quarry cases api: %s: %s", resp.Status, string(body))
 	}
 	var envelope struct {
 		Items []caseRecord `json:"items"`
@@ -342,7 +342,7 @@ func readPercentiles(m map[string]any, key string, fallback []int) []int {
 }
 
 func main() {
-	registry := aisoc.NewRegistry()
+	registry := quarry.NewRegistry()
 	if err := registry.Register(&MTTRWidget{}); err != nil {
 		panic(err)
 	}

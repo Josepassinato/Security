@@ -245,7 +245,7 @@ async def get_report_pdf(run_id: str):
         return FastAPIResponse(
             content=pdf_bytes,
             media_type="application/pdf",
-            headers={"Content-Disposition": f'attachment; filename="aisoc-report-{run_id}.pdf"'},
+            headers={"Content-Disposition": f'attachment; filename="quarry-report-{run_id}.pdf"'},
         )
     except ImportError as exc:
         # weasyprint not installed — return the HTML with a PDF content-type note

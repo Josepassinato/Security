@@ -1,5 +1,5 @@
 """
-HMAC verification for AiSOC approval callbacks.
+HMAC verification for Quarry approval callbacks.
 
 Slack's own ``slack_bolt`` already verifies inbound slash-command and
 ``block_actions`` payloads against ``SLACK_SIGNING_SECRET`` — that path

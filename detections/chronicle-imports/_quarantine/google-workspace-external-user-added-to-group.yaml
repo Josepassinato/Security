@@ -57,4 +57,4 @@ provenance:
   upstream_path: rules/community/workspace/google_workspace_external_user_added_to_group.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

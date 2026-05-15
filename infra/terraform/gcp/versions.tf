@@ -1,5 +1,5 @@
 /**
- * AiSOC — GCP serverless skeleton
+ * Quarry — GCP serverless skeleton
  *
  * Provider pinning. Tested against Terraform 1.5+ and the 5.x google
  * providers. Bump in lockstep when google releases new resource types we
@@ -26,7 +26,7 @@ terraform {
 
   # State backend left intentionally unconfigured. Pick one of:
   #
-  #   backend "gcs"   { bucket = "aisoc-tfstate-<project-id>"  prefix = "gcp" }
+  #   backend "gcs"   { bucket = "quarry-tfstate-<project-id>"  prefix = "gcp" }
   #   backend "local" {}
   #
   # …and bootstrap the bucket once per project before `terraform init`.

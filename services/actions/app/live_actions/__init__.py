@@ -1,5 +1,5 @@
 """
-Generic live-action interface for AiSOC.
+Generic live-action interface for Quarry.
 
 This package implements Stage 2 #8: a registry-driven layer that lets
 plugins (and in-tree adapters) implement action verbs (``isolate_host``,

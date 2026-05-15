@@ -12,34 +12,34 @@ import (
 	"strings"
 	"time"
 
-	"github.com/beenuar/aisoc/plugin-sdk-go/aisoc"
+	"github.com/beenuar/quarry/plugin-sdk-go/quarry"
 )
 
-// GitLabConnector implements aisoc.Connector for the GitLab audit events API.
+// GitLabConnector implements quarry.Connector for the GitLab audit events API.
 type GitLabConnector struct {
-	aisoc.BasePlugin
+	quarry.BasePlugin
 
 	httpClient *http.Client
 }
 
-func (g *GitLabConnector) Manifest() aisoc.PluginManifest {
-	return aisoc.PluginManifest{
+func (g *GitLabConnector) Manifest() quarry.PluginManifest {
+	return quarry.PluginManifest{
 		ID:          "gitlab-audit",
 		Name:        "GitLab Audit Connector",
 		Version:     "1.0.0",
-		PluginType:  aisoc.PluginTypeConnector,
+		PluginType:  quarry.PluginTypeConnector,
 		Description: "Pulls audit events from GitLab at instance, group, or project scope.",
-		Author:      "AiSOC Core Team",
+		Author:      "Quarry Core Team",
 		Tags:        []string{"identity", "gitlab", "audit", "devsecops", "connector"},
 	}
 }
 
-func (g *GitLabConnector) OnLoad(ctx context.Context, pctx aisoc.PluginContext) error {
+func (g *GitLabConnector) OnLoad(ctx context.Context, pctx quarry.PluginContext) error {
 	g.httpClient = &http.Client{Timeout: 30 * time.Second}
 	return nil
 }
 
-func (g *GitLabConnector) baseURL(pctx aisoc.PluginContext) string {
+func (g *GitLabConnector) baseURL(pctx quarry.PluginContext) string {
 	base, _ := pctx.Config["base_url"].(string)
 	if base == "" {
 		base = "https://gitlab.com"
@@ -47,7 +47,7 @@ func (g *GitLabConnector) baseURL(pctx aisoc.PluginContext) string {
 	return strings.TrimRight(base, "/")
 }
 
-func (g *GitLabConnector) auditPath(pctx aisoc.PluginContext) (string, error) {
+func (g *GitLabConnector) auditPath(pctx quarry.PluginContext) (string, error) {
 	scope, _ := pctx.Config["scope"].(string)
 	scopeID, _ := pctx.Config["scope_id"].(string)
 	switch scope {
@@ -68,7 +68,7 @@ func (g *GitLabConnector) auditPath(pctx aisoc.PluginContext) (string, error) {
 
 func (g *GitLabConnector) get(
 	ctx context.Context,
-	pctx aisoc.PluginContext,
+	pctx quarry.PluginContext,
 	path string,
 	params url.Values,
 ) ([]byte, error) {
@@ -100,7 +100,7 @@ func (g *GitLabConnector) get(
 
 func (g *GitLabConnector) TestConnection(
 	ctx context.Context,
-	pctx aisoc.PluginContext,
+	pctx quarry.PluginContext,
 ) (bool, error) {
 	path, err := g.auditPath(pctx)
 	if err != nil {
@@ -114,7 +114,7 @@ func (g *GitLabConnector) TestConnection(
 
 func (g *GitLabConnector) FetchEvents(
 	ctx context.Context,
-	pctx aisoc.PluginContext,
+	pctx quarry.PluginContext,
 	since string,
 ) (<-chan map[string]any, error) {
 	out := make(chan map[string]any)
@@ -151,7 +151,7 @@ func (g *GitLabConnector) FetchEvents(
 }
 
 func main() {
-	registry := aisoc.NewRegistry()
+	registry := quarry.NewRegistry()
 	if err := registry.Register(&GitLabConnector{}); err != nil {
 		panic(err)
 	}

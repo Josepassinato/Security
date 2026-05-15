@@ -1,8 +1,8 @@
-"""Google Chronicle detection-rules → AiSOC importer.
+"""Google Chronicle detection-rules → Quarry importer.
 
 Pulls detections from
 `chronicle/detection-rules <https://github.com/chronicle/detection-rules>`_
-at a pinned commit and converts each YARA-L 2.0 file into AiSOC's internal
+at a pinned commit and converts each YARA-L 2.0 file into Quarry's internal
 Sigma-inspired schema with a populated ``provenance`` block.
 
 YARA-L 2.0 is a procedural rule language with ``meta {}``, ``events {}``,
@@ -14,7 +14,7 @@ transpile is out of scope; we instead:
 * extract metadata (``author``, ``severity``, MITRE techniques) from the
   ``meta {}`` block,
 * mark each rule ``enabled: false`` and quarantine it with a clear reason —
-  Chronicle rules need translation before they can run on AiSOC's pipeline.
+  Chronicle rules need translation before they can run on Quarry's pipeline.
 
 The orchestrator (``import_orchestrator.py``) clones the repo and calls
 :func:`import_rules` with the pinned commit.
@@ -106,7 +106,7 @@ def _extract_techniques(meta: dict[str, str]) -> list[str]:
 
 
 def _category_for(upstream_path: Path) -> str:
-    """Pick an AiSOC category from the path
+    """Pick an Quarry category from the path
     (``rules/aws/...`` -> ``cloud``)."""
     parts = upstream_path.parts
     if CHRONICLE_RULES_DIR in parts:
@@ -177,7 +177,7 @@ def _convert_rule(
         provenance=provenance,
         output_category=category,
         output_filename=output_filename,
-        quarantine_reason="raw YARA-L — needs translation to AiSOC schema",
+        quarantine_reason="raw YARA-L — needs translation to Quarry schema",
         extra={
             "notes": {
                 "chronicle_meta": meta,

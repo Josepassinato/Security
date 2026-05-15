@@ -105,8 +105,8 @@ class ExplainRateLimiter:
         capacity: float | None = None,
         refill_per_second: float | None = None,
     ) -> None:
-        cap = capacity if capacity is not None else _env_float("AISOC_EXPLAIN_RATE_CAPACITY", _DEFAULT_CAPACITY)
-        ref = refill_per_second if refill_per_second is not None else _env_float("AISOC_EXPLAIN_RATE_REFILL", _DEFAULT_REFILL)
+        cap = capacity if capacity is not None else _env_float("QUARRY_EXPLAIN_RATE_CAPACITY", _DEFAULT_CAPACITY)
+        ref = refill_per_second if refill_per_second is not None else _env_float("QUARRY_EXPLAIN_RATE_REFILL", _DEFAULT_REFILL)
         if cap <= 0:
             raise ValueError("capacity must be positive")
         if ref <= 0:

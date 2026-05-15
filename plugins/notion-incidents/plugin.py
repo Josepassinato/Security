@@ -1,4 +1,4 @@
-"""Notion incidents sync action plugin for AiSOC."""
+"""Notion incidents sync action plugin for Quarry."""
 from __future__ import annotations
 
 from typing import Any
@@ -22,7 +22,7 @@ class Plugin:
         }
 
     def _props(self, payload: dict[str, Any]) -> dict[str, Any]:
-        title = payload.get("title") or "AiSOC Incident"
+        title = payload.get("title") or "Quarry Incident"
         severity = payload.get("severity") or "medium"
         status = payload.get("status") or "open"
         case_url = payload.get("case_url")
@@ -34,7 +34,7 @@ class Plugin:
             "Status": {"select": {"name": status}},
         }
         if case_url:
-            properties["AiSOC Case"] = {"url": case_url}
+            properties["Quarry Case"] = {"url": case_url}
         if techniques:
             properties["MITRE"] = {
                 "multi_select": [{"name": t} for t in techniques[:10]]

@@ -21,27 +21,27 @@ const COLUMNS = [
     label: 'Open source',
     links: [
       { label: 'Why open source', href: '/why-open-source' },
-      { label: 'GitHub', href: 'https://github.com/beenuar/AiSOC' },
-      { label: 'Quickstart', href: 'https://github.com/beenuar/AiSOC#quickstart' },
-      { label: 'Roadmap', href: 'https://github.com/beenuar/AiSOC/blob/main/ROADMAP.md' },
-      { label: 'Changelog', href: 'https://github.com/beenuar/AiSOC/blob/main/CHANGELOG.md' },
+      { label: 'GitHub', href: 'https://github.com/beenuar/Quarry' },
+      { label: 'Quickstart', href: 'https://github.com/beenuar/Quarry#quickstart' },
+      { label: 'Roadmap', href: 'https://github.com/beenuar/Quarry/blob/main/ROADMAP.md' },
+      { label: 'Changelog', href: 'https://github.com/beenuar/Quarry/blob/main/CHANGELOG.md' },
     ],
   },
   {
     label: 'Community',
     links: [
-      { label: 'Issues', href: 'https://github.com/beenuar/AiSOC/issues' },
-      { label: 'Discussions', href: 'https://github.com/beenuar/AiSOC/discussions' },
-      { label: 'Contributing', href: 'https://github.com/beenuar/AiSOC/blob/main/CONTRIBUTING.md' },
-      { label: 'Code of conduct', href: 'https://github.com/beenuar/AiSOC/blob/main/CODE_OF_CONDUCT.md' },
+      { label: 'Issues', href: 'https://github.com/beenuar/Quarry/issues' },
+      { label: 'Discussions', href: 'https://github.com/beenuar/Quarry/discussions' },
+      { label: 'Contributing', href: 'https://github.com/beenuar/Quarry/blob/main/CONTRIBUTING.md' },
+      { label: 'Code of conduct', href: 'https://github.com/beenuar/Quarry/blob/main/CODE_OF_CONDUCT.md' },
     ],
   },
   {
     label: 'Project',
     links: [
-      { label: 'Security policy', href: 'https://github.com/beenuar/AiSOC/blob/main/SECURITY.md' },
-      { label: 'License (MIT)', href: 'https://github.com/beenuar/AiSOC/blob/main/LICENSE' },
-      { label: 'Releases', href: 'https://github.com/beenuar/AiSOC/releases' },
+      { label: 'Security policy', href: 'https://github.com/beenuar/Quarry/blob/main/SECURITY.md' },
+      { label: 'License (MIT)', href: 'https://github.com/beenuar/Quarry/blob/main/LICENSE' },
+      { label: 'Releases', href: 'https://github.com/beenuar/Quarry/releases' },
     ],
   },
 ];
@@ -55,11 +55,11 @@ export function Footer() {
             <Logo size={36} withWordmark />
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-gray-400">
               An open-source AI security operations centre, maintained by the
-              AiSOC community and released under the MIT licence.
+              Quarry community and released under the MIT licence.
             </p>
             <div className="mt-5 flex gap-3">
               <a
-                href="https://github.com/beenuar/AiSOC"
+                href="https://github.com/beenuar/Quarry"
                 target="_blank"
                 rel="noreferrer"
                 aria-label="GitHub"
@@ -109,10 +109,10 @@ export function Footer() {
 
         <div className="mt-12 flex flex-col items-start justify-between gap-3 border-t border-white/5 pt-6 text-xs text-gray-500 sm:flex-row sm:items-center">
           <div>
-            © {new Date().getFullYear()} AiSOC contributors. Released under the MIT License.
+            © {new Date().getFullYear()} Quarry contributors. Released under the MIT License.
           </div>
           <a
-            href="https://github.com/beenuar/AiSOC/releases"
+            href="https://github.com/beenuar/Quarry/releases"
             target="_blank"
             rel="noreferrer"
             className="font-mono hover:text-white"

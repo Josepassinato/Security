@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import type { EvalReport } from './BenchmarkResults';
 
 /**
- * 2026 published KPI bar — the buyer-side scoring rubric AiSOC commits to.
+ * 2026 published KPI bar — the buyer-side scoring rubric Quarry commits to.
  * Mirrors `DEFAULT_KPI_BAR_TARGETS` in `services/api/app/services/sla.py`
  * and the four metrics surfaced in the in-app SLA dashboard
  * (`apps/web/src/components/sla/SLADashboard.tsx`).
@@ -96,13 +96,13 @@ export function KpiBar({ report }: KpiBarProps) {
             2026 published KPI bar
           </h3>
           <p className="mt-1 max-w-2xl text-sm text-gray-400">
-            The four buyer-side targets AiSOC commits to. The two derivable
+            The four buyer-side targets Quarry commits to. The two derivable
             from the open harness are checked live below; the other two are
             tenant-runtime metrics surfaced in the in-app SLA dashboard.
           </p>
         </div>
         <a
-          href="https://github.com/beenuar/AiSOC/blob/main/services/api/app/services/sla.py"
+          href="https://github.com/beenuar/Quarry/blob/main/services/api/app/services/sla.py"
           target="_blank"
           rel="noreferrer"
           className="text-xs text-gray-500 underline decoration-dotted hover:text-gray-300"

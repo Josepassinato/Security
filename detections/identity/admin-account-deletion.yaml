@@ -1,6 +1,6 @@
 id: det-identity-027
 name: Privileged Account Deleted
-description: AiSOC v1 curated detection. Triggers on the identity signal described by 'Privileged Account
+description: Quarry v1 curated detection. Triggers on the identity signal described by 'Privileged Account
   Deleted'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: critical
@@ -19,6 +19,6 @@ false_positives:
 - Offboarding (must reference HR ticket)
 playbook: tpl-account-compromise
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

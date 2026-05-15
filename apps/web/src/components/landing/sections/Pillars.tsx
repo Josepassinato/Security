@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * "What makes AiSOC different" — `pillars` section from §6.6 of the
+ * "What makes Quarry different" — `pillars` section from §6.6 of the
  * brief. Four differentiation cards in a 2×2 grid above `md`, single
  * column below.
  *
@@ -44,7 +44,7 @@ const PILLARS: ReadonlyArray<Pillar> = [
       'MIT-licensed agent, public detection corpus, reproducible benchmark — every claim on this page maps to a file in the repo.',
     stat: '6,998',
     statLabel: 'public detection rules',
-    href: 'https://github.com/beenuar/AiSOC/blob/main/LICENSE',
+    href: 'https://github.com/beenuar/Quarry/blob/main/LICENSE',
     linkLabel: 'Read the LICENSE',
   },
   {
@@ -55,7 +55,7 @@ const PILLARS: ReadonlyArray<Pillar> = [
       'The entity graph is written while events are normalised, not when an analyst clicks "show graph." Schema v1.0 is published.',
     stat: '17 + 14',
     statLabel: 'node labels · relationships',
-    href: 'https://docs.aisoc.dev/architecture/graph-schema',
+    href: 'https://docs.quarry.dev/architecture/graph-schema',
     linkLabel: 'Read the graph schema',
   },
   {
@@ -66,7 +66,7 @@ const PILLARS: ReadonlyArray<Pillar> = [
       'Four named agents. Every prompt, tool call, and decision is logged. The LLM-input contract fails closed on malformed prompts.',
     stat: '4 / 100%',
     statLabel: 'agents · audited',
-    href: 'https://docs.aisoc.dev/architecture/agents',
+    href: 'https://docs.quarry.dev/architecture/agents',
     linkLabel: 'Read the agent contract',
   },
   {
@@ -77,7 +77,7 @@ const PILLARS: ReadonlyArray<Pillar> = [
       'Render, Fly.io, Kubernetes, AWS, your air-gapped rack — same code path. BYOK LLM credentials in the encrypted vault.',
     stat: '6 + 1',
     statLabel: 'deploy targets · air-gap overlay',
-    href: 'https://docs.aisoc.dev/deployment',
+    href: 'https://docs.quarry.dev/deployment',
     linkLabel: 'Read the deployment guide',
   },
 ];
@@ -163,7 +163,7 @@ export function Pillars() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-400">
-            What makes AiSOC different
+            What makes Quarry different
           </p>
           <h2
             id="pillars-heading"

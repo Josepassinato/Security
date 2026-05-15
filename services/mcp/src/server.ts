@@ -1,7 +1,7 @@
 /**
  * MCP server wiring.
  *
- * Bridges the AiSOC tool registry (`./tools/index.ts`) to the
+ * Bridges the Quarry tool registry (`./tools/index.ts`) to the
  * `@modelcontextprotocol/sdk` server, exposing two request handlers:
  *
  *   - `tools/list`  → advertise every tool's name + JSON Schema.
@@ -32,7 +32,7 @@ import {
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 
-import { AisocClient } from "./client.js";
+import { QuarryClient } from "./client.js";
 import { type ServerConfig, type Logger, packageVersion } from "./config.js";
 import {
   ApiError,
@@ -46,7 +46,7 @@ import type { ToolResult } from "./tools/types.js";
 
 /** Server instructions surfaced to MCP hosts during initialisation. */
 const SERVER_INSTRUCTIONS = `\
-AiSOC exposes alerts, cases, detection rules, and the agent decision ledger
+Quarry exposes alerts, cases, detection rules, and the agent decision ledger
 through this MCP server. Typical workflows:
 
   1. Triage:       aisoc_list_alerts → aisoc_get_alert
@@ -54,17 +54,17 @@ through this MCP server. Typical workflows:
   3. Audit a step: aisoc_explain_step (returns the prompt, response, and tools used)
   4. Tune rules:   aisoc_query_detections → aisoc_get_detection_rule
 
-Every agent decision in AiSOC is logged to a persistent ledger; \
+Every agent decision in Quarry is logged to a persistent ledger; \
 \`aisoc_replay_decision\` and \`aisoc_explain_step\` are the auditable surface.`;
 
 /**
- * Build (but don't start) an MCP server bound to the AiSOC tool registry.
+ * Build (but don't start) an MCP server bound to the Quarry tool registry.
  *
  * Exported separately from the start helper so tests can drive request
  * handlers without spinning up a real stdio transport.
  */
 export function buildServer(cfg: ServerConfig, log: Logger): Server {
-  const client = new AisocClient(cfg, log);
+  const client = new QuarryClient(cfg, log);
   const server = new Server(
     { name: "@quarry/mcp", version: packageVersion() },
     {
@@ -141,7 +141,7 @@ export async function runServer(cfg: ServerConfig, log: Logger): Promise<void> {
   const server = buildServer(cfg, log);
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  log.info(`aisoc-mcp ${packageVersion()} ready on stdio (target ${cfg.aisocUrl})`);
+  log.info(`quarry-mcp ${packageVersion()} ready on stdio (target ${cfg.aisocUrl})`);
   // The SDK keeps Node alive while stdin is open; we just need to wait for
   // close. Setting up a manual promise here also lets us surface SIGINT
   // cleanly.

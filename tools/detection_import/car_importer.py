@@ -1,7 +1,7 @@
-"""MITRE Cyber Analytics Repository (CAR) → AiSOC importer.
+"""MITRE Cyber Analytics Repository (CAR) → Quarry importer.
 
 Pulls analytics from `mitre-attack/car <https://github.com/mitre-attack/car>`_
-at a pinned commit and converts each YAML analytic into AiSOC's internal
+at a pinned commit and converts each YAML analytic into Quarry's internal
 Sigma-inspired schema with a populated ``provenance`` block.
 
 CAR analytics are smaller and more conceptual than Sigma rules: they describe
@@ -72,7 +72,7 @@ def _extract_techniques(coverage: list[dict] | None) -> list[str]:
 
 
 def _category_for(coverage: list[dict] | None) -> str:
-    """Pick an AiSOC category from CAR ``coverage[*].tactics``.
+    """Pick an Quarry category from CAR ``coverage[*].tactics``.
 
     Most CAR analytics target endpoint telemetry; we use the first tactic that
     cleanly maps and fall back to ``endpoint``.

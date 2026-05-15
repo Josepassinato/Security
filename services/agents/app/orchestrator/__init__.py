@@ -20,7 +20,7 @@ single :class:`InvestigationState` for the Responder.
 
 The legacy sequential path stays available under the same package so the
 production fleet can keep running it until eval-gate green: it is selected
-when ``AISOC_AGENT_PARALLEL_TOPOLOGY`` resolves to off (0 / false /
+when ``QUARRY_AGENT_PARALLEL_TOPOLOGY`` resolves to off (0 / false /
 disabled). Default is **on** for dev / CI / test; production overrides via
 env until the wet-eval scoreboard confirms no regression.
 

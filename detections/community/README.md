@@ -1,6 +1,6 @@
 # Community Detections
 
-This directory holds detection rules contributed by the AiSOC community.
+This directory holds detection rules contributed by the Quarry community.
 
 Anything you drop here as `<your-rule>.yaml` will be picked up by
 [`scripts/build_marketplace.py`](../../scripts/build_marketplace.py) on the

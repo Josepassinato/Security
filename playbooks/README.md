@@ -1,6 +1,6 @@
-# AiSOC Playbooks
+# Quarry Playbooks
 
-This directory contains AiSOC response playbooks. A playbook is a JSON
+This directory contains Quarry response playbooks. A playbook is a JSON
 document that wires alerts and cases to a deterministic, auditable sequence
 of agent + automation steps with explicit human-approval gates and
 rollback paths.
@@ -44,7 +44,7 @@ Each file is a `*.playbook.json` document validated against the Pydantic
     "severity": ["high", "critical"],
     "tags": ["account-takeover"]
   },
-  "author": "AiSOC",
+  "author": "Quarry",
   "enabled": true,
   "created_at": "2026-05-03T00:00:00+00:00",
   "updated_at": "2026-05-03T00:00:00+00:00",
@@ -81,7 +81,7 @@ Each file is a `*.playbook.json` document validated against the Pydantic
 Approval gates are modelled as `condition` steps that read a flag from
 run context (e.g. `context.approved_by_oncall`). The flag is expected to
 be set by an out-of-band approval system — Slack interactive button,
-email link, or the AiSOC web console — before the gated step runs.
+email link, or the Quarry web console — before the gated step runs.
 
 ```json
 {

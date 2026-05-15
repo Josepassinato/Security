@@ -18,7 +18,7 @@ pipeline:
      dataset authors' protocol.
 
 Wet eval (``--mode wet``) is wired but disabled by default: it
-expects an ``AISOC_WET_EVAL_ENDPOINT`` environment variable pointing
+expects an ``QUARRY_WET_EVAL_ENDPOINT`` environment variable pointing
 at an HTTP endpoint that accepts the OCSF event and returns
 ``{"label": "<family>"}``. CI never runs wet by default — the docs
 spell out that wet numbers are produced manually and copied into
@@ -341,7 +341,7 @@ def evaluate(
     rows_skipped = 0
 
     classifier = _CLASSIFIERS[dataset]
-    endpoint = wet_endpoint or os.environ.get("AISOC_WET_EVAL_ENDPOINT")
+    endpoint = wet_endpoint or os.environ.get("QUARRY_WET_EVAL_ENDPOINT")
 
     for row in _iter_dataset(dataset, paths, limit=limit):
         rows_total += 1
@@ -353,7 +353,7 @@ def evaluate(
         if mode == "wet":
             if not endpoint:
                 raise RuntimeError(
-                    "wet mode requires --wet-endpoint or AISOC_WET_EVAL_ENDPOINT"
+                    "wet mode requires --wet-endpoint or QUARRY_WET_EVAL_ENDPOINT"
                 )
             predicted = _classify_wet(ocsf_event, endpoint)
         else:
@@ -377,7 +377,7 @@ def evaluate(
 
 def _build_argparser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Public-dataset fidelity benchmark for AiSOC (T5.3).",
+        description="Public-dataset fidelity benchmark for Quarry (T5.3).",
     )
     parser.add_argument(
         "--dataset",
@@ -406,7 +406,7 @@ def _build_argparser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--wet-endpoint",
         default=None,
-        help="Wet-eval HTTP endpoint URL (overrides AISOC_WET_EVAL_ENDPOINT).",
+        help="Wet-eval HTTP endpoint URL (overrides QUARRY_WET_EVAL_ENDPOINT).",
     )
     parser.add_argument(
         "--limit",

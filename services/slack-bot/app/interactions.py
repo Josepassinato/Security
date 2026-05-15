@@ -1,5 +1,5 @@
 """
-Interactive component handlers for the AiSOC Slack bot.
+Interactive component handlers for the Quarry Slack bot.
 
 Slack delivers a single ``block_actions`` payload whenever the analyst
 clicks a button on a message we sent. This module isolates the *logic*
@@ -38,7 +38,7 @@ from __future__ import annotations
 from typing import Any
 
 from app.blocks import action_decision_blocks, error_blocks
-from app.services.aisoc_clients import AisocActionsClient, AisocClientError
+from app.services.aisoc_clients import QuarryActionsClient, QuarryClientError
 from app.services.approval_audit import ApprovalAuditEvent, ApprovalAuditSink, NullAuditSink
 
 #: Action id emitted by the *Approve* button on the approval card.
@@ -115,7 +115,7 @@ async def handle_action_decision(
     action_id_event: str,
     button_value: str,
     user_id: str,
-    actions_client: AisocActionsClient,
+    actions_client: QuarryActionsClient,
     audit_sink: ApprovalAuditSink | None = None,
     channel_id: str | None = None,
     actor_ip: str | None = None,
@@ -201,7 +201,7 @@ async def handle_action_decision(
     is_approve = action_id_event == APPROVE_ACTION_ID
     try:
         action = await actions_client.approve_action(action_id) if is_approve else await actions_client.reject_action(action_id)
-    except AisocClientError as exc:
+    except QuarryClientError as exc:
         await sink.record(
             ApprovalAuditEvent(
                 case_id=case_id,

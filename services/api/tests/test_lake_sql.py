@@ -65,13 +65,13 @@ def _count_predicates(sql: str, tenant_id: uuid.UUID) -> int:
 @pytest.mark.parametrize(
     "sql",
     [
-        "INSERT INTO aisoc.raw_events (tenant_id) VALUES ('x')",
-        "UPDATE aisoc.raw_events SET tenant_id = 'x' WHERE 1=1",
-        "DELETE FROM aisoc.raw_events",
-        "DROP TABLE aisoc.raw_events",
+        "INSERT INTO quarry.raw_events (tenant_id) VALUES ('x')",
+        "UPDATE quarry.raw_events SET tenant_id = 'x' WHERE 1=1",
+        "DELETE FROM quarry.raw_events",
+        "DROP TABLE quarry.raw_events",
         "CREATE TABLE evil (x Int32)",
-        "ALTER TABLE aisoc.raw_events ADD COLUMN evil Int32",
-        "TRUNCATE TABLE aisoc.raw_events",
+        "ALTER TABLE quarry.raw_events ADD COLUMN evil Int32",
+        "TRUNCATE TABLE quarry.raw_events",
     ],
 )
 def test_dml_ddl_rejected_with_forbidden_error(sql: str) -> None:
@@ -96,7 +96,7 @@ def test_dml_ddl_rejected_with_forbidden_error(sql: str) -> None:
         # which is also fine but tested separately under the syntax
         # error suite.
         "SYSTEM RELOAD CONFIG",
-        "OPTIMIZE TABLE aisoc.raw_events",
+        "OPTIMIZE TABLE quarry.raw_events",
         "KILL QUERY 'long-running-query-id'",
     ],
 )
@@ -111,7 +111,7 @@ def test_multiple_statements_rejected() -> None:
     The first statement on its own would parse fine; we explicitly
     detect the second statement and refuse the whole request.
     """
-    sql = "SELECT 1; DROP TABLE aisoc.raw_events"
+    sql = "SELECT 1; DROP TABLE quarry.raw_events"
     with pytest.raises(LakeSqlForbiddenError, match="single statement"):
         rewrite_for_tenant(sql, TENANT_ID)
 
@@ -160,27 +160,27 @@ def test_select_with_no_from_passes_through_unchanged() -> None:
 
 
 def test_qualified_allowlisted_table_accepted() -> None:
-    result = rewrite_for_tenant("SELECT * FROM aisoc.raw_events", TENANT_ID)
-    assert "aisoc.raw_events" in result.referenced_tables
+    result = rewrite_for_tenant("SELECT * FROM quarry.raw_events", TENANT_ID)
+    assert "quarry.raw_events" in result.referenced_tables
     assert _count_predicates(result.sql, TENANT_ID) == 1
 
 
 def test_unqualified_allowlisted_table_accepted_and_qualified() -> None:
-    """``FROM raw_events`` resolves to ``aisoc.raw_events``.
+    """``FROM raw_events`` resolves to ``quarry.raw_events``.
 
     The rewriter backfills the schema so the ClickHouse session
     database doesn't influence which physical table we hit.
     """
     result = rewrite_for_tenant("SELECT * FROM raw_events", TENANT_ID)
     assert f"{DEFAULT_SCHEMA}.raw_events" in result.sql.lower()
-    assert "aisoc.raw_events" in result.referenced_tables
+    assert "quarry.raw_events" in result.referenced_tables
 
 
 @pytest.mark.parametrize(
     "sql",
     [
         # Postgres tables that happen to share names with our lake.
-        "SELECT * FROM aisoc.users",
+        "SELECT * FROM quarry.users",
         # ClickHouse system tables — useful for an attacker to enumerate
         # schemas, tables, parts, and ongoing queries from other tenants.
         "SELECT * FROM system.tables",
@@ -203,7 +203,7 @@ def test_non_allowlisted_tables_rejected(sql: str) -> None:
         "SELECT * FROM url('https://attacker.example/x', JSONEachRow, 'tenant_id String')",
         # remote() — read another ClickHouse cluster, possibly inside
         # the operator's VPC.
-        "SELECT * FROM remote('other-host', 'aisoc', 'raw_events')",
+        "SELECT * FROM remote('other-host', 'quarry', 'raw_events')",
         # s3() / file() / mysql() / postgresql() — same family.
         "SELECT * FROM s3('s3://bucket/key', 'CSV')",
         "SELECT * FROM file('/tmp/x', 'CSV')",
@@ -228,7 +228,7 @@ def test_table_functions_rejected(sql: str) -> None:
 
 
 def test_predicate_injected_on_simple_select() -> None:
-    result = rewrite_for_tenant("SELECT id FROM aisoc.raw_events", TENANT_ID)
+    result = rewrite_for_tenant("SELECT id FROM quarry.raw_events", TENANT_ID)
     assert _count_predicates(result.sql, TENANT_ID) == 1
 
 
@@ -239,7 +239,7 @@ def test_predicate_appended_alongside_existing_where() -> None:
     ``severity = 'high'`` must still be honoured after rewriting.
     """
     result = rewrite_for_tenant(
-        "SELECT id FROM aisoc.raw_events WHERE severity = 'high'",
+        "SELECT id FROM quarry.raw_events WHERE severity = 'high'",
         TENANT_ID,
     )
     sql_lower = result.sql.lower()
@@ -257,14 +257,14 @@ def test_predicate_injected_on_each_join_side() -> None:
     """
     sql = """
         SELECT r.id
-        FROM aisoc.raw_events r
-        JOIN aisoc.alert_metrics a ON a.event_id = r.id
+        FROM quarry.raw_events r
+        JOIN quarry.alert_metrics a ON a.event_id = r.id
     """
     result = rewrite_for_tenant(sql, TENANT_ID)
     # Two real tables → at least two predicates (one per alias).
     assert _count_predicates(result.sql, TENANT_ID) >= 2
-    assert "aisoc.raw_events" in result.referenced_tables
-    assert "aisoc.alert_metrics" in result.referenced_tables
+    assert "quarry.raw_events" in result.referenced_tables
+    assert "quarry.alert_metrics" in result.referenced_tables
 
 
 def test_predicate_injected_on_subquery() -> None:
@@ -275,8 +275,8 @@ def test_predicate_injected_on_subquery() -> None:
     tenants' data via the inner.
     """
     sql = """
-        SELECT id FROM aisoc.alert_metrics
-        WHERE event_id IN (SELECT id FROM aisoc.raw_events)
+        SELECT id FROM quarry.alert_metrics
+        WHERE event_id IN (SELECT id FROM quarry.raw_events)
     """
     result = rewrite_for_tenant(sql, TENANT_ID)
     # Outer + inner SELECTs each pick up a predicate.
@@ -291,7 +291,7 @@ def test_predicate_injected_on_cte_body() -> None:
     """
     sql = """
         WITH highs AS (
-            SELECT id FROM aisoc.raw_events WHERE severity = 'high'
+            SELECT id FROM quarry.raw_events WHERE severity = 'high'
         )
         SELECT * FROM highs
     """
@@ -306,24 +306,24 @@ def test_cte_alias_not_treated_as_real_table() -> None:
     """A CTE alias must not be mistaken for a non-allowlisted table.
 
     Without alias awareness the rewriter would reject ``FROM highs``
-    because ``aisoc.highs`` isn't in the allowlist.
+    because ``quarry.highs`` isn't in the allowlist.
     """
     sql = """
-        WITH highs AS (SELECT id FROM aisoc.raw_events)
+        WITH highs AS (SELECT id FROM quarry.raw_events)
         SELECT * FROM highs
     """
     # Just running this without an exception is the assertion.
     result = rewrite_for_tenant(sql, TENANT_ID)
-    # And we must not record ``aisoc.highs`` as a referenced table.
-    assert "aisoc.highs" not in result.referenced_tables
+    # And we must not record ``quarry.highs`` as a referenced table.
+    assert "quarry.highs" not in result.referenced_tables
 
 
 def test_union_branches_each_get_predicate() -> None:
     """UNION must filter each branch independently."""
     sql = """
-        SELECT id FROM aisoc.raw_events
+        SELECT id FROM quarry.raw_events
         UNION ALL
-        SELECT id FROM aisoc.alert_metrics
+        SELECT id FROM quarry.alert_metrics
     """
     result = rewrite_for_tenant(sql, TENANT_ID)
     assert _count_predicates(result.sql, TENANT_ID) >= 2
@@ -335,7 +335,7 @@ def test_union_branches_each_get_predicate() -> None:
 
 
 def test_default_row_cap_applied_when_no_limit() -> None:
-    result = rewrite_for_tenant("SELECT * FROM aisoc.raw_events", TENANT_ID)
+    result = rewrite_for_tenant("SELECT * FROM quarry.raw_events", TENANT_ID)
     assert result.row_cap == DEFAULT_ROW_CAP
     assert f"limit {DEFAULT_ROW_CAP}" in result.sql.lower()
 
@@ -345,7 +345,7 @@ def test_caller_smaller_limit_preserved() -> None:
 
     The cap exists to prevent runaway queries, not to expand them.
     """
-    result = rewrite_for_tenant("SELECT * FROM aisoc.raw_events LIMIT 5", TENANT_ID)
+    result = rewrite_for_tenant("SELECT * FROM quarry.raw_events LIMIT 5", TENANT_ID)
     # The clamp leaves the LIMIT alone.
     assert "limit 5" in result.sql.lower()
     # ``row_cap`` reflects the configured cap (the LIMIT is below it).
@@ -354,14 +354,14 @@ def test_caller_smaller_limit_preserved() -> None:
 
 def test_caller_larger_limit_clamped_to_default() -> None:
     """A naked ``LIMIT 1000000`` must be clamped to the default cap."""
-    sql = "SELECT * FROM aisoc.raw_events LIMIT 1000000"
+    sql = "SELECT * FROM quarry.raw_events LIMIT 1000000"
     result = rewrite_for_tenant(sql, TENANT_ID)
     assert result.row_cap == DEFAULT_ROW_CAP
     assert f"limit {DEFAULT_ROW_CAP}" in result.sql.lower()
 
 
 def test_explicit_row_cap_respected() -> None:
-    result = rewrite_for_tenant("SELECT * FROM aisoc.raw_events", TENANT_ID, row_cap=50)
+    result = rewrite_for_tenant("SELECT * FROM quarry.raw_events", TENANT_ID, row_cap=50)
     assert result.row_cap == 50
     assert "limit 50" in result.sql.lower()
 
@@ -369,7 +369,7 @@ def test_explicit_row_cap_respected() -> None:
 def test_row_cap_clamped_to_max() -> None:
     """A caller-supplied cap above MAX_ROW_CAP is reduced."""
     result = rewrite_for_tenant(
-        "SELECT * FROM aisoc.raw_events",
+        "SELECT * FROM quarry.raw_events",
         TENANT_ID,
         row_cap=MAX_ROW_CAP * 10,
     )
@@ -379,7 +379,7 @@ def test_row_cap_clamped_to_max() -> None:
 def test_row_cap_clamped_to_minimum() -> None:
     """A zero or negative cap is coerced to 1."""
     result = rewrite_for_tenant(
-        "SELECT * FROM aisoc.raw_events",
+        "SELECT * FROM quarry.raw_events",
         TENANT_ID,
         row_cap=0,
     )
@@ -392,7 +392,7 @@ def test_row_cap_clamped_to_minimum() -> None:
 
 
 def test_allowed_tables_constant_matches_clickhouse_schema() -> None:
-    """Every entry in ALLOWED_TABLES must look like ``aisoc.<name>``.
+    """Every entry in ALLOWED_TABLES must look like ``quarry.<name>``.
 
     This is a smoke test against typos: if someone added
     ``"raw_events"`` (no schema) we'd silently default-qualify it

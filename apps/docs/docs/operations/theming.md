@@ -1,6 +1,6 @@
 # Theming (light & dark)
 
-The AiSOC console ships dark-by-default and exposes a tri-state theme toggle in
+The Quarry console ships dark-by-default and exposes a tri-state theme toggle in
 the top bar (**dark → light → system → dark**). Users who pick **system** get
 their OS-level `prefers-color-scheme` rendered, with live updates if they flip
 their OS theme without reloading.
@@ -26,7 +26,7 @@ and no per-component theme branching.
 ## How it flips
 
 1. The bootstrap script (rendered as the first child of `<body>`) reads
-   `localStorage["aisoc-theme"]`, defaults to `dark`, resolves `system` against
+   `localStorage["quarry-theme"]`, defaults to `dark`, resolves `system` against
    `prefers-color-scheme`, and writes `data-theme` + `color-scheme` onto the
    `<html>` element.
 2. `<html data-theme="...">` switches which CSS-variable block is in scope.

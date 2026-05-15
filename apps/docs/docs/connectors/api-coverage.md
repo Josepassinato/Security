@@ -6,7 +6,7 @@ description: Per-connector capability coverage — which connectors can pull ale
 
 # Capability matrix
 
-Every connector in AiSOC declares a set of **capabilities** — concrete verbs the orchestrator and agents are allowed to ask it to perform. Capabilities are not free text; they are members of the [`Capability` enum](https://github.com/AiSOC-community/AiSOC/blob/main/services/connectors/app/connectors/base.py) defined in `services/connectors/app/connectors/base.py`. The agent runtime, the federated-search planner, and the case-fanout service all consult this set before dispatching work; a connector that does not declare `PUSH_CASE`, for example, will simply be skipped when AiSOC tries to mint an ITSM ticket.
+Every connector in Quarry declares a set of **capabilities** — concrete verbs the orchestrator and agents are allowed to ask it to perform. Capabilities are not free text; they are members of the [`Capability` enum](https://github.com/Quarry-community/Quarry/blob/main/services/connectors/app/connectors/base.py) defined in `services/connectors/app/connectors/base.py`. The agent runtime, the federated-search planner, and the case-fanout service all consult this set before dispatching work; a connector that does not declare `PUSH_CASE`, for example, will simply be skipped when Quarry tries to mint an ITSM ticket.
 
 This page is the canonical "what works where" reference. It is generated from the connector source and is kept in sync with the registry in `services/connectors/app/connectors/__init__.py`.
 
@@ -14,7 +14,7 @@ This page is the canonical "what works where" reference. It is generated from th
 
 | Capability | What it means in practice |
 |---|---|
-| `PULL_ALERTS` | Connector polls the vendor on a schedule and emits normalized alert/detection events into the AiSOC ingest stream. |
+| `PULL_ALERTS` | Connector polls the vendor on a schedule and emits normalized alert/detection events into the Quarry ingest stream. |
 | `PULL_AUDIT` | Connector polls the vendor's audit/activity log surface (admin actions, sign-ins, configuration changes) and emits normalized audit events. |
 | `QUERY_LOGS` | Connector exposes an ad-hoc search interface (KQL / SPL / ES&#124;QL / vendor DSL) so the federated-search planner can fan a single human question across multiple SIEMs. |
 | `PIVOT_HOST` / `PIVOT_USER` / `PIVOT_IP` / `PIVOT_DOMAIN` | Connector can answer "what else has this entity touched?" — used by agents during investigation to widen the blast-radius view. |
@@ -22,8 +22,8 @@ This page is the canonical "what works where" reference. It is generated from th
 | `QUARANTINE_FILE` / `BLOCK_HASH` | Endpoint response verbs — push a file to quarantine, block a hash globally. Also gated behind ChatOps verification. |
 | `ENRICH_DOMAIN` / `ENRICH_VULN` / `ENRICH_ASSET` | Read-only enrichment — fetch reputation, CVE detail, or asset metadata to attach to a case as evidence. |
 | `READ_AUDIT_TRAIL` | Connector exposes a stable, queryable audit trail used by compliance flows (e.g. "show me every grant of admin to this user across the last 90 days"). |
-| `PUSH_CASE` | **Bidirectional ITSM, outbound.** Connector can mint a new ticket in the external system from an AiSOC case. AiSOC remains source of truth — see [ITSM as source of truth](/docs/architecture/itsm-as-source-of-truth). |
-| `PUSH_STATUS` | **Bidirectional ITSM, outbound.** Connector can project an AiSOC case status change onto the external ticket (transitioning it through the vendor's workflow, closing it, etc.). |
+| `PUSH_CASE` | **Bidirectional ITSM, outbound.** Connector can mint a new ticket in the external system from an Quarry case. Quarry remains source of truth — see [ITSM as source of truth](/docs/architecture/itsm-as-source-of-truth). |
+| `PUSH_STATUS` | **Bidirectional ITSM, outbound.** Connector can project an Quarry case status change onto the external ticket (transitioning it through the vendor's workflow, closing it, etc.). |
 
 When a capability is not listed for a connector, the connector simply does not support it today — it is **not** a misconfiguration to surface. Adding a capability requires an explicit code change in that connector's `capabilities()` classmethod and matching method implementation.
 
@@ -114,7 +114,7 @@ Three subsystems read this matrix at runtime:
 
 1. **The agent runtime.** Before an agent calls a connector tool, it checks `connector.capabilities()`. If the agent wants to ask "isolate this host," and the only EDR connected for that tenant is one that does not declare `ISOLATE_HOST`, the tool is hidden from the model's tool list — the model never sees a button it cannot push.
 2. **The federated-search planner.** A natural-language query is translated into per-vendor DSLs only for connectors that declare `QUERY_LOGS`. SIEMs without that capability are skipped silently.
-3. **The case fan-out service** (`services/api/app/services/case_fanout.py`). When an AiSOC case is created or its status changes, the fan-out service iterates connector instances filtered by `PUSH_CASE` / `PUSH_STATUS` and calls them in turn. A connector without those capabilities is invisible to the ITSM projection layer — see [ITSM as source of truth](/docs/architecture/itsm-as-source-of-truth) for the full lifecycle.
+3. **The case fan-out service** (`services/api/app/services/case_fanout.py`). When an Quarry case is created or its status changes, the fan-out service iterates connector instances filtered by `PUSH_CASE` / `PUSH_STATUS` and calls them in turn. A connector without those capabilities is invisible to the ITSM projection layer — see [ITSM as source of truth](/docs/architecture/itsm-as-source-of-truth) for the full lifecycle.
 
 ## Adding a capability to a connector
 
@@ -125,4 +125,4 @@ If you are extending an existing connector to do more (e.g. teaching SentinelOne
 3. Add a focused unit test under `services/connectors/tests/` — happy path, error path, and one vendor-specific edge case (status mapping, ID resolution, transitions).
 4. Update this page so the matrix stays honest. The capability column is the contract the rest of the system relies on; if the matrix says `ISOLATE_HOST`, the runtime will route isolation requests to that connector.
 
-The full method signatures and contracts are in [`base.py`](https://github.com/AiSOC-community/AiSOC/blob/main/services/connectors/app/connectors/base.py); for end-to-end ITSM examples see the [Jira](/docs/connectors/) and [ServiceNow](/docs/connectors/) connector docs (per-vendor walkthroughs).
+The full method signatures and contracts are in [`base.py`](https://github.com/Quarry-community/Quarry/blob/main/services/connectors/app/connectors/base.py); for end-to-end ITSM examples see the [Jira](/docs/connectors/) and [ServiceNow](/docs/connectors/) connector docs (per-vendor walkthroughs).

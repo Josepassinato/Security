@@ -63,9 +63,9 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
     # Start the continuous hunt scheduler (Wave 2 — w2-hac). Gated by env
     # so dev/CI runs that don't want background jobs can opt out via
-    # AISOC_HUNT_SCHEDULER_DISABLE=1. Best-effort: a corpus load failure
+    # QUARRY_HUNT_SCHEDULER_DISABLE=1. Best-effort: a corpus load failure
     # or DB outage must not block API startup.
-    if os.getenv("AISOC_HUNT_SCHEDULER_DISABLE", "").strip() not in ("1", "true", "yes"):
+    if os.getenv("QUARRY_HUNT_SCHEDULER_DISABLE", "").strip() not in ("1", "true", "yes"):
         try:
             await hunt_scheduler.start_scheduler()
         except Exception as exc:  # noqa: BLE001
@@ -93,7 +93,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
 
 app = FastAPI(
-    title="AiSOC Agent Orchestrator",
+    title="Quarry Agent Orchestrator",
     description="LangGraph-based autonomous investigation and response agents",
     version="0.1.0",
     lifespan=lifespan,
@@ -102,7 +102,7 @@ app = FastAPI(
 # CORS — the web console talks to this service directly (it does not go through
 # the Next.js rewrite layer for agent endpoints because we want to stream
 # NDJSON without buffering through the proxy). Origins are resolved via the
-# shared ``build_cors_kwargs`` helper which reads AISOC_CORS_ORIGINS (canonical)
+# shared ``build_cors_kwargs`` helper which reads QUARRY_CORS_ORIGINS (canonical)
 # / CORS_ORIGINS (legacy) and enforces the "no wildcard with credentials in
 # production" invariant so a careless ``export CORS_ORIGINS=*`` can't ship
 # CSRF to prod.
@@ -133,6 +133,6 @@ async def health():
     summary = get_coverage_summary()
     return {
         "status": "healthy",
-        "service": "aisoc-agents",
+        "service": "quarry-agents",
         "attck_corpus": summary,
     }

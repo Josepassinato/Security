@@ -42,6 +42,6 @@ expected:
 references:
   - https://attack.mitre.org/techniques/T1071/004/
   - https://attack.mitre.org/techniques/T1572/
-author: AiSOC
+author: Quarry
 created: '2026-05-05'
 modified: '2026-05-05'

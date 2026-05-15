@@ -1,6 +1,6 @@
 id: det-identity-147
 name: M365 App Granted Mail.Read / Mail.ReadWrite
-description: AiSOC v1 curated detection. Triggers on the identity signal described by 'M365 App Granted
+description: Quarry v1 curated detection. Triggers on the identity signal described by 'M365 App Granted
   Mail.Read / Mail.ReadWrite'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: high
@@ -19,6 +19,6 @@ false_positives:
 - Approved SaaS integration
 playbook: tpl-credential-access
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

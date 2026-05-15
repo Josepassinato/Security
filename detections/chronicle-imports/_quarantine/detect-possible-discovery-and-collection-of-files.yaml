@@ -61,4 +61,4 @@ provenance:
   upstream_path: rules/_deprecated/soc_prime_rules/threat_hunting/process_creation/detect_possible_discovery_and_collection_of_files.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

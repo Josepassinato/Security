@@ -2,7 +2,7 @@
 #
 # Used by the /v1/inbox/hec route, which speaks the Splunk HEC wire
 # protocol so that any tool with "send to Splunk HEC" can ship events
-# to AiSOC unchanged. The HEC envelope is:
+# to Quarry unchanged. The HEC envelope is:
 #   {"time": 169..., "host": "...", "source": "...", "sourcetype": "...",
 #    "index": "...", "event": {...}}
 #

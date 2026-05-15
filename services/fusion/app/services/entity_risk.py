@@ -4,7 +4,7 @@ Risk-Based Alerting (RBA) — entity rollup with time-decayed risk scores.
 The Splunk-pioneered RBA pattern: alerts contribute *points* to the entities
 they touch (user, host, src_ip, domain). Points decay exponentially with a
 half-life so stale signal naturally drops out. Once an entity's score crosses
-``rba_promotion_threshold`` AiSOC promotes the entity to an incident with the
+``rba_promotion_threshold`` Quarry promotes the entity to an incident with the
 contributing alerts attached — and the entity-centric queue surfaces the
 top-N highest-risk entities to the analyst, not raw alerts.
 
@@ -43,12 +43,12 @@ from app.models.alert import AlertSeverity, RawAlert
 logger = structlog.get_logger()
 
 # Key layout (all prefixed by tenant for RLS at the cache layer):
-#   aisoc:fusion:rba:entity:{tenant}:{entity_type}:{entity_value}  →  hash
-#   aisoc:fusion:rba:topn:{tenant}                                  →  zset (score)
-#   aisoc:fusion:rba:promoted:{tenant}                              →  zset (last seen)
-_ENTITY_PREFIX = "aisoc:fusion:rba:entity:"
-_TOPN_KEY = "aisoc:fusion:rba:topn:"
-_PROMOTED_KEY = "aisoc:fusion:rba:promoted:"
+#   quarry:fusion:rba:entity:{tenant}:{entity_type}:{entity_value}  →  hash
+#   quarry:fusion:rba:topn:{tenant}                                  →  zset (score)
+#   quarry:fusion:rba:promoted:{tenant}                              →  zset (last seen)
+_ENTITY_PREFIX = "quarry:fusion:rba:entity:"
+_TOPN_KEY = "quarry:fusion:rba:topn:"
+_PROMOTED_KEY = "quarry:fusion:rba:promoted:"
 
 ENTITY_TYPES: tuple[str, ...] = ("user", "host", "src_ip", "domain")
 

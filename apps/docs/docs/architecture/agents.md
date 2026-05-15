@@ -1,12 +1,12 @@
 ---
-title: The four AiSOC agents
+title: The four Quarry agents
 sidebar_label: Four agents
 sidebar_position: 2
 ---
 
-# The four AiSOC agents
+# The four Quarry agents
 
-AiSOC ships with **exactly four** named agents, one per stage of how a SOC
+Quarry ships with **exactly four** named agents, one per stage of how a SOC
 team actually thinks about an incident:
 
 | Agent       | Role in the SOC pipeline                                     |
@@ -26,7 +26,7 @@ but the *public* surface is just these four. Everything else is a
 > `TriageAgent`. They live in `app.agents.{phishing,identity,cloud,insider_threat}_agent`
 > internally, but they're never promoted to the four-agent surface in
 > docs, the UI, the landing page, or the SDK. If you find yourself writing
-> "the five AiSOC agents", something has drifted.
+> "the five Quarry agents", something has drifted.
 
 ---
 
@@ -172,7 +172,7 @@ old names) continue to work. The aliases resolve to the new façade:
 
 New code should import the four branded classes directly. Aliases will
 remain importable for the v8.x line; deprecation timing tracks in
-`AISOC_V8_PROGRESS.md`.
+`QUARRY_V8_PROGRESS.md`.
 
 ---
 

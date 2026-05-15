@@ -1,0 +1,69 @@
+id: quarry-direct
+name: Quarry Direct (osquery TLS)
+description: >
+  Virtual connector that receives osquery telemetry from agents enrolled
+  directly against Quarry's built-in TLS endpoint (services/osquery-tls).
+  No external fleet manager is required.
+version: "0.1.0"
+category: edr
+author: Quarry Community
+license: MIT
+
+schema:
+  name: quarry-direct
+  label: Quarry Direct osquery TLS
+  description: >
+    Connects osqueryd agents directly to Quarry without osctrl or FleetDM.
+    Agents enroll using an enroll_secret and receive a node_key in return.
+    Scheduled queries and distributed (ad-hoc) queries are served over the
+    standard osquery TLS plugin endpoints.
+  category: edr
+  fields:
+    - name: enroll_secret
+      label: Enroll Secret
+      description: >
+        The shared secret osqueryd agents use to authenticate during
+        enrollment.  Must match QUARRY_OSQUERY_TLS_ENROLL_SECRET on the
+        osquery-tls service.
+      type: string
+      secret: true
+      required: true
+    - name: base_url
+      label: TLS Endpoint URL
+      description: >
+        Base URL of the Quarry osquery TLS service, e.g.
+        https://osquery.tryaisoc.com.  Agents use this as their
+        --tls_hostname flag.
+      type: string
+      required: true
+      default: https://osquery.tryaisoc.com
+    - name: tenant_id
+      label: Tenant ID
+      description: >
+        Quarry tenant identifier.  Sent by the service as the
+        X-Quarry-Tenant request header.  Leave empty for single-tenant
+        deployments.
+      type: string
+      required: false
+  oauth: false
+  default_poll_interval_seconds: 300
+
+event_types:
+  - osquery_query_row
+
+severity_levels:
+  - info
+  - low
+  - medium
+  - high
+
+normalized_fields:
+  - event_type
+  - source
+  - tenant_id
+  - host_identifier
+  - query_name
+  - log_type
+  - severity
+  - raw
+  - timestamp

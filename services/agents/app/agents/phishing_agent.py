@@ -191,7 +191,7 @@ async def run_phishing(
     bundle_lines = bundle.prompt_context_lines() if bundle is not None else []
     prompt_context = base_context + (("\n" + "\n".join(bundle_lines)) if bundle_lines else "")
 
-    model_name = os.getenv("AISOC_LLM_MODEL", "gpt-4o-mini")
+    model_name = os.getenv("QUARRY_LLM_MODEL", "gpt-4o-mini")
     llm = ChatOpenAI(model=model_name, temperature=0.0, max_tokens=768)
 
     t0 = time.monotonic()

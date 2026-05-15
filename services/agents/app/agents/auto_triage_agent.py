@@ -27,7 +27,7 @@ from app.prompt_serialization import format_extra_fields_for_llm
 
 logger = structlog.get_logger()
 
-AUTO_CLOSE_THRESHOLD: float = float(os.getenv("AISOC_AUTO_CLOSE_THRESHOLD", "0.85"))
+AUTO_CLOSE_THRESHOLD: float = float(os.getenv("QUARRY_AUTO_CLOSE_THRESHOLD", "0.85"))
 
 _metrics: dict[str, Any] = {
     "auto_resolved_count": 0,
@@ -175,7 +175,7 @@ async def run_auto_triage(state: InvestigationState) -> InvestigationState:
 
     alert_context = _build_alert_context(state)
 
-    model_name = os.getenv("AISOC_LLM_MODEL", "gpt-4o-mini")
+    model_name = os.getenv("QUARRY_LLM_MODEL", "gpt-4o-mini")
     llm = ChatOpenAI(model=model_name, temperature=0.0, max_tokens=512)
 
     t0 = time.monotonic()

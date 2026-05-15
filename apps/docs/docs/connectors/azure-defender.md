@@ -1,12 +1,12 @@
 ---
 sidebar_position: 4
 title: Microsoft Defender (XDR)
-description: Cross-product Defender alerts from Microsoft 365 Defender into AiSOC via the Microsoft Graph Security API.
+description: Cross-product Defender alerts from Microsoft 365 Defender into Quarry via the Microsoft Graph Security API.
 ---
 
 # Microsoft Defender (XDR)
 
-The Defender connector pulls **alerts from the unified Microsoft 365 Defender XDR fabric** — Defender for Endpoint, Defender for Identity, Defender for Cloud Apps, and Defender for Office — into AiSOC via the Microsoft Graph Security API (`/security/alerts_v2`).
+The Defender connector pulls **alerts from the unified Microsoft 365 Defender XDR fabric** — Defender for Endpoint, Defender for Identity, Defender for Cloud Apps, and Defender for Office — into Quarry via the Microsoft Graph Security API (`/security/alerts_v2`).
 
 ## What you get
 
@@ -35,7 +35,7 @@ A Defender for Endpoint license is required for endpoint-class alerts to flow; o
 
 That is the only step beyond the standard Entra app setup.
 
-### 2. Add the connector in AiSOC
+### 2. Add the connector in Quarry
 
 1. **Connectors → Add connector → Microsoft Defender (XDR)**.
 2. `tenant_id`, `client_id`, `client_secret`.
@@ -50,9 +50,9 @@ That is the only step beyond the standard Entra app setup.
 
 ## Severity mapping
 
-Defender ships its own severity. AiSOC honours it 1:1:
+Defender ships its own severity. Quarry honours it 1:1:
 
-| Defender severity | AiSOC severity |
+| Defender severity | Quarry severity |
 |---|---|
 | `high` | `high` |
 | `medium` | `medium` |

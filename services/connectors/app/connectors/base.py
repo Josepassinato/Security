@@ -375,7 +375,7 @@ class BaseConnector(ABC):
         """Fetch recent alerts/events from the source."""
 
     def normalize(self, raw: dict[str, Any]) -> dict[str, Any]:
-        """Normalize a raw event to a common AiSOC alert schema."""
+        """Normalize a raw event to a common Quarry alert schema."""
         return raw
 
     # ----------------------------- T1.2 config snapshots ---------------------
@@ -459,12 +459,12 @@ class BaseConnector(ABC):
 
     # ----------------------------- bidirectional ITSM (Workstream 8) ----------
     #
-    # ``push_case`` mints an external ticket from an AiSOC case. Implementations
+    # ``push_case`` mints an external ticket from an Quarry case. Implementations
     # MUST return an ``ExternalTicketRef`` so the API layer can persist the
     # mapping in ``case_external_refs`` and avoid double-creation on retry.
     #
-    # ``push_status_change`` projects an AiSOC status transition onto the
-    # external system (e.g. AiSOC ``resolved`` → Jira "Done", ServiceNow
+    # ``push_status_change`` projects an Quarry status transition onto the
+    # external system (e.g. Quarry ``resolved`` → Jira "Done", ServiceNow
     # ``state=6``).  Implementations are expected to be idempotent and tolerate
     # the case where ``external_ref`` was created before the connector knew
     # about the case (e.g. inbound webhook flow).
@@ -475,7 +475,7 @@ class BaseConnector(ABC):
     # actions worker fails closed instead of silently skipping a case fan-out.
 
     async def push_case(self, case: dict[str, Any]) -> dict[str, Any]:
-        """Create or update an external ticket from an AiSOC case.
+        """Create or update an external ticket from an Quarry case.
 
         Args:
             case: A dict with at least ``id``, ``case_number``, ``title``,
@@ -500,14 +500,14 @@ class BaseConnector(ABC):
         new_status: str,
         external_ref: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
-        """Project an AiSOC status transition onto the external ticket.
+        """Project an Quarry status transition onto the external ticket.
 
         Args:
             case: Same shape as ``push_case``'s argument.
-            old_status: AiSOC status the case is moving *from*. Useful for
+            old_status: Quarry status the case is moving *from*. Useful for
                 detecting "open → closed" transitions that some ITSMs model
                 as a workflow action rather than a field write.
-            new_status: AiSOC status the case is moving *to*.
+            new_status: Quarry status the case is moving *to*.
             external_ref: ``{"external_id", "external_url", "vendor"}`` row
                 from ``case_external_refs``. ``None`` means "this case has
                 never been pushed before" — implementations may choose to

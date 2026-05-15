@@ -107,7 +107,7 @@ export function DemoEmbed() {
             id="demo-heading"
             className="mt-3 text-3xl font-bold tracking-tight text-fg-primary sm:text-4xl lg:text-[40px] lg:leading-[1.15] lg:tracking-[-0.015em]"
           >
-            Watch AiSOC investigate a live ransomware incident.
+            Watch Quarry investigate a live ransomware incident.
           </h2>
           <p className="mt-4 text-base leading-relaxed text-fg-secondary sm:text-lg">
             INC-RT-001 is a LockBit 3.0 case that ships with every install.
@@ -141,7 +141,7 @@ export function DemoEmbed() {
                 />
               </div>
               <p className="hidden text-xs font-mono text-fg-muted sm:block">
-                aisoc.dev/cases/INC-RT-001?tab=ledger
+                quarry.dev/cases/INC-RT-001?tab=ledger
               </p>
               <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-fg-subtle">
                 Live
@@ -272,13 +272,13 @@ export function DemoEmbed() {
           )}
           <figcaption className="sr-only">
             INC-RT-001 LockBit 3.0 investigation, paused on step 14 of 32 inside
-            the AiSOC ledger view.
+            the Quarry ledger view.
           </figcaption>
         </motion.figure>
 
         <div className="mx-auto mt-10 flex max-w-3xl flex-col items-center justify-center gap-3 text-center sm:flex-row sm:gap-5">
           <Link
-            href="https://github.com/beenuar/AiSOC#5-minute-demo"
+            href="https://github.com/beenuar/Quarry#5-minute-demo"
             className="group inline-flex h-11 items-center gap-2 rounded-md bg-gradient-to-br from-brand-500 to-brand-700 px-6 text-sm font-semibold text-white shadow-[0_1px_0_rgba(255,255,255,0.18)_inset] transition-shadow duration-200 ease-landing-out-quart hover:shadow-[0_12px_32px_-12px_rgba(59,130,246,0.65)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-base"
           >
             Run this yourself in 5 minutes
@@ -288,7 +288,7 @@ export function DemoEmbed() {
             />
           </Link>
           <Link
-            href="https://docs.aisoc.dev/architecture"
+            href="https://docs.quarry.dev/architecture"
             className="inline-flex items-center gap-1 text-sm font-medium text-fg-muted transition-colors duration-200 hover:text-fg-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-base"
           >
             Read the architecture

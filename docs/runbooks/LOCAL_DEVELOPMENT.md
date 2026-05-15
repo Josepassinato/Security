@@ -1,6 +1,6 @@
 # Local Development Runbook
 
-This runbook walks you from a freshly cloned repository to a running AiSOC stack on your laptop, and describes how to develop and debug each service in isolation.
+This runbook walks you from a freshly cloned repository to a running Quarry stack on your laptop, and describes how to develop and debug each service in isolation.
 
 ---
 
@@ -24,8 +24,8 @@ Memory budget: the full stack uses **~6 GB RAM** with all services running. If y
 ## 2. Clone & Configure
 
 ```bash
-git clone https://github.com/beenuar/AiSOC.git
-cd AiSOC
+git clone https://github.com/beenuar/Quarry.git
+cd Quarry
 cp .env.example .env
 ```
 
@@ -81,9 +81,9 @@ docker compose logs -f threatintel
 | Ingest | `curl http://localhost:8081/health` |
 | Realtime | `curl http://localhost:8086/health` |
 | Web Console | `curl -I http://localhost:3000` |
-| Postgres | `docker exec aisoc-postgres pg_isready -U aisoc` |
-| Redis | `docker exec aisoc-redis redis-cli -a redis_dev_secret ping` |
-| Kafka | `docker exec aisoc-kafka kafka-broker-api-versions --bootstrap-server localhost:9092` |
+| Postgres | `docker exec quarry-postgres pg_isready -U quarry` |
+| Redis | `docker exec quarry-redis redis-cli -a redis_dev_secret ping` |
+| Kafka | `docker exec quarry-kafka kafka-broker-api-versions --bootstrap-server localhost:9092` |
 | OpenSearch | `curl http://localhost:9200` |
 | Qdrant | `curl http://localhost:6333/healthz` |
 | ClickHouse | `curl http://localhost:8123/ping` |
@@ -204,10 +204,10 @@ Browse `http://localhost:3000`.
 # 1. Get a token
 TOKEN=$(curl -s -X POST http://localhost:8000/v1/auth/login \
   -H 'content-type: application/json' \
-  -d '{"email":"admin@aisoc.local","password":"changeme"}' | jq -r .access_token)
+  -d '{"email":"admin@quarry.local","password":"changeme"}' | jq -r .access_token)
 
 # 2. Send a synthetic event into Kafka
-docker exec -i aisoc-kafka kafka-console-producer \
+docker exec -i quarry-kafka kafka-console-producer \
   --bootstrap-server localhost:9092 \
   --topic events.raw <<'JSON'
 {"src":"crowdstrike","ts":"2026-05-01T12:00:00Z","host":{"hostname":"HOST-42"},"user":{"name":"alice@corp"},"event":{"id":"e1","name":"PowerShell encoded command","severity":4}}
@@ -258,7 +258,7 @@ docker compose up -d fusion
 ### 6.3 Tail Kafka topics
 
 ```bash
-docker exec -it aisoc-kafka \
+docker exec -it quarry-kafka \
   kafka-console-consumer --bootstrap-server localhost:9092 \
   --topic ocsf.events --from-beginning --max-messages 10
 ```
@@ -276,13 +276,13 @@ Topics created by the stack:
 
 ```bash
 # Postgres shell
-docker exec -it aisoc-postgres psql -U aisoc
+docker exec -it quarry-postgres psql -U quarry
 
 # ClickHouse shell
-docker exec -it aisoc-clickhouse clickhouse-client -u aisoc --password clickhouse_dev_secret
+docker exec -it quarry-clickhouse clickhouse-client -u quarry --password clickhouse_dev_secret
 
 # Neo4j cypher shell
-docker exec -it aisoc-neo4j cypher-shell -u neo4j -p neo4j_dev_secret
+docker exec -it quarry-neo4j cypher-shell -u neo4j -p neo4j_dev_secret
 ```
 
 ### 6.5 Run database migrations

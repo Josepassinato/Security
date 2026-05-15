@@ -1,12 +1,12 @@
-# aisoc-plugin-sdk · Go
+# quarry-plugin-sdk · Go
 
-The official Go SDK for building AiSOC plugins — custom enrichers, response
+The official Go SDK for building Quarry plugins — custom enrichers, response
 actions, and data-source connectors.
 
 ## Installation
 
 ```bash
-go get github.com/beenuar/aisoc/plugin-sdk-go
+go get github.com/beenuar/quarry/plugin-sdk-go
 ```
 
 ## Quick Start
@@ -18,29 +18,29 @@ package main
 
 import (
     "context"
-    "github.com/beenuar/aisoc/plugin-sdk-go/aisoc"
+    "github.com/beenuar/quarry/plugin-sdk-go/quarry"
 )
 
-type VTEnricher struct{ aisoc.BasePlugin }
+type VTEnricher struct{ quarry.BasePlugin }
 
-func (e *VTEnricher) Manifest() aisoc.PluginManifest {
-    return aisoc.PluginManifest{
+func (e *VTEnricher) Manifest() quarry.PluginManifest {
+    return quarry.PluginManifest{
         ID:         "myorg.virustotal",
         Name:       "VirusTotal Enricher",
         Version:    "1.0.0",
-        PluginType: aisoc.PluginTypeEnricher,
+        PluginType: quarry.PluginTypeEnricher,
     }
 }
 
 func (e *VTEnricher) Enrich(
     ctx context.Context,
-    req aisoc.EnrichmentRequest,
-    pctx aisoc.PluginContext,
-) (aisoc.EnrichmentResult, error) {
+    req quarry.EnrichmentRequest,
+    pctx quarry.PluginContext,
+) (quarry.EnrichmentResult, error) {
     // call VirusTotal API here …
     malicious := false
     confidence := 0.95
-    return aisoc.EnrichmentResult{
+    return quarry.EnrichmentResult{
         IndicatorType:  req.IndicatorType,
         IndicatorValue: req.IndicatorValue,
         Enrichments:    map[string]any{"vt_score": 72},
@@ -53,12 +53,12 @@ func (e *VTEnricher) Enrich(
 ### Response Action
 
 ```go
-type BlockIPAction struct{ aisoc.BasePlugin }
+type BlockIPAction struct{ quarry.BasePlugin }
 
-func (a *BlockIPAction) Manifest() aisoc.PluginManifest {
-    return aisoc.PluginManifest{
+func (a *BlockIPAction) Manifest() quarry.PluginManifest {
+    return quarry.PluginManifest{
         ID: "myorg.block-ip", Name: "Block IP",
-        Version: "1.0.0", PluginType: aisoc.PluginTypeAction,
+        Version: "1.0.0", PluginType: quarry.PluginTypeAction,
     }
 }
 
@@ -66,26 +66,26 @@ func (a *BlockIPAction) SupportedActions() []string { return []string{"block_ip"
 
 func (a *BlockIPAction) Execute(
     ctx context.Context,
-    req aisoc.ActionRequest,
-    pctx aisoc.PluginContext,
-) (aisoc.ActionResult, error) {
+    req quarry.ActionRequest,
+    pctx quarry.PluginContext,
+) (quarry.ActionResult, error) {
     if req.DryRun {
-        return aisoc.ActionResult{ActionID: req.ActionID, Success: true, DryRun: true,
+        return quarry.ActionResult{ActionID: req.ActionID, Success: true, DryRun: true,
             Summary: "Would block " + req.Params["ip"].(string)}, nil
     }
     // … firewall API call …
-    return aisoc.ActionResult{ActionID: req.ActionID, Success: true, Summary: "Blocked"}, nil
+    return quarry.ActionResult{ActionID: req.ActionID, Success: true, Summary: "Blocked"}, nil
 }
 ```
 
 ### Plugin Registry
 
 ```go
-reg := aisoc.NewRegistry()
+reg := quarry.NewRegistry()
 reg.Register(&VTEnricher{})
 reg.Register(&BlockIPAction{})
 
-pctx := aisoc.PluginContext{APIBaseURL: "http://api:8000", APIToken: "…"}
+pctx := quarry.PluginContext{APIBaseURL: "http://api:8000", APIToken: "…"}
 if err := reg.LoadAll(ctx, pctx); err != nil {
     log.Fatal(err)
 }

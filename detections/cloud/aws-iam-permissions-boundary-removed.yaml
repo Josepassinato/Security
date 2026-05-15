@@ -1,6 +1,6 @@
 id: det-cloud-046
 name: AWS IAM Permissions Boundary Removed
-description: AiSOC v1 curated detection. Triggers on the cloud signal described by 'AWS IAM Permissions
+description: Quarry v1 curated detection. Triggers on the cloud signal described by 'AWS IAM Permissions
   Boundary Removed'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: high
@@ -18,6 +18,6 @@ false_positives:
 - Boundary refactor (tracked in change ticket)
 playbook: tpl-privilege-escalation
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

@@ -1,7 +1,7 @@
 /**
- * AiSOC — osquery-tls Terraform Module
+ * Quarry — osquery-tls Terraform Module
  *
- * Deploys the aisoc-osquery-tls FastAPI service on Kubernetes (EKS).
+ * Deploys the quarry-osquery-tls FastAPI service on Kubernetes (EKS).
  * Handles TLS enrollment, config distribution, log ingestion, and
  * distributed query lifecycle for osqueryd agents.
  */
@@ -15,7 +15,7 @@ resource "kubernetes_namespace" "osquery_tls" {
     name = var.namespace
     labels = {
       "app.kubernetes.io/managed-by" = "terraform"
-      "app.kubernetes.io/part-of"    = "aisoc"
+      "app.kubernetes.io/part-of"    = "quarry"
     }
   }
 }
@@ -28,7 +28,7 @@ locals {
 
 resource "kubernetes_secret" "osquery_tls" {
   metadata {
-    name      = "aisoc-osquery-tls"
+    name      = "quarry-osquery-tls"
     namespace = local.namespace
     labels    = local.common_labels
   }
@@ -44,7 +44,7 @@ resource "kubernetes_secret" "osquery_tls" {
 
 resource "kubernetes_deployment" "osquery_tls" {
   metadata {
-    name      = "aisoc-osquery-tls"
+    name      = "quarry-osquery-tls"
     namespace = local.namespace
     labels    = local.common_labels
   }
@@ -54,7 +54,7 @@ resource "kubernetes_deployment" "osquery_tls" {
 
     selector {
       match_labels = {
-        "app.kubernetes.io/name" = "aisoc-osquery-tls"
+        "app.kubernetes.io/name" = "quarry-osquery-tls"
       }
     }
 
@@ -78,7 +78,7 @@ resource "kubernetes_deployment" "osquery_tls" {
           }
 
           env {
-            name = "AISOC_OSQUERY_TLS_ENROLL_SECRET"
+            name = "QUARRY_OSQUERY_TLS_ENROLL_SECRET"
             value_from {
               secret_key_ref {
                 name = kubernetes_secret.osquery_tls.metadata[0].name
@@ -98,7 +98,7 @@ resource "kubernetes_deployment" "osquery_tls" {
           }
 
           env {
-            name = "AISOC_INGEST_BASE_URL"
+            name = "QUARRY_INGEST_BASE_URL"
             value_from {
               secret_key_ref {
                 name = kubernetes_secret.osquery_tls.metadata[0].name
@@ -151,14 +151,14 @@ resource "kubernetes_deployment" "osquery_tls" {
 
 resource "kubernetes_service" "osquery_tls" {
   metadata {
-    name      = "aisoc-osquery-tls"
+    name      = "quarry-osquery-tls"
     namespace = local.namespace
     labels    = local.common_labels
   }
 
   spec {
     selector = {
-      "app.kubernetes.io/name" = "aisoc-osquery-tls"
+      "app.kubernetes.io/name" = "quarry-osquery-tls"
     }
 
     port {
@@ -178,7 +178,7 @@ resource "kubernetes_horizontal_pod_autoscaler_v2" "osquery_tls" {
   count = var.autoscaling.enabled ? 1 : 0
 
   metadata {
-    name      = "aisoc-osquery-tls"
+    name      = "quarry-osquery-tls"
     namespace = local.namespace
     labels    = local.common_labels
   }
@@ -210,9 +210,9 @@ resource "kubernetes_horizontal_pod_autoscaler_v2" "osquery_tls" {
 
 locals {
   common_labels = {
-    "app.kubernetes.io/name"       = "aisoc-osquery-tls"
+    "app.kubernetes.io/name"       = "quarry-osquery-tls"
     "app.kubernetes.io/component"  = "osquery-tls"
-    "app.kubernetes.io/part-of"    = "aisoc"
+    "app.kubernetes.io/part-of"    = "quarry"
     "app.kubernetes.io/managed-by" = "terraform"
     "app.kubernetes.io/version"    = var.image_tag
   }

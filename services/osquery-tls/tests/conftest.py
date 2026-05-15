@@ -13,8 +13,8 @@ from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 # Override env before importing the app so settings resolves without secrets.
-os.environ.setdefault("AISOC_OSQUERY_TLS_ENROLL_SECRET", "test-enroll-secret")
-os.environ.setdefault("AISOC_OSQUERY_TLS_API_TOKEN", "test-api-token")
+os.environ.setdefault("QUARRY_OSQUERY_TLS_ENROLL_SECRET", "test-enroll-secret")
+os.environ.setdefault("QUARRY_OSQUERY_TLS_API_TOKEN", "test-api-token")
 os.environ.setdefault("DATABASE_URL", "sqlite+aiosqlite:///:memory:")
 
 from app.db.base import Base  # noqa: E402

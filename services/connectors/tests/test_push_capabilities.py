@@ -9,7 +9,7 @@ ServiceNow connectors:
 * ``push_status_change`` decision tree:
     - ``external_ref is None`` → falls through to ``push_case`` so callers
       don't have to special-case "first push".
-    - Unknown AiSOC status → no-op return (no HTTP call) since the contract
+    - Unknown Quarry status → no-op return (no HTTP call) since the contract
       is "best-effort projection", not "schema match".
     - Jira: discover-then-transition path including the "no transition
       available for target status" workflow no-op.
@@ -106,7 +106,7 @@ def _async_responses(responses: list[MagicMock] | MagicMock | None) -> AsyncMock
 
 @pytest.mark.asyncio
 async def test_jira_push_case_builds_correct_payload_and_url() -> None:
-    """Happy path: severity → priority, ADF description, aisoc-case label."""
+    """Happy path: severity → priority, ADF description, quarry-case label."""
     case = {
         "id": "11111111-2222-3333-4444-555555555555",
         "case_number": "AIS-42",
@@ -143,10 +143,10 @@ async def test_jira_push_case_builds_correct_payload_and_url() -> None:
     # ADF doc shape — connector wraps the plain string under content[0].text.
     assert payload["fields"]["description"]["type"] == "doc"
     assert payload["fields"]["description"]["content"][0]["content"][0]["text"] == case["description"]
-    # Label round-trips the AiSOC case identifier so the inbound webhook
+    # Label round-trips the Quarry case identifier so the inbound webhook
     # can link the issue back to us without a custom field.
-    assert f"aisoc-case-{case['id']}" in payload["fields"]["labels"]
-    assert "aisoc" in payload["fields"]["labels"]
+    assert f"quarry-case-{case['id']}" in payload["fields"]["labels"]
+    assert "quarry" in payload["fields"]["labels"]
 
     headers = call.kwargs["headers"]
     assert headers["Authorization"].startswith("Basic ")
@@ -285,7 +285,7 @@ async def test_jira_push_status_change_requires_external_id_in_ref() -> None:
 
 @pytest.mark.asyncio
 async def test_jira_push_status_change_unknown_status_is_noop() -> None:
-    """Unknown AiSOC statuses return without making any HTTP call."""
+    """Unknown Quarry statuses return without making any HTTP call."""
     connector = JiraConnector(
         base_url="https://acme.atlassian.net",
         email="bot@acme.io",
@@ -425,7 +425,7 @@ async def test_snow_push_case_posts_to_table_with_correlation_id() -> None:
     """Happy path: incident table POST, correlation_id round-trips case id."""
     connector = ServiceNowConnector(
         instance_url="https://acme.service-now.com/",
-        username="aisoc-bot",
+        username="quarry-bot",
         password="hunter2",
     )
     response = _build_response(
@@ -461,8 +461,8 @@ async def test_snow_push_case_posts_to_table_with_correlation_id() -> None:
     # severity=critical → impact=1 (urgency mirrors impact for OOTB).
     assert body["impact"] == "1"
     assert body["urgency"] == "1"
-    # correlation_id round-trips the AiSOC case identifier.
-    assert body["correlation_id"] == "aisoc:case-uuid-1"
+    # correlation_id round-trips the Quarry case identifier.
+    assert body["correlation_id"] == "quarry:case-uuid-1"
 
     assert result["external_id"] == "abcdef0123456789abcdef0123456789"
     assert result["vendor"] == "servicenow"
@@ -555,7 +555,7 @@ async def test_snow_push_status_change_requires_external_id_in_ref() -> None:
 
 @pytest.mark.asyncio
 async def test_snow_push_status_change_unknown_status_is_noop() -> None:
-    """Unknown AiSOC status → no HTTP call, return ref unchanged."""
+    """Unknown Quarry status → no HTTP call, return ref unchanged."""
     connector = ServiceNowConnector(
         instance_url="https://acme.service-now.com",
         username="u",

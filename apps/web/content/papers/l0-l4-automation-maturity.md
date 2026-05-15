@@ -1,10 +1,10 @@
 ---
 title: "The L0–L4 SOC Automation Maturity Model"
 subtitle: "A pragmatic framework for graduating autonomous response, with audit trails"
-author: "AiSOC project"
+author: "Quarry project"
 version: "v1.0"
 date: "2026-05-13"
-license: "MIT (same as the AiSOC project)"
+license: "MIT (same as the Quarry project)"
 abstract: |
   Security Operations Centers are caught between two failure modes. Run all
   response through a human queue and the median time-to-respond is bounded
@@ -12,7 +12,7 @@ abstract: |
   an autonomous agent and a single false-positive can disable an
   executive's account, blackhole production traffic, or quarantine a CI
   build server during a release. The L0–L4 SOC Automation Maturity model,
-  shipped as a first-class configuration in the open-source AiSOC platform,
+  shipped as a first-class configuration in the open-source Quarry platform,
   formalises the spectrum between these failure modes into five tiers. At
   each tier, a precise set of action blast radii is permitted to execute
   autonomously; everything else is queued for human approval. The tier is
@@ -138,7 +138,7 @@ function, look at the gate log for the last 24 hours, and form a verifiable
 belief about what the agent did and didn't do. Without this, the maturity
 model is just marketing.
 
-In AiSOC, the gate is a single function — `evaluate_gate(request, config)`
+In Quarry, the gate is a single function — `evaluate_gate(request, config)`
 in `services/actions/app/services/maturity.py` — that returns one of
 `auto`, `queued_approval`, or `blocked`, along with a structured rationale.
 Every decision is written to `remediation_gate_log` with the tier, blast
@@ -156,7 +156,7 @@ sources, drafts case notes, suggests playbooks, and proposes actions —
 but it never executes. Every action a playbook, recommendation, or human
 operator requests is routed to the approval queue.
 
-**Entry criteria.** A working AiSOC tenant with at least one connector
+**Entry criteria.** A working Quarry tenant with at least one connector
 emitting alerts. No special trust signals required. L0 is the default for
 new tenants and for tenants in regulated environments where the
 compliance team needs an audit window before any autonomous action is
@@ -170,7 +170,7 @@ approval queue is the operating mode.
 **MTTR target.** Bounded by human attention. The agent cannot reduce
 median MTTR below the time it takes an analyst to read an alert, evaluate
 the suggested actions, and click approve. For high-volume tenants, MTTR
-at L0 is functionally identical to MTTR before AiSOC was deployed; the
+at L0 is functionally identical to MTTR before Quarry was deployed; the
 agent buys investigation depth, not response speed.
 
 **FP tolerance.** Very high. Because no autonomous action fires, false
@@ -218,7 +218,7 @@ cycle should treat that as a deployment problem, not a maturity problem.
 
 ### L2 — Contain
 
-L2 is where AiSOC's median production tenant operates. The agent is
+L2 is where Quarry's median production tenant operates. The agent is
 permitted to execute reversible, single-resource, low-impact containment
 actions in addition to L1's notification scope.
 
@@ -237,7 +237,7 @@ accepted.
 **What is gated.** Everything `MEDIUM` and above is queued.
 
 **MTTR target.** MTTR for the auto-execution path drops to single-digit
-minutes end-to-end. The bulk of AiSOC's published benchmark numbers come
+minutes end-to-end. The bulk of Quarry's published benchmark numbers come
 from L2-tier tenants, because that is where the platform's autonomous
 behaviour first becomes load-bearing.
 
@@ -247,7 +247,7 @@ designed so an analyst can release the quarantine in a single API call.
 A wrongly-blocked IOC has a similar rollback path. The cost is analyst
 time, not user disruption.
 
-**Honest characterisation.** When a prospect asks "where is AiSOC
+**Honest characterisation.** When a prospect asks "where is Quarry
 autonomous today," the truthful answer is "L2 for the median tenant,
 L3 on selected action classes for mature tenants." Anyone marketing a
 higher number is either running a narrow demo, counting recommendations
@@ -288,7 +288,7 @@ supported but not free; the cost is measured in user-visible disruption
 plus analyst recovery time.
 
 **Honest characterisation.** L3 is not a binary upgrade from L2. In
-practice, AiSOC tenants reach L3 _per action type_ rather than as a
+practice, Quarry tenants reach L3 _per action type_ rather than as a
 global tier bump. The recommended path is to set the tenant tier to L2
 and use `force_auto` overrides on specific MEDIUM action types (e.g.
 `block_ip` for known-malicious IPs from high-confidence threat intel)
@@ -341,7 +341,7 @@ audit time.
 operator's signed contract that this specific combination has been
 de-risked, with rollback, notification, and expiry built in.
 
-**Honest characterisation.** As of v8.0, a small number of pilot AiSOC
+**Honest characterisation.** As of v8.0, a small number of pilot Quarry
 tenants are operating closed-loop L4 automations for narrow scenarios
 (host isolation on quarantine-tagged workstations, session suspension on
 tokens from impossible-travel events). The platform supports L4 fully,
@@ -388,14 +388,14 @@ UUID for human-initiated ones; the gate runs uniformly regardless.
 
 ## How to assess your SOC's current tier
 
-These are the questions AiSOC's onboarding flow asks. They are the same
+These are the questions Quarry's onboarding flow asks. They are the same
 questions a security architect should ask before flipping the tier dial.
 
 1. **Notification readiness.** Is at least one notification connector
    configured and actively read? If the agent's Slack post falls in an
    abandoned channel, L1 buys nothing. Verdict: stay at L0 until
    notifications are real.
-2. **Alert-to-incident ratio.** AiSOC's public benchmark gates at 50:1.
+2. **Alert-to-incident ratio.** Quarry's public benchmark gates at 50:1.
    Tenants with a higher ratio will amplify noise, not reduce it, when
    the agent starts firing autonomously. Verdict: stay at L1.
 3. **Rollback discipline.** For each LOW-blast-radius action class you
@@ -412,7 +412,7 @@ questions a security architect should ask before flipping the tier dial.
    Verdict: stay at L3.
 
 The honest answer for most SOCs as of 2026 is that they are at L0 with an
-ambitious roadmap to L2. The honest answer for most AiSOC tenants as of
+ambitious roadmap to L2. The honest answer for most Quarry tenants as of
 v8.0 is that they are at L2 with selective L3 overrides on specific
 high-confidence action types.
 
@@ -451,7 +451,7 @@ L3 → L4
     reviewed in production.
 ```
 
-The dial moves both ways. A tier drop is a single API call away. AiSOC
+The dial moves both ways. A tier drop is a single API call away. Quarry
 treats tier _downgrades_ — for example, dropping back to L2 during a
 sensitive period such as a financial audit or after a recent operational
 incident — as a normal, lossless operation. The gate picks up the new
@@ -470,14 +470,14 @@ auto-fires against private RFC1918 ranges." This would replace the
 current `force_auto` boolean with a constraint object; the cost is a
 modest schema change on `action_overrides`.
 
-**2. Tier-aware playbooks.** AiSOC's playbook engine currently does not
+**2. Tier-aware playbooks.** Quarry's playbook engine currently does not
 parameterise its steps by the executing tenant's tier. A playbook author
 who wants step 4 to "fire if tier ≥ L3, else queue" must encode that
 conditional in the playbook itself. A future revision may let playbooks
 declare a per-step minimum tier and let the engine route accordingly,
 making playbooks portable across tenants at different tiers.
 
-**3. Tier as a marketplace property.** Plugins in the AiSOC marketplace
+**3. Tier as a marketplace property.** Plugins in the Quarry marketplace
 declare which action types they offer. A future revision could let
 plugins declare a recommended _minimum tier_ for their actions, so
 operators see at install time whether the new connector's actions fit
@@ -512,18 +512,18 @@ frameworks:
 
 - **MITRE D3FEND.** The defensive-technique catalog organises responses
   by mechanism (isolate, evict, restrict, restore). The D3FEND mechanism
-  hierarchy maps roughly onto AiSOC's blast-radius taxonomy: `restrict`
+  hierarchy maps roughly onto Quarry's blast-radius taxonomy: `restrict`
   techniques tend to be `LOW`/`MEDIUM`, `isolate` and `evict` techniques
   tend to be `HIGH`. The mapping is not 1:1 — D3FEND is about technique
-  identity, AiSOC is about operational impact — but the framings rhyme.
+  identity, Quarry is about operational impact — but the framings rhyme.
   See: <https://d3fend.mitre.org/>.
 
 - **OASIS CACAO.** The Collaborative Automated Course of Action
   Operations specification (v2.0) is the open-standard format for
-  describing playbooks across security platforms. AiSOC's playbook
+  describing playbooks across security platforms. Quarry's playbook
   engine is format-compatible with CACAO v2.0, which means a CACAO
   playbook can be loaded by the engine and gated by the L0–L4 model
-  exactly as a native AiSOC playbook would be. See:
+  exactly as a native Quarry playbook would be. See:
   <https://www.oasis-open.org/standard/cacao/>.
 
 - **SAE J3016 (driving automation levels).** The automotive industry's
@@ -538,7 +538,7 @@ frameworks:
 - **NIST SP 800-61 (Computer Security Incident Handling Guide).** The
   classical four-phase incident response lifecycle (preparation,
   detection and analysis, containment-eradication-recovery, post-incident
-  activity) maps onto the AiSOC tier model: L0/L1 belong to detection
+  activity) maps onto the Quarry tier model: L0/L1 belong to detection
   and analysis, L2/L3 belong to containment and eradication, L4 closed
   loops belong to fully-instrumented recovery. See:
   <https://csrc.nist.gov/publications/detail/sp/800-61/rev-2/final>.
@@ -560,7 +560,7 @@ frameworks:
 ## Appendix B — Worked example: closed-loop session suspension
 
 A pilot tenant runs L3 for the tenant default and an L4 whitelist for a
-single closed loop: _"Suspend the session token if AiSOC detects
+single closed loop: _"Suspend the session token if Quarry detects
 impossible travel."_
 
 The whitelist entry is:
@@ -593,11 +593,11 @@ whitelist entry), the gate would have returned `queued_approval` and the
 action would have landed in the analyst queue.
 
 This is the model in production. The dial moves slowly. The audit log is
-always on. The operator owns the trust posture; AiSOC owns the gate.
+always on. The operator owns the trust posture; Quarry owns the gate.
 
 ---
 
-_The AiSOC project is MIT-licensed and community-maintained. The code
-underlying this paper is at <https://github.com/beenuar/AiSOC>;
+_The Quarry project is MIT-licensed and community-maintained. The code
+underlying this paper is at <https://github.com/Josepassinato/quarry>;
 contributions to the maturity model — new action types, tier-aware
 playbook syntax, marketplace metadata — are welcome._

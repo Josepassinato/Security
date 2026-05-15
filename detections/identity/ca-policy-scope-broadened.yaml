@@ -1,6 +1,6 @@
 id: det-identity-039
 name: Conditional Access Policy Scope Broadened (Less Restrictive)
-description: AiSOC v1 curated detection. Triggers on the identity signal described by 'Conditional Access
+description: Quarry v1 curated detection. Triggers on the identity signal described by 'Conditional Access
   Policy Scope Broadened (Less Restrictive)'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: high
@@ -19,6 +19,6 @@ false_positives:
 - Onboarding new application to existing policy (ticketed)
 playbook: tpl-defense-evasion
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

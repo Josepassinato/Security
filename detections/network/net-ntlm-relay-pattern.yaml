@@ -1,6 +1,6 @@
 id: det-network-066
 name: NTLM Relay Indicator (Same Challenge Reused Across Hosts)
-description: AiSOC v1 curated detection. Triggers on the network signal described by 'NTLM Relay Indicator
+description: Quarry v1 curated detection. Triggers on the network signal described by 'NTLM Relay Indicator
   (Same Challenge Reused Across Hosts)'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: critical
@@ -19,6 +19,6 @@ false_positives:
 - NTLM relay tested in lab
 playbook: tpl-credential-access
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

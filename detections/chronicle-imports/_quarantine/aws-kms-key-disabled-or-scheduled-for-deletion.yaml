@@ -54,4 +54,4 @@ provenance:
   upstream_path: rules/community/aws/cloudtrail/aws_kms_key_disabled_or_scheduled_for_deletion.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

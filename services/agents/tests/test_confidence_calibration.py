@@ -1,7 +1,7 @@
 """
 Calibrated-confidence Eval — Brier-score Gate
 =============================================
-Tier-1 capability 1.2 from the AiSOC capability roadmap (2026 H2): every
+Tier-1 capability 1.2 from the Quarry capability roadmap (2026 H2): every
 agent verdict must ship with a calibrated ``confidence ∈ [0, 1]`` plus a
 human-readable ``confidence_basis`` list, and the calibration must hold up
 against a labelled corpus in CI.

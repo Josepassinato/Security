@@ -1,4 +1,4 @@
-id: community-aisoc-hello-hunt-aws-root-login
+id: community-quarry-hello-hunt-aws-root-login
 name: "[Hello Hunt] AWS Root Account Console Login"
 description: |
   Tutorial detection from apps/docs/docs/detections/hello-hunt.md.
@@ -32,7 +32,7 @@ false_positives:
   - Initial AWS account setup before an IAM admin user exists.
 playbook: tpl-credential-access
 enabled: true
-author: AiSOC Tutorial
+author: Quarry Tutorial
 created: '2026-05-12'
 modified: '2026-05-12'
 references:

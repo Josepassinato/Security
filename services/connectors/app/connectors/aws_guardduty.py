@@ -18,7 +18,7 @@ Auth model:
         GuardDuty permissions.
 
 Severity mapping:
-    GuardDuty publishes severity as a float roughly in [0.1, 10.0]. AiSOC's
+    GuardDuty publishes severity as a float roughly in [0.1, 10.0]. Quarry's
     canonical ladder is the 5-tier ``info | low | medium | high | critical``
     set. We bucket using AWS's own published thresholds, preserving the
     Critical tier so P1 GuardDuty findings keep their original priority:
@@ -46,11 +46,11 @@ logger = structlog.get_logger()
 
 
 def _severity_label(score: float | int | None) -> str:
-    """Bucket GuardDuty's float severity into AiSOC's 5-tier ladder.
+    """Bucket GuardDuty's float severity into Quarry's 5-tier ladder.
 
     GuardDuty publishes severity as a float roughly in [0.1, 10.0]. AWS's
     own console buckets that into Low (1.0-3.9), Medium (4.0-6.9),
-    High (7.0-8.9), and Critical (9.0-10.0). AiSOC's 5-tier ladder
+    High (7.0-8.9), and Critical (9.0-10.0). Quarry's 5-tier ladder
     (info | low | medium | high | critical) preserves the Critical tier
     end-to-end so P1 findings keep their original priority rather than
     getting silently downgraded into ``high``. The original float is

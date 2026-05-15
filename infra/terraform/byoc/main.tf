@@ -1,4 +1,4 @@
-# AiSOC Bring-Your-Own-Cloud (BYOC) — minimal production starter
+# Quarry Bring-Your-Own-Cloud (BYOC) — minimal production starter
 # Deploys the core control plane (API + Agents) on a single-region EKS cluster
 # with managed PostgreSQL, Redis, and object storage.
 
@@ -82,7 +82,7 @@ resource "aws_db_instance" "postgres" {
   db_subnet_group_name   = aws_db_subnet_group.db.name
   vpc_security_group_ids = [module.eks.cluster_security_group_id]
 
-  username = "aisoc"
+  username = "quarry"
   password = var.db_password
 
   skip_final_snapshot = true
@@ -97,7 +97,7 @@ resource "aws_elasticache_subnet_group" "redis" {
 
 resource "aws_elasticache_replication_group" "redis" {
   replication_group_id       = "${var.cluster_name}-redis"
-  description                = "AiSOC Redis"
+  description                = "Quarry Redis"
   node_type                  = var.redis_node_type
   num_cache_clusters         = 2
   automatic_failover_enabled = true

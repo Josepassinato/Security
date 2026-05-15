@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-AiSOC Detection Pack v1 - Generator
+Quarry Detection Pack v1 - Generator
 ====================================
 
 Walks the canonical specifications in `detection_specs.py` and
@@ -374,7 +374,7 @@ def _description_for(spec: dict, category: str) -> str:
         else ""
     )
     return (
-        f"AiSOC v1 curated detection. Triggers on the {category} signal "
+        f"Quarry v1 curated detection. Triggers on the {category} signal "
         f"described by '{name}'.{fp_clause}"
     )
 
@@ -429,7 +429,7 @@ def render_rule_yaml(
     if playbook:
         rule["playbook"] = playbook
     rule["enabled"] = True
-    rule["author"] = "AiSOC"
+    rule["author"] = "Quarry"
     rule["created"] = "2026-05-03"
     rule["modified"] = "2026-05-03"
 
@@ -496,7 +496,7 @@ def write_pack(*, dry_run: bool = False) -> dict[str, int]:
 def main() -> int:
     counts = write_pack(dry_run=False)
     total = sum(counts.values())
-    print("AiSOC detection pack regenerated:")
+    print("Quarry detection pack regenerated:")
     for category, count in sorted(counts.items()):
         print(f"  {category:14s} {count:4d}")
     print(f"  {'TOTAL':14s} {total:4d}")

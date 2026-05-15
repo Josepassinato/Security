@@ -1,5 +1,5 @@
 /**
- * `aisoc-mcp install` — write a configured server entry into the host's
+ * `quarry-mcp install` — write a configured server entry into the host's
  * MCP config file so users don't have to hand-edit JSON.
  *
  * We support four hosts on first ship:
@@ -45,7 +45,7 @@ export interface InstallResult {
 }
 
 /**
- * Install the AiSOC server into the requested host. Idempotent: re-running
+ * Install the Quarry server into the requested host. Idempotent: re-running
  * with the same arguments is a no-op (returns `changed: false`).
  */
 export function install(opts: InstallOptions): InstallResult {
@@ -56,7 +56,7 @@ export function install(opts: InstallOptions): InstallResult {
         host: "claude",
         configPath: opts.configPath ?? claudeConfigPath(),
         rootKey: "mcpServers",
-        serverName: "aisoc",
+        serverName: "quarry",
         snippet,
         dryRun: opts.dryRun,
         followUp:
@@ -67,18 +67,18 @@ export function install(opts: InstallOptions): InstallResult {
         host: "cursor",
         configPath: opts.configPath ?? cursorConfigPath(),
         rootKey: "mcpServers",
-        serverName: "aisoc",
+        serverName: "quarry",
         snippet,
         dryRun: opts.dryRun,
         followUp:
-          "Open Cursor → Settings → MCP and confirm the `aisoc` server shows green.",
+          "Open Cursor → Settings → MCP and confirm the `quarry` server shows green.",
       });
     case "continue":
       return installToJsonConfig({
         host: "continue",
         configPath: opts.configPath ?? continueConfigPath(),
         rootKey: "mcpServers",
-        serverName: "aisoc",
+        serverName: "quarry",
         snippet,
         dryRun: opts.dryRun,
         followUp:
@@ -97,7 +97,7 @@ export function install(opts: InstallOptions): InstallResult {
           "Cody reads MCP config from VS Code settings.",
           "Paste this under `cody.mcp.servers` in your User Settings (JSON):",
           "",
-          JSON.stringify({ aisoc: snippet }, null, 2),
+          JSON.stringify({ quarry: snippet }, null, 2),
         ].join("\n"),
       };
   }
@@ -114,12 +114,12 @@ export function install(opts: InstallOptions): InstallResult {
  * the command line short and the secret out of `ps`.
  */
 function buildServerSnippet(cfg: ServerConfig): Record<string, unknown> {
-  const env: Record<string, string> = { AISOC_URL: cfg.aisocUrl };
-  if (cfg.apiKey) env.AISOC_API_KEY = cfg.apiKey;
+  const env: Record<string, string> = { QUARRY_URL: cfg.aisocUrl };
+  if (cfg.apiKey) env.QUARRY_API_KEY = cfg.apiKey;
   if (cfg.timeoutMs && cfg.timeoutMs !== 20_000) {
-    env.AISOC_TIMEOUT_MS = String(cfg.timeoutMs);
+    env.QUARRY_TIMEOUT_MS = String(cfg.timeoutMs);
   }
-  if (cfg.verbose) env.AISOC_VERBOSE = "1";
+  if (cfg.verbose) env.QUARRY_VERBOSE = "1";
   return {
     command: "npx",
     args: ["-y", "@quarry/mcp", "serve"],
@@ -231,7 +231,7 @@ function continueConfigPath(): string {
   return path.join(os.homedir(), ".continue", "config.json");
 }
 
-/** Exposed for `aisoc-mcp install --list-paths` and tests. */
+/** Exposed for `quarry-mcp install --list-paths` and tests. */
 export function knownConfigPaths(): Record<Host, string | null> {
   return {
     claude: claudeConfigPath(),

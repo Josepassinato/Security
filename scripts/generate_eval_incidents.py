@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-AiSOC eval-harness incident generator.
+Quarry eval-harness incident generator.
 =======================================
 
 Produces a deterministic JSON dataset of N synthetic SOC incidents for the
@@ -407,7 +407,7 @@ TEMPLATES: list[Template] = [
                 "workflow_run.completed",
                 workflow="ci.yml",
                 actor="dependabot[bot]",
-                repository="aisoc/web",
+                repository="quarry/web",
                 conclusion="success",
                 package_added="event-stream@4.0.1",
             ),
@@ -1522,7 +1522,7 @@ TEMPLATES: list[Template] = [
                 ClientIP="{host}",
                 Subject="URGENT: Wire instructions from CFO",
                 From="cfo@example.com.spoof",
-                ReplyTo="cfo-aisoc@protonmail.com",
+                ReplyTo="cfo-quarry@protonmail.com",
                 threat_actor="{campaign}",
             ),
         ),
@@ -1548,13 +1548,13 @@ TEMPLATES: list[Template] = [
                 "PutBucketAcl",
                 event_source="s3.amazonaws.com",
                 userIdentity={"type": "IAMUser", "userName": "ops-lead@example.com"},
-                requestParameters={"bucketName": "aisoc-employees", "AccessControlPolicy": {"Grants": [{"Grantee": "AllUsers", "Permission": "READ"}]}},
+                requestParameters={"bucketName": "quarry-employees", "AccessControlPolicy": {"Grants": [{"Grantee": "AllUsers", "Permission": "READ"}]}},
             ),
             _cloudtrail(
                 "ListObjectsV2",
                 event_source="s3.amazonaws.com",
                 sourceIPAddress="{ip}",
-                requestParameters={"bucketName": "aisoc-employees", "max-keys": 1000},
+                requestParameters={"bucketName": "quarry-employees", "max-keys": 1000},
                 userIdentity={"type": "AnonymousUser"},
             ),
         ),
@@ -1651,8 +1651,8 @@ TEMPLATES: list[Template] = [
                 Computer="{host}",
                 User="{user}",
                 EventType="SetValue",
-                TargetObject="HKCU\\Software\\Microsoft\\Office\\Outlook\\Addins\\Aisoc.Updater",
-                Details="LoadBehavior=3;Manifest=file:///C:/Users/{user}/AppData/Roaming/aisoc.vsto",
+                TargetObject="HKCU\\Software\\Microsoft\\Office\\Outlook\\Addins\\Quarry.Updater",
+                Details="LoadBehavior=3;Manifest=file:///C:/Users/{user}/AppData/Roaming/quarry.vsto",
             ),
             _sysmon(
                 3,
@@ -1878,7 +1878,7 @@ TEMPLATES: list[Template] = [
                 "workflow_run.requested",
                 workflow="deploy.yml",
                 actor="external-contrib",
-                repository="aisoc/web",
+                repository="quarry/web",
                 event="pull_request",
                 runner="{host}",
             ),

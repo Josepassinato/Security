@@ -11,31 +11,31 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/beenuar/aisoc/plugin-sdk-go/aisoc"
+	"github.com/beenuar/quarry/plugin-sdk-go/quarry"
 )
 
 const eventsURL = "https://events.pagerduty.com/v2/enqueue"
 
-// PagerDutyAction implements aisoc.Action for the PagerDuty Events API v2.
+// PagerDutyAction implements quarry.Action for the PagerDuty Events API v2.
 type PagerDutyAction struct {
-	aisoc.BasePlugin
+	quarry.BasePlugin
 
 	httpClient *http.Client
 }
 
-func (p *PagerDutyAction) Manifest() aisoc.PluginManifest {
-	return aisoc.PluginManifest{
+func (p *PagerDutyAction) Manifest() quarry.PluginManifest {
+	return quarry.PluginManifest{
 		ID:          "pagerduty-paging",
 		Name:        "PagerDuty Paging",
 		Version:     "1.0.0",
-		PluginType:  aisoc.PluginTypeAction,
+		PluginType:  quarry.PluginTypeAction,
 		Description: "Pages on-call responders via PagerDuty Events API v2.",
-		Author:      "AiSOC Core Team",
+		Author:      "Quarry Core Team",
 		Tags:        []string{"paging", "pagerduty", "oncall", "incidents", "action"},
 	}
 }
 
-func (p *PagerDutyAction) OnLoad(_ context.Context, _ aisoc.PluginContext) error {
+func (p *PagerDutyAction) OnLoad(_ context.Context, _ quarry.PluginContext) error {
 	p.httpClient = &http.Client{Timeout: 30 * time.Second}
 	return nil
 }
@@ -50,10 +50,10 @@ func (p *PagerDutyAction) SupportedActions() []string {
 
 func (p *PagerDutyAction) Execute(
 	ctx context.Context,
-	req aisoc.ActionRequest,
-	pctx aisoc.PluginContext,
-) (aisoc.ActionResult, error) {
-	result := aisoc.ActionResult{
+	req quarry.ActionRequest,
+	pctx quarry.PluginContext,
+) (quarry.ActionResult, error) {
+	result := quarry.ActionResult{
 		ActionID: req.ActionID,
 		DryRun:   req.DryRun,
 		Details:  map[string]any{},
@@ -88,12 +88,12 @@ func (p *PagerDutyAction) Execute(
 func (p *PagerDutyAction) trigger(
 	ctx context.Context,
 	routingKey string,
-	req aisoc.ActionRequest,
-	result aisoc.ActionResult,
-) (aisoc.ActionResult, error) {
+	req quarry.ActionRequest,
+	result quarry.ActionResult,
+) (quarry.ActionResult, error) {
 	summary, _ := req.Params["summary"].(string)
 	if summary == "" {
-		summary = "AiSOC alert"
+		summary = "Quarry alert"
 	}
 	severity, _ := req.Params["severity"].(string)
 	if severity == "" {
@@ -102,7 +102,7 @@ func (p *PagerDutyAction) trigger(
 	dedupKey, _ := req.Params["dedup_key"].(string)
 	source, _ := req.Params["source"].(string)
 	if source == "" {
-		source = "aisoc"
+		source = "quarry"
 	}
 	body, err := json.Marshal(map[string]any{
 		"routing_key":  routingKey,
@@ -134,10 +134,10 @@ func (p *PagerDutyAction) trigger(
 func (p *PagerDutyAction) lifecycle(
 	ctx context.Context,
 	routingKey string,
-	req aisoc.ActionRequest,
+	req quarry.ActionRequest,
 	eventAction string,
-	result aisoc.ActionResult,
-) (aisoc.ActionResult, error) {
+	result quarry.ActionResult,
+) (quarry.ActionResult, error) {
 	dedupKey, _ := req.Params["dedup_key"].(string)
 	if dedupKey == "" {
 		result.Error = "dedup_key required for ack/resolve"
@@ -186,7 +186,7 @@ func (p *PagerDutyAction) do(ctx context.Context, body []byte) ([]byte, error) {
 }
 
 func main() {
-	registry := aisoc.NewRegistry()
+	registry := quarry.NewRegistry()
 	if err := registry.Register(&PagerDutyAction{}); err != nil {
 		panic(err)
 	}

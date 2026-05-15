@@ -28,7 +28,7 @@ _TIMEOUT = 10.0
 
 async def enrich_ioc(ioc_value: str, ioc_type: str) -> dict[str, Any]:
     """
-    Call the AiSOC enrichment micro-service for a single IOC.
+    Call the Quarry enrichment micro-service for a single IOC.
     Returns the enrichment result or an error dict.
     """
     try:
@@ -50,7 +50,7 @@ async def enrich_ioc(ioc_value: str, ioc_type: str) -> dict[str, Any]:
 
 
 async def fetch_case(case_id: str, api_token: str = "") -> dict[str, Any]:
-    """Fetch full case details from the AiSOC API."""
+    """Fetch full case details from the Quarry API."""
     headers = {"Authorization": f"Bearer {api_token}"} if api_token else {}
     try:
         async with httpx.AsyncClient(timeout=_TIMEOUT) as client:

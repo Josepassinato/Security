@@ -42,6 +42,6 @@ expected:
   negative_incident_id: INC-HUNT-003-NEG
 references:
   - https://attack.mitre.org/techniques/T1528/
-author: AiSOC
+author: Quarry
 created: '2026-05-05'
 modified: '2026-05-05'

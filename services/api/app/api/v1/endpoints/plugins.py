@@ -8,9 +8,9 @@ POST   /plugins/{plugin_id}/disable
 POST   /plugins/{plugin_id}/reload
 DELETE /plugins/{plugin_id}       – unload (does not delete from disk)
 POST   /plugins/{plugin_id}/run   – invoke plugin directly (enricher/action)
-POST   /plugins/discover          – re-scan AISOC_PLUGINS_DIR
+POST   /plugins/discover          – re-scan QUARRY_PLUGINS_DIR
 
-MIT License — AiSOC (open-source AI Security Operations Center)
+MIT License — Quarry (open-source AI Security Operations Center)
 """
 
 from __future__ import annotations

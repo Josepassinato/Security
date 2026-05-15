@@ -1,6 +1,6 @@
 name: Graph schema drift check
 
-# Drift gate for the AiSOC security knowledge graph (T1.3).
+# Drift gate for the Quarry security knowledge graph (T1.3).
 #
 # Keeps three representations of the schema aligned:
 #   1. schemas/graph-schema.yaml       — the checked-in source of truth

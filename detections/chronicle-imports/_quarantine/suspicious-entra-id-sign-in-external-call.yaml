@@ -115,4 +115,4 @@ provenance:
   upstream_path: rules/community/microsoft/o365/suspicious_entra_id_sign_in_external_call.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

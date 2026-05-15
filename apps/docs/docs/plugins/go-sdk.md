@@ -7,7 +7,7 @@ sidebar_position: 3
 ## Installation
 
 ```bash
-go get github.com/beenuar/aisoc/plugin-sdk-go
+go get github.com/beenuar/quarry/plugin-sdk-go
 ```
 
 ## Quick Start: Enricher
@@ -17,28 +17,28 @@ package main
 
 import (
     "context"
-    "github.com/beenuar/aisoc/plugin-sdk-go/aisoc"
+    "github.com/beenuar/quarry/plugin-sdk-go/quarry"
 )
 
 type IPReputationEnricher struct {
-    aisoc.BasePlugin
+    quarry.BasePlugin
 }
 
-func (e *IPReputationEnricher) Manifest() aisoc.PluginManifest {
-    return aisoc.PluginManifest{
+func (e *IPReputationEnricher) Manifest() quarry.PluginManifest {
+    return quarry.PluginManifest{
         ID:          "myorg.ip-reputation",
         Name:        "IP Reputation",
         Version:     "1.0.0",
-        PluginType:  aisoc.PluginTypeEnricher,
+        PluginType:  quarry.PluginTypeEnricher,
     }
 }
 
 func (e *IPReputationEnricher) Enrich(
     ctx context.Context,
-    req aisoc.EnrichmentRequest,
-    pluginCtx aisoc.PluginContext,
-) (aisoc.EnrichmentResult, error) {
-    return aisoc.EnrichmentResult{
+    req quarry.EnrichmentRequest,
+    pluginCtx quarry.PluginContext,
+) (quarry.EnrichmentResult, error) {
+    return quarry.EnrichmentResult{
         IndicatorType:  req.IndicatorType,
         IndicatorValue: req.IndicatorValue,
         Enrichments:    map[string]any{"score": 42},
@@ -48,10 +48,10 @@ func (e *IPReputationEnricher) Enrich(
 }
 
 func main() {
-    registry := aisoc.NewRegistry()
+    registry := quarry.NewRegistry()
     plugin := &IPReputationEnricher{}
     registry.Register(plugin)
-    ctx := aisoc.PluginContext{APIBaseURL: "http://localhost:8000"}
+    ctx := quarry.PluginContext{APIBaseURL: "http://localhost:8000"}
     registry.LoadAll(context.Background(), ctx)
 }
 ```
@@ -60,15 +60,15 @@ func main() {
 
 ```go
 type BlockIPAction struct {
-    aisoc.BasePlugin
+    quarry.BasePlugin
 }
 
-func (a *BlockIPAction) Manifest() aisoc.PluginManifest {
-    return aisoc.PluginManifest{
+func (a *BlockIPAction) Manifest() quarry.PluginManifest {
+    return quarry.PluginManifest{
         ID:         "myorg.block-ip",
         Name:       "Block IP",
         Version:    "1.0.0",
-        PluginType: aisoc.PluginTypeAction,
+        PluginType: quarry.PluginTypeAction,
     }
 }
 
@@ -78,15 +78,15 @@ func (a *BlockIPAction) SupportedActions() []string {
 
 func (a *BlockIPAction) Execute(
     ctx context.Context,
-    req aisoc.ActionRequest,
-    pluginCtx aisoc.PluginContext,
-) (aisoc.ActionResult, error) {
+    req quarry.ActionRequest,
+    pluginCtx quarry.PluginContext,
+) (quarry.ActionResult, error) {
     if req.DryRun {
-        return aisoc.ActionResult{
+        return quarry.ActionResult{
             ActionID: req.ActionID, Success: true, DryRun: true,
         }, nil
     }
-    return aisoc.ActionResult{ActionID: req.ActionID, Success: true}, nil
+    return quarry.ActionResult{ActionID: req.ActionID, Success: true}, nil
 }
 ```
 

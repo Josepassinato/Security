@@ -8,14 +8,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/beenuar/aisoc/osquery-extensions/internal/aisocapi"
-	"github.com/beenuar/aisoc/osquery-extensions/internal/config"
-	"github.com/beenuar/aisoc/osquery-extensions/tables"
+	"github.com/beenuar/quarry/osquery-extensions/internal/quarryapi"
+	"github.com/beenuar/quarry/osquery-extensions/internal/config"
+	"github.com/beenuar/quarry/osquery-extensions/tables"
 	"github.com/osquery/osquery-go/plugin/table"
 )
 
 func TestPendingActionsGenerate(t *testing.T) {
-	fixture := []aisocapi.PendingAction{
+	fixture := []quarryapi.PendingAction{
 		{
 			ActionID:    "act-001",
 			CaseID:      "case-42",
@@ -38,7 +38,7 @@ func TestPendingActionsGenerate(t *testing.T) {
 		HostIdentifier: "test",
 		HTTPTimeout:    5 * time.Second,
 	}
-	client := aisocapi.New(cfg)
+	client := quarryapi.New(cfg)
 	gen := tables.PendingActionsGenerate(client)
 	rows, err := gen(context.Background(), table.QueryContext{})
 	if err != nil {
@@ -62,7 +62,7 @@ func TestPendingActionsGenerateAPIError(t *testing.T) {
 	defer srv.Close()
 
 	cfg := &config.Config{APIURL: srv.URL, HTTPTimeout: 2 * time.Second}
-	client := aisocapi.New(cfg)
+	client := quarryapi.New(cfg)
 	gen := tables.PendingActionsGenerate(client)
 	rows, err := gen(context.Background(), table.QueryContext{})
 	if err != nil {

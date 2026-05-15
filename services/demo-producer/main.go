@@ -1,4 +1,4 @@
-// AiSOC Demo Event Producer
+// Quarry Demo Event Producer
 //
 // Generates synthetic but realistic security events and posts them to the
 // ingest service so dashboards, alerts, copilots, and the attack graph all
@@ -14,7 +14,7 @@
 //
 // `--rate` is events per second per connector. `--duration 0` runs forever.
 //
-// Part of the AiSOC platform (MIT License).
+// Part of the Quarry platform (MIT License).
 package main
 
 import (

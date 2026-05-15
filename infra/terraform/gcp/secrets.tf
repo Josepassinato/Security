@@ -1,5 +1,5 @@
 /**
- * AiSOC — GCP serverless skeleton
+ * Quarry — GCP serverless skeleton
  *
  * Secret Manager entries that Cloud Run mounts as environment variables.
  *
@@ -21,7 +21,7 @@ resource "random_password" "credential_key" {
   # 32 random bytes -> base64 is a valid Fernet key; we generate it here so a
   # `terraform destroy` followed by `terraform apply` rotates the vault key
   # cleanly. Operators who need rotation-without-rewrap should set this via
-  # AISOC_CREDENTIAL_KEY_ROTATION_FROM in app config.
+  # QUARRY_CREDENTIAL_KEY_ROTATION_FROM in app config.
   length      = 32
   special     = false
   min_lower   = 1

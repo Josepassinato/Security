@@ -1,25 +1,25 @@
-# aisoc-sdk
+# quarry-sdk
 
-[![PyPI version](https://img.shields.io/pypi/v/aisoc-sdk)](https://pypi.org/project/aisoc-sdk/)
+[![PyPI version](https://img.shields.io/pypi/v/quarry-sdk)](https://pypi.org/project/quarry-sdk/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](../../LICENSE)
 
-Async Python client SDK for [AiSOC](https://github.com/beenuar/AiSOC).
+Async Python client SDK for [Quarry](https://github.com/Josepassinato/quarry).
 
 ## Installation
 
 ```bash
-pip install aisoc-sdk
+pip install quarry-sdk
 ```
 
 ## Quick start
 
 ```python
 import asyncio
-from aisoc_sdk import AiSOCClient
+from aisoc_sdk import QuarryClient
 
 async def main():
-    async with AiSOCClient(
-        base_url="https://your-aisoc.example.com",
+    async with QuarryClient(
+        base_url="https://your-quarry.example.com",
         token="aisoc_...",
     ) as client:
         # List critical open alerts
@@ -45,7 +45,7 @@ asyncio.run(main())
 ## GraphQL
 
 ```python
-async with AiSOCClient(base_url="...", token="...") as client:
+async with QuarryClient(base_url="...", token="...") as client:
     result = await client.graphql("""
         query {
             alerts(pageSize: 10, status: "open") {

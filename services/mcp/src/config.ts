@@ -1,5 +1,5 @@
 /**
- * Runtime configuration for the AiSOC MCP server.
+ * Runtime configuration for the Quarry MCP server.
  *
  * Why not a config file: MCP hosts (Claude Desktop, Cursor, Cody) launch the
  * server as a stdio child process and expose configuration via env vars +
@@ -7,11 +7,11 @@
  * single self-contained command line into each host's config.
  *
  * Precedence (highest first):
- *   1. CLI flags          (`--aisoc-url …`, `--api-key …`)
- *   2. Environment        (`AISOC_URL`, `AISOC_API_KEY`)
+ *   1. CLI flags          (`--quarry-url …`, `--api-key …`)
+ *   2. Environment        (`QUARRY_URL`, `QUARRY_API_KEY`)
  *   3. Built-in defaults  (only the URL — the key is required)
  *
- * The API key is required for any tool call against a real AiSOC. We allow
+ * The API key is required for any tool call against a real Quarry. We allow
  * the server to start without one (so `doctor` and `--help` work), but
  * tool dispatch then fails with a typed `MissingApiKeyError`.
  *
@@ -21,11 +21,11 @@
  */
 import { readFileSync } from "node:fs";
 
-const DEFAULT_AISOC_URL = "http://localhost:8081";
+const DEFAULT_QUARRY_URL = "http://localhost:8081";
 const DEFAULT_TIMEOUT_MS = 20_000;
 
 export interface ServerConfig {
-  /** Base URL of the AiSOC API (e.g. `https://aisoc.example.com`). */
+  /** Base URL of the Quarry API (e.g. `https://quarry.example.com`). */
   aisocUrl: string;
   /** API key from /api/v1/api-keys (`aisoc_*` prefix) or a JWT bearer token. */
   apiKey: string | undefined;
@@ -33,7 +33,7 @@ export interface ServerConfig {
   timeoutMs: number;
   /** Verbose logging to stderr (off by default to keep IDE consoles clean). */
   verbose: boolean;
-  /** User-Agent string surfaced to the AiSOC API for audit. */
+  /** User-Agent string surfaced to the Quarry API for audit. */
   userAgent: string;
 }
 
@@ -51,7 +51,7 @@ const FLAG_ALIASES: Record<string, string> = {
   "--help": "help",
   "-v": "version",
   "--version": "version",
-  "--aisoc-url": "aisocUrl",
+  "--quarry-url": "aisocUrl",
   "--api-key": "apiKey",
   "--timeout": "timeoutMs",
   "--verbose": "verbose",
@@ -151,36 +151,36 @@ export function parseArgs(argv: readonly string[]): ParsedArgs {
 export function resolveConfig(args: ParsedArgs, env: NodeJS.ProcessEnv = process.env): ServerConfig {
   const url =
     (typeof args.flags.aisocUrl === "string" && args.flags.aisocUrl) ||
-    env.AISOC_URL ||
-    env.AISOC_API_URL ||
-    DEFAULT_AISOC_URL;
+    env.QUARRY_URL ||
+    env.QUARRY_API_URL ||
+    DEFAULT_QUARRY_URL;
 
   const apiKey =
     (typeof args.flags.apiKey === "string" && args.flags.apiKey) ||
-    env.AISOC_API_KEY ||
-    env.AISOC_TOKEN ||
+    env.QUARRY_API_KEY ||
+    env.QUARRY_TOKEN ||
     undefined;
 
   const timeoutFlag = args.flags.timeoutMs;
   const timeoutMs =
     typeof timeoutFlag === "string" && timeoutFlag.length > 0
       ? Number.parseInt(timeoutFlag, 10)
-      : env.AISOC_TIMEOUT_MS
-        ? Number.parseInt(env.AISOC_TIMEOUT_MS, 10)
+      : env.QUARRY_TIMEOUT_MS
+        ? Number.parseInt(env.QUARRY_TIMEOUT_MS, 10)
         : DEFAULT_TIMEOUT_MS;
 
   if (!Number.isFinite(timeoutMs) || timeoutMs <= 0) {
-    throw new Error(`Invalid timeout: ${timeoutFlag ?? env.AISOC_TIMEOUT_MS}`);
+    throw new Error(`Invalid timeout: ${timeoutFlag ?? env.QUARRY_TIMEOUT_MS}`);
   }
 
-  const verbose = Boolean(args.flags.verbose) || env.AISOC_MCP_VERBOSE === "1";
+  const verbose = Boolean(args.flags.verbose) || env.QUARRY_MCP_VERBOSE === "1";
 
   return {
     aisocUrl: stripTrailingSlash(url),
     apiKey,
     timeoutMs,
     verbose,
-    userAgent: `aisoc-mcp/${packageVersion()} (+https://github.com/beenuar/AiSOC)`,
+    userAgent: `quarry-mcp/${packageVersion()} (+https://github.com/beenuar/Quarry)`,
   };
 }
 
@@ -225,13 +225,13 @@ export function packageVersion(): string {
 export function makeLogger(cfg: Pick<ServerConfig, "verbose">) {
   return {
     info: (msg: string, ...rest: unknown[]) => {
-      if (cfg.verbose) console.error(`[aisoc-mcp] ${msg}`, ...rest);
+      if (cfg.verbose) console.error(`[quarry-mcp] ${msg}`, ...rest);
     },
     warn: (msg: string, ...rest: unknown[]) => {
-      console.error(`[aisoc-mcp] WARN: ${msg}`, ...rest);
+      console.error(`[quarry-mcp] WARN: ${msg}`, ...rest);
     },
     error: (msg: string, ...rest: unknown[]) => {
-      console.error(`[aisoc-mcp] ERROR: ${msg}`, ...rest);
+      console.error(`[quarry-mcp] ERROR: ${msg}`, ...rest);
     },
   };
 }

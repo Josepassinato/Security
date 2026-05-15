@@ -1,9 +1,9 @@
 """Demo-mode guard for the hosted demo at tryaisoc.com.
 
-When `AISOC_DEMO_MODE=true`, this middleware:
+When `QUARRY_DEMO_MODE=true`, this middleware:
 
-1. **Surfaces a banner.** Adds `X-AiSOC-Demo: true` and
-   `X-AiSOC-Demo-Banner: <message>` headers on every response so the web
+1. **Surfaces a banner.** Adds `X-Quarry-Demo: true` and
+   `X-Quarry-Demo-Banner: <message>` headers on every response so the web
    client can render the "demo data resets daily" notice.
 2. **Blocks destructive writes.** Any non-safe HTTP method (POST/PUT/PATCH/DELETE)
    targeting a mutating endpoint returns 403 with a structured payload
@@ -62,14 +62,14 @@ _SAFE_METHODS: frozenset[str] = frozenset({"GET", "HEAD", "OPTIONS"})
 
 
 class DemoModeMiddleware(BaseHTTPMiddleware):
-    """Gate writes and surface banner headers when AISOC_DEMO_MODE is on."""
+    """Gate writes and surface banner headers when QUARRY_DEMO_MODE is on."""
 
     async def dispatch(
         self,
         request: Request,
         call_next: Callable[[Request], Awaitable[Response]],
     ) -> Response:
-        if not settings.AISOC_DEMO_MODE:
+        if not settings.QUARRY_DEMO_MODE:
             return await call_next(request)
 
         path = request.url.path
@@ -99,12 +99,12 @@ class DemoModeMiddleware(BaseHTTPMiddleware):
             content={
                 "error": "demo_mode_read_only",
                 "message": (
-                    "This is the public AiSOC demo at tryaisoc.com. "
+                    "This is the public Quarry demo at tryaisoc.com. "
                     "Write actions are disabled here so every visitor sees "
-                    "the same dataset. To run AiSOC for real, self-host it "
-                    "in 5 minutes — see https://github.com/beenuar/AiSOC."
+                    "the same dataset. To run Quarry for real, self-host it "
+                    "in 5 minutes — see https://github.com/beenuar/Quarry."
                 ),
-                "self_host_url": "https://github.com/beenuar/AiSOC#quickstart",
+                "self_host_url": "https://github.com/beenuar/Quarry#quickstart",
                 "blocked_path": path,
                 "blocked_method": method,
             },
@@ -114,7 +114,7 @@ class DemoModeMiddleware(BaseHTTPMiddleware):
 
     @staticmethod
     def _stamp_demo_headers(response: Response) -> None:
-        response.headers["X-AiSOC-Demo"] = "true"
-        response.headers["X-AiSOC-Demo-Tenant"] = settings.AISOC_DEMO_TENANT
+        response.headers["X-Quarry-Demo"] = "true"
+        response.headers["X-Quarry-Demo-Tenant"] = settings.QUARRY_DEMO_TENANT
         # Headers can't carry newlines; banner is short by design.
-        response.headers["X-AiSOC-Demo-Banner"] = settings.AISOC_DEMO_BANNER
+        response.headers["X-Quarry-Demo-Banner"] = settings.QUARRY_DEMO_BANNER

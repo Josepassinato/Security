@@ -1,5 +1,5 @@
 /**
- * AiSOC Alert and Incident types
+ * Quarry Alert and Incident types
  */
 
 import type { OcsfDevice, OcsfNetworkEndpoint, OcsfObservable, OcsfUser, Severity, SeverityId } from "./ocsf";

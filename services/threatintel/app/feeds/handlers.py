@@ -5,7 +5,7 @@ Each handler is registered with the FeedScheduler and invoked on
 its configured polling interval. Handlers fetch from their source,
 parse/normalize the data, and hand off to ThreatIntelPipeline.
 
-AiSOC — open-source AI Security Operations Center (MIT License)
+Quarry — open-source AI Security Operations Center (MIT License)
 """
 
 from __future__ import annotations

@@ -2,7 +2,7 @@
 
 The four behaviours we lock down here are:
 
-* **Env priority** — ``AISOC_CORS_ORIGINS`` beats ``CORS_ORIGINS``.
+* **Env priority** — ``QUARRY_CORS_ORIGINS`` beats ``CORS_ORIGINS``.
 * **Whitespace + empty entries** — operators copy/paste lists from Helm or
   the .env console and we must not turn ``"a, ,b"`` into a three-element
   allow-list that includes the empty string.
@@ -42,9 +42,9 @@ from app.core.cors import (
 # All env vars the helper reads. Cleared in each test so we don't pick up
 # whatever the developer happens to have exported.
 _CORS_ENV_VARS = (
-    "AISOC_CORS_ORIGINS",
+    "QUARRY_CORS_ORIGINS",
     "CORS_ORIGINS",
-    "AISOC_ENV",
+    "QUARRY_ENV",
     "ENVIRONMENT",
     "APP_ENV",
 )
@@ -68,7 +68,7 @@ class TestResolveCorsOrigins:
     def test_aisoc_cors_origins_wins_over_legacy(self, monkeypatch: pytest.MonkeyPatch) -> None:
         # The deploy is mid-migration: both env vars are set. The canonical
         # name must win so we don't silently honour a stale alias.
-        monkeypatch.setenv("AISOC_CORS_ORIGINS", "https://new.example.com")
+        monkeypatch.setenv("QUARRY_CORS_ORIGINS", "https://new.example.com")
         monkeypatch.setenv("CORS_ORIGINS", "https://legacy.example.com")
 
         assert resolve_cors_origins() == ["https://new.example.com"]
@@ -81,14 +81,14 @@ class TestResolveCorsOrigins:
     def test_empty_env_var_falls_through_to_next(self, monkeypatch: pytest.MonkeyPatch) -> None:
         # Helm sometimes sets the variable to an empty string when the
         # operator doesn't configure CORS. Treat empty as "not set".
-        monkeypatch.setenv("AISOC_CORS_ORIGINS", "")
+        monkeypatch.setenv("QUARRY_CORS_ORIGINS", "")
         monkeypatch.setenv("CORS_ORIGINS", "https://legacy.example.com")
 
         assert resolve_cors_origins() == ["https://legacy.example.com"]
 
     def test_whitespace_and_blank_entries_are_stripped(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setenv(
-            "AISOC_CORS_ORIGINS",
+            "QUARRY_CORS_ORIGINS",
             "  https://a.example.com , ,https://b.example.com,  ",
         )
 
@@ -115,7 +115,7 @@ class TestBuildCorsKwargsSafePaths:
     """The happy-path cases that production deploys should hit."""
 
     def test_returns_methods_and_headers_compatible_with_credentials(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.setenv("AISOC_CORS_ORIGINS", "https://app.example.com")
+        monkeypatch.setenv("QUARRY_CORS_ORIGINS", "https://app.example.com")
 
         kwargs = build_cors_kwargs(service_name="api", allow_credentials=True)
 
@@ -131,7 +131,7 @@ class TestBuildCorsKwargsSafePaths:
     def test_no_credentials_uses_wildcard_methods_headers(self, monkeypatch: pytest.MonkeyPatch) -> None:
         # For services like /enrich + /ueba we don't carry cookies, so the
         # spec allows "*" — and it keeps the surface forward-compatible.
-        monkeypatch.setenv("AISOC_CORS_ORIGINS", "https://app.example.com")
+        monkeypatch.setenv("QUARRY_CORS_ORIGINS", "https://app.example.com")
 
         kwargs = build_cors_kwargs(service_name="ueba", allow_credentials=False)
 
@@ -140,7 +140,7 @@ class TestBuildCorsKwargsSafePaths:
         assert kwargs["allow_headers"] == ["*"]
 
     def test_caller_overrides_methods_and_headers(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.setenv("AISOC_CORS_ORIGINS", "https://app.example.com")
+        monkeypatch.setenv("QUARRY_CORS_ORIGINS", "https://app.example.com")
 
         kwargs = build_cors_kwargs(
             service_name="connectors",
@@ -155,7 +155,7 @@ class TestBuildCorsKwargsSafePaths:
         assert kwargs["expose_headers"] == ["X-Request-ID"]
 
     def test_expose_headers_omitted_when_not_provided(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.setenv("AISOC_CORS_ORIGINS", "https://app.example.com")
+        monkeypatch.setenv("QUARRY_CORS_ORIGINS", "https://app.example.com")
 
         kwargs = build_cors_kwargs(service_name="api", allow_credentials=True)
 
@@ -176,9 +176,9 @@ class TestBuildCorsKwargsProductionGuard:
     @pytest.mark.parametrize(
         "env_var,env_value",
         [
-            ("AISOC_ENV", "production"),
-            ("AISOC_ENV", "prod"),
-            ("AISOC_ENV", "PRODUCTION"),  # case-insensitive
+            ("QUARRY_ENV", "production"),
+            ("QUARRY_ENV", "prod"),
+            ("QUARRY_ENV", "PRODUCTION"),  # case-insensitive
             ("ENVIRONMENT", "production"),
             ("APP_ENV", "prod"),
         ],
@@ -189,7 +189,7 @@ class TestBuildCorsKwargsProductionGuard:
         env_var: str,
         env_value: str,
     ) -> None:
-        monkeypatch.setenv("AISOC_CORS_ORIGINS", "*")
+        monkeypatch.setenv("QUARRY_CORS_ORIGINS", "*")
         monkeypatch.setenv(env_var, env_value)
 
         with pytest.raises(CORSConfigurationError) as excinfo:
@@ -198,7 +198,7 @@ class TestBuildCorsKwargsProductionGuard:
         # Error message should name the service and point at the fix —
         # operators need to know what to set, not just what's wrong.
         assert "api" in str(excinfo.value)
-        assert "AISOC_CORS_ORIGINS" in str(excinfo.value)
+        assert "QUARRY_CORS_ORIGINS" in str(excinfo.value)
 
     def test_wildcard_plus_credentials_downgrades_outside_production(
         self,
@@ -207,7 +207,7 @@ class TestBuildCorsKwargsProductionGuard:
     ) -> None:
         # No env var set → not production. Dev shouldn't fail to start just
         # because someone exported CORS_ORIGINS=* in their shell.
-        monkeypatch.setenv("AISOC_CORS_ORIGINS", "*")
+        monkeypatch.setenv("QUARRY_CORS_ORIGINS", "*")
 
         with caplog.at_level("WARNING", logger="app.core.cors"):
             kwargs = build_cors_kwargs(service_name="api", allow_credentials=True)
@@ -222,8 +222,8 @@ class TestBuildCorsKwargsProductionGuard:
         # Public, unauthenticated surfaces (honeytoken pixels, /healthz on
         # public probes) can legitimately ship a wildcard. We must not
         # break those.
-        monkeypatch.setenv("AISOC_CORS_ORIGINS", "*")
-        monkeypatch.setenv("AISOC_ENV", "production")
+        monkeypatch.setenv("QUARRY_CORS_ORIGINS", "*")
+        monkeypatch.setenv("QUARRY_ENV", "production")
 
         kwargs = build_cors_kwargs(service_name="honeytokens", allow_credentials=False)
 
@@ -231,8 +231,8 @@ class TestBuildCorsKwargsProductionGuard:
         assert kwargs["allow_credentials"] is False
 
     def test_explicit_list_unaffected_by_environment(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.setenv("AISOC_CORS_ORIGINS", "https://app.example.com")
-        monkeypatch.setenv("AISOC_ENV", "production")
+        monkeypatch.setenv("QUARRY_CORS_ORIGINS", "https://app.example.com")
+        monkeypatch.setenv("QUARRY_ENV", "production")
 
         kwargs = build_cors_kwargs(service_name="api", allow_credentials=True)
 

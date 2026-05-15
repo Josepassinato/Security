@@ -6,9 +6,9 @@ description: >
   GitHub Enterprise / Organization audit log connector. Streams org audit
   events, lists secret-scanning alerts, and pulls user activity for security
   investigations. Backed by the GitHub Audit Log API.
-author: AiSOC Core Team
+author: Quarry Core Team
 tags: [vcs, github, audit, identity, supply-chain]
-homepage: https://github.com/beenuar/AiSOC/tree/main/plugins/github-audit
+homepage: https://github.com/beenuar/Quarry/tree/main/plugins/github-audit
 license: MIT
 min_aisoc_version: "4.0.0"
 config_schema:

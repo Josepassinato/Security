@@ -46,9 +46,9 @@ async def post_timeline_event(
     its API-key scope set.
     """
     settings = get_settings()
-    base = settings.AISOC_API_BASE_URL.rstrip("/")
-    if not settings.AISOC_API_SERVICE_TOKEN:
-        raise TimelineClientError("AISOC_API_SERVICE_TOKEN is not configured; cannot write ChatOps responses to the case timeline")
+    base = settings.QUARRY_API_BASE_URL.rstrip("/")
+    if not settings.QUARRY_API_SERVICE_TOKEN:
+        raise TimelineClientError("QUARRY_API_SERVICE_TOKEN is not configured; cannot write ChatOps responses to the case timeline")
 
     url = f"{base}/api/v1/cases/{case_id}/timeline"
     payload = {
@@ -57,7 +57,7 @@ async def post_timeline_event(
         "metadata": metadata or {},
     }
     headers = {
-        "Authorization": f"Bearer {settings.AISOC_API_SERVICE_TOKEN}",
+        "Authorization": f"Bearer {settings.QUARRY_API_SERVICE_TOKEN}",
         "Content-Type": "application/json",
     }
 

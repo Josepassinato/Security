@@ -12,7 +12,7 @@ This module provides :func:`validate_outbound_url`, called by playbook step
 handlers before they hand a URL to ``httpx``. It rejects:
 
 * Schemes other than ``http`` / ``https`` (overridable via
-  ``AISOC_SSRF_ALLOWED_SCHEMES``).
+  ``QUARRY_SSRF_ALLOWED_SCHEMES``).
 * URLs with userinfo (``http://user:pw@host/...``) — these are a common
   credential-smuggling and host-spoofing vector.
 * Hostnames or IP literals that resolve to loopback, link-local, private,
@@ -24,10 +24,10 @@ handlers before they hand a URL to ``httpx``. It rejects:
 
 Operators can:
 
-* Set ``AISOC_SSRF_ALLOW_PRIVATE=1`` to relax the private/loopback check
+* Set ``QUARRY_SSRF_ALLOW_PRIVATE=1`` to relax the private/loopback check
   for on-prem deployments where playbooks must reach internal services
   (still rejects cloud-metadata literals and link-local/multicast).
-* Set ``AISOC_SSRF_EXTRA_BLOCKED_HOSTS=foo.internal,bar.svc`` to extend
+* Set ``QUARRY_SSRF_EXTRA_BLOCKED_HOSTS=foo.internal,bar.svc`` to extend
   the metadata host blocklist.
 
 Failures raise :class:`SSRFError`, which propagates up to the engine and
@@ -79,16 +79,16 @@ def _env_set(name: str) -> frozenset[str]:
 
 
 def _allowed_schemes() -> frozenset[str]:
-    extra = _env_set("AISOC_SSRF_ALLOWED_SCHEMES")
+    extra = _env_set("QUARRY_SSRF_ALLOWED_SCHEMES")
     return extra or _DEFAULT_ALLOWED_SCHEMES
 
 
 def _blocked_hosts() -> frozenset[str]:
-    return _DEFAULT_BLOCKED_HOSTS | _env_set("AISOC_SSRF_EXTRA_BLOCKED_HOSTS")
+    return _DEFAULT_BLOCKED_HOSTS | _env_set("QUARRY_SSRF_EXTRA_BLOCKED_HOSTS")
 
 
 def _allow_private_by_default() -> bool:
-    return os.getenv("AISOC_SSRF_ALLOW_PRIVATE", "").strip().lower() in {"1", "true", "yes"}
+    return os.getenv("QUARRY_SSRF_ALLOW_PRIVATE", "").strip().lower() in {"1", "true", "yes"}
 
 
 # ---------------------------------------------------------------------------
@@ -175,7 +175,7 @@ def validate_outbound_url(url: str, *, allow_private: bool | None = None) -> str
         Override the env-driven default. ``True`` permits private/RFC1918
         addresses (still blocks loopback, link-local, metadata literals,
         and explicit blocklist entries). ``None`` falls back to
-        ``AISOC_SSRF_ALLOW_PRIVATE``.
+        ``QUARRY_SSRF_ALLOW_PRIVATE``.
 
     Returns
     -------

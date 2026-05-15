@@ -1,6 +1,6 @@
-// AiSOC Ingest Service
+// Quarry Ingest Service
 // Handles raw event ingestion, OCSF normalization, ATT&CK mapping, and Kafka publishing
-// Part of the AiSOC platform (MIT License)
+// Part of the Quarry platform (MIT License)
 package main
 
 import (
@@ -12,15 +12,15 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/beenuar/aisoc/services/ingest/internal/config"
-	configsnap "github.com/beenuar/aisoc/services/ingest/internal/config_snapshot"
-	"github.com/beenuar/aisoc/services/ingest/internal/graph"
-	"github.com/beenuar/aisoc/services/ingest/internal/graph_ws"
-	"github.com/beenuar/aisoc/services/ingest/internal/handler"
-	"github.com/beenuar/aisoc/services/ingest/internal/inbox"
-	"github.com/beenuar/aisoc/services/ingest/internal/normalizer"
-	"github.com/beenuar/aisoc/services/ingest/internal/publisher"
-	"github.com/beenuar/aisoc/services/ingest/internal/server"
+	"github.com/beenuar/quarry/services/ingest/internal/config"
+	configsnap "github.com/beenuar/quarry/services/ingest/internal/config_snapshot"
+	"github.com/beenuar/quarry/services/ingest/internal/graph"
+	"github.com/beenuar/quarry/services/ingest/internal/graph_ws"
+	"github.com/beenuar/quarry/services/ingest/internal/handler"
+	"github.com/beenuar/quarry/services/ingest/internal/inbox"
+	"github.com/beenuar/quarry/services/ingest/internal/normalizer"
+	"github.com/beenuar/quarry/services/ingest/internal/publisher"
+	"github.com/beenuar/quarry/services/ingest/internal/server"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -39,7 +39,7 @@ func main() {
 		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 	}
 
-	log.Info().Str("service", "ingest").Msg("Starting AiSOC Ingest Service")
+	log.Info().Str("service", "ingest").Msg("Starting Quarry Ingest Service")
 
 	cfg, err := config.Load()
 	if err != nil {
@@ -130,11 +130,11 @@ func main() {
 						Msg("snapshot: T1.2 config snapshots enabled")
 				}
 			} else {
-				log.Info().Msg("snapshot: disabled (AISOC_SNAPSHOT_ENABLED!=true)")
+				log.Info().Msg("snapshot: disabled (QUARRY_SNAPSHOT_ENABLED!=true)")
 			}
 		}
 	} else {
-		log.Info().Msg("graph: writer disabled (AISOC_GRAPH_ENABLED!=true)")
+		log.Info().Msg("graph: writer disabled (QUARRY_GRAPH_ENABLED!=true)")
 	}
 
 	// Workstream 6 — universal capture push paths.
@@ -171,7 +171,7 @@ func main() {
 	}
 
 	// T1.4 (v8.0) — graph-update WebSocket fan-out. Opt-in via
-	// AISOC_GRAPH_WS_ENABLED=true. The broadcaster owns a single
+	// QUARRY_GRAPH_WS_ENABLED=true. The broadcaster owns a single
 	// Kafka consumer against GraphUpdatesTopic and fans envelopes
 	// out to subscribed WebSocket clients with per-tenant filtering.
 	// Failures NEVER block the ingest path — the Kafka publish side
@@ -195,7 +195,7 @@ func main() {
 				Msg("graph_ws: T1.4 WebSocket broadcaster enabled")
 		}
 	} else {
-		log.Info().Msg("graph_ws: disabled (AISOC_GRAPH_WS_ENABLED!=true)")
+		log.Info().Msg("graph_ws: disabled (QUARRY_GRAPH_WS_ENABLED!=true)")
 	}
 
 	srv := server.New(cfg, h, inboxHandler, graphWSServer)
@@ -252,5 +252,5 @@ var Version = "dev"
 
 func init() {
 	// Set version in health check
-	_ = fmt.Sprintf("aisoc-ingest/%s", Version)
+	_ = fmt.Sprintf("quarry-ingest/%s", Version)
 }

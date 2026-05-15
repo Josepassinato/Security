@@ -1,6 +1,6 @@
 id: det-identity-005
 name: Privileged Login Outside Business Hours
-description: AiSOC v1 curated detection. Triggers on the identity signal described by 'Privileged Login
+description: Quarry v1 curated detection. Triggers on the identity signal described by 'Privileged Login
   Outside Business Hours'. Watch the 2 documented false-positive cases before tuning.
 version: 1.0.0
 severity: medium
@@ -22,6 +22,6 @@ false_positives:
 - Travel by privileged user (tag travel)
 playbook: tpl-account-anomaly
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

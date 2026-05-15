@@ -30,14 +30,14 @@ interface QA {
 
 const FAQS: ReadonlyArray<QA> = [
   {
-    q: 'Is AiSOC really open source?',
+    q: 'Is Quarry really open source?',
     a:
       'Yes — the agent, the connectors, the detection rules, the benchmark dataset, and every piece of infrastructure code are MIT-licensed. There is no private fork.',
   },
   {
     q: 'What does the agent need to call out to?',
     a:
-      'By default the Triage and Hunt agents call an LLM provider you configure (OpenAI, Anthropic, Azure, Bedrock, or a private LiteLLM gateway). Set AISOC_AIRGAPPED=true and the platform refuses every outbound call; an Ollama sidecar runs a local model in-cluster.',
+      'By default the Triage and Hunt agents call an LLM provider you configure (OpenAI, Anthropic, Azure, Bedrock, or a private LiteLLM gateway). Set QUARRY_AIRGAPPED=true and the platform refuses every outbound call; an Ollama sidecar runs a local model in-cluster.',
   },
   {
     q: 'Where does my data live?',
@@ -62,12 +62,12 @@ const FAQS: ReadonlyArray<QA> = [
   {
     q: 'What runs in production today?',
     a:
-      'Beta deployments through reference partners and an internal demo on tryaisoc.com. The managed waitlist at app.aisoc.dev is the route for hosted customers.',
+      'Beta deployments through reference partners and an internal demo on tryaisoc.com. The managed waitlist at app.quarry.dev is the route for hosted customers.',
   },
   {
     q: 'Why not just use an existing AI SOC vendor?',
     a:
-      "Use whichever tools fit your risk and procurement model. AiSOC's contribution is making the agent itself open, the decisions step-by-step auditable, and the benchmark reproducible — three guarantees closed-source platforms typically do not offer.",
+      "Use whichever tools fit your risk and procurement model. Quarry's contribution is making the agent itself open, the decisions step-by-step auditable, and the benchmark reproducible — three guarantees closed-source platforms typically do not offer.",
   },
 ];
 

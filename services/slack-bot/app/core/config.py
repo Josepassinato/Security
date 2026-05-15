@@ -1,7 +1,7 @@
 """
-Application configuration for the AiSOC Slack bot.
+Application configuration for the Quarry Slack bot.
 
-All secrets (Slack tokens, AiSOC API keys) come from environment variables /
+All secrets (Slack tokens, Quarry API keys) come from environment variables /
 mounted secret files. The bot itself stores nothing — it only forwards
 requests to ``services/api`` and ``services/actions``.
 """
@@ -45,49 +45,49 @@ class SlackBotSettings(BaseSettings):
         ),
     )
 
-    # --- AiSOC backend -----------------------------------------------------
+    # --- Quarry backend -----------------------------------------------------
 
-    AISOC_API_BASE_URL: str = Field(
-        default="http://aisoc-api:8000",
+    QUARRY_API_BASE_URL: str = Field(
+        default="http://quarry-api:8000",
         description="Base URL for the services/api FastAPI app.",
     )
-    AISOC_ACTIONS_BASE_URL: str = Field(
-        default="http://aisoc-actions:8085",
+    QUARRY_ACTIONS_BASE_URL: str = Field(
+        default="http://quarry-actions:8085",
         description="Base URL for the services/actions FastAPI app.",
     )
-    AISOC_API_SERVICE_TOKEN: str = Field(
+    QUARRY_API_SERVICE_TOKEN: str = Field(
         default="",
         description=("aisoc_… API key the bot uses to call services/api. Must hold at least cases:read, cases:write, alerts:read."),
     )
-    AISOC_ACTIONS_SERVICE_TOKEN: str = Field(
+    QUARRY_ACTIONS_SERVICE_TOKEN: str = Field(
         default="",
         description=("aisoc_… API key for services/actions. May reuse the API service token if the same principal has actions:write."),
     )
 
     # --- Tenant + UX -------------------------------------------------------
 
-    AISOC_DEFAULT_TENANT_ID: str = Field(
+    QUARRY_DEFAULT_TENANT_ID: str = Field(
         default="00000000-0000-0000-0000-000000000000",
         description=(
             "Tenant UUID associated with this Slack workspace. v1 assumes a "
-            "single Slack workspace ↔ single AiSOC tenant mapping; multi-"
+            "single Slack workspace ↔ single Quarry tenant mapping; multi-"
             "tenant workspaces will be addressed in a later workstream."
         ),
     )
-    AISOC_WEB_BASE_URL: str = Field(
+    QUARRY_WEB_BASE_URL: str = Field(
         default="https://app.tryaisoc.com",
         description="Public web app URL used to deep-link case cards.",
     )
 
     # --- Service plumbing --------------------------------------------------
 
-    AISOC_SLACK_BOT_PORT: int = Field(
+    QUARRY_SLACK_BOT_PORT: int = Field(
         default=8089,
         description="Port the FastAPI app should listen on.",
     )
-    AISOC_HTTP_TIMEOUT_SECONDS: float = Field(
+    QUARRY_HTTP_TIMEOUT_SECONDS: float = Field(
         default=10.0,
-        description="Default timeout for outbound HTTP calls to AiSOC services.",
+        description="Default timeout for outbound HTTP calls to Quarry services.",
     )
 
     # --- Helpers -----------------------------------------------------------

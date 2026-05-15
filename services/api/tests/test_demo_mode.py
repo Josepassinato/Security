@@ -2,9 +2,9 @@
 
 These verify the gate behaves correctly in both modes:
 
-- When `AISOC_DEMO_MODE=False`, the middleware is transparent — every request
+- When `QUARRY_DEMO_MODE=False`, the middleware is transparent — every request
   flows through and responses do **not** carry demo headers.
-- When `AISOC_DEMO_MODE=True`, GET requests succeed and pick up the banner
+- When `QUARRY_DEMO_MODE=True`, GET requests succeed and pick up the banner
   headers, allowlisted writes (kickoff against the showcase `INC-RT-001`
   ransomware case or any stock `INC-NNN` catalogue case, plus alert ack)
   succeed, and arbitrary mutating writes return 403 with the
@@ -28,8 +28,8 @@ from fastapi.testclient import TestClient
 @pytest.fixture
 def app(monkeypatch: pytest.MonkeyPatch) -> FastAPI:
     """Build a stub app with the middleware wired up."""
-    monkeypatch.setattr(settings, "AISOC_DEMO_MODE", True)
-    monkeypatch.setattr(settings, "AISOC_DEMO_TENANT", "demo")
+    monkeypatch.setattr(settings, "QUARRY_DEMO_MODE", True)
+    monkeypatch.setattr(settings, "QUARRY_DEMO_TENANT", "demo")
     app = FastAPI()
     app.add_middleware(DemoModeMiddleware)
 
@@ -67,7 +67,7 @@ def app(monkeypatch: pytest.MonkeyPatch) -> FastAPI:
 
 def test_demo_mode_off_is_transparent(monkeypatch: pytest.MonkeyPatch) -> None:
     """With demo mode off the middleware is a passthrough — no headers, no gates."""
-    monkeypatch.setattr(settings, "AISOC_DEMO_MODE", False)
+    monkeypatch.setattr(settings, "QUARRY_DEMO_MODE", False)
     app = FastAPI()
     app.add_middleware(DemoModeMiddleware)
 
@@ -79,16 +79,16 @@ def test_demo_mode_off_is_transparent(monkeypatch: pytest.MonkeyPatch) -> None:
     r = client.post("/api/v1/cases")
     assert r.status_code == 200
     assert r.json() == {"created": True}
-    assert "X-AiSOC-Demo" not in r.headers
+    assert "X-Quarry-Demo" not in r.headers
 
 
 def test_get_request_succeeds_with_banner_headers(app: FastAPI) -> None:
     client = TestClient(app)
     r = client.get("/api/v1/cases")
     assert r.status_code == 200
-    assert r.headers["X-AiSOC-Demo"] == "true"
-    assert r.headers["X-AiSOC-Demo-Tenant"] == "demo"
-    assert "resets daily" in r.headers["X-AiSOC-Demo-Banner"].lower()
+    assert r.headers["X-Quarry-Demo"] == "true"
+    assert r.headers["X-Quarry-Demo-Tenant"] == "demo"
+    assert "resets daily" in r.headers["X-Quarry-Demo-Banner"].lower()
 
 
 def test_health_endpoint_is_always_allowed(app: FastAPI) -> None:
@@ -108,7 +108,7 @@ def test_arbitrary_post_is_blocked_with_403(app: FastAPI) -> None:
     assert body["blocked_path"] == "/api/v1/cases"
     assert "self_host_url" in body
     # 403 still gets banner headers so the UI can render the banner over the error.
-    assert r.headers["X-AiSOC-Demo"] == "true"
+    assert r.headers["X-Quarry-Demo"] == "true"
 
 
 def test_arbitrary_delete_is_blocked_with_403(app: FastAPI) -> None:
@@ -131,7 +131,7 @@ def test_canonical_investigation_kickoff_is_allowed(app: FastAPI) -> None:
     body = r.json()
     assert body["run_id"] == "demo-run-123"
     assert body["case_number"] == "INC-RT-001"
-    assert r.headers["X-AiSOC-Demo"] == "true"
+    assert r.headers["X-Quarry-Demo"] == "true"
 
 
 def test_stock_catalogue_investigation_kickoff_is_allowed(app: FastAPI) -> None:

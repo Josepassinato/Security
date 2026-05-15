@@ -2,7 +2,7 @@
 ServiceNow connector.
 
 Fetches security-relevant incidents from the ServiceNow Table API and,
-under Workstream 8, projects AiSOC cases / status changes back into
+under Workstream 8, projects Quarry cases / status changes back into
 ServiceNow as ``incident`` records.
 """
 
@@ -22,7 +22,7 @@ logger = structlog.get_logger()
 # ServiceNow's OOTB incident table exposes a 3-tier ``impact`` field
 # (1=High, 2=Medium, 3=Low) but a 5-tier *computed* ``priority`` field
 # (1=Critical, 2=High, 3=Moderate, 4=Low, 5=Planning). We prefer
-# ``priority`` for inbound normalisation because it round-trips AiSOC's
+# ``priority`` for inbound normalisation because it round-trips Quarry's
 # 5-tier ladder (info | low | medium | high | critical) losslessly; we
 # fall back to ``impact`` only when ``priority`` is missing.
 _PRIORITY_SEVERITY = {
@@ -39,7 +39,7 @@ _IMPACT_SEVERITY = {
     "3": "low",
 }
 
-# WS8: AiSOC severity → ServiceNow ``impact`` numeric code. ServiceNow's
+# WS8: Quarry severity → ServiceNow ``impact`` numeric code. ServiceNow's
 # ``impact`` field is 3-tier (1=High / 2=Medium / 3=Low), so we set
 # impact=1 + urgency=1 together — ServiceNow's calculated ``priority``
 # matrix turns ``impact=1 + urgency=1`` into priority 1 ("Critical"),
@@ -67,10 +67,10 @@ _SEVERITY_TO_URGENCY = {
     "info": "3",
 }
 
-# WS8: AiSOC status → ServiceNow ``state`` numeric code. The default
+# WS8: Quarry status → ServiceNow ``state`` numeric code. The default
 # ServiceNow incident state field is a numeric choice list:
 #   1=New, 2=In Progress, 3=On Hold, 6=Resolved, 7=Closed, 8=Canceled.
-# We map AiSOC's lifecycle onto that vocabulary. Customers with custom
+# We map Quarry's lifecycle onto that vocabulary. Customers with custom
 # state lists can override via ``connector_config.state_map`` in a
 # future iteration; the defaults below cover the OOTB table.
 _STATUS_MAP_SNOW = {
@@ -111,7 +111,7 @@ class ServiceNowConnector(BaseConnector):
     @classmethod
     def capabilities(cls) -> tuple[Capability, ...]:
         # WS8: bidirectional ticketing landed; ServiceNow can now mint
-        # incidents from AiSOC cases (PUSH_CASE) and project status
+        # incidents from Quarry cases (PUSH_CASE) and project status
         # transitions onto them (PUSH_STATUS) in addition to pulling
         # incidents.
         return (Capability.PULL_ALERTS, Capability.PUSH_CASE, Capability.PUSH_STATUS)
@@ -222,9 +222,9 @@ class ServiceNowConnector(BaseConnector):
         return f"{self._base_url}/{self._table}.do?sys_id={sys_id}"
 
     async def push_case(self, case: dict[str, Any]) -> dict[str, Any]:
-        """Mint a ServiceNow incident from an AiSOC case."""
+        """Mint a ServiceNow incident from an Quarry case."""
         severity = (case.get("severity") or "medium").lower()
-        title = case.get("title") or f"AiSOC case {case.get('case_number') or case.get('id')}"
+        title = case.get("title") or f"Quarry case {case.get('case_number') or case.get('id')}"
         description = case.get("description") or ""
         case_id = case.get("id") or case.get("case_number")
 
@@ -233,10 +233,10 @@ class ServiceNowConnector(BaseConnector):
             "description": description,
             "impact": _SEVERITY_TO_IMPACT.get(severity, "2"),
             "urgency": _SEVERITY_TO_URGENCY.get(severity, "2"),
-            # Round-trip the AiSOC case identifier in ``correlation_id``
+            # Round-trip the Quarry case identifier in ``correlation_id``
             # so the inbound webhook can find us without a custom field.
-            "correlation_id": f"aisoc:{case_id}",
-            "correlation_display": "AiSOC",
+            "correlation_id": f"quarry:{case_id}",
+            "correlation_display": "Quarry",
         }
 
         async with httpx.AsyncClient(timeout=30.0) as client:
@@ -272,7 +272,7 @@ class ServiceNowConnector(BaseConnector):
         new_status: str,
         external_ref: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
-        """Project an AiSOC status transition onto a ServiceNow incident."""
+        """Project an Quarry status transition onto a ServiceNow incident."""
         if external_ref is None:
             return await self.push_case(case)
 
@@ -302,7 +302,7 @@ class ServiceNowConnector(BaseConnector):
         # actually applies.
         if target_state in {"6", "7"}:
             payload["close_code"] = "Closed/Resolved by Caller"
-            payload["close_notes"] = f"Closed by AiSOC (case {case.get('case_number') or case.get('id')})"
+            payload["close_notes"] = f"Closed by Quarry (case {case.get('case_number') or case.get('id')})"
 
         async with httpx.AsyncClient(timeout=30.0) as client:
             resp = await client.patch(

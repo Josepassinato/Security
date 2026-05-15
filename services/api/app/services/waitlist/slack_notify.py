@@ -12,7 +12,7 @@ Design rules
    prospect. Every error path logs and swallows.
 2. **Use stdlib only.** ``urllib.request`` keeps the import graph clean
    and lets the API service avoid yet another HTTP-client dependency.
-3. **Honour the air-gap setting.** If ``AISOC_AIRGAPPED=true`` the call
+3. **Honour the air-gap setting.** If ``QUARRY_AIRGAPPED=true`` the call
    is skipped without even attempting to resolve the webhook URL — a
    deliberate belt-and-suspenders against the egress gate.
 4. **Make the message scannable.** Block Kit gives us a short header
@@ -29,13 +29,13 @@ from typing import Any
 from urllib import error as urllib_error
 from urllib import request as urllib_request
 
-logger = logging.getLogger("aisoc.waitlist.slack")
+logger = logging.getLogger("quarry.waitlist.slack")
 
 # Environment variable holding the Slack incoming webhook URL. Operators
 # rotate this through their secret store of choice; the value never
 # touches the repo.
-_WEBHOOK_ENV_VAR: str = "AISOC_WAITLIST_SLACK_WEBHOOK"
-_AIRGAP_ENV_VAR: str = "AISOC_AIRGAPPED"
+_WEBHOOK_ENV_VAR: str = "QUARRY_WAITLIST_SLACK_WEBHOOK"
+_AIRGAP_ENV_VAR: str = "QUARRY_AIRGAPPED"
 _REQUEST_TIMEOUT_SECONDS: float = 5.0
 
 
@@ -61,7 +61,7 @@ def build_signup_message(
     truncated_motivation = motivation if len(motivation) <= 500 else motivation[:497] + "..."
 
     return {
-        "text": f"New AiSOC managed waitlist signup: {company} ({email})",
+        "text": f"New Quarry managed waitlist signup: {company} ({email})",
         "blocks": [
             {
                 "type": "header",

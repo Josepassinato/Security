@@ -1,6 +1,6 @@
 id: det-data-exfil-012
 name: Encrypted Archive Attachment Sent Externally
-description: AiSOC v1 curated detection. Triggers on the data-exfil signal described by 'Encrypted Archive
+description: Quarry v1 curated detection. Triggers on the data-exfil signal described by 'Encrypted Archive
   Attachment Sent Externally'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: medium
@@ -20,6 +20,6 @@ false_positives:
 - Approved encrypted exchange with regulated counterparties (allowlist)
 playbook: tpl-data-exfil
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

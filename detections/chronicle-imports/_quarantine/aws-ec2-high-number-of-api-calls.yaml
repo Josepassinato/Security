@@ -56,4 +56,4 @@ provenance:
   upstream_path: rules/community/aws/cloudtrail/aws_ec2_high_number_of_api_calls.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

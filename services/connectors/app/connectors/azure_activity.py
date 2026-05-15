@@ -212,7 +212,7 @@ class AzureActivityConnector(BaseConnector):
         level = (raw.get("level") or "").lower()
         caller = raw.get("caller", "")
 
-        # Azure Activity Log severity heuristic against AiSOC's 5-tier ladder
+        # Azure Activity Log severity heuristic against Quarry's 5-tier ladder
         # (info | low | medium | high | critical):
         #   - ``level=critical`` -> ``critical`` (Azure's hardest hint)
         #   - ``level=error``    -> ``high``

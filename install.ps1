@@ -1,27 +1,27 @@
 <#
 .SYNOPSIS
-    AiSOC — One-Click Installer for Windows.
+    Quarry — One-Click Installer for Windows.
 
 .DESCRIPTION
-    Bootstraps a freshly-imaged Windows 10/11 machine to a running AiSOC
+    Bootstraps a freshly-imaged Windows 10/11 machine to a running Quarry
     dashboard in a single command. Zero assumed prerequisites.
 
     What this script does, in order:
         1. Verifies you're on Windows 10 (build 19041+) or Windows 11.
         2. Verifies WSL2 is enabled (required by Docker Desktop).
-        3. Installs (idempotently) the four prerequisites AiSOC needs:
+        3. Installs (idempotently) the four prerequisites Quarry needs:
              - Git
              - Docker Desktop (which bundles Docker Engine + Compose v2)
              - Node.js 20 LTS
              - pnpm 8+ (via corepack)
            All installs go through winget, the official Windows package
            manager. We never download random installers from the internet.
-        4. Clones the AiSOC repo (if you ran the script as a one-liner) or
+        4. Clones the Quarry repo (if you ran the script as a one-liner) or
            reuses it (if you ran .\install.ps1 from inside a clone).
         5. Creates a .env from .env.example so the first boot has sane
            defaults.
         6. Runs `pnpm install` to fetch the orchestrator's Node deps.
-        7. Hands off to `pnpm aisoc:demo`, which pulls prebuilt images,
+        7. Hands off to `pnpm quarry:demo`, which pulls prebuilt images,
            brings up the slim demo profile, seeds the showcase ransomware
            case, and opens your browser at the case ledger view.
 
@@ -29,17 +29,17 @@
     Skip the dependency-install phase (use what's on PATH).
 
 .PARAMETER NoLaunch
-    Set everything up but don't run pnpm aisoc:demo at the end.
+    Set everything up but don't run pnpm quarry:demo at the end.
 
 .PARAMETER NoPull
-    Forwarded to aisoc:demo to skip image pull.
+    Forwarded to quarry:demo to skip image pull.
 
 .PARAMETER Rebuild
-    Forwarded to aisoc:demo to build images from source.
+    Forwarded to quarry:demo to build images from source.
 
 .PARAMETER CloneDir
     Where to clone the repo when running as a one-liner. Default:
-    $env:USERPROFILE\aisoc.
+    $env:USERPROFILE\quarry.
 
 .PARAMETER Branch
     Git branch to clone. Default: main.
@@ -61,7 +61,7 @@
 .EXAMPLE
     # One-liner from PowerShell (run as your normal user, not Administrator —
     # winget will elevate per-package as needed):
-    iwr -useb https://raw.githubusercontent.com/beenuar/AiSOC/main/install.ps1 | iex
+    iwr -useb https://raw.githubusercontent.com/beenuar/Quarry/main/install.ps1 | iex
 
 .EXAMPLE
     # From inside a clone:
@@ -69,14 +69,14 @@
 
 .EXAMPLE
     # Custom clone directory and skip the launch:
-    .\install.ps1 -CloneDir D:\code\aisoc -NoLaunch
+    .\install.ps1 -CloneDir D:\code\quarry -NoLaunch
 
 .NOTES
     Exit codes:
         0  success — demo stack is up and your browser opened
         1  prerequisite install failed
         2  Docker Desktop refused to come up / WSL2 not enabled
-        3  pnpm aisoc:demo failed (stack didn't boot or seed)
+        3  pnpm quarry:demo failed (stack didn't boot or seed)
         4  preflight checks failed (machine doesn't meet minimums)
         5  git clone failed (network / branch / disk)
 
@@ -90,7 +90,7 @@
     present and the right version?" before doing anything.
 
 .LINK
-    https://github.com/beenuar/AiSOC
+    https://github.com/beenuar/Quarry
 #>
 
 [CmdletBinding()]
@@ -102,7 +102,7 @@ param(
     [switch]$SkipPreflight,
     [switch]$Diagnose,
     [switch]$NonInteractive,
-    [string]$CloneDir = (Join-Path $env:USERPROFILE 'aisoc'),
+    [string]$CloneDir = (Join-Path $env:USERPROFILE 'quarry'),
     [string]$Branch = 'main'
 )
 
@@ -125,11 +125,11 @@ if (-not $NonInteractive) {
 # PowerShell strips ANSI codes for non-console hosts. So we don't need a
 # UseColor flag; the runtime DTRT.
 
-function Write-Log    { param([string]$Msg) Write-Host "[aisoc] $Msg" -ForegroundColor DarkGray }
-function Write-Info   { param([string]$Msg) Write-Host "[aisoc] $Msg" -ForegroundColor Blue }
-function Write-Ok     { param([string]$Msg) Write-Host "[aisoc] $Msg" -ForegroundColor Green }
-function Write-Warn   { param([string]$Msg) Write-Warning "[aisoc] $Msg" }
-function Write-Err    { param([string]$Msg) Write-Host "[aisoc] $Msg" -ForegroundColor Red }
+function Write-Log    { param([string]$Msg) Write-Host "[quarry] $Msg" -ForegroundColor DarkGray }
+function Write-Info   { param([string]$Msg) Write-Host "[quarry] $Msg" -ForegroundColor Blue }
+function Write-Ok     { param([string]$Msg) Write-Host "[quarry] $Msg" -ForegroundColor Green }
+function Write-Warn   { param([string]$Msg) Write-Warning "[quarry] $Msg" }
+function Write-Err    { param([string]$Msg) Write-Host "[quarry] $Msg" -ForegroundColor Red }
 function Write-Section {
     param([string]$Title)
     Write-Host ''
@@ -157,7 +157,7 @@ function Test-WindowsVersion {
     $build = [int]($os.BuildNumber)
     Write-Info "OS: $($os.Caption) (build $build, $env:PROCESSOR_ARCHITECTURE)"
     if ($build -lt 19041) {
-        Stop-WithError "AiSOC requires Windows 10 build 19041 (May 2020 update) or newer. Your build is $build. Update Windows and re-run."
+        Stop-WithError "Quarry requires Windows 10 build 19041 (May 2020 update) or newer. Your build is $build. Update Windows and re-run."
     }
     Write-Ok "Windows version supported."
 }
@@ -345,8 +345,8 @@ function Invoke-Preflight {
         # branch we're about to clone. We use a temp file rather than
         # `iex (iwr ...)` because dot-sourcing is cleaner and the file
         # has multiple functions we want in scope.
-        $url = "https://raw.githubusercontent.com/beenuar/AiSOC/$Branch/scripts/install/preflight.ps1"
-        $preflightLocal = Join-Path $env:TEMP "aisoc-preflight-$([guid]::NewGuid().ToString('N')).ps1"
+        $url = "https://raw.githubusercontent.com/beenuar/Quarry/$Branch/scripts/install/preflight.ps1"
+        $preflightLocal = Join-Path $env:TEMP "quarry-preflight-$([guid]::NewGuid().ToString('N')).ps1"
         Write-Info "Fetching preflight.ps1 from $url ..."
         try {
             Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $preflightLocal -ErrorAction Stop
@@ -366,13 +366,13 @@ function Invoke-Preflight {
         return
     }
 
-    if (-not (Get-Command -Name 'Invoke-AiSOCPreflight' -ErrorAction SilentlyContinue)) {
-        Write-Warn "preflight.ps1 loaded but didn't expose Invoke-AiSOCPreflight; skipping."
+    if (-not (Get-Command -Name 'Invoke-QuarryPreflight' -ErrorAction SilentlyContinue)) {
+        Write-Warn "preflight.ps1 loaded but didn't expose Invoke-QuarryPreflight; skipping."
         return
     }
 
     try {
-        $ok = Invoke-AiSOCPreflight
+        $ok = Invoke-QuarryPreflight
     } catch {
         Write-Err "Preflight crashed: $($_.Exception.Message)"
         Stop-WithError "Preflight could not complete. Re-run with -SkipPreflight to bypass at your own risk." 4
@@ -424,7 +424,7 @@ Please either:
   1. Install Docker Desktop manually from https://docker.com/products/docker-desktop
      and re-run this installer, OR
   2. Re-run this installer from an interactive PowerShell window:
-       irm https://raw.githubusercontent.com/beenuar/AiSOC/main/install.ps1 | iex
+       irm https://raw.githubusercontent.com/beenuar/Quarry/main/install.ps1 | iex
 "@ 2
     }
 
@@ -551,7 +551,7 @@ Could not install pnpm via corepack OR npm.
 
 Workaround: install pnpm manually, then re-run this script:
   npm install -g pnpm@8.15.1
-  irm https://raw.githubusercontent.com/beenuar/AiSOC/main/install.ps1 | iex
+  irm https://raw.githubusercontent.com/beenuar/Quarry/main/install.ps1 | iex
 "@
         }
     }
@@ -571,14 +571,14 @@ Workaround: install pnpm manually, then re-run this script:
 $script:RepoRoot = $null
 
 function Resolve-Repo {
-    # If this script lives inside an AiSOC clone, use that. Otherwise clone
+    # If this script lives inside an Quarry clone, use that. Otherwise clone
     # fresh into $CloneDir.
     $selfDir = $PSScriptRoot
     if ($selfDir -and (Test-Path (Join-Path $selfDir '.git')) -and (Test-Path (Join-Path $selfDir 'package.json'))) {
         $pkgJson = Get-Content (Join-Path $selfDir 'package.json') -Raw
-        if ($pkgJson -match '"name":\s*"aisoc"') {
+        if ($pkgJson -match '"name":\s*"quarry"') {
             $script:RepoRoot = $selfDir
-            Write-Ok "Using existing AiSOC clone at $RepoRoot"
+            Write-Ok "Using existing Quarry clone at $RepoRoot"
             return
         }
     }
@@ -586,7 +586,7 @@ function Resolve-Repo {
     if (Test-Path $CloneDir) {
         $hasGit  = Test-Path (Join-Path $CloneDir '.git')
         $hasPkg  = Test-Path (Join-Path $CloneDir 'package.json')
-        if ($hasGit -and $hasPkg -and ((Get-Content (Join-Path $CloneDir 'package.json') -Raw) -match '"name":\s*"aisoc"')) {
+        if ($hasGit -and $hasPkg -and ((Get-Content (Join-Path $CloneDir 'package.json') -Raw) -match '"name":\s*"quarry"')) {
             Write-Info "Updating existing clone at $CloneDir..."
             Push-Location $CloneDir
             try {
@@ -615,10 +615,10 @@ function Resolve-Repo {
             Write-Ok "Updated clone at $RepoRoot"
             return
         }
-        Stop-WithError "$CloneDir exists but isn't an AiSOC clone. Pass -CloneDir to choose a different location, or remove it first."
+        Stop-WithError "$CloneDir exists but isn't an Quarry clone. Pass -CloneDir to choose a different location, or remove it first."
     }
 
-    Write-Info "Cloning AiSOC into $CloneDir (branch: $Branch)..."
+    Write-Info "Cloning Quarry into $CloneDir (branch: $Branch)..."
 
     # Retry up to 3 times with backoff. The most common failure on Windows
     # is corporate-proxy-related (407, SSL handshake failures) on the first
@@ -627,10 +627,10 @@ function Resolve-Repo {
     $attempt     = 0
     while ($attempt -lt $maxAttempts) {
         $attempt++
-        & git clone --branch $Branch --depth 50 https://github.com/beenuar/AiSOC.git $CloneDir
+        & git clone --branch $Branch --depth 50 https://github.com/beenuar/Quarry.git $CloneDir
         if ($LASTEXITCODE -eq 0) {
             $script:RepoRoot = $CloneDir
-            Write-Ok "Cloned AiSOC to $RepoRoot"
+            Write-Ok "Cloned Quarry to $RepoRoot"
             return
         }
 
@@ -653,7 +653,7 @@ Common causes:
   * Corporate proxy not configured for git
     (try: git config --global http.proxy http://proxy:port)
   * Branch '$Branch' doesn't exist on the remote
-    (try: git ls-remote --heads https://github.com/beenuar/AiSOC.git)
+    (try: git ls-remote --heads https://github.com/beenuar/Quarry.git)
 
 Then re-run this installer.
 "@ 5
@@ -695,12 +695,12 @@ function Install-Workspace {
 
 function Start-Demo {
     if ($NoLaunch) {
-        Write-Info "-NoLaunch: skipping pnpm aisoc:demo. To start the stack later:"
-        Write-Info "  cd $RepoRoot; pnpm aisoc:demo"
+        Write-Info "-NoLaunch: skipping pnpm quarry:demo. To start the stack later:"
+        Write-Info "  cd $RepoRoot; pnpm quarry:demo"
         return
     }
-    Write-Section 'Launching AiSOC demo stack'
-    Write-Info "Handing off to 'pnpm aisoc:demo' — this will pull images, start the"
+    Write-Section 'Launching Quarry demo stack'
+    Write-Info "Handing off to 'pnpm quarry:demo' — this will pull images, start the"
     Write-Info "stack, seed the showcase ransomware case, and open your browser."
     Write-Host ''
 
@@ -711,12 +711,12 @@ function Start-Demo {
     Push-Location $RepoRoot
     try {
         if ($demoArgs.Count -gt 0) {
-            & pnpm aisoc:demo @demoArgs
+            & pnpm quarry:demo @demoArgs
         } else {
-            & pnpm aisoc:demo
+            & pnpm quarry:demo
         }
         if ($LASTEXITCODE -ne 0) {
-            Stop-WithError "pnpm aisoc:demo exited non-zero." 3
+            Stop-WithError "pnpm quarry:demo exited non-zero." 3
         }
     } finally {
         Pop-Location
@@ -727,7 +727,7 @@ function Start-Demo {
 
 function Write-SuccessBanner {
     Write-Host ''
-    Write-Host 'AiSOC is up and running.' -ForegroundColor Green
+    Write-Host 'Quarry is up and running.' -ForegroundColor Green
     Write-Host ''
     Write-Host '  Web console:    http://localhost:3000'
     Write-Host '  Showcase case:  http://localhost:3000/cases/INC-RT-001?tab=ledger'
@@ -735,9 +735,9 @@ function Write-SuccessBanner {
     Write-Host '  Realtime WS:    ws://localhost:8086'
     Write-Host ''
     Write-Host "Useful commands (run from $RepoRoot):" -ForegroundColor DarkGray
-    Write-Host '  pnpm aisoc:doctor                          # health-check the stack'
-    Write-Host '  pnpm aisoc:demo:logs                       # tail logs'
-    Write-Host '  pnpm aisoc:demo:down                       # stop everything and wipe demo data'
+    Write-Host '  pnpm quarry:doctor                          # health-check the stack'
+    Write-Host '  pnpm quarry:demo:logs                       # tail logs'
+    Write-Host '  pnpm quarry:demo:down                       # stop everything and wipe demo data'
     Write-Host '  .\scripts\install\uninstall.ps1            # full uninstall'
     Write-Host ''
 }
@@ -753,7 +753,7 @@ function Invoke-Main {
         $err = $_
         Write-Host ''
         Write-Host '┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓' -ForegroundColor Red
-        Write-Host '┃  AiSOC installer hit an unexpected error.                                    ┃' -ForegroundColor Red
+        Write-Host '┃  Quarry installer hit an unexpected error.                                    ┃' -ForegroundColor Red
         Write-Host '┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛' -ForegroundColor Red
         Write-Host ''
         Write-Host "  Error: $($err.Exception.Message)" -ForegroundColor Yellow
@@ -766,9 +766,9 @@ function Invoke-Main {
         Write-Host '    1. Re-run with: .\install.ps1 -Diagnose'
         Write-Host '       (preflight only — no installs)'
         Write-Host '    2. Read the troubleshooting guide:'
-        Write-Host '       https://github.com/beenuar/AiSOC/blob/main/docs/QUICK_INSTALL.md#troubleshooting'
+        Write-Host '       https://github.com/beenuar/Quarry/blob/main/docs/QUICK_INSTALL.md#troubleshooting'
         Write-Host '    3. File an issue with the system info below:'
-        Write-Host '       https://github.com/beenuar/AiSOC/issues/new?template=installer-bug.md'
+        Write-Host '       https://github.com/beenuar/Quarry/issues/new?template=installer-bug.md'
         Write-Host ''
         Write-Host '  System info:' -ForegroundColor DarkGray
         try {
@@ -788,7 +788,7 @@ function Invoke-Main {
         exit 1
     }
 
-    Write-Section 'AiSOC One-Click Installer (Windows)'
+    Write-Section 'Quarry One-Click Installer (Windows)'
 
     Test-WindowsVersion
 
@@ -823,7 +823,7 @@ function Invoke-Main {
         Test-DockerDaemon
     }
 
-    Write-Section 'Setting up the AiSOC repository'
+    Write-Section 'Setting up the Quarry repository'
     Resolve-Repo
     Initialize-EnvFile
     Install-Workspace

@@ -1,5 +1,5 @@
-// Command aisoc-extension is an osquery extension that exposes five virtual
-// tables backed by the AiSOC API and local OS introspection.
+// Command quarry-extension is an osquery extension that exposes five virtual
+// tables backed by the Quarry API and local OS introspection.
 //
 //	aisoc_pending_actions       – HITL response actions queued for this host
 //	aisoc_alert_cache           – alerts fired against this host (last 24h)
@@ -13,9 +13,9 @@ import (
 	"log"
 	"time"
 
-	"github.com/beenuar/aisoc/osquery-extensions/internal/aisocapi"
-	"github.com/beenuar/aisoc/osquery-extensions/internal/config"
-	"github.com/beenuar/aisoc/osquery-extensions/tables"
+	"github.com/beenuar/quarry/osquery-extensions/internal/quarryapi"
+	"github.com/beenuar/quarry/osquery-extensions/internal/config"
+	"github.com/beenuar/quarry/osquery-extensions/tables"
 	osquery "github.com/osquery/osquery-go"
 	"github.com/osquery/osquery-go/plugin/table"
 )
@@ -30,10 +30,10 @@ func main() {
 	}
 
 	cfg := config.Load()
-	client := aisocapi.New(cfg)
+	client := quarryapi.New(cfg)
 
 	server, err := osquery.NewExtensionManagerServer(
-		"aisoc",
+		"quarry",
 		*socket,
 		osquery.ServerTimeout(time.Duration(*timeout)*time.Second),
 	)
@@ -71,7 +71,7 @@ func main() {
 		tables.BrowserExtensionsGenerate(nil),
 	))
 
-	log.Println("aisoc-extension: starting, waiting for osquery…")
+	log.Println("quarry-extension: starting, waiting for osquery…")
 	if err := server.Run(); err != nil {
 		log.Fatalf("extension exited with error: %v", err)
 	}

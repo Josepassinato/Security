@@ -1,5 +1,5 @@
 """
-Adaptive Card factories for the AiSOC Teams bot.
+Adaptive Card factories for the Quarry Teams bot.
 
 Mirrors :mod:`services.slack-bot.app.blocks` but emits Microsoft Teams
 Adaptive Card JSON (schema 1.5 — the highest Outlook + Teams desktop +
@@ -111,7 +111,7 @@ def case_context_card(case: dict[str, Any], *, web_base: str) -> dict[str, Any]:
             "actions": [
                 {
                     "type": "Action.OpenUrl",
-                    "title": "Open in AiSOC",
+                    "title": "Open in Quarry",
                     "url": url,
                 }
             ],

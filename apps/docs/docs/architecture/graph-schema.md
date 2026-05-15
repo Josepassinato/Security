@@ -6,7 +6,7 @@ description: The v1.0 graph schema materialised by services/ingest — node labe
 
 # Security knowledge graph schema
 
-AiSOC writes a security knowledge graph **at ingest time**, not at query time. Every alert, identity-assume, access event, and configuration snapshot lands in Neo4j as a graph fact, and downstream surfaces — the case console, the Effective Permissions view, the Attack Chains view, the agent's pre-fetched context bundle — read that graph instead of replaying raw events.
+Quarry writes a security knowledge graph **at ingest time**, not at query time. Every alert, identity-assume, access event, and configuration snapshot lands in Neo4j as a graph fact, and downstream surfaces — the case console, the Effective Permissions view, the Attack Chains view, the agent's pre-fetched context bundle — read that graph instead of replaying raw events.
 
 This page is the canonical reference for the schema:
 
@@ -16,7 +16,7 @@ This page is the canonical reference for the schema:
 - The **event-edge convention** that lets us reconstruct "what did the world look like at time T?" without ever reading the raw event stream again.
 - The **versioning** and **CI drift gate** that keep this doc, the Go source, and the live database from drifting apart.
 
-The machine-readable source of truth lives at [`schemas/graph-schema.yaml`](https://github.com/beenuar/AiSOC/blob/main/schemas/graph-schema.yaml) and is enforced in CI by `scripts/export_graph_schema.py --check`.
+The machine-readable source of truth lives at [`schemas/graph-schema.yaml`](https://github.com/Josepassinato/quarry/blob/main/schemas/graph-schema.yaml) and is enforced in CI by `scripts/export_graph_schema.py --check`.
 
 ## Why we need a security knowledge graph at ingest time
 
@@ -315,7 +315,7 @@ Every event edge in the schema below carries the three required event-edge prope
 
 ## Versioning
 
-The schema carries a `SchemaVersion` value at the top of [`schemas/graph-schema.yaml`](https://github.com/beenuar/AiSOC/blob/main/schemas/graph-schema.yaml):
+The schema carries a `SchemaVersion` value at the top of [`schemas/graph-schema.yaml`](https://github.com/Josepassinato/quarry/blob/main/schemas/graph-schema.yaml):
 
 ```yaml
 version: v1.0
@@ -334,10 +334,10 @@ If any of those three drift, the CI gate fails.
 
 ## CI drift gate
 
-A schema is only useful if the doc, the code, and the running database agree. We enforce that with [`scripts/export_graph_schema.py`](https://github.com/beenuar/AiSOC/blob/main/scripts/export_graph_schema.py), which has three modes:
+A schema is only useful if the doc, the code, and the running database agree. We enforce that with [`scripts/export_graph_schema.py`](https://github.com/Josepassinato/quarry/blob/main/scripts/export_graph_schema.py), which has three modes:
 
-- **default** — connects to Neo4j (via `AISOC_NEO4J_URI` / `AISOC_NEO4J_USER` / `AISOC_NEO4J_PASSWORD`, falling back to `NEO4J_URI` etc.) and dumps the currently materialised schema to `schemas/graph-schema-current.yaml`. If Neo4j is unreachable, falls back to parsing the Go enums declared in `services/ingest/internal/graph/schema.go` and dumps that instead.
+- **default** — connects to Neo4j (via `QUARRY_NEO4J_URI` / `QUARRY_NEO4J_USER` / `QUARRY_NEO4J_PASSWORD`, falling back to `NEO4J_URI` etc.) and dumps the currently materialised schema to `schemas/graph-schema-current.yaml`. If Neo4j is unreachable, falls back to parsing the Go enums declared in `services/ingest/internal/graph/schema.go` and dumps that instead.
 - **`--check`** — parses `schemas/graph-schema.yaml`, parses the Go enums (when present), and the live database (when reachable), and compares all three. Exits non-zero on any drift. This is what CI calls on every PR that touches the schema or the ingest graph package.
 - **`--from-go`** — regenerates `schemas/graph-schema.yaml` from the Go enums. One-shot helper for when the Go source is the authoritative change.
 
-The CI workflow lives at [`.github/workflows/graph-schema-check.yml`](https://github.com/beenuar/AiSOC/blob/main/.github/workflows/graph-schema-check.yml) and is triggered on any PR that touches `schemas/graph-schema.yaml` or `services/ingest/internal/graph/**`.
+The CI workflow lives at [`.github/workflows/graph-schema-check.yml`](https://github.com/Josepassinato/quarry/blob/main/.github/workflows/graph-schema-check.yml) and is triggered on any PR that touches `schemas/graph-schema.yaml` or `services/ingest/internal/graph/**`.

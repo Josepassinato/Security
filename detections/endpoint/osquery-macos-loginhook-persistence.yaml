@@ -1,6 +1,6 @@
 id: det-endpoint-292
 name: macOS LoginHook Persistence via defaults write
-description: AiSOC v1 curated detection. Triggers on the endpoint signal described by 'macOS LoginHook
+description: Quarry v1 curated detection. Triggers on the endpoint signal described by 'macOS LoginHook
   Persistence via defaults write'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: high
@@ -19,6 +19,6 @@ false_positives:
 - Authorised enterprise login script (allow-listed)
 playbook: tpl-persistence
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

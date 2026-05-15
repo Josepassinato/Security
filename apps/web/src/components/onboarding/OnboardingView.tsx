@@ -181,7 +181,7 @@ export function OnboardingView() {
           Connect your first security tool
         </h1>
         <p className="text-gray-400 max-w-2xl leading-relaxed">
-          AiSOC pulls signals from the tools you already run and stitches them into a single
+          Quarry pulls signals from the tools you already run and stitches them into a single
           investigation timeline. Most teams start with their endpoint or identity provider —
           you can wire up the rest later.
         </p>
@@ -303,8 +303,8 @@ export function OnboardingView() {
       <section className="mt-12 grid sm:grid-cols-2 gap-4">
         <NextStepCard
           title="Bring your own data"
-          body="No connector for your tool? Push raw events into AiSOC over a tenant-scoped HTTPS endpoint."
-          href="https://beenuar.github.io/AiSOC/docs/operations/credentials/"
+          body="No connector for your tool? Push raw events into Quarry over a tenant-scoped HTTPS endpoint."
+          href="https://beenuar.github.io/Quarry/docs/operations/credentials/"
           cta="Push-ingest docs"
         />
         <NextStepCard

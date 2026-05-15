@@ -35,11 +35,11 @@ def _clear_llm_env(monkeypatch: pytest.MonkeyPatch):
         "OPENAI_BASE_URL",
         "OPENAI_API_KEY",
         "OPENAI_MODEL",
-        "AISOC_LLM_MODEL",
+        "QUARRY_LLM_MODEL",
     ):
         monkeypatch.delenv(var, raising=False)
-    monkeypatch.setattr(airgap_module.settings, "AISOC_AIRGAPPED", False)
-    monkeypatch.setattr(airgap_module.settings, "AISOC_AIRGAP_ALLOWLIST", [])
+    monkeypatch.setattr(airgap_module.settings, "QUARRY_AIRGAPPED", False)
+    monkeypatch.setattr(airgap_module.settings, "QUARRY_AIRGAP_ALLOWLIST", [])
     yield
 
 
@@ -151,17 +151,17 @@ class TestAirgapCompliance:
         assert snap["airgap_compliant"] is True
 
     def test_airgap_on_blocks_openai(self, monkeypatch: pytest.MonkeyPatch):
-        monkeypatch.setattr(airgap_module.settings, "AISOC_AIRGAPPED", True)
+        monkeypatch.setattr(airgap_module.settings, "QUARRY_AIRGAPPED", True)
         monkeypatch.setenv("OPENAI_API_KEY", "x")
         monkeypatch.setenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
         snap = llm_status()
         assert snap["airgap_enabled"] is True
         assert snap["airgap_compliant"] is False
         assert snap["effective_path"] == "fallback"
-        assert "AISOC_AIRGAP_ALLOWLIST" in str(snap["policy_note"])
+        assert "QUARRY_AIRGAP_ALLOWLIST" in str(snap["policy_note"])
 
     def test_airgap_on_allows_local_ollama(self, monkeypatch: pytest.MonkeyPatch):
-        monkeypatch.setattr(airgap_module.settings, "AISOC_AIRGAPPED", True)
+        monkeypatch.setattr(airgap_module.settings, "QUARRY_AIRGAPPED", True)
         monkeypatch.setenv("OPENAI_API_KEY", "ollama")
         monkeypatch.setenv("OPENAI_BASE_URL", "http://ollama:11434/v1")
         snap = llm_status()
@@ -171,10 +171,10 @@ class TestAirgapCompliance:
         assert snap["is_local"] is True
 
     def test_airgap_on_allows_allowlisted_external_mirror(self, monkeypatch: pytest.MonkeyPatch):
-        monkeypatch.setattr(airgap_module.settings, "AISOC_AIRGAPPED", True)
+        monkeypatch.setattr(airgap_module.settings, "QUARRY_AIRGAPPED", True)
         monkeypatch.setattr(
             airgap_module.settings,
-            "AISOC_AIRGAP_ALLOWLIST",
+            "QUARRY_AIRGAP_ALLOWLIST",
             ["llm-mirror.acme-internal.example.com"],
         )
         monkeypatch.setenv("OPENAI_API_KEY", "x")
@@ -188,7 +188,7 @@ class TestAirgapCompliance:
     def test_airgap_on_no_config_is_compliant(self, monkeypatch: pytest.MonkeyPatch):
         # Air-gap on, no key, no base — fallback path is implicitly
         # compliant because nothing leaves the pod.
-        monkeypatch.setattr(airgap_module.settings, "AISOC_AIRGAPPED", True)
+        monkeypatch.setattr(airgap_module.settings, "QUARRY_AIRGAPPED", True)
         snap = llm_status()
         assert snap["airgap_enabled"] is True
         assert snap["airgap_compliant"] is True
@@ -209,7 +209,7 @@ class TestEffectivePath:
         assert snap["effective_path"] == "fallback"
 
     def test_fallback_when_key_set_but_airgap_blocks(self, monkeypatch: pytest.MonkeyPatch):
-        monkeypatch.setattr(airgap_module.settings, "AISOC_AIRGAPPED", True)
+        monkeypatch.setattr(airgap_module.settings, "QUARRY_AIRGAPPED", True)
         monkeypatch.setenv("OPENAI_API_KEY", "x")
         # No base_url + airgap on → would default to api.openai.com → blocked.
         snap = llm_status()

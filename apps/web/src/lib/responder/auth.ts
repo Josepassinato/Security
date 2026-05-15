@@ -8,10 +8,10 @@
  * `lib/api.ts` pick them up via the `Authorization` header.
  */
 
-const ACCESS_KEY = 'aisoc.responder.accessToken';
-const REFRESH_KEY = 'aisoc.responder.refreshToken';
-const EXPIRES_KEY = 'aisoc.responder.expiresAt';
-const PROFILE_KEY = 'aisoc.responder.profile';
+const ACCESS_KEY = 'quarry.responder.accessToken';
+const REFRESH_KEY = 'quarry.responder.refreshToken';
+const EXPIRES_KEY = 'quarry.responder.expiresAt';
+const PROFILE_KEY = 'quarry.responder.profile';
 
 export interface ResponderProfile {
   user_id: string;

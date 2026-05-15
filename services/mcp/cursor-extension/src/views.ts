@@ -1,9 +1,9 @@
 /**
- * Output and webview helpers for the AiSOC extension.
+ * Output and webview helpers for the Quarry extension.
  *
  * Two surfaces:
  *
- *   1. `AisocOutput` — a singleton `vscode.OutputChannel` we log every
+ *   1. `QuarryOutput` — a singleton `vscode.OutputChannel` we log every
  *      command invocation, MCP request, and error into. This gives the
  *      analyst a persistent audit trail without having to dig into
  *      developer tools.
@@ -28,13 +28,13 @@ let output: vscode.OutputChannel | undefined;
 /** Return a process-wide output channel, lazily created on first use. */
 export function getOutputChannel(): vscode.OutputChannel {
   if (!output) {
-    output = vscode.window.createOutputChannel("AiSOC");
+    output = vscode.window.createOutputChannel("Quarry");
   }
   return output;
 }
 
 /**
- * Append a timestamped line to the AiSOC output channel. Multi-line
+ * Append a timestamped line to the Quarry output channel. Multi-line
  * payloads are indented for readability.
  */
 export function logLine(message: string, payload?: unknown): void {
@@ -51,7 +51,7 @@ export function logLine(message: string, payload?: unknown): void {
 }
 
 /**
- * Open (or reveal) the AiSOC results webview and render `result`.
+ * Open (or reveal) the Quarry results webview and render `result`.
  *
  * `title` is the command name (e.g. "Run Triage") shown in the tab.
  * `subtitle` is the user-supplied context (e.g. the case id) so the user
@@ -64,7 +64,7 @@ export function showToolResultWebview(opts: {
 }): void {
   const panel = vscode.window.createWebviewPanel(
     "aisocResult",
-    `AiSOC: ${opts.title}`,
+    `Quarry: ${opts.title}`,
     { viewColumn: vscode.ViewColumn.Beside, preserveFocus: false },
     { enableScripts: false, retainContextWhenHidden: true },
   );
@@ -101,7 +101,7 @@ function renderHtml(
     <meta charset="utf-8" />
     <meta http-equiv="Content-Security-Policy"
           content="default-src 'none'; style-src 'unsafe-inline'; img-src data:; font-src data:;" />
-    <title>AiSOC: ${escapeHtml(title)}</title>
+    <title>Quarry: ${escapeHtml(title)}</title>
     <style>
       :root {
         color-scheme: light dark;

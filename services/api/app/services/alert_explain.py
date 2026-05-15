@@ -711,7 +711,7 @@ async def _call_llm_for_summary(
         {
             "role": "system",
             "content": (
-                "You are AiSOC's alert explainer. Given one security alert, the "
+                "You are Quarry's alert explainer. Given one security alert, the "
                 "detection rule that fired (when known), a list of MITRE ATT&CK "
                 "techniques pulled from the local corpus, and the historical "
                 "false-positive rate for similar alerts, write a tight 3-5 "
@@ -737,7 +737,7 @@ async def _call_llm_for_summary(
     ]
 
     # Air-gap belt-and-braces: the resolver already vetoed
-    # api.openai.com when ``AISOC_AIRGAPPED`` is on, but we re-check at
+    # api.openai.com when ``QUARRY_AIRGAPPED`` is on, but we re-check at
     # the actual call site so a future code path that bypasses the
     # resolver still gets stopped.
     try:

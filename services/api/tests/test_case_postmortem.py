@@ -506,7 +506,7 @@ def test_render_case_postmortem_html_contains_all_sections(
     html = render_case_postmortem_html(pm)
 
     assert "<!DOCTYPE html>" in html
-    assert "AiSOC" in html
+    assert "Quarry" in html
     assert "post-mortem" in html.lower()
     # All major section headings should be present (case-insensitive — copy
     # may evolve, structure shouldn't).

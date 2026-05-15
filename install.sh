@@ -1,37 +1,37 @@
 #!/usr/bin/env bash
 ###############################################################################
-# AiSOC — One-Click Installer (Linux + macOS)
+# Quarry — One-Click Installer (Linux + macOS)
 #
-# Goal: take a freshly-imaged machine to a running AiSOC dashboard in your
+# Goal: take a freshly-imaged machine to a running Quarry dashboard in your
 # browser, with zero assumed prerequisites, in a single command.
 #
 # What this script does, in order:
 #   1.  Detects your OS, distribution, package manager, and architecture.
-#   2.  Installs (idempotently) the four prerequisites AiSOC needs:
+#   2.  Installs (idempotently) the four prerequisites Quarry needs:
 #         - git
 #         - Docker Engine + Docker Compose v2 plugin
 #         - Node.js 20 LTS
 #         - pnpm 8+ (via corepack)
-#   3.  Clones the AiSOC repo (if you ran the script as a one-liner) or
+#   3.  Clones the Quarry repo (if you ran the script as a one-liner) or
 #       reuses it (if you ran ./install.sh from inside a clone).
 #   4.  Creates a .env from .env.example so the first boot has sane defaults.
 #   5.  Runs `pnpm install` to fetch the orchestrator's Node deps.
-#   6.  Hands off to `pnpm aisoc:demo`, which pulls prebuilt images, brings
+#   6.  Hands off to `pnpm quarry:demo`, which pulls prebuilt images, brings
 #       up the slim demo profile, seeds the showcase ransomware case, and
 #       opens your browser at the case ledger view.
 #
 # Usage:
 #   One-liner (no clone needed):
-#     curl -fsSL https://raw.githubusercontent.com/beenuar/AiSOC/main/install.sh | bash
+#     curl -fsSL https://raw.githubusercontent.com/beenuar/Quarry/main/install.sh | bash
 #
 #   From inside a clone:
 #     ./install.sh
 #
 # Flags:
 #   --no-install        Skip the dependency-install phase (use what's on PATH).
-#   --no-launch         Set everything up but don't run pnpm aisoc:demo at the end.
-#   --no-pull           Forwarded to aisoc:demo to skip image pull.
-#   --rebuild           Forwarded to aisoc:demo to build images from source.
+#   --no-launch         Set everything up but don't run pnpm quarry:demo at the end.
+#   --no-pull           Forwarded to quarry:demo to skip image pull.
+#   --rebuild           Forwarded to quarry:demo to build images from source.
 #   --skip-preflight    Skip the early environment checks (RAM, disk, ports, …).
 #                       Use this if preflight is wrong about your machine and
 #                       you know what you're doing.
@@ -42,7 +42,7 @@
 #                       for fully unattended provisioning. Implied when stdin
 #                       isn't a TTY (CI, log redirects).
 #   --clone-dir DIR     Where to clone the repo when running as a one-liner.
-#                       Default: $HOME/aisoc
+#                       Default: $HOME/quarry
 #   --branch BR         Git branch to clone. Default: main.
 #   --help              Show this text and exit.
 #
@@ -50,12 +50,12 @@
 #   0  success — demo stack is up and your browser opened
 #   1  prerequisite install failed
 #   2  Docker daemon refused to come up
-#   3  pnpm aisoc:demo failed (stack didn't boot or seed)
+#   3  pnpm quarry:demo failed (stack didn't boot or seed)
 #   4  preflight failed (use --skip-preflight to override at your own risk)
 #
 # Safe to re-run. Each install step checks "is this already present and the
 # right version?" before doing anything. If everything's installed and the
-# repo is cloned, a re-run completes in roughly the time `pnpm aisoc:demo`
+# repo is cloned, a re-run completes in roughly the time `pnpm quarry:demo`
 # itself takes (≈ 3.5 minutes on a warm Docker daemon).
 #
 # Tested on:
@@ -90,11 +90,11 @@ else
   C_RESET=""; C_BOLD=""; C_DIM=""; C_RED=""; C_GREEN=""; C_YELLOW=""; C_BLUE=""; C_CYAN=""
 fi
 
-log()    { printf '%s[aisoc]%s %s\n' "$C_DIM" "$C_RESET" "$*"; }
-info()   { printf '%s[aisoc]%s %s\n' "$C_BLUE" "$C_RESET" "$*"; }
-ok()     { printf '%s[aisoc]%s %s\n' "$C_GREEN" "$C_RESET" "$*"; }
-warn()   { printf '%s[aisoc]%s %s\n' "$C_YELLOW" "$C_RESET" "$*" >&2; }
-err()    { printf '%s[aisoc]%s %s\n' "$C_RED" "$C_RESET" "$*" >&2; }
+log()    { printf '%s[quarry]%s %s\n' "$C_DIM" "$C_RESET" "$*"; }
+info()   { printf '%s[quarry]%s %s\n' "$C_BLUE" "$C_RESET" "$*"; }
+ok()     { printf '%s[quarry]%s %s\n' "$C_GREEN" "$C_RESET" "$*"; }
+warn()   { printf '%s[quarry]%s %s\n' "$C_YELLOW" "$C_RESET" "$*" >&2; }
+err()    { printf '%s[quarry]%s %s\n' "$C_RED" "$C_RESET" "$*" >&2; }
 section() {
   printf '\n%s%s━━━ %s ━━━%s\n\n' "$C_BOLD" "$C_CYAN" "$*" "$C_RESET"
 }
@@ -109,8 +109,8 @@ die() { err "$*"; exit 1; }
 # how to file a useful bug report.
 
 INSTALLER_VERSION="2026.05"
-TROUBLESHOOT_URL="https://github.com/beenuar/AiSOC/blob/main/docs/QUICK_INSTALL.md#troubleshooting"
-ISSUES_URL="https://github.com/beenuar/AiSOC/issues/new?template=installer-failure.yml"
+TROUBLESHOOT_URL="https://github.com/beenuar/Quarry/blob/main/docs/QUICK_INSTALL.md#troubleshooting"
+ISSUES_URL="https://github.com/beenuar/Quarry/issues/new?template=installer-failure.yml"
 
 on_error() {
   local exit_code=$?
@@ -155,7 +155,7 @@ NO_LAUNCH=0
 SKIP_PREFLIGHT=0
 DIAGNOSE_ONLY=0
 NON_INTERACTIVE=0
-CLONE_DIR="${HOME}/aisoc"
+CLONE_DIR="${HOME}/quarry"
 BRANCH="main"
 DEMO_FLAGS=()
 
@@ -304,7 +304,7 @@ version_at_least() {
 # We catch the "your machine isn't going to make it" cases up-front, before we
 # spend ten minutes downloading Docker images and ask for your sudo password.
 # Source preflight.sh from the on-disk clone if we have one, otherwise fetch
-# it from the same branch we'd clone. Either way we set AISOC_PREFLIGHT_SOFT
+# it from the same branch we'd clone. Either way we set QUARRY_PREFLIGHT_SOFT
 # so the library returns rather than exits — we want to print our own banner
 # with the --skip-preflight escape hatch.
 
@@ -336,9 +336,9 @@ run_preflight() {
       warn "curl missing — skipping preflight (we can't fetch it without curl)."
       return 0
     fi
-    PREFLIGHT_TMP="$(mktemp 2>/dev/null || mktemp -t aisoc-preflight)"
+    PREFLIGHT_TMP="$(mktemp 2>/dev/null || mktemp -t quarry-preflight)"
     trap cleanup_preflight_tmp EXIT
-    local pf_url="https://raw.githubusercontent.com/beenuar/AiSOC/${BRANCH}/scripts/install/preflight.sh"
+    local pf_url="https://raw.githubusercontent.com/beenuar/Quarry/${BRANCH}/scripts/install/preflight.sh"
     info "Fetching preflight checks from ${pf_url}..."
     if ! curl -fsSL "$pf_url" -o "$PREFLIGHT_TMP"; then
       warn "Couldn't fetch preflight.sh from $pf_url. Continuing without preflight."
@@ -352,12 +352,12 @@ run_preflight() {
   # right filesystem. If we're in a clone, that's REPO_ROOT; otherwise it's
   # the directory we plan to clone into.
   if [ -d "$CLONE_DIR" ]; then
-    export AISOC_REPO_ROOT="$CLONE_DIR"
+    export QUARRY_REPO_ROOT="$CLONE_DIR"
   elif [ -n "${BASH_SOURCE[0]:-}" ] && [ "${BASH_SOURCE[0]}" != "bash" ]; then
-    AISOC_REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd)" || AISOC_REPO_ROOT=""
-    [ -n "$AISOC_REPO_ROOT" ] && export AISOC_REPO_ROOT
+    QUARRY_REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd)" || QUARRY_REPO_ROOT=""
+    [ -n "$QUARRY_REPO_ROOT" ] && export QUARRY_REPO_ROOT
   fi
-  export AISOC_PREFLIGHT_SOFT=1
+  export QUARRY_PREFLIGHT_SOFT=1
 
   # Source rather than exec so we inherit the function and can call it; the
   # library is careful to save/restore errexit on its own.
@@ -440,7 +440,7 @@ DOCKER_NEEDS_NEWGRP=0
 ensure_docker() {
   # Compose v2 ships as a docker plugin, exposed as `docker compose` (no
   # hyphen). The legacy standalone `docker-compose` binary is v1 and is no
-  # longer supported by AiSOC. We only check the v2 path.
+  # longer supported by Quarry. We only check the v2 path.
   if have docker && docker compose version >/dev/null 2>&1; then
     ok "docker + compose v2 already installed: $(docker --version)"
     ensure_docker_daemon
@@ -500,7 +500,7 @@ ensure_docker() {
   curl -fsSL https://get.docker.com -o "$script" \
     || die "couldn't download get.docker.com (check your network)."
   $SUDO sh "$script" \
-    || die "Docker install script failed. See output above and report at https://github.com/beenuar/AiSOC/issues."
+    || die "Docker install script failed. See output above and report at https://github.com/beenuar/Quarry/issues."
   rm -f "$script"
 
   # Add user to docker group so we don't need sudo for `docker` commands.
@@ -593,7 +593,7 @@ ensure_node() {
   esac
   have node || die "node install reported success but node is still not on PATH."
   if ! version_at_least node 20 "node --version"; then
-    warn "Installed Node version ($(node --version)) is older than 20; AiSOC may misbehave."
+    warn "Installed Node version ($(node --version)) is older than 20; Quarry may misbehave."
   else
     ok "node installed: $(node --version)"
   fi
@@ -646,7 +646,7 @@ Open a new shell and re-run this installer."
 #   B. The script was streamed via curl|bash. There's no repo on disk yet —
 #      we need to clone into $CLONE_DIR.
 # We tell them apart by checking whether $0 is inside a git working tree
-# whose origin matches AiSOC.
+# whose origin matches Quarry.
 
 REPO_ROOT=""
 
@@ -664,7 +664,7 @@ ensure_repo() {
     fi
   fi
 
-  # Strategy B: CWD is inside an AiSOC clone (user ran `bash install.sh`
+  # Strategy B: CWD is inside an Quarry clone (user ran `bash install.sh`
   # from a subdirectory, or saved install.sh elsewhere).
   if [ -z "$candidate" ] && have git; then
     local toplevel
@@ -674,18 +674,18 @@ ensure_repo() {
     fi
   fi
 
-  # Verify candidate is actually AiSOC and not some other repo that
+  # Verify candidate is actually Quarry and not some other repo that
   # happened to ship an install.sh.
   if [ -n "$candidate" ] \
-     && grep -q '"name": "aisoc"' "$candidate/package.json" 2>/dev/null; then
+     && grep -q '"name": "quarry"' "$candidate/package.json" 2>/dev/null; then
     REPO_ROOT="$candidate"
-    ok "Using existing AiSOC clone at $REPO_ROOT"
+    ok "Using existing Quarry clone at $REPO_ROOT"
     return 0
   fi
 
   # Mode B: clone fresh.
   if [ -d "$CLONE_DIR" ]; then
-    if [ -d "$CLONE_DIR/.git" ] && grep -q '"name": "aisoc"' "$CLONE_DIR/package.json" 2>/dev/null; then
+    if [ -d "$CLONE_DIR/.git" ] && grep -q '"name": "quarry"' "$CLONE_DIR/package.json" 2>/dev/null; then
       info "Updating existing clone at $CLONE_DIR..."
       ( cd "$CLONE_DIR" && git fetch --quiet origin && git checkout --quiet "$BRANCH" && git pull --ff-only --quiet ) \
         || warn "git pull failed; using whatever's on disk."
@@ -693,18 +693,18 @@ ensure_repo() {
       ok "Updated clone at $REPO_ROOT"
       return 0
     fi
-    die "$CLONE_DIR exists but isn't an AiSOC clone. Pass --clone-dir to choose a different location, or remove it first."
+    die "$CLONE_DIR exists but isn't an Quarry clone. Pass --clone-dir to choose a different location, or remove it first."
   fi
-  info "Cloning AiSOC into $CLONE_DIR (branch: $BRANCH)..."
+  info "Cloning Quarry into $CLONE_DIR (branch: $BRANCH)..."
   # Retry up to 3 times — transient DNS or partial-fetch failures are common
   # on flaky networks and we don't want to dump the user back to a bare prompt
   # after a single hiccup.
   local clone_attempts=0
   while [ $clone_attempts -lt 3 ]; do
     if git clone --branch "$BRANCH" --depth 50 \
-        https://github.com/beenuar/AiSOC.git "$CLONE_DIR" 2>&1; then
+        https://github.com/beenuar/Quarry.git "$CLONE_DIR" 2>&1; then
       REPO_ROOT="$CLONE_DIR"
-      ok "Cloned AiSOC to $REPO_ROOT"
+      ok "Cloned Quarry to $REPO_ROOT"
       return 0
     fi
     clone_attempts=$((clone_attempts + 1))
@@ -715,7 +715,7 @@ ensure_repo() {
     fi
   done
   err "git clone failed after 3 attempts."
-  err "  Repo: https://github.com/beenuar/AiSOC.git (branch: $BRANCH)"
+  err "  Repo: https://github.com/beenuar/Quarry.git (branch: $BRANCH)"
   err "  Target: $CLONE_DIR"
   err "Possible causes:"
   err "  - Network firewall blocking github.com"
@@ -744,7 +744,7 @@ ensure_env_file() {
   fi
 }
 
-# ─── Step 7: pnpm install + handoff to aisoc:demo ────────────────────────────
+# ─── Step 7: pnpm install + handoff to quarry:demo ────────────────────────────
 
 run_pnpm_install() {
   info "Installing JS workspace deps (pnpm install)..."
@@ -755,17 +755,17 @@ run_pnpm_install() {
 
 run_demo() {
   if [ "$NO_LAUNCH" = "1" ]; then
-    info "--no-launch: skipping pnpm aisoc:demo. To start the stack later:"
-    info "  cd $REPO_ROOT && pnpm aisoc:demo"
+    info "--no-launch: skipping pnpm quarry:demo. To start the stack later:"
+    info "  cd $REPO_ROOT && pnpm quarry:demo"
     return 0
   fi
-  section "Launching AiSOC demo stack"
-  info "Handing off to 'pnpm aisoc:demo' — this will pull images, start the"
+  section "Launching Quarry demo stack"
+  info "Handing off to 'pnpm quarry:demo' — this will pull images, start the"
   info "stack, seed the showcase ransomware case, and open your browser."
   echo
 
   # In non-interactive / headless contexts (CI, ssh without DISPLAY, --non-interactive),
-  # don't try to pop a browser. The demo script honours AISOC_NO_BROWSER=1.
+  # don't try to pop a browser. The demo script honours QUARRY_NO_BROWSER=1.
   local need_no_browser=0
   if [ "$NON_INTERACTIVE" = "1" ]; then
     need_no_browser=1
@@ -774,23 +774,23 @@ run_demo() {
   fi
   if [ "$need_no_browser" = "1" ]; then
     info "(headless or non-interactive — skipping browser auto-open)"
-    export AISOC_NO_BROWSER=1
+    export QUARRY_NO_BROWSER=1
   fi
 
   # We forward the user's --no-pull / --rebuild flags through to the demo
   # script. Run docker via `sg docker` if the user was just added to the
-  # group and hasn't logged out — otherwise pnpm aisoc:demo will explode on
+  # group and hasn't logged out — otherwise pnpm quarry:demo will explode on
   # its very first `docker compose` call.
   if [ "$DOCKER_NEEDS_NEWGRP" = "1" ] && have sg; then
-    # `sg` spawns a fresh shell that wipes our env, so re-export AISOC_NO_BROWSER
+    # `sg` spawns a fresh shell that wipes our env, so re-export QUARRY_NO_BROWSER
     # inline if we set it.
     local pre=""
-    [ "$need_no_browser" = "1" ] && pre="AISOC_NO_BROWSER=1 "
-    sg docker -c "cd '$REPO_ROOT' && ${pre}pnpm aisoc:demo ${DEMO_FLAGS[*]:-}" \
-      || { err "pnpm aisoc:demo exited non-zero."; exit 3; }
+    [ "$need_no_browser" = "1" ] && pre="QUARRY_NO_BROWSER=1 "
+    sg docker -c "cd '$REPO_ROOT' && ${pre}pnpm quarry:demo ${DEMO_FLAGS[*]:-}" \
+      || { err "pnpm quarry:demo exited non-zero."; exit 3; }
   else
-    ( cd "$REPO_ROOT" && pnpm aisoc:demo "${DEMO_FLAGS[@]}" ) \
-      || { err "pnpm aisoc:demo exited non-zero."; exit 3; }
+    ( cd "$REPO_ROOT" && pnpm quarry:demo "${DEMO_FLAGS[@]}" ) \
+      || { err "pnpm quarry:demo exited non-zero."; exit 3; }
   fi
 }
 
@@ -799,7 +799,7 @@ run_demo() {
 print_success() {
   cat <<EOF
 
-${C_BOLD}${C_GREEN}AiSOC is up and running.${C_RESET}
+${C_BOLD}${C_GREEN}Quarry is up and running.${C_RESET}
 
   ${C_BOLD}Web console:${C_RESET}     http://localhost:3000
   ${C_BOLD}Showcase case:${C_RESET}   http://localhost:3000/cases/INC-RT-001?tab=ledger
@@ -807,9 +807,9 @@ ${C_BOLD}${C_GREEN}AiSOC is up and running.${C_RESET}
   ${C_BOLD}Realtime WS:${C_RESET}     ws://localhost:8086
 
 ${C_DIM}Useful commands (run from $REPO_ROOT):${C_RESET}
-  pnpm aisoc:doctor                          # health-check the stack
-  pnpm aisoc:demo:logs                       # tail logs
-  pnpm aisoc:demo:down                       # stop everything and wipe demo data
+  pnpm quarry:doctor                          # health-check the stack
+  pnpm quarry:demo:logs                       # tail logs
+  pnpm quarry:demo:down                       # stop everything and wipe demo data
   ./scripts/install/uninstall.sh             # full uninstall (containers + images + repo)
 
 EOF
@@ -825,7 +825,7 @@ EOF
 # ─── Main ────────────────────────────────────────────────────────────────────
 
 main() {
-  section "AiSOC One-Click Installer"
+  section "Quarry One-Click Installer"
   detect_os
   run_preflight
 
@@ -856,7 +856,7 @@ main() {
     ensure_docker_daemon
   fi
 
-  section "Setting up the AiSOC repository"
+  section "Setting up the Quarry repository"
   ensure_repo
   ensure_env_file
   run_pnpm_install

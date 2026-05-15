@@ -2,7 +2,7 @@
 
 Responsibility
 ==============
-Project AiSOC case lifecycle events (create, status change) onto every
+Project Quarry case lifecycle events (create, status change) onto every
 external ITSM connector instance the tenant has linked to that case
 class. Concretely:
 
@@ -26,7 +26,7 @@ Design notes
   and surface a per-vendor ``status`` field; the caller gets a 201
   on the case + a ``ticket_refs`` array that includes failures.
 * Idempotency lives in the connector. ``push_case`` SHOULD treat a
-  retry on the same AiSOC ``case.id`` as a no-op or update, not a
+  retry on the same Quarry ``case.id`` as a no-op or update, not a
   fresh ticket. The connectors microservice already enforces this
   for Jira (correlation_id) and ServiceNow (correlation_id). Our
   layer only has to make the external_ref upsert race-safe, which the

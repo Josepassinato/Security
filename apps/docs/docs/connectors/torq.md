@@ -1,7 +1,7 @@
 ---
 sidebar_position: 71
 title: Torq
-description: Pull Torq workflow execution outcomes and audit events into AiSOC via the Public API.
+description: Pull Torq workflow execution outcomes and audit events into Quarry via the Public API.
 ---
 
 # Torq
@@ -27,7 +27,7 @@ Events are normalised with `source: torq`, `category: saas`.
 2. **Scope**: choose read-only / observer if available; the connector only reads.
 3. Copy `key_id` and `key_secret` immediately — Torq does not show the secret again.
 
-### 2. Add the connector in AiSOC
+### 2. Add the connector in Quarry
 
 1. **Connectors → Add connector → Torq**.
 2. `key_id` = the API Key ID.
@@ -47,7 +47,7 @@ Events are normalised with `source: torq`, `category: saas`.
 
 ## Severity mapping
 
-| Source | Vendor value | AiSOC severity |
+| Source | Vendor value | Quarry severity |
 |---|---|---|
 | execution | `success` / `completed` / `running` | `info` |
 | execution | `warning` / `warn` | `low` |
@@ -63,7 +63,7 @@ Events are normalised with `source: torq`, `category: saas`.
 
 ## Troubleshooting
 
-**`torq auth failed: HTTP 401`** — the key pair is invalid or revoked. Regenerate at **Settings → API Keys** and rotate via the AiSOC connector edit screen. Torq does *not* return a useful body on auth failures; the only signal is the 401 itself.
+**`torq auth failed: HTTP 401`** — the key pair is invalid or revoked. Regenerate at **Settings → API Keys** and rotate via the Quarry connector edit screen. Torq does *not* return a useful body on auth failures; the only signal is the 401 itself.
 
 **Empty executions** — confirm the API key's scope includes the target workflows. Some Torq tenants enforce a per-workflow access list; the API key must be granted explicit access.
 

@@ -77,7 +77,7 @@ EXPOSE 8000
 # Why not just `uvicorn --host ::`? Python's asyncio explicitly sets
 # IPV6_V6ONLY=1 on IPv6 sockets it creates, so binding to "::" only accepts
 # IPv6 connections. On Fly we need BOTH: IPv6 for 6PN private traffic
-# (aisoc-demo-api.internal from the web app) AND IPv4 for fly-proxy's public
+# (quarry-demo-api.internal from the web app) AND IPv4 for fly-proxy's public
 # /health checks against api.tryaisoc.com (which speak IPv4 to 127.0.0.1).
 # Pre-binding lets us turn IPV6_V6ONLY off so a single socket serves both.
 CMD ["python", "-m", "app.scripts.serve"]

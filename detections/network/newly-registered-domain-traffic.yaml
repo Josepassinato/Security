@@ -1,6 +1,6 @@
 id: det-network-008
 name: Outbound HTTP(S) to Newly Registered Domain
-description: AiSOC v1 curated detection. Triggers on the network signal described by 'Outbound HTTP(S)
+description: Quarry v1 curated detection. Triggers on the network signal described by 'Outbound HTTP(S)
   to Newly Registered Domain'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: medium
@@ -19,6 +19,6 @@ false_positives:
 - Marketing campaigns and event-specific landing pages
 playbook: tpl-c2
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

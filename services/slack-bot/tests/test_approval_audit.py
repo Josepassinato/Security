@@ -80,7 +80,7 @@ async def test_structlog_sink_emits_event(caplog):
     )
     assert len(logger.calls) == 1
     event, fields = logger.calls[0]
-    assert event == "aisoc.approval_decision"
+    assert event == "quarry.approval_decision"
     assert fields["case_id"] == "case-99"
     assert fields["decision"] == "approved"
     assert fields["approver_id"] == "U99"

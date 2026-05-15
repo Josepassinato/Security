@@ -84,4 +84,4 @@ provenance:
   upstream_path: rules/community/microsoft/windows/copy_from_or_to_admin_share_or_sysvol_folder.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

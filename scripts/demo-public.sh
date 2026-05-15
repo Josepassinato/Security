@@ -4,16 +4,16 @@
 #
 # Composition of two things that already exist:
 #
-#   1. `pnpm aisoc:demo --no-open`  — boots the slim demo profile from
+#   1. `pnpm quarry:demo --no-open`  — boots the slim demo profile from
 #      docker-compose.demo.yml, waits for postgres + api + web, seeds canonical
-#      data, kicks off an investigation. Defined in scripts/aisoc-demo.ts.
+#      data, kicks off an investigation. Defined in scripts/quarry-demo.ts.
 #
 #   2. `infra/cloudflare/tunnel.sh` — creates / reuses the cloudflared tunnel
 #      named $TUNNEL_NAME, wires DNS for $DOMAIN + subdomains, and runs
 #      cloudflared in the foreground.
 #
 # When the user Ctrl+C's the tunnel, the Compose stack keeps running. Tear it
-# down with `pnpm aisoc:demo:down`.
+# down with `pnpm quarry:demo:down`.
 #
 # Usage:
 #   bash scripts/demo-public.sh                    # tryaisoc.com
@@ -22,10 +22,10 @@
 # All env vars from infra/cloudflare/tunnel.sh are honoured (DOMAIN,
 # TUNNEL_NAME, SUBDOMAINS, SKIP_DNS, SKIP_RUN).
 #
-# Flags forwarded to aisoc:demo:
+# Flags forwarded to quarry:demo:
 #   --skip-stack       skip step 1 entirely (the stack is already up)
-#   --tag <tag>        passed through to aisoc:demo (sets AISOC_TAG)
-#   --no-pull          passed through to aisoc:demo
+#   --tag <tag>        passed through to quarry:demo (sets QUARRY_TAG)
+#   --no-pull          passed through to quarry:demo
 
 set -euo pipefail
 
@@ -67,7 +67,7 @@ done
 
 DOMAIN="${DOMAIN:-tryaisoc.com}"
 
-printf "%s%s── AiSOC public demo ──%s\n" "$C_BOLD" "$C_GREEN" "$C_RESET"
+printf "%s%s── Quarry public demo ──%s\n" "$C_BOLD" "$C_GREEN" "$C_RESET"
 printf "  domain   : %s%s%s\n" "$C_BOLD" "$DOMAIN" "$C_RESET"
 printf "  stack    : docker-compose.demo.yml (read-only profile, prebuilt images)\n"
 printf "  tunnel   : cloudflared (outbound only — no inbound ports needed)\n\n"
@@ -79,14 +79,14 @@ printf "  tunnel   : cloudflared (outbound only — no inbound ports needed)\n\n
 if [ "$SKIP_STACK" = "1" ]; then
   printf "%s[1/2] skipping local stack (--skip-stack)%s\n" "$C_DIM" "$C_RESET"
 else
-  printf "%s[1/2] starting local stack via aisoc:demo%s\n" "$C_BOLD" "$C_RESET"
+  printf "%s[1/2] starting local stack via quarry:demo%s\n" "$C_BOLD" "$C_RESET"
 
   # Prefer pnpm if available, fall back to npx tsx so the script also works in
   # contexts where pnpm isn't installed (e.g. cloud demos that only have node).
   if command -v pnpm >/dev/null 2>&1; then
-    pnpm aisoc:demo --no-open "${DEMO_FLAGS[@]}"
+    pnpm quarry:demo --no-open "${DEMO_FLAGS[@]}"
   elif command -v npx >/dev/null 2>&1; then
-    npx tsx scripts/aisoc-demo.ts --no-open "${DEMO_FLAGS[@]}"
+    npx tsx scripts/quarry-demo.ts --no-open "${DEMO_FLAGS[@]}"
   else
     printf "%sneither pnpm nor npx is available; install Node.js >= 20 and corepack enable%s\n" "$C_RED" "$C_RESET" >&2
     exit 1

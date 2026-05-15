@@ -1,5 +1,5 @@
 output "service_name" {
-  description = "Kubernetes Service name for aisoc-osquery-tls"
+  description = "Kubernetes Service name for quarry-osquery-tls"
   value       = kubernetes_service.osquery_tls.metadata[0].name
 }
 

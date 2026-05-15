@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "quarry-honeytokens"
 version = "0.1.0"
-description = "AiSOC Honeytokens — token generation, first-touch alerting, and lifecycle management"
+description = "Quarry Honeytokens — token generation, first-touch alerting, and lifecycle management"
 requires-python = ">=3.11"
 dependencies = [
     "fastapi>=0.110.0",

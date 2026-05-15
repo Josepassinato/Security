@@ -1,6 +1,6 @@
 id: det-endpoint-202
 name: Custom .app Bundle Written To /Users/Shared
-description: AiSOC v1 curated detection. Triggers on the endpoint signal described by 'Custom .app Bundle
+description: Quarry v1 curated detection. Triggers on the endpoint signal described by 'Custom .app Bundle
   Written To /Users/Shared'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: medium
@@ -20,6 +20,6 @@ false_positives:
 - Multi-user enterprise app
 playbook: tpl-persistence
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

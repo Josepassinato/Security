@@ -7,12 +7,12 @@ from pathlib import Path
 
 import pytest
 
-from aisoc_plugin_sdk import load_manifest, PluginLoadError
-from aisoc_plugin_sdk.loader import load_plugin_from_directory
+from quarry_plugin_sdk import load_manifest, PluginLoadError
+from quarry_plugin_sdk.loader import load_plugin_from_directory
 
 
 def write_manifest(tmp_path: Path, content: str) -> None:
-    (tmp_path / "aisoc-plugin.yaml").write_text(textwrap.dedent(content))
+    (tmp_path / "quarry-plugin.yaml").write_text(textwrap.dedent(content))
 
 
 def test_load_manifest_valid(tmp_path: Path) -> None:
@@ -35,12 +35,12 @@ def test_load_manifest_valid(tmp_path: Path) -> None:
 
 
 def test_load_manifest_missing_file(tmp_path: Path) -> None:
-    with pytest.raises(PluginLoadError, match="aisoc-plugin.yaml"):
+    with pytest.raises(PluginLoadError, match="quarry-plugin.yaml"):
         load_manifest(tmp_path)
 
 
 def test_load_manifest_invalid_yaml(tmp_path: Path) -> None:
-    (tmp_path / "aisoc-plugin.yaml").write_text("id: [unclosed")
+    (tmp_path / "quarry-plugin.yaml").write_text("id: [unclosed")
     with pytest.raises(PluginLoadError):
         load_manifest(tmp_path)
 
@@ -64,7 +64,7 @@ def test_load_plugin_from_directory(tmp_path: Path) -> None:
         plugin_type: enricher
     """)
     (tmp_path / "plugin.py").write_text(textwrap.dedent("""
-        from aisoc_plugin_sdk import (
+        from quarry_plugin_sdk import (
             EnricherPlugin, PluginManifest, PluginContext,
             EnrichmentRequest, EnrichmentResult,
         )

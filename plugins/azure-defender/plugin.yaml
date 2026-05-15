@@ -6,11 +6,11 @@ tier: stable
 description: >
   Microsoft Defender (XDR / Defender for Cloud) alerts via Microsoft Graph
   Security API. Pulls cross-product alerts (endpoint, identity, cloud apps,
-  cloud workloads) and normalizes them into AiSOC's incident schema. Requires
+  cloud workloads) and normalizes them into Quarry's incident schema. Requires
   an Azure AD app registration with SecurityAlert.Read.All.
-author: AiSOC Core Team
+author: Quarry Core Team
 tags: [edr, xdr, azure, microsoft, defender, alerts]
-homepage: https://github.com/beenuar/AiSOC/tree/main/services/connectors/app/connectors/azure_defender.py
+homepage: https://github.com/beenuar/Quarry/tree/main/services/connectors/app/connectors/azure_defender.py
 license: MIT
 min_aisoc_version: "4.0.0"
 config_schema:

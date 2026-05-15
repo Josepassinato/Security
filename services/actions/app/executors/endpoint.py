@@ -89,7 +89,7 @@ class IsolateHostExecutor(BaseExecutor):
             try:
                 result = await mde.isolate_machine(
                     hostname,
-                    comment=request.rationale or "AiSOC automated isolation",
+                    comment=request.rationale or "Quarry automated isolation",
                 )
                 return ActionResult(
                     action_id=request.id,

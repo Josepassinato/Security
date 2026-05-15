@@ -2,7 +2,7 @@
 Phase 4A — Ambient Copilot contextual actions.
 
 This router powers the contextual AI buttons that surface across every page in
-the AiSOC console (alerts, cases, detections, playbooks). Each "action" is a
+the Quarry console (alerts, cases, detections, playbooks). Each "action" is a
 short, focused prompt with a curated system message and a small input shape;
 the LLM returns Markdown that the UI renders inline next to the entity the
 user is looking at.
@@ -413,13 +413,13 @@ def _fallback_response(system: str, user: str) -> str:
     # genuine analysis in a screenshot.
     return (
         "## Heads up: LLM not configured\n\n"
-        "This deployment of AiSOC does not have `OPENAI_API_KEY` configured, "
+        "This deployment of Quarry does not have `OPENAI_API_KEY` configured, "
         "so the contextual Copilot cannot reach a language model right now. "
         "You're seeing a deterministic placeholder response.\n\n"
         "**To enable real contextual answers:**\n\n"
         "1. Set `OPENAI_API_KEY` in your `.env` file\n"
         "2. Optionally set `OPENAI_MODEL` (default: `gpt-4o-mini`)\n"
-        "3. Restart the `aisoc-agents` service\n\n"
+        "3. Restart the `quarry-agents` service\n\n"
         "Refer to [the docs](https://example.com/docs/copilot) for self-hosted "
         "model alternatives (Ollama, vLLM, Together)."
     )

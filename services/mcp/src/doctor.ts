@@ -1,14 +1,14 @@
 /**
- * `aisoc-mcp doctor` — pre-flight diagnostic.
+ * `quarry-mcp doctor` — pre-flight diagnostic.
  *
  * Run by users before wiring this into Claude Desktop / Cursor so they can
- * confirm their `AISOC_URL` and `AISOC_API_KEY` actually work, without
+ * confirm their `QUARRY_URL` and `QUARRY_API_KEY` actually work, without
  * having to chase silent failures inside an IDE side panel.
  *
  * Exits non-zero on any failed check so it's usable from CI / `pnpm
- * aisoc:doctor`-style umbrella scripts.
+ * quarry:doctor`-style umbrella scripts.
  */
-import { AisocClient } from "./client.js";
+import { QuarryClient } from "./client.js";
 import { type ServerConfig, type Logger, packageVersion } from "./config.js";
 import { ApiError, MissingApiKeyError, TransportError } from "./errors.js";
 
@@ -29,28 +29,28 @@ export async function runDoctor(
 
   // 1. Config presence -------------------------------------------------------
   checks.push({
-    name: "AISOC_URL",
+    name: "QUARRY_URL",
     status: "ok",
     detail: cfg.aisocUrl,
   });
 
   if (!cfg.apiKey) {
     checks.push({
-      name: "AISOC_API_KEY",
+      name: "QUARRY_API_KEY",
       status: "fail",
       detail:
-        "Not set. Provide via env (AISOC_API_KEY) or --api-key. Tools will fail without an API key.",
+        "Not set. Provide via env (QUARRY_API_KEY) or --api-key. Tools will fail without an API key.",
     });
     return finalise(checks);
   }
   checks.push({
-    name: "AISOC_API_KEY",
+    name: "QUARRY_API_KEY",
     status: "ok",
     detail: maskKey(cfg.apiKey),
   });
 
   // 2. Reachability ----------------------------------------------------------
-  const client = new AisocClient(cfg, log);
+  const client = new QuarryClient(cfg, log);
   try {
     const health = await client.health();
     checks.push({
@@ -71,7 +71,7 @@ export async function runDoctor(
 
   // 3. Auth ------------------------------------------------------------------
   // We probe `/api/v1/cases?limit=1` because it's a low-cost auth-required
-  // endpoint that exists on every AiSOC deployment with cases. If the user's
+  // endpoint that exists on every Quarry deployment with cases. If the user's
   // tenant is empty the call still succeeds with an empty list.
   try {
     await client.get<{ items: unknown[] }>("/api/v1/cases", {
@@ -88,7 +88,7 @@ export async function runDoctor(
         name: "API authentication",
         status: "fail",
         detail: err.isAuthFailure
-          ? `Auth rejected (${err.status}). Check AISOC_API_KEY scope/expiry.`
+          ? `Auth rejected (${err.status}). Check QUARRY_API_KEY scope/expiry.`
           : `API returned ${err.status}: ${err.detail}`,
       });
     } else if (err instanceof MissingApiKeyError) {
@@ -112,7 +112,7 @@ export async function runDoctor(
 /** Print the doctor report to stderr in a human-readable form. */
 export function printDoctorReport(report: DoctorReport): void {
   const lines: string[] = [];
-  lines.push(`aisoc-mcp ${packageVersion()} doctor`);
+  lines.push(`quarry-mcp ${packageVersion()} doctor`);
   lines.push("");
   for (const c of report.checks) {
     const icon = c.status === "ok" ? "[OK]" : c.status === "warn" ? "[WARN]" : "[FAIL]";
@@ -122,7 +122,7 @@ export function printDoctorReport(report: DoctorReport): void {
   lines.push("");
   lines.push(report.ok ? "All checks passed." : "Doctor found problems.");
   // doctor output is a user-visible report; print to stdout so it's easy
-  // to redirect / capture from `pnpm aisoc:doctor`. We do *not* emit any
+  // to redirect / capture from `pnpm quarry:doctor`. We do *not* emit any
   // JSON-RPC alongside this; doctor is invoked as a one-shot subcommand
   // and the server transport is never started.
   for (const l of lines) console.log(l);

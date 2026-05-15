@@ -120,7 +120,7 @@ def run(selected: list[str] | None = None) -> dict[str, int]:
 
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Run AiSOC detection-rule importers.",
+        description="Run Quarry detection-rule importers.",
     )
     parser.add_argument(
         "--source",

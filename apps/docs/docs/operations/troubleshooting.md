@@ -1,17 +1,17 @@
 ---
 sidebar_position: 4
 title: Troubleshooting
-description: Common AiSOC errors, where to look, and how to recover — from a stuck connector poll to a wedged Kafka consumer to a silent agent.
+description: Common Quarry errors, where to look, and how to recover — from a stuck connector poll to a wedged Kafka consumer to a silent agent.
 ---
 
 # Troubleshooting
 
-Most AiSOC issues fall into a handful of buckets: a service can't reach a dependency, a credential is wrong, a queue is wedged, or an LLM provider is unreachable. This page is the field guide — what symptom maps to which subsystem, where to read the log, and how to recover without paging the whole rotation.
+Most Quarry issues fall into a handful of buckets: a service can't reach a dependency, a credential is wrong, a queue is wedged, or an LLM provider is unreachable. This page is the field guide — what symptom maps to which subsystem, where to read the log, and how to recover without paging the whole rotation.
 
 If the symptom is not listed here, the fastest diagnostic is almost always:
 
 ```bash
-pnpm aisoc:doctor
+pnpm quarry:doctor
 ```
 
 It runs an end-to-end health check across ports, containers, demo data, the API, and the WebSocket gateway, and tells you exactly what is red.
@@ -23,13 +23,13 @@ It runs an end-to-end health check across ports, containers, demo data, the API,
 | Surface | Where to look |
 |---|---|
 | Service logs (Docker Compose dev) | `docker compose logs -f <service>` |
-| Service logs (Kubernetes) | `kubectl logs -n aisoc deploy/<service> -f` |
+| Service logs (Kubernetes) | `kubectl logs -n quarry deploy/<service> -f` |
 | Structured app events | All services emit JSON via `structlog` (Python) or `pino` (Node). Pipe to your log aggregator (Loki, Elastic, Datadog, Splunk). |
 | Audit log (every state-changing API call) | UI → **Audit Log**, or `GET /api/v1/audit-log` |
 | Investigation Ledger (every agent decision) | UI → case workspace → **Ledger** tab, or `GET /api/v1/cases/{id}/ledger` |
 | Connector poll history | UI → **Connectors** → click instance → **Run history** tab |
 | Kafka consumer lag | `docker compose exec kafka kafka-consumer-groups.sh --bootstrap-server localhost:9092 --describe --all-groups` |
-| Database health | `docker compose exec postgres psql -U aisoc -c '\l'` |
+| Database health | `docker compose exec postgres psql -U quarry -c '\l'` |
 
 Every log line carries `tenant_id`, `correlation_id`, and (where relevant) `case_id`, `alert_id`, `connector_id`. Filter by these — never grep raw text in production.
 
@@ -37,7 +37,7 @@ Every log line carries `tenant_id`, `correlation_id`, and (where relevant) `case
 
 ## Stack won't start
 
-### `pnpm aisoc:demo` hangs at "waiting for healthchecks"
+### `pnpm quarry:demo` hangs at "waiting for healthchecks"
 
 ```
 [demo] Waiting for postgres healthcheck …  (still waiting after 120s)
@@ -45,7 +45,7 @@ Every log line carries `tenant_id`, `correlation_id`, and (where relevant) `case
 
 Almost always one of:
 
-1. **Old container state.** Run `pnpm aisoc:demo:down` (which also drops the demo volumes) and try again.
+1. **Old container state.** Run `pnpm quarry:demo:down` (which also drops the demo volumes) and try again.
 2. **Port collision.** Postgres `5432`, Redis `6379`, or Kafka `9092` is already bound on the host. Either stop the local service or set `DATABASE_URL`, `REDIS_URL`, `KAFKA_BOOTSTRAP_SERVERS` to non-default ports in `.env` before re-running.
 3. **Docker resource limits.** Compose needs ~6 GB RAM for the slim demo and ~12 GB for the full stack. On Docker Desktop, raise the memory limit in **Settings → Resources**.
 
@@ -62,8 +62,8 @@ The four most common causes and fixes:
 | Symptom in log | Likely cause | Fix |
 |---|---|---|
 | `connection refused` to `postgres:5432` | The DB hasn't finished initializing yet | Compose `depends_on` retries automatically; if the loop persists for more than 60 s, restart `postgres` and check disk space |
-| `password authentication failed for user "aisoc"` | `.env` overridden after the volume was created | Either match the existing volume credentials or `pnpm aisoc:demo:down` and recreate |
-| `InvalidToken` in API or connectors | `AISOC_CREDENTIAL_KEY` is missing or differs between API and connectors services | Set the same key in both, see [Credentials](./credentials) |
+| `password authentication failed for user "quarry"` | `.env` overridden after the volume was created | Either match the existing volume credentials or `pnpm quarry:demo:down` and recreate |
+| `InvalidToken` in API or connectors | `QUARRY_CREDENTIAL_KEY` is missing or differs between API and connectors services | Set the same key in both, see [Credentials](./credentials) |
 | `JWT_SECRET must be set in non-development environments` | Ingest service refuses to boot without a real key | Set `JWT_SECRET` in `.env` and restart |
 
 ---
@@ -78,7 +78,7 @@ The API healthcheck reports per-subsystem status. A 503 means at least one requi
 { "status": "degraded", "subsystems": { "postgres": "ok", "redis": "ok", "kafka": "down", "opensearch": "ok" } }
 ```
 
-Restart only the offending subsystem rather than the whole stack. If you intentionally don't run a subsystem (common in air-gap or minimal deployments), set the matching `AISOC_DISABLE_*` flag — see [Environment Variables](../deployment/env-vars). Endpoints that need the disabled subsystem will return 503 cleanly instead of crashing.
+Restart only the offending subsystem rather than the whole stack. If you intentionally don't run a subsystem (common in air-gap or minimal deployments), set the matching `QUARRY_DISABLE_*` flag — see [Environment Variables](../deployment/env-vars). Endpoints that need the disabled subsystem will return 503 cleanly instead of crashing.
 
 ### `401 Unauthorized` on every API call
 
@@ -122,9 +122,9 @@ Click into the instance → **Run history** → expand the failed run. The error
 |---|---|---|
 | `401` / `invalid_client` / `invalid_grant` | Upstream credential expired or rotated | Click **Configure**, paste a new secret, **Save** |
 | `403` / `insufficient_scope` | The connector identity doesn't have the required scope/role on the source | Re-check the per-connector setup doc (e.g. [Azure Entra](../connectors/azure-entra), [GitHub](../connectors/github)) — they list the exact scopes |
-| `429` / `rate_limited` | We hit the upstream API rate limit | Increase `connector_config.poll_interval_seconds` for that instance; AiSOC honors `Retry-After` automatically |
+| `429` / `rate_limited` | We hit the upstream API rate limit | Increase `connector_config.poll_interval_seconds` for that instance; Quarry honors `Retry-After` automatically |
 | `Timeout after 30 s` | Upstream is slow or unreachable | Transient — retry on next poll. Persistent → check upstream status page |
-| `InvalidToken` | The vault can't decrypt this instance's `auth_config` | Means `AISOC_CREDENTIAL_KEY` was rotated without running the rewrite step. See [Credentials → Rotation](./credentials) |
+| `InvalidToken` | The vault can't decrypt this instance's `auth_config` | Means `QUARRY_CREDENTIAL_KEY` was rotated without running the rewrite step. See [Credentials → Rotation](./credentials) |
 
 ### Connector is enabled but `events_added` stays at 0
 
@@ -132,7 +132,7 @@ In order of how often this is the cause:
 
 1. **Source has no new events.** Verify upstream — most APIs have a "view audit events" UI you can compare against.
 2. **Time window starts in the future.** A connector's first poll uses a default lookback (typically 24 h). If the source's clock is skewed or the connector was disabled then re-enabled with a too-recent watermark, you'll get no events. **Manual fix**: click **Configure** → **Reset watermark** → choose a timestamp in the past.
-3. **Polling is paused.** The scheduler is global and pausable via `AISOC_CONNECTORS_DISABLE_SCHEDULER=1`. Make sure that flag is *not* set in production.
+3. **Polling is paused.** The scheduler is global and pausable via `QUARRY_CONNECTORS_DISABLE_SCHEDULER=1`. Make sure that flag is *not* set in production.
 4. **Filters in the connector instance exclude everything.** Some connectors expose a `filter` field — check it.
 
 ### Connector polls succeed but alerts don't show up
@@ -153,21 +153,21 @@ docker compose logs --tail=200 fusion | grep "fused_alert"
 
 If ingest received events but Kafka has none → check `KAFKA_BOOTSTRAP_SERVERS` matches between ingest and Kafka. If Kafka has them but fusion ignored them → most likely no detection rule fired (which is normal — most events are not alerts). Check the **Detections** page for active rule count.
 
-### `aisoc submit` succeeds but `/alerts` is still empty (v7.3.1+)
+### `quarry submit` succeeds but `/alerts` is still empty (v7.3.1+)
 
-The `aisoc submit` CLI (and the [`POST /api/v1/alerts/submit`](../api/rest) endpoint behind it) writes a single `Alert` row directly to Postgres — it intentionally bypasses Kafka / `services/ingest` / `services/fusion`, so this path has a different failure surface than the connector pipeline above.
+The `quarry submit` CLI (and the [`POST /api/v1/alerts/submit`](../api/rest) endpoint behind it) writes a single `Alert` row directly to Postgres — it intentionally bypasses Kafka / `services/ingest` / `services/fusion`, so this path has a different failure surface than the connector pipeline above.
 
 In order of how often this is the cause:
 
-1. **Migrations weren't applied on a fresh clone.** The `alerts` table needs the v7.3.1 schema (eleven columns added by `042_alerts_schema_drift_fix.sql`). Run `aisoc db upgrade` — it's idempotent, so re-running on an already-migrated database is safe. If you see `column "..." of relation "alerts" does not exist` in `docker compose logs api`, this is the cause.
-2. **`AISOC_CREDENTIAL_KEY` mismatch.** The submit endpoint writes through the same vault decrypt path as the rest of the API. If the API service was started with a different key than the one in `.env`, the row inserts but downstream lookups (e.g. tenant resolution) fail silently. Stop the stack, set the key in `.env`, restart.
-3. **Wrong tenant filter in the UI.** The web console scopes `/alerts` to the currently selected tenant. `aisoc submit` defaults to the dev tenant. If you've switched tenants in the UI, you won't see the row. Switch back to the dev tenant or pass `--tenant` to `aisoc submit`.
-4. **API is on a port other than 8000.** `aisoc submit` reads `AISOC_API_URL` (default `http://localhost:8000`). If you remapped the port in `docker-compose.dev.yml`, set the env var.
+1. **Migrations weren't applied on a fresh clone.** The `alerts` table needs the v7.3.1 schema (eleven columns added by `042_alerts_schema_drift_fix.sql`). Run `quarry db upgrade` — it's idempotent, so re-running on an already-migrated database is safe. If you see `column "..." of relation "alerts" does not exist` in `docker compose logs api`, this is the cause.
+2. **`QUARRY_CREDENTIAL_KEY` mismatch.** The submit endpoint writes through the same vault decrypt path as the rest of the API. If the API service was started with a different key than the one in `.env`, the row inserts but downstream lookups (e.g. tenant resolution) fail silently. Stop the stack, set the key in `.env`, restart.
+3. **Wrong tenant filter in the UI.** The web console scopes `/alerts` to the currently selected tenant. `quarry submit` defaults to the dev tenant. If you've switched tenants in the UI, you won't see the row. Switch back to the dev tenant or pass `--tenant` to `quarry submit`.
+4. **API is on a port other than 8000.** `quarry submit` reads `QUARRY_API_URL` (default `http://localhost:8000`). If you remapped the port in `docker-compose.dev.yml`, set the env var.
 
 Confirm the row really landed:
 
 ```bash
-docker compose exec postgres psql -U aisoc -d aisoc -c \
+docker compose exec postgres psql -U quarry -d quarry -c \
   "select id, rule_id, severity, status, created_at from alerts order by created_at desc limit 5;"
 ```
 
@@ -232,7 +232,7 @@ In order:
 1. **Wrong `logsource`**. The Sigma `logsource` block must match the OCSF category your connector emits. Use the [Connector field reference](../connectors/api-coverage) to confirm.
 2. **Status is `disabled`.** New rules default to `disabled` to avoid noise on import. Enable in the UI before expecting fires.
 3. **Tier filter excludes it.** The Detections page filters by tier (stable / beta / imported / community). Imported rules from SigmaHQ default to the `imported` tier and can look invisible if the filter is set to `stable`.
-4. **`condition` is too restrictive.** Run the rule against historical data: **Detections → click rule → Backtest**. If the backtest shows zero matches over a known-positive window, the condition is wrong, not AiSOC.
+4. **`condition` is too restrictive.** Run the rule against historical data: **Detections → click rule → Backtest**. If the backtest shows zero matches over a known-positive window, the condition is wrong, not Quarry.
 
 ### Auto-triage closed an alert you wanted to investigate
 
@@ -262,7 +262,7 @@ If this prints the default `localhost:5432` from inside the container, your `.en
 docker compose exec kafka kafka-consumer-groups.sh --bootstrap-server localhost:9092 --describe --all-groups
 ```
 
-Lag on `aisoc.normalized_events` → fusion is overloaded or stalled. Lag on `aisoc.alerts.fused` → realtime can't keep up, usually because a downstream WebSocket client backed up. Either restart the consumer or scale it horizontally (more replicas of `fusion` / `realtime`).
+Lag on `quarry.normalized_events` → fusion is overloaded or stalled. Lag on `quarry.alerts.fused` → realtime can't keep up, usually because a downstream WebSocket client backed up. Either restart the consumer or scale it horizontally (more replicas of `fusion` / `realtime`).
 
 ### OpenSearch shards are red
 
@@ -309,12 +309,12 @@ If after the above:
 
 — page the on-call platform owner. Open a GitHub issue with:
 
-- Git SHA running in production (`docker exec api cat /etc/aisoc.version`).
-- Output of `pnpm aisoc:doctor`.
+- Git SHA running in production (`docker exec api cat /etc/quarry.version`).
+- Output of `pnpm quarry:doctor`.
 - Last 200 lines of the offending service log.
 - A correlation_id from a failing request.
 
-Most data-plane issues are caught and explained by `aisoc:doctor` — please run it before opening the issue.
+Most data-plane issues are caught and explained by `quarry:doctor` — please run it before opening the issue.
 
 ## Related
 

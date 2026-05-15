@@ -30,7 +30,7 @@ from app.connectors.base import BaseConnector, Capability, ConnectorSchema, Fiel
 
 logger = structlog.get_logger()
 
-# Prisma Cloud ships a native ``critical`` tier on alerts. AiSOC's 5-tier
+# Prisma Cloud ships a native ``critical`` tier on alerts. Quarry's 5-tier
 # ladder (info | low | medium | high | critical) preserves it end-to-end so
 # P1 cloud findings keep their original priority rather than getting
 # downgraded into ``high``.
@@ -229,7 +229,7 @@ class PrismaCloudConnector(BaseConnector):
         sev_raw = (policy.get("severity") or raw.get("severity") or "medium").lower()
         severity = _SEVERITY_MAP.get(sev_raw, "medium")
 
-        # Prisma Cloud emits ``alertTime`` in epoch milliseconds; AiSOC
+        # Prisma Cloud emits ``alertTime`` in epoch milliseconds; Quarry
         # downstream code expects ISO-8601 strings. Convert defensively
         # because some legacy payloads ship ISO already.
         created_at = raw.get("alertTime") or raw.get("firstSeen")

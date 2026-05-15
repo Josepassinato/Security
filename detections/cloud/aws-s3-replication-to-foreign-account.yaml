@@ -1,6 +1,6 @@
 id: det-cloud-058
 name: AWS S3 Replication Configured To External Account
-description: AiSOC v1 curated detection. Triggers on the cloud signal described by 'AWS S3 Replication
+description: Quarry v1 curated detection. Triggers on the cloud signal described by 'AWS S3 Replication
   Configured To External Account'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: high
@@ -19,6 +19,6 @@ false_positives:
 - Approved cross-account DR pipeline
 playbook: tpl-exfiltration
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

@@ -26,7 +26,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/beenuar/aisoc/services/ingest/internal/graph"
+	"github.com/beenuar/quarry/services/ingest/internal/graph"
 )
 
 // helper: build a minimal :Resource event the snapshotter can chew on.
@@ -377,7 +377,7 @@ func TestAWSConfigHistory_FullCypherPath(t *testing.T) {
 	// snapshotter must return the *earlier* one (it was the live config
 	// at alert time).
 	alertTime := mustParseTime(t, "2026-04-15T10:30:00Z")
-	ev := newAWSEvent(alertTime, "arn:aws:s3:::aisoc-demo-bucket")
+	ev := newAWSEvent(alertTime, "arn:aws:s3:::quarry-demo-bucket")
 
 	s.Apply(context.Background(), ev)
 

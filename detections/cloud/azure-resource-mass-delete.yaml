@@ -1,6 +1,6 @@
 id: det-cloud-025
 name: Azure Resource Mass Deletion
-description: AiSOC v1 curated detection. Triggers on the cloud signal described by 'Azure Resource Mass
+description: Quarry v1 curated detection. Triggers on the cloud signal described by 'Azure Resource Mass
   Deletion'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: critical
@@ -20,6 +20,6 @@ false_positives:
 - Sandbox cleanup (must originate from automation principal)
 playbook: tpl-data-destruction
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

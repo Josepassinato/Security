@@ -168,9 +168,9 @@ def _render_manifest(
         lines.append(f"  {dl}")
 
     lines += [
-        "author: AiSOC Core Team",
+        "author: Quarry Core Team",
         f"tags: {tags_yaml}",
-        f"homepage: https://github.com/beenuar/AiSOC/tree/main/services/connectors/app/connectors/{homepage_suffix}",
+        f"homepage: https://github.com/beenuar/Quarry/tree/main/services/connectors/app/connectors/{homepage_suffix}",
         "license: MIT",
         'min_aisoc_version: "4.0.0"',
         "config_schema:",

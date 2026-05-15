@@ -1,6 +1,6 @@
 """Reference implementation for the "Hello, plugin" tutorial.
 
-Walks through every step of writing an AiSOC enricher with the Python plugin
+Walks through every step of writing an Quarry enricher with the Python plugin
 SDK. The full walkthrough lives at apps/docs/docs/plugins/hello-plugin.md —
 this file is the runnable companion.
 
@@ -21,8 +21,8 @@ from __future__ import annotations
 
 import hashlib
 
-from aisoc_plugin_sdk import (
-    AiSOCPlugin,
+from quarry_plugin_sdk import (
+    QuarryPlugin,
     EnricherPlugin,
     EnrichmentRequest,
     EnrichmentResult,
@@ -37,7 +37,7 @@ class HelloPlugin(EnricherPlugin):
     @property
     def manifest(self) -> PluginManifest:
         return PluginManifest(
-            id="aisoc.hello-plugin",
+            id="quarry.hello-plugin",
             name="Hello Plugin (Tutorial)",
             version="1.0.0",
             description=(
@@ -45,7 +45,7 @@ class HelloPlugin(EnricherPlugin):
                 "Reference implementation for "
                 "apps/docs/docs/plugins/hello-plugin.md."
             ),
-            author="AiSOC Tutorial",
+            author="Quarry Tutorial",
             tags=["tutorial", "enricher", "offline"],
             plugin_type="enricher",
         )
@@ -89,7 +89,7 @@ class HelloPlugin(EnricherPlugin):
         )
 
 
-def create_plugin() -> AiSOCPlugin:
+def create_plugin() -> QuarryPlugin:
     """Factory called by ``load_plugin_from_directory``.
 
     The loader looks for a top-level ``create_plugin`` callable in

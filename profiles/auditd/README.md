@@ -1,9 +1,9 @@
-# AiSOC auditd profile
+# Quarry auditd profile
 
 A drop-in `audit.rules` profile that gives the [`auditd`](../../services/connectors/app/connectors/auditd.py)
 connector enough signal to drive the bundled Linux endpoint detection
 rules (`detections/endpoint/linux-*.yaml`) **without** running a
-host-side AiSOC agent.
+host-side Quarry agent.
 
 The connector tails `/var/log/audit/audit.log` directly and matches on
 the `key=` field every rule attaches via `-k aisoc_*`. The connector's
@@ -18,7 +18,7 @@ severity heuristic is a pure function of the key prefix:
 | `aisoc_watch_*`     | `low`    |
 | `aisoc_audit_*`     | `low`    |
 
-This means the SOC analyst sees the same severity in the AiSOC console
+This means the SOC analyst sees the same severity in the Quarry console
 as the rule author intended at policy-write time — no second-guessing.
 
 ## Install
@@ -33,7 +33,7 @@ sudo dnf install -y audit             # RHEL / Fedora / Amazon Linux
 # 2. Drop the profile into rules.d (NOT directly into audit.rules —
 #    augenrules will compose the final ruleset for you).
 sudo install -m 0640 -o root -g root \
-    aisoc.rules /etc/audit/rules.d/99-aisoc.rules
+    quarry.rules /etc/audit/rules.d/99-quarry.rules
 
 # 3. Reload the kernel ruleset.
 sudo augenrules --load
@@ -47,30 +47,30 @@ re-check that `audit.rules.d` isn't being clobbered by a CIS / STIG
 benchmark profile and that `auditd` itself is running
 (`systemctl status auditd`).
 
-## Connect AiSOC
+## Connect Quarry
 
-Add the connector instance from the AiSOC console (or the API):
+Add the connector instance from the Quarry console (or the API):
 
 | Field           | Value (example)              |
 | --------------- | ---------------------------- |
 | Host label      | `web-prod-01.eu-west-1`      |
 | Audit log path  | `/var/log/audit/audit.log`   |
-| Cursor path     | _(leave blank — defaults to `<audit_log_path>.aisoc-cursor`)_ |
+| Cursor path     | _(leave blank — defaults to `<audit_log_path>.quarry-cursor`)_ |
 
 The connector needs **read** on the audit log and **read/write** on the
-cursor file. The cleanest fit is to add the AiSOC service account to
+cursor file. The cleanest fit is to add the Quarry service account to
 the local `adm` group (which already owns `/var/log/audit/`):
 
 ```bash
-sudo usermod -aG adm aisoc
+sudo usermod -aG adm quarry
 ```
 
-…and re-login the AiSOC service so the new group takes effect.
+…and re-login the Quarry service so the new group takes effect.
 
 ## What gets detected, end-to-end
 
-Every rule in `aisoc.rules` is wired into at least one detection rule
-that already ships with AiSOC. The full mapping:
+Every rule in `quarry.rules` is wired into at least one detection rule
+that already ships with Quarry. The full mapping:
 
 | `audit.rules` key                | Detection rule(s)                                                                 |
 | -------------------------------- | --------------------------------------------------------------------------------- |
@@ -110,8 +110,8 @@ is a 5–7 day Go project we deferred to a later release.** The trade-off:
 
 * ✅ Zero net-new code on the customer host. Stock `auditd` only.
 * ✅ Works on any distro with `auditd` (RHEL family, Debian family, Amazon Linux, SUSE).
-* ✅ The connector is the only AiSOC-specific surface, and it lives on the AiSOC side.
-* ⚠️ Requires the AiSOC service to read `/var/log/audit/audit.log`,
+* ✅ The connector is the only Quarry-specific surface, and it lives on the Quarry side.
+* ⚠️ Requires the Quarry service to read `/var/log/audit/audit.log`,
   which means either group membership in `adm` or a sidecar
   shipper (rsyslog/Vector/Fluent Bit forwarding the file).
 * ⚠️ Sub-second latency depends on poll interval; default is 5 minutes.

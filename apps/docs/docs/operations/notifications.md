@@ -1,12 +1,12 @@
 ---
 sidebar_position: 9
 title: Notifications & alerting
-description: All the ways AiSOC notifies humans — Slack ChatOps, Web Push to the responder PWA, email/webhook tickets, and honeytoken first-touch alerts — and how to configure each one.
+description: All the ways Quarry notifies humans — Slack ChatOps, Web Push to the responder PWA, email/webhook tickets, and honeytoken first-touch alerts — and how to configure each one.
 ---
 
 # Notifications and alerting
 
-AiSOC has multiple **outbound notification surfaces**, each tuned for a
+Quarry has multiple **outbound notification surfaces**, each tuned for a
 different kind of human-in-the-loop moment. This page is the one place that
 explains what they are, when each fires, and what you need to set in your
 environment to make them work.
@@ -23,7 +23,7 @@ environment to make them work.
 | **Connector-freshness email/webhook** | Tenant owner | A connector going stale | `services/api` |
 
 All of these speak the same operational principle: **the system sends, the
-human decides**. AiSOC never auto-resolves an incident on the back of a
+human decides**. Quarry never auto-resolves an incident on the back of a
 notification reply unless the explicit `chatops.verify` flow has been wired
 up and the user clicks **Yes, that was me**.
 
@@ -52,7 +52,7 @@ The mobile responder PWA lives at `apps/web` and is delivered by `services/realt
    | Variable | Required | Notes |
    |---|---|---|
    | `REALTIME_BASE_URL` | yes | e.g. `http://realtime:8086` in a Compose / k8s setup. |
-   | `REALTIME_INTERNAL_TOKEN` | recommended | Shared secret stamped on every proxied call as `X-AiSOC-Internal-Token`. |
+   | `REALTIME_INTERNAL_TOKEN` | recommended | Shared secret stamped on every proxied call as `X-Quarry-Internal-Token`. |
 
 4. The PWA then calls four gateway endpoints (mounted under `/api/v1/push/*`):
 
@@ -66,10 +66,10 @@ The mobile responder PWA lives at `apps/web` and is delivered by `services/realt
 Subscriptions are stored in Redis with a 90-day TTL, keyed by tenant, user, and topic:
 
 ```
-aisoc:push:sub:<id>                 → JSON SubscriptionRecord
-aisoc:push:tenant:<tenant_id>       → SET of subscription ids
-aisoc:push:user:<tenant>:<user_id>  → SET of subscription ids
-aisoc:push:topic:<tenant>:<topic>   → SET of subscription ids
+quarry:push:sub:<id>                 → JSON SubscriptionRecord
+quarry:push:tenant:<tenant_id>       → SET of subscription ids
+quarry:push:user:<tenant>:<user_id>  → SET of subscription ids
+quarry:push:topic:<tenant>:<topic>   → SET of subscription ids
 ```
 
 That layout is what lets a single `PushManager.sendToTarget(...)` call fan out to (a) a whole tenant on a P0 alert, (b) just the on-call user for an approval request, or (c) everyone subscribed to a topic such as `p0_alert`, `agent_approval`, or `oncall_handoff`.
@@ -86,7 +86,7 @@ If push delivery returns `404` or `410` (subscription expired or removed by the 
 
 ---
 
-## 2. Slack ChatOps (`/aisoc`)
+## 2. Slack ChatOps (`/quarry`)
 
 `services/slack-bot` is a thin Bolt-for-Python adapter. It owns no security state — every command is just a `httpx` call back to `services/api` or `services/actions` using a service-scoped `aisoc_*` API key.
 
@@ -94,12 +94,12 @@ If push delivery returns `404` or `410` (subscription expired or removed by the 
 
 | Command | Behaviour |
 |---|---|
-| `/aisoc list` | Top 10 open cases as severity-coloured Block Kit cards. |
-| `/aisoc investigate <case>` | Fires an investigation run for the case. |
-| `/aisoc explain <case>` | Pulls the per-case auto-summary. |
-| `/aisoc isolate <host>` | Submits an `isolate_host` action — gated, posts an Approve / Deny card. |
-| `/aisoc block <ip>` | Submits a `block_ip` action — gated, posts an Approve / Deny card. |
-| `/aisoc help` | Inline command reference. |
+| `/quarry list` | Top 10 open cases as severity-coloured Block Kit cards. |
+| `/quarry investigate <case>` | Fires an investigation run for the case. |
+| `/quarry explain <case>` | Pulls the per-case auto-summary. |
+| `/quarry isolate <host>` | Submits an `isolate_host` action — gated, posts an Approve / Deny card. |
+| `/quarry block <ip>` | Submits a `block_ip` action — gated, posts an Approve / Deny card. |
+| `/quarry help` | Inline command reference. |
 
 **Required environment**
 
@@ -107,12 +107,12 @@ If push delivery returns `404` or `410` (subscription expired or removed by the 
 |---|---|
 | `SLACK_BOT_TOKEN` | `xoxb-…` bot user OAuth token. |
 | `SLACK_SIGNING_SECRET` | Used by Bolt to verify Slack request signatures. |
-| `AISOC_API_BASE_URL` | e.g. `http://aisoc-api:8000`. |
-| `AISOC_ACTIONS_BASE_URL` | e.g. `http://aisoc-actions:8085`. |
-| `AISOC_API_SERVICE_TOKEN` | API key with `cases:read,cases:write,alerts:read`. |
-| `AISOC_ACTIONS_SERVICE_TOKEN` | API key with `actions:write` (or shared key). |
-| `AISOC_DEFAULT_TENANT_ID` | UUID of the tenant Slack actions belong to. |
-| `AISOC_WEB_BASE_URL` | Optional. Public web URL used for deep-linked cards. Default `https://app.tryaisoc.com`. |
+| `QUARRY_API_BASE_URL` | e.g. `http://quarry-api:8000`. |
+| `QUARRY_ACTIONS_BASE_URL` | e.g. `http://quarry-actions:8085`. |
+| `QUARRY_API_SERVICE_TOKEN` | API key with `cases:read,cases:write,alerts:read`. |
+| `QUARRY_ACTIONS_SERVICE_TOKEN` | API key with `actions:write` (or shared key). |
+| `QUARRY_DEFAULT_TENANT_ID` | UUID of the tenant Slack actions belong to. |
+| `QUARRY_WEB_BASE_URL` | Optional. Public web URL used for deep-linked cards. Default `https://app.tryaisoc.com`. |
 
 Slack tokens **must** come from your secret store (Doppler / Vault / k8s Secret). `pnpm preflight` fails the build if it spots a Slack token in tracked files.
 
@@ -131,10 +131,10 @@ steps:
       webhook_url: "https://hooks.slack.com/services/..."
       channel: "#security-alerts"
       message: |
-        AiSOC isolated host {{ context.host }} after P0 alert {{ context.alert_id }}.
+        Quarry isolated host {{ context.host }} after P0 alert {{ context.alert_id }}.
 ```
 
-Implementation: [`services/actions/app/executors/notification.py`](https://github.com/beenuar/AiSOC/blob/main/services/actions/app/executors/notification.py).
+Implementation: [`services/actions/app/executors/notification.py`](https://github.com/Josepassinato/quarry/blob/main/services/actions/app/executors/notification.py).
 
 Failure mode is non-fatal but visible: if the webhook returns non-2xx the executor returns `ActionStatus.FAILED` with the underlying error string, the playbook step is marked failed, and the rest of the playbook runs as authored (typically with the failure path branching to `escalate_to_human`).
 
@@ -147,7 +147,7 @@ Failure mode is non-fatal but visible: if the webhook returns non-2xx the execut
 **Flow**
 
 1. The executor mints **three** HMAC-signed callback tokens: `acknowledge`, `deny`, `escalate`.
-2. Each token expires after `AISOC_CHATOPS_TIMEOUT_SECONDS` (default 30 minutes) and carries the action, case, tenant, user reference, and choice.
+2. Each token expires after `QUARRY_CHATOPS_TIMEOUT_SECONDS` (default 30 minutes) and carries the action, case, tenant, user reference, and choice.
 3. A Block Kit message (Slack) or Connector Card (Teams) is posted with three buttons.
 4. The action returns `ActionStatus.RUNNING` — the playbook is now waiting on a human reply, it is not blocked on the request loop.
 5. The user clicks a button → callback hits `services/actions` → the case timeline gets a `chatops.verify.<choice>` event → the playbook resumes on the chosen branch.
@@ -156,10 +156,10 @@ Failure mode is non-fatal but visible: if the webhook returns non-2xx the execut
 
 | Variable | Notes |
 |---|---|
-| `AISOC_FEATURE_CHATOPS_VERIFY=1` | Feature flag. The executor returns `FAILED` (not silently no-ops) if it is off, so misconfiguration is loud. |
-| `AISOC_ACTIONS_PUBLIC_URL` | Public URL the user's browser will be redirected to when they click a button. |
-| `AISOC_CHATOPS_HMAC_SECRET` | Used to sign and verify the three per-choice tokens. |
-| `AISOC_CHATOPS_TIMEOUT_SECONDS` | Optional. Default `1800`. |
+| `QUARRY_FEATURE_CHATOPS_VERIFY=1` | Feature flag. The executor returns `FAILED` (not silently no-ops) if it is off, so misconfiguration is loud. |
+| `QUARRY_ACTIONS_PUBLIC_URL` | Public URL the user's browser will be redirected to when they click a button. |
+| `QUARRY_CHATOPS_HMAC_SECRET` | Used to sign and verify the three per-choice tokens. |
+| `QUARRY_CHATOPS_TIMEOUT_SECONDS` | Optional. Default `1800`. |
 
 The Slack/Teams transport credentials themselves are stored in the credential vault per-tenant (see [Credentials](./credentials)) — the executor reads them out at run-time, not from environment variables, so a single deployment can serve multiple tenants with different Slack workspaces.
 
@@ -189,7 +189,7 @@ Either way, the playbook YAML is unchanged:
 
 ## 6. Honeytoken first-touch webhook
 
-When a honeytoken is touched (`honeytoken.triggered`), `services/honeytokens` posts a signed JSON payload to `settings.alert_webhook_url` *and* feeds the same event into the alert-fusion pipeline. The webhook is the **first-touch** path so you get paged even if the rest of AiSOC is degraded.
+When a honeytoken is touched (`honeytoken.triggered`), `services/honeytokens` posts a signed JSON payload to `settings.alert_webhook_url` *and* feeds the same event into the alert-fusion pipeline. The webhook is the **first-touch** path so you get paged even if the rest of Quarry is degraded.
 
 **Payload**
 
@@ -211,14 +211,14 @@ When a honeytoken is touched (`honeytoken.triggered`), `services/honeytokens` po
 | Variable | Notes |
 |---|---|
 | `ALERT_WEBHOOK_URL` | Where to POST the JSON payload. Empty string disables outbound alerting (the in-band timeline event is still written). |
-| `ALERT_WEBHOOK_SECRET` | If set, the executor signs the body with HMAC-SHA256 and sends the digest as `X-AiSOC-Signature: sha256=<hex>`. |
+| `ALERT_WEBHOOK_SECRET` | If set, the executor signs the body with HMAC-SHA256 and sends the digest as `X-Quarry-Signature: sha256=<hex>`. |
 
 Verify the signature on the receiver side with:
 
 ```python
 import hmac, hashlib
 expected = hmac.new(secret.encode(), request.body, hashlib.sha256).hexdigest()
-assert hmac.compare_digest(expected, request.headers["X-AiSOC-Signature"].split("=", 1)[1])
+assert hmac.compare_digest(expected, request.headers["X-Quarry-Signature"].split("=", 1)[1])
 ```
 
 ---
@@ -233,12 +233,12 @@ There is no extra config — `connector_health` is a built-in topic that any sub
 
 ## Suppression and quiet hours
 
-You generally do **not** want to suppress notifications inside AiSOC itself — silencing is something your paging tool (PagerDuty, Opsgenie, native Slack DND, the PWA's per-user snooze) is much better at. AiSOC offers two narrow controls:
+You generally do **not** want to suppress notifications inside Quarry itself — silencing is something your paging tool (PagerDuty, Opsgenie, native Slack DND, the PWA's per-user snooze) is much better at. Quarry offers two narrow controls:
 
 - **Per-user on-call status**. The `/api/v1/oncall` endpoint lets a responder mark themselves `available | busy | offline | snoozed`. The realtime service skips Web Push fan-out to anyone in `offline` or `snoozed`.
 - **Slack channel routing**. `notify_slack` always honors the `channel` parameter — point overnight playbooks at `#security-alerts-overnight` rather than trying to suppress the daytime channel.
 
-Anything more sophisticated (rotation logic, escalation policies, holiday calendars) belongs in the on-call tool that owns those concepts. AiSOC ships *to* PagerDuty / Opsgenie, not around them.
+Anything more sophisticated (rotation logic, escalation policies, holiday calendars) belongs in the on-call tool that owns those concepts. Quarry ships *to* PagerDuty / Opsgenie, not around them.
 
 ---
 
@@ -249,21 +249,21 @@ The fastest end-to-end smoke test, in order of how much you have to set up:
 1. **Web Push.** Open the PWA → Settings → Notifications → **Send test**. Hits `POST /api/v1/push/test`, which invokes `pushManager.sendToTarget(...)` on every registered device for the calling user. If you do not see a notification within ~5s, check the realtime logs for `web-push` errors — typically a stale subscription, a wrong VAPID key, or a missing `VAPID_SUBJECT`.
 2. **Slack `notify_slack`.** Curl the action directly:
    ```bash
-   curl -X POST "$AISOC_ACTIONS_BASE_URL/api/v1/actions" \
-     -H "Authorization: Bearer $AISOC_ACTIONS_SERVICE_TOKEN" \
+   curl -X POST "$QUARRY_ACTIONS_BASE_URL/api/v1/actions" \
+     -H "Authorization: Bearer $QUARRY_ACTIONS_SERVICE_TOKEN" \
      -H "Content-Type: application/json" \
      -d '{
        "action_type": "notify_slack",
        "parameters": {
          "webhook_url": "'"$SLACK_TEST_WEBHOOK"'",
-         "channel": "#aisoc-test",
-         "message": "hello from AiSOC"
+         "channel": "#quarry-test",
+         "message": "hello from Quarry"
        },
        "rationale": "manual smoke test"
      }'
    ```
 3. **ChatOps verify.** Run any playbook that includes a `chatops.verify` step against your own user, then click one of the three buttons. The case timeline should show a `chatops.verify.prompted` event followed by `chatops.verify.<choice>`.
-4. **Honeytoken webhook.** `pnpm aisoc honeytokens trigger <token-id>` (or hit the trigger URL in your browser). The configured webhook should receive the JSON payload within a couple of seconds.
+4. **Honeytoken webhook.** `pnpm quarry honeytokens trigger <token-id>` (or hit the trigger URL in your browser). The configured webhook should receive the JSON payload within a couple of seconds.
 
 ---
 

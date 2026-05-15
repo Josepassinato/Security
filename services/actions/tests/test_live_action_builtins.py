@@ -211,7 +211,7 @@ def test_plugin_registered_executor_appears_in_descriptors() -> None:
     """Plugin-registered executors show ``source="plugin"`` in discovery.
 
     This is the contract the marketplace UI relies on: builtins get a
-    "shipped with AiSOC" badge, plugin executors get a "from <plugin>"
+    "shipped with Quarry" badge, plugin executors get a "from <plugin>"
     badge. If this assertion ever flips, the badge logic also needs
     auditing.
     """

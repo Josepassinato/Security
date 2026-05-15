@@ -41,6 +41,6 @@ expected:
 references:
   - https://attack.mitre.org/techniques/T1218/011/
   - https://lolbas-project.github.io/lolbas/Binaries/Rundll32/
-author: AiSOC
+author: Quarry
 created: '2026-05-05'
 modified: '2026-05-05'

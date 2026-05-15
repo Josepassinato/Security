@@ -25,7 +25,7 @@ from tests.test_mitre_accuracy import evaluate_mitre_accuracy
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Evaluate MITRE tactic accuracy for AiSOC Pillar-1.")
+    parser = argparse.ArgumentParser(description="Evaluate MITRE tactic accuracy for Quarry Pillar-1.")
     parser.add_argument("--threshold", type=float, default=0.80, help="Required accuracy (default: 0.80)")
     parser.add_argument("--json", action="store_true", help="Output JSON report to stdout")
     args = parser.parse_args()
@@ -36,7 +36,7 @@ def main() -> None:
         print(result.to_json())
     else:
         print(f"\n{'='*60}")
-        print("  AiSOC P1-Eval: MITRE ATT&CK Tactic Accuracy")
+        print("  Quarry P1-Eval: MITRE ATT&CK Tactic Accuracy")
         print(f"{'='*60}")
         print(f"  Incidents evaluated : {result.total}")
         print(f"  Correctly predicted : {result.correct}")

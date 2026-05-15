@@ -67,4 +67,4 @@ provenance:
   upstream_path: rules/community/microsoft/windows/recon_successful_logon_enumeration_powershell_T1033_cisa_report.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

@@ -76,4 +76,4 @@ provenance:
   upstream_path: rules/community/okta/okta_multiple_failed_requests_to_access_applications.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

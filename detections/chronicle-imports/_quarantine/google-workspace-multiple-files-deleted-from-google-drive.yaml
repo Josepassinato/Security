@@ -53,4 +53,4 @@ provenance:
   upstream_path: rules/community/workspace/google_workspace_multiple_files_deleted_from_google_drive.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

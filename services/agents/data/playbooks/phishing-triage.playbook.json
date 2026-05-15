@@ -9,7 +9,7 @@
     "severity": ["medium", "high", "critical"],
     "tags": ["phishing"]
   },
-  "author": "AiSOC",
+  "author": "Quarry",
   "enabled": true,
   "steps": [
     {

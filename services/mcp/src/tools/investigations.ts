@@ -1,9 +1,9 @@
 /**
- * Investigation-ledger tools — the trust-vector surface that AiSOC's
+ * Investigation-ledger tools — the trust-vector surface that Quarry's
  * closed-source competitors literally can't expose, because their agents
  * are black-box cloud services.
  *
- * These tools let an MCP-aware agent answer "what did the AiSOC agent
+ * These tools let an MCP-aware agent answer "what did the Quarry agent
  * do, and why?" by walking the persistent decision ledger written in
  * Phase 1A.
  */

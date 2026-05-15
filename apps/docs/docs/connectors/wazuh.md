@@ -1,7 +1,7 @@
 ---
 sidebar_position: 15
 title: Wazuh
-description: Pull alerts from a Wazuh indexer (OpenSearch-compatible) into AiSOC for SIEM and HIDS coverage.
+description: Pull alerts from a Wazuh indexer (OpenSearch-compatible) into Quarry for SIEM and HIDS coverage.
 ---
 
 # Wazuh
@@ -10,7 +10,7 @@ description: Pull alerts from a Wazuh indexer (OpenSearch-compatible) into AiSOC
 host-based intrusion detection (HIDS), file-integrity monitoring (FIM),
 log analytics, and rule-based alerting on top of an OpenSearch-compatible
 indexer. The Wazuh connector polls the **indexer** directly for alerts that
-exceed a configurable rule-level threshold and normalizes them into AiSOC's
+exceed a configurable rule-level threshold and normalizes them into Quarry's
 canonical event shape.
 
 This is a read-path connector — it does not modify Wazuh state. Live response
@@ -21,7 +21,7 @@ the generic `live_action` capability so the platform stays vendor-neutral.
 
 | Source | Wazuh endpoint | Notes |
 |---|---|---|
-| Alerts | `POST /{index_pattern}/_search` against the indexer | One AiSOC event per alert document |
+| Alerts | `POST /{index_pattern}/_search` against the indexer | One Quarry event per alert document |
 | Cluster health probe | `GET /_cluster/health` | Used by **Test connection** |
 
 Events are normalized with `category: siem` and the originating Wazuh rule
@@ -57,14 +57,14 @@ In the Wazuh dashboard, go to **Security → Roles** and create a role with:
 - Index permissions on `wazuh-alerts-*`: `read`, `search`, `indices:data/read/search*`.
 - No cluster-level permissions.
 
-Then **Security → Internal users** → create a user (e.g. `aisoc-reader`)
-and map it to that role. Save the password — you will paste it into the AiSOC
+Then **Security → Internal users** → create a user (e.g. `quarry-reader`)
+and map it to that role. Save the password — you will paste it into the Quarry
 connector form.
 
 Reusing the built-in `admin` or `kibanaserver` accounts works for a lab but
 must not be used in production.
 
-### 2. Add the connector in AiSOC
+### 2. Add the connector in Quarry
 
 1. **Connectors → Add connector → Wazuh**.
 2. Fill in:
@@ -87,11 +87,11 @@ must not be used in production.
 
 ## Severity mapping
 
-Wazuh emits a 0-15 numeric `rule.level`. AiSOC collapses that ladder onto its
+Wazuh emits a 0-15 numeric `rule.level`. Quarry collapses that ladder onto its
 four-tier severity taxonomy so detection logic and fusion rules stay
 vendor-agnostic:
 
-| Wazuh rule level | AiSOC severity |
+| Wazuh rule level | Quarry severity |
 |---|---|
 | 0 – 3 | `info` |
 | 4 – 7 | `low` |

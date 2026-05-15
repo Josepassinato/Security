@@ -1,7 +1,7 @@
 // Package main is the Cloudflare WAF action reference implementation in Go.
 //
 // This file mirrors the Python plugin.py and demonstrates cross-language SDK
-// parity. The AiSOC runtime currently invokes plugin.py at execution time;
+// parity. The Quarry runtime currently invokes plugin.py at execution time;
 // this Go reference is intended for operators who prefer to ship native
 // binary plugins.
 package main
@@ -15,31 +15,31 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/beenuar/aisoc/plugin-sdk-go/aisoc"
+	"github.com/beenuar/quarry/plugin-sdk-go/quarry"
 )
 
 const apiBase = "https://api.cloudflare.com/client/v4"
 
-// CloudflareWAFAction implements aisoc.Action for Cloudflare firewall ops.
+// CloudflareWAFAction implements quarry.Action for Cloudflare firewall ops.
 type CloudflareWAFAction struct {
-	aisoc.BasePlugin
+	quarry.BasePlugin
 
 	httpClient *http.Client
 }
 
-func (c *CloudflareWAFAction) Manifest() aisoc.PluginManifest {
-	return aisoc.PluginManifest{
+func (c *CloudflareWAFAction) Manifest() quarry.PluginManifest {
+	return quarry.PluginManifest{
 		ID:          "cloudflare-waf",
 		Name:        "Cloudflare WAF Action",
 		Version:     "1.0.0",
-		PluginType:  aisoc.PluginTypeAction,
+		PluginType:  quarry.PluginTypeAction,
 		Description: "Block IPs, toggle Under Attack mode, and purge cache via the Cloudflare API.",
-		Author:      "AiSOC Core Team",
+		Author:      "Quarry Core Team",
 		Tags:        []string{"network", "cloudflare", "waf", "response"},
 	}
 }
 
-func (c *CloudflareWAFAction) OnLoad(ctx context.Context, pctx aisoc.PluginContext) error {
+func (c *CloudflareWAFAction) OnLoad(ctx context.Context, pctx quarry.PluginContext) error {
 	c.httpClient = &http.Client{Timeout: 30 * time.Second}
 	return nil
 }
@@ -56,12 +56,12 @@ func (c *CloudflareWAFAction) SupportedActions() []string {
 
 func (c *CloudflareWAFAction) Execute(
 	ctx context.Context,
-	req aisoc.ActionRequest,
-	pctx aisoc.PluginContext,
-) (aisoc.ActionResult, error) {
+	req quarry.ActionRequest,
+	pctx quarry.PluginContext,
+) (quarry.ActionResult, error) {
 	token, _ := pctx.Config["api_token"].(string)
 	if token == "" {
-		return aisoc.ActionResult{
+		return quarry.ActionResult{
 			ActionID: req.ActionID,
 			Success:  false,
 			Error:    "api_token is required",
@@ -72,7 +72,7 @@ func (c *CloudflareWAFAction) Execute(
 	case "block_ip":
 		accountID, _ := pctx.Config["account_id"].(string)
 		if accountID == "" {
-			return aisoc.ActionResult{ActionID: req.ActionID, Error: "account_id required"}, nil
+			return quarry.ActionResult{ActionID: req.ActionID, Error: "account_id required"}, nil
 		}
 		ip, _ := req.Params["ip"].(string)
 		body := map[string]any{
@@ -81,22 +81,22 @@ func (c *CloudflareWAFAction) Execute(
 				"target": "ip",
 				"value":  ip,
 			},
-			"notes": "blocked by AiSOC",
+			"notes": "blocked by Quarry",
 		}
 		buf, _ := json.Marshal(body)
 		path := fmt.Sprintf("/accounts/%s/firewall/access_rules/rules", accountID)
 		resp, err := c.do(ctx, token, "POST", path, buf)
 		if err != nil {
-			return aisoc.ActionResult{ActionID: req.ActionID, Error: err.Error()}, err
+			return quarry.ActionResult{ActionID: req.ActionID, Error: err.Error()}, err
 		}
-		return aisoc.ActionResult{
+		return quarry.ActionResult{
 			ActionID: req.ActionID,
 			Success:  true,
 			Summary:  fmt.Sprintf("Blocked IP %s", ip),
 			Details:  resp,
 		}, nil
 	default:
-		return aisoc.ActionResult{
+		return quarry.ActionResult{
 			ActionID: req.ActionID,
 			Error:    "unsupported action: " + req.ActionID,
 		}, nil
@@ -130,7 +130,7 @@ func (c *CloudflareWAFAction) do(
 }
 
 func main() {
-	registry := aisoc.NewRegistry()
+	registry := quarry.NewRegistry()
 	if err := registry.Register(&CloudflareWAFAction{}); err != nil {
 		panic(err)
 	}

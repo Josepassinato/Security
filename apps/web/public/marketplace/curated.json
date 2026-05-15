@@ -1,5 +1,5 @@
 {
-  "$schema": "https://aisoc.example.com/schemas/curated/v1.json",
+  "$schema": "https://quarry.example.com/schemas/curated/v1.json",
   "version": "1.0.0",
   "generated": "2026-05-14T12:28:25Z",
   "stats": {

@@ -111,7 +111,7 @@ class ChronicleConnector(BaseConnector):
     def normalize(self, raw: dict[str, Any]) -> dict[str, Any]:
         # Chronicle SecOps detections expose the standard
         # info/low/medium/high/critical ladder. Accept ``critical`` so
-        # the highest-impact detections survive into AiSOC's
+        # the highest-impact detections survive into Quarry's
         # five-tier severity ladder.
         sev = (raw.get("severity") or "").lower()
         if sev not in ("info", "low", "medium", "high", "critical"):

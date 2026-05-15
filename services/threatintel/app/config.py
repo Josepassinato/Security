@@ -1,4 +1,4 @@
-"""Configuration for the AiSOC Threat Intelligence service."""
+"""Configuration for the Quarry Threat Intelligence service."""
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     )
 
     # Service
-    APP_NAME: str = "AiSOC ThreatIntel"
+    APP_NAME: str = "Quarry ThreatIntel"
     VERSION: str = "0.1.0"
     ENVIRONMENT: str = "development"
 
@@ -43,8 +43,8 @@ class Settings(BaseSettings):
 
     # Kafka
     KAFKA_BOOTSTRAP_SERVERS: str = "redpanda:9092"
-    KAFKA_TOPIC_THREAT_INTEL: str = "aisoc.threat_intel"
-    KAFKA_TOPIC_IOC: str = "aisoc.ioc_enrichments"
+    KAFKA_TOPIC_THREAT_INTEL: str = "quarry.threat_intel"
+    KAFKA_TOPIC_IOC: str = "quarry.ioc_enrichments"
 
     # TAXII 2.1
     TAXII_URL: str = ""
@@ -81,11 +81,11 @@ class Settings(BaseSettings):
     # When enabled, public threat-intel feeds (OTX, CISA KEV, MISP/TAXII/
     # OpenCTI hosted on the public Internet) will refuse to register at
     # boot and any direct outbound HTTP from this service is blocked at
-    # request time. Mirror the AiSOC API service contract so a single
-    # AISOC_AIRGAPPED=1 in the deploy environment turns the whole stack
+    # request time. Mirror the Quarry API service contract so a single
+    # QUARRY_AIRGAPPED=1 in the deploy environment turns the whole stack
     # into zero-egress mode.
-    AISOC_AIRGAPPED: bool = False
-    AISOC_AIRGAP_ALLOWLIST: list[str] = []
+    QUARRY_AIRGAPPED: bool = False
+    QUARRY_AIRGAP_ALLOWLIST: list[str] = []
 
 
 settings = Settings()

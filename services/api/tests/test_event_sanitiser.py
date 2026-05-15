@@ -22,10 +22,10 @@ shapes:
    head of the batch).
 
 Also covers operator-facing safety: env-driven caps clamp to hard maxima
-so a misconfigured ``AISOC_SUBMIT_MAX_TOTAL_BYTES=999999999999`` can't
+so a misconfigured ``QUARRY_SUBMIT_MAX_TOTAL_BYTES=999999999999`` can't
 disable the protection.
 
-AiSOC — open-source AI Security Operations Center (MIT License)
+Quarry — open-source AI Security Operations Center (MIT License)
 Author: Beenu Arora <beenu@cyble.com>
 """
 
@@ -305,31 +305,31 @@ class TestEnvCaps:
         assert max_total_bytes() == 4 * 1024 * 1024
 
     def test_env_override_lowers_cap(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.setenv("AISOC_SUBMIT_MAX_EVENTS", "50")
+        monkeypatch.setenv("QUARRY_SUBMIT_MAX_EVENTS", "50")
         assert max_events() == 50
 
     def test_env_zero_falls_back_to_default(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """A non-positive value is silently ignored — operators sometimes
         type 0 to "disable" caps; we explicitly refuse that footgun."""
-        monkeypatch.setenv("AISOC_SUBMIT_MAX_EVENTS", "0")
+        monkeypatch.setenv("QUARRY_SUBMIT_MAX_EVENTS", "0")
         assert max_events() == 1000
 
     def test_env_negative_falls_back_to_default(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.setenv("AISOC_SUBMIT_MAX_EVENTS", "-5")
+        monkeypatch.setenv("QUARRY_SUBMIT_MAX_EVENTS", "-5")
         assert max_events() == 1000
 
     def test_env_garbage_falls_back_to_default(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.setenv("AISOC_SUBMIT_MAX_EVENTS", "not-a-number")
+        monkeypatch.setenv("QUARRY_SUBMIT_MAX_EVENTS", "not-a-number")
         assert max_events() == 1000
 
     def test_env_huge_value_clamps_to_hard_max(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """An operator typing 10**12 mustn't disable the cap. The hard
         maximum (100k events) is the real upper bound."""
-        monkeypatch.setenv("AISOC_SUBMIT_MAX_EVENTS", "999999999")
+        monkeypatch.setenv("QUARRY_SUBMIT_MAX_EVENTS", "999999999")
         assert max_events() == 100_000
 
     def test_total_bytes_clamps_to_hard_max(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.setenv("AISOC_SUBMIT_MAX_TOTAL_BYTES", "10737418240")  # 10 GiB
+        monkeypatch.setenv("QUARRY_SUBMIT_MAX_TOTAL_BYTES", "10737418240")  # 10 GiB
         assert max_total_bytes() == 64 * 1024 * 1024  # hard ceiling
 
 

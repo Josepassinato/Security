@@ -9,7 +9,7 @@ description: Native AWS CloudTrail audit-event ingestion with a curated high-sig
 The AWS CloudTrail connector polls **management-plane API events** from
 the CloudTrail event history. Unlike a raw CloudTrail-to-S3 firehose,
 this connector ships with a **curated allow-list of ~80 high-signal
-event names** chosen to align 1:1 with AiSOC's bundled cloud detection
+event names** chosen to align 1:1 with Quarry's bundled cloud detection
 content.
 
 That choice is deliberate. A busy production AWS account emits **tens
@@ -62,7 +62,7 @@ route the alert through a playbook that uses the
 - One of:
   - **Static access key** (`AccessKeyId` + `SecretAccessKey`) for a dedicated
     IAM user, **or**
-  - **No credentials at all** — AiSOC falls back to the **runtime IAM role
+  - **No credentials at all** — Quarry falls back to the **runtime IAM role
     / instance profile** of the host running the `connectors` service.
 
 The runtime-IAM-role path is strongly preferred for production deployments.
@@ -79,7 +79,7 @@ If you cannot use an instance role, create a dedicated IAM user with
   "Version": "2012-10-17",
   "Statement": [
     {
-      "Sid": "AiSOCCloudTrailRead",
+      "Sid": "QuarryCloudTrailRead",
       "Effect": "Allow",
       "Action": [
         "cloudtrail:LookupEvents",
@@ -91,16 +91,16 @@ If you cannot use an instance role, create a dedicated IAM user with
 }
 ```
 
-### 2. Add the connector in AiSOC
+### 2. Add the connector in Quarry
 
 1. **Connectors → Add connector → AWS CloudTrail**.
 2. Set **AWS Region** (e.g. `us-east-1`).
 3. Leave **Access Key ID** and **Secret Access Key** **blank** to use the
    runtime IAM role. Otherwise paste the static credentials from step 1.
-4. Leave **Event allow-list** blank to use AiSOC's curated default
+4. Leave **Event allow-list** blank to use Quarry's curated default
    (recommended). See [Customising the allow-list](#customising-the-allow-list)
    below if you need to override it.
-5. **Test connection** — AiSOC calls `DescribeTrails` to verify auth.
+5. **Test connection** — Quarry calls `DescribeTrails` to verify auth.
 6. **Save**.
 
 ## Polling details
@@ -118,16 +118,16 @@ If you cannot use an instance role, create a dedicated IAM user with
 
 ## Severity mapping
 
-CloudTrail events do **not** carry intrinsic severity, so AiSOC labels
+CloudTrail events do **not** carry intrinsic severity, so Quarry labels
 each event by sensitivity:
 
-| Event class | Examples | AiSOC severity |
+| Event class | Examples | Quarry severity |
 |---|---|---|
 | Trail/detection tamper, KMS destruction, root account use, org tampering | `DeleteTrail`, `StopLogging`, `DisableSecurityHub`, `ScheduleKeyDeletion`, `RemoveAccountFromOrganization`, `LeaveOrganization` | `high` |
 | Mutating IAM / network / public-S3 / config | `CreateAccessKey`, `AttachUserPolicy`, `PutBucketPolicy`, `AuthorizeSecurityGroupIngress`, `PutKeyPolicy` | `medium` |
 | Read-only recon | `GetAccountAuthorizationDetails`, `ListAccessKeys`, `GetSecretValue` | `low` |
 
-If the event has an `errorCode` set (the API call was denied), AiSOC
+If the event has an `errorCode` set (the API call was denied), Quarry
 **bumps the severity up one tier**. A denied destructive action is
 often the loudest signal in the account — for example, an attacker
 trying `StopLogging` against a trail they don't have permission to
@@ -137,13 +137,13 @@ modify.
 
 The `event_names` field accepts three modes:
 
-- **Blank** (default) — use AiSOC's curated detection-aligned default
+- **Blank** (default) — use Quarry's curated detection-aligned default
   list. This is the right answer for ~95% of operators.
 - **Comma-separated event names** — replace the default with your own
   list. Example: `ConsoleLogin,CreateAccessKey,PutBucketPolicy,DeleteTrail`.
   Useful when you've added custom detection content and want to
   surface a narrower set than the default.
-- **`*`** — disable filtering entirely. AiSOC will pull every
+- **`*`** — disable filtering entirely. Quarry will pull every
   CloudTrail event in the time window. **High volume warning** — only
   use this in lab/staging accounts or when you have downstream
   rate-limiting in place. A single production account on `*` can
@@ -178,7 +178,7 @@ temporarily (in lab) to confirm the connection works.
 
 **Events arrive several minutes late** — CloudTrail is **eventually
 consistent**. AWS publishes a typical end-to-end delivery latency of
-~15 minutes. AiSOC polls a 5-minute window every 300 seconds with no
+~15 minutes. Quarry polls a 5-minute window every 300 seconds with no
 high-water-mark cursor, so events that arrive late will be picked up
 on the next poll cycle.
 

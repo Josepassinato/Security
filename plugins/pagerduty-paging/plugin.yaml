@@ -6,9 +6,9 @@ description: >
   Pages on-call responders via PagerDuty. Supports trigger / acknowledge /
   resolve incidents through the Events API v2 and direct API calls for
   service/escalation lookups.
-author: AiSOC Core Team
+author: Quarry Core Team
 tags: [paging, pagerduty, oncall, incidents, action]
-homepage: https://github.com/beenuar/AiSOC/tree/main/plugins/pagerduty-paging
+homepage: https://github.com/beenuar/Quarry/tree/main/plugins/pagerduty-paging
 license: MIT
 min_aisoc_version: "4.0.0"
 config_schema:

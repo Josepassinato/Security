@@ -1,1 +1,1 @@
-"""Core utilities for the AiSOC Actions service."""
+"""Core utilities for the Quarry Actions service."""

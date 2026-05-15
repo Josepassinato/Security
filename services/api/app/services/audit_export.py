@@ -229,7 +229,7 @@ def render_audit_html(rows: list[AuditRow], context: ExportContext) -> str:
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>AiSOC — Audit Export</title>
+<title>Quarry — Audit Export</title>
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <style>
   /* Print-friendly page setup; no external resources. */
@@ -294,7 +294,7 @@ def render_audit_html(rows: list[AuditRow], context: ExportContext) -> str:
     <tbody>{rows_html}</tbody>
   </table>
   <footer style="margin-top:24px;color:#94a3b8;font-size:11px;">
-    AiSOC audit export &middot; immutable, append-only event store &middot;
+    Quarry audit export &middot; immutable, append-only event store &middot;
     column order is stable for SIEM ingestion compatibility.
   </footer>
 </body>

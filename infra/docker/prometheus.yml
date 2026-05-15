@@ -3,27 +3,27 @@ global:
   evaluation_interval: 15s
 
 scrape_configs:
-  - job_name: 'aisoc-core-api'
+  - job_name: 'quarry-core-api'
     static_configs:
       - targets: ['core-api:8000']
     metrics_path: /metrics
 
-  - job_name: 'aisoc-ingest'
+  - job_name: 'quarry-ingest'
     static_configs:
       - targets: ['ingest-worker:9090']
     metrics_path: /metrics
 
-  - job_name: 'aisoc-enrichment'
+  - job_name: 'quarry-enrichment'
     static_configs:
       - targets: ['enrichment:8080']
     metrics_path: /metrics
 
-  - job_name: 'aisoc-agents'
+  - job_name: 'quarry-agents'
     static_configs:
       - targets: ['agents:8001']
     metrics_path: /metrics
 
-  - job_name: 'aisoc-actions'
+  - job_name: 'quarry-actions'
     static_configs:
       - targets: ['actions:8002']
     metrics_path: /metrics

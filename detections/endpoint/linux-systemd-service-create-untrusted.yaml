@@ -1,6 +1,6 @@
 id: det-endpoint-131
 name: Systemd Unit File Written By Non-Package Process
-description: AiSOC v1 curated detection. Triggers on the endpoint signal described by 'Systemd Unit File
+description: Quarry v1 curated detection. Triggers on the endpoint signal described by 'Systemd Unit File
   Written By Non-Package Process'. Watch the 2 documented false-positive cases before tuning.
 version: 1.0.0
 severity: high
@@ -21,6 +21,6 @@ false_positives:
 - Configuration management agent
 playbook: tpl-persistence
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

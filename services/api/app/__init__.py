@@ -1,1 +1,1 @@
-# AiSOC API application package
+# Quarry API application package

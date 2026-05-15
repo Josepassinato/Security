@@ -70,4 +70,4 @@ provenance:
   upstream_path: rules/_deprecated/soc_prime_rules/ioc_sigma/sysmon/apt28_zekapab_zebrocy_cannon_implant__sysmon_firewall_proxy___part_2.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

@@ -1,4 +1,4 @@
-"""Strawberry GraphQL gateway for AiSOC.
+"""Strawberry GraphQL gateway for Quarry.
 
 Mounted at /graphql — provides a typed query interface over alerts, cases,
 investigations, and playbooks.  The resolver layer re-uses the same

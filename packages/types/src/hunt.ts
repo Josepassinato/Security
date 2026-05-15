@@ -1,5 +1,5 @@
 /**
- * AiSOC Threat-Hunting types — natural-language hunt surface (T3.4).
+ * Quarry Threat-Hunting types — natural-language hunt surface (T3.4).
  *
  * Mirrors the wire shape of `services/api/app/api/v1/endpoints/saved_hunts.py`
  * and `services/api/app/api/v1/endpoints/nl_query.py`. These are the

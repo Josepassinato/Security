@@ -14,7 +14,7 @@ match:
                                                  fall-back path/exec
                                                  heuristics.
 * ``test_normalize_*``                         — the reassembled event
-                                                 -> AiSOC shape mapping
+                                                 -> Quarry shape mapping
                                                  (must match what
                                                  ``detections/endpoint/
                                                  linux-*.yaml`` rules
@@ -413,14 +413,14 @@ def test_severity_audit_self_tampering_key_prefix_is_low():
 
 def test_severity_critical_prefix_wins_over_exec():
     """A critical key should outrank the generic ``aisoc_exec`` bucket
-    even though both are AiSOC-prefixed. Order in the prefix table
+    even though both are Quarry-prefixed. Order in the prefix table
     matters.
     """
     assert _severity_from_event({"key": "aisoc_critical_sudoers_write"}) == "critical"
 
 
 def test_severity_falls_back_to_path_heuristic_when_no_key():
-    """Operators not using the AiSOC profile still get coverage via
+    """Operators not using the Quarry profile still get coverage via
     path-based heuristics on canonical sensitive files.
     """
     assert _severity_from_event({"path": "/etc/shadow"}) == "high"
@@ -448,7 +448,7 @@ def test_severity_exec_from_legitimate_path_is_info():
 
 
 def test_severity_unknown_key_falls_through_to_info():
-    """Custom CIS / STIG key that AiSOC doesn't recognise -> info floor
+    """Custom CIS / STIG key that Quarry doesn't recognise -> info floor
     (we don't surface unknown keys as alerts).
     """
     assert _severity_from_event({"key": "cis_benchmark_5_1_2"}) == "info"
@@ -467,7 +467,7 @@ def test_severity_strips_quotes_around_key():
 
 
 # ---------------------------------------------------------------------------
-# AuditdConnector.normalize() — the AiSOC field shape
+# AuditdConnector.normalize() — the Quarry field shape
 # ---------------------------------------------------------------------------
 
 
@@ -677,7 +677,7 @@ async def test_test_connection_success_returns_paths(tmp_path: Path):
     assert result["success"] is True
     assert result["host"] == "prod-web-01"
     assert result["audit_log_path"] == str(audit_log)
-    assert result["cursor_path"].endswith(".aisoc-cursor")
+    assert result["cursor_path"].endswith(".quarry-cursor")
 
 
 @pytest.mark.asyncio
@@ -848,7 +848,7 @@ async def test_fetch_alerts_corrupt_cursor_starts_from_zero(tmp_path: Path):
     """
     audit_log = tmp_path / "audit.log"
     _write_log(audit_log, _execve_block("1.0", "1"))
-    cursor = Path(f"{audit_log}.aisoc-cursor")
+    cursor = Path(f"{audit_log}.quarry-cursor")
     cursor.write_text("not-an-integer")
     conn = AuditdConnector(
         host_label="prod-web-01",
@@ -955,7 +955,7 @@ async def test_fetch_alerts_ignores_since_seconds(tmp_path: Path):
 
 @pytest.mark.asyncio
 async def test_end_to_end_aisoc_critical_event_surfaces_as_critical(tmp_path: Path):
-    """A sudoers-write event using the AiSOC profile key must come
+    """A sudoers-write event using the Quarry profile key must come
     out the other side as a critical-severity event with auditd_key set,
     so the new ``linux-auditd-sudoers-tampering`` detection rule can
     fire on it. In the 5-tier ladder, sudoers tamper is a P1 incident.

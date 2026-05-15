@@ -43,7 +43,7 @@ export function AppShell({ children }: AppShellProps) {
         v1.5 (W4 + W5): TimeWindow + Tenant contexts mount once at the shell
         boundary so every page (and the TopBar) reads from the same source of
         truth. They sit *inside* SWRConfig so the tenant switcher's
-        `aisoc:tenant-switched` cache-bust reaches the shared cache, and
+        `quarry:tenant-switched` cache-bust reaches the shared cache, and
         *outside* the visible chrome so a context error doesn't blank the
         entire app shell.
       */}

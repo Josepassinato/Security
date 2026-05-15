@@ -104,7 +104,7 @@ async def get_sla_metrics(
 
 
 def _require_kpi_bar_feature() -> None:
-    if not get_settings().AISOC_FEATURE_KPI_BAR:
+    if not get_settings().QUARRY_FEATURE_KPI_BAR:
         raise HTTPException(status_code=404, detail="2026 KPI bar feature is disabled")
 
 

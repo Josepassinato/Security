@@ -54,4 +54,4 @@ provenance:
   upstream_path: rules/community/microsoft/sharepoint/ttp_windows_suspicious_filewrites_to_sharepoint_layouts.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

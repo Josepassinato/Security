@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 ###############################################################################
-# AiSOC — Uninstaller (Linux + macOS)
+# Quarry — Uninstaller (Linux + macOS)
 #
-# Tears down whatever ./install.sh + `pnpm aisoc:demo` brought up, in
+# Tears down whatever ./install.sh + `pnpm quarry:demo` brought up, in
 # decreasing levels of aggressiveness:
 #
 #   default          Stop the demo stack and delete its named volumes.
-#                    (Equivalent to: pnpm aisoc:demo:down)
-#   --images         Also remove the ghcr.io/beenuar/aisoc-* container images
+#                    (Equivalent to: pnpm quarry:demo:down)
+#   --images         Also remove the ghcr.io/beenuar/quarry-* container images
 #                    pulled by the demo (saves ~ 2-3 GB of disk).
 #   --node-modules   Also delete node_modules trees inside the repo (~ 1 GB).
-#   --repo           Also delete the AiSOC repo clone itself.
+#   --repo           Also delete the Quarry repo clone itself.
 #   --all            Equivalent to --images --node-modules --repo.
 #
 # What this script DOES NOT do:
@@ -23,7 +23,7 @@
 #       macOS:          brew uninstall --cask docker; brew uninstall node git
 #   - Remove the user from the docker group. Your call.
 #   - Touch any other Docker containers, images, or volumes outside the
-#     aisoc-demo project. We're surgical here.
+#     quarry-demo project. We're surgical here.
 #
 # Usage:
 #   ./uninstall.sh           # stop stack + drop volumes
@@ -34,8 +34,8 @@
 # Exit codes:
 #   0  success
 #   1  invalid arguments / unexpected error
-#   2  not run from inside an AiSOC clone (and --repo wasn't given)
-#   3  refused to delete a path for safety reasons (system dir, not an AiSOC
+#   2  not run from inside an Quarry clone (and --repo wasn't given)
+#   3  refused to delete a path for safety reasons (system dir, not an Quarry
 #      clone, etc.) — visible separately so CI scripts don't silently treat
 #      a refusal as "all done"
 ###############################################################################
@@ -51,11 +51,11 @@ else
   C_RESET=""; C_BOLD=""; C_DIM=""; C_RED=""; C_GREEN=""; C_YELLOW=""; C_BLUE=""; C_CYAN=""
 fi
 
-log()    { printf '%s[aisoc]%s %s\n' "$C_DIM"    "$C_RESET" "$*"; }
-info()   { printf '%s[aisoc]%s %s\n' "$C_BLUE"   "$C_RESET" "$*"; }
-ok()     { printf '%s[aisoc]%s %s\n' "$C_GREEN"  "$C_RESET" "$*"; }
-warn()   { printf '%s[aisoc]%s %s\n' "$C_YELLOW" "$C_RESET" "$*" >&2; }
-err()    { printf '%s[aisoc]%s %s\n' "$C_RED"    "$C_RESET" "$*" >&2; }
+log()    { printf '%s[quarry]%s %s\n' "$C_DIM"    "$C_RESET" "$*"; }
+info()   { printf '%s[quarry]%s %s\n' "$C_BLUE"   "$C_RESET" "$*"; }
+ok()     { printf '%s[quarry]%s %s\n' "$C_GREEN"  "$C_RESET" "$*"; }
+warn()   { printf '%s[quarry]%s %s\n' "$C_YELLOW" "$C_RESET" "$*" >&2; }
+err()    { printf '%s[quarry]%s %s\n' "$C_RED"    "$C_RESET" "$*" >&2; }
 section() { printf '\n%s%s━━━ %s ━━━%s\n\n' "$C_BOLD" "$C_CYAN" "$*" "$C_RESET"; }
 die()    { err "$*"; exit 1; }
 
@@ -90,7 +90,7 @@ while [ $# -gt 0 ]; do
 done
 
 # ─── Locate the repo ─────────────────────────────────────────────────────────
-# We must be run from inside an AiSOC clone OR have access to one, since
+# We must be run from inside an Quarry clone OR have access to one, since
 # `docker compose` needs the compose file to resolve project resources.
 
 REPO_ROOT=""
@@ -99,17 +99,17 @@ find_repo() {
   # The uninstaller lives at the repo root, alongside install.sh.
   local self_dir
   self_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-  if [ -f "$self_dir/docker-compose.demo.yml" ] && grep -q '"name": "aisoc"' "$self_dir/package.json" 2>/dev/null; then
+  if [ -f "$self_dir/docker-compose.demo.yml" ] && grep -q '"name": "quarry"' "$self_dir/package.json" 2>/dev/null; then
     REPO_ROOT="$self_dir"
     return 0
   fi
-  # Fallback: maybe the user ran us from PATH or a copy. Try $HOME/aisoc.
-  if [ -d "$HOME/aisoc" ] && [ -f "$HOME/aisoc/docker-compose.demo.yml" ]; then
-    REPO_ROOT="$HOME/aisoc"
+  # Fallback: maybe the user ran us from PATH or a copy. Try $HOME/quarry.
+  if [ -d "$HOME/quarry" ] && [ -f "$HOME/quarry/docker-compose.demo.yml" ]; then
+    REPO_ROOT="$HOME/quarry"
     return 0
   fi
-  # Fallback 2: maybe we're run from the cwd of an aisoc clone.
-  if [ -f "$PWD/docker-compose.demo.yml" ] && grep -q '"name": "aisoc"' "$PWD/package.json" 2>/dev/null; then
+  # Fallback 2: maybe we're run from the cwd of an quarry clone.
+  if [ -f "$PWD/docker-compose.demo.yml" ] && grep -q '"name": "quarry"' "$PWD/package.json" 2>/dev/null; then
     REPO_ROOT="$PWD"
     return 0
   fi
@@ -121,9 +121,9 @@ if ! find_repo; then
     # We can still nuke images + repo dir without the compose file. We just
     # can't do a clean `compose down`, so the user might have orphan
     # containers. Warn but proceed.
-    warn "Couldn't locate AiSOC clone. Skipping 'compose down' (orphan containers may remain)."
+    warn "Couldn't locate Quarry clone. Skipping 'compose down' (orphan containers may remain)."
   else
-    err "Run this from inside an AiSOC clone, or pass --repo to clean up the cloned repo at \$HOME/aisoc."
+    err "Run this from inside an Quarry clone, or pass --repo to clean up the cloned repo at \$HOME/quarry."
     exit 2
   fi
 fi
@@ -153,28 +153,28 @@ stop_demo_stack() {
   fi
   if [ -z "$REPO_ROOT" ]; then return 0; fi
 
-  info "Stopping AiSOC demo stack and removing its volumes..."
+  info "Stopping Quarry demo stack and removing its volumes..."
   ( cd "$REPO_ROOT" && docker compose -f docker-compose.demo.yml down -v --remove-orphans ) \
     || warn "compose down exited non-zero; some resources may not have been cleaned up."
   ok "Demo stack stopped, named volumes deleted."
 }
 
 # ─── Step 2: remove pulled images ────────────────────────────────────────────
-# We only target images we know belong to AiSOC, namely ghcr.io/beenuar/aisoc-*.
+# We only target images we know belong to Quarry, namely ghcr.io/beenuar/quarry-*.
 # We deliberately leave alpine/postgres/redis/kafka/zookeeper images alone —
 # they're widely shared with other projects and re-pulling them is cheap.
 
-remove_aisoc_images() {
+remove_quarry_images() {
   if [ "$REMOVE_IMAGES" = "0" ]; then return 0; fi
   if ! command -v docker >/dev/null 2>&1 || ! docker info >/dev/null 2>&1; then
     warn "docker unreachable; skipping image removal."
     return 0
   fi
-  section "Removing AiSOC container images"
+  section "Removing Quarry container images"
   local images
-  images=$(docker images --format '{{.Repository}}:{{.Tag}}' | grep '^ghcr.io/beenuar/aisoc-' || true)
+  images=$(docker images --format '{{.Repository}}:{{.Tag}}' | grep '^ghcr.io/beenuar/quarry-' || true)
   if [ -z "$images" ]; then
-    info "No ghcr.io/beenuar/aisoc-* images found."
+    info "No ghcr.io/beenuar/quarry-* images found."
     return 0
   fi
   printf '%s\n' "$images" | sed 's/^/  /'
@@ -236,19 +236,19 @@ is_dangerous_path() {
 remove_repo_clone() {
   if [ "$REMOVE_REPO" = "0" ]; then return 0; fi
   # Two candidate locations: $REPO_ROOT (whatever we found) and the canonical
-  # $HOME/aisoc. We prefer $REPO_ROOT but warn if it's not the canonical
+  # $HOME/quarry. We prefer $REPO_ROOT but warn if it's not the canonical
   # location (the user may have meant something else).
-  local target="${REPO_ROOT:-$HOME/aisoc}"
+  local target="${REPO_ROOT:-$HOME/quarry}"
   if [ ! -d "$target" ]; then
     warn "No repo found at $target; nothing to remove."
     return 0
   fi
-  # Final sanity check: the path must look like an AiSOC clone (has the
+  # Final sanity check: the path must look like an Quarry clone (has the
   # compose file AND a package.json claiming the project name). This stops
   # us from rm -rf'ing some unrelated directory the user happened to put
-  # in $HOME/aisoc.
-  if [ ! -f "$target/docker-compose.demo.yml" ] || ! grep -q '"name": "aisoc"' "$target/package.json" 2>/dev/null; then
-    warn "$target doesn't look like an AiSOC clone (missing compose file or package.json marker)."
+  # in $HOME/quarry.
+  if [ ! -f "$target/docker-compose.demo.yml" ] || ! grep -q '"name": "quarry"' "$target/package.json" 2>/dev/null; then
+    warn "$target doesn't look like an Quarry clone (missing compose file or package.json marker)."
     warn "Refusing to delete it — clean it up manually if you really want to."
     SAFETY_REFUSED=1
     return 0
@@ -259,7 +259,7 @@ remove_repo_clone() {
     SAFETY_REFUSED=1
     return 0
   fi
-  section "Removing AiSOC repo"
+  section "Removing Quarry repo"
   warn "About to recursively delete: $target"
   if confirm "Are you absolutely sure?"; then
     # cd somewhere safe before rm -rf'ing — if $REPO_ROOT is the cwd of
@@ -274,23 +274,23 @@ remove_repo_clone() {
 # ─── Main ────────────────────────────────────────────────────────────────────
 
 main() {
-  section "AiSOC Uninstaller"
+  section "Quarry Uninstaller"
   stop_demo_stack
-  remove_aisoc_images
+  remove_quarry_images
   remove_node_modules
   remove_repo_clone
 
   if [ "$SAFETY_REFUSED" = "1" ]; then
     cat <<EOF
 
-${C_YELLOW}AiSOC uninstall finished — but at least one delete was refused for safety.${C_RESET}
+${C_YELLOW}Quarry uninstall finished — but at least one delete was refused for safety.${C_RESET}
 ${C_YELLOW}See messages above. Exiting with code 3 so CI/scripts notice.${C_RESET}
 
 EOF
   else
     cat <<EOF
 
-${C_GREEN}AiSOC uninstall complete.${C_RESET}
+${C_GREEN}Quarry uninstall complete.${C_RESET}
 
 EOF
   fi
@@ -303,7 +303,7 @@ ${C_DIM}Things this script intentionally did NOT remove:${C_RESET}
   - Cached pnpm store at ~/.local/share/pnpm/store
 
 ${C_DIM}To remove the leftover infrastructure images too:${C_RESET}
-  docker image prune -a    # removes ALL dangling+unused images, not just AiSOC's
+  docker image prune -a    # removes ALL dangling+unused images, not just Quarry's
 
 EOF
 

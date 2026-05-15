@@ -1,4 +1,4 @@
--- Migration 043: Managed-instance tenant provisioning (T6.1 — `app.aisoc.dev`).
+-- Migration 043: Managed-instance tenant provisioning (T6.1 — `app.quarry.dev`).
 --
 -- Wires the waitlist (migration 042) into the existing ``tenants`` table so
 -- the support / sales team can promote a waitlist entry into a real tenant

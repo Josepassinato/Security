@@ -12,29 +12,29 @@ import (
 	"strings"
 	"time"
 
-	"github.com/beenuar/aisoc/plugin-sdk-go/aisoc"
+	"github.com/beenuar/quarry/plugin-sdk-go/quarry"
 )
 
-// TwilioAction implements aisoc.Action for sending SMS via Twilio.
+// TwilioAction implements quarry.Action for sending SMS via Twilio.
 type TwilioAction struct {
-	aisoc.BasePlugin
+	quarry.BasePlugin
 
 	httpClient *http.Client
 }
 
-func (t *TwilioAction) Manifest() aisoc.PluginManifest {
-	return aisoc.PluginManifest{
+func (t *TwilioAction) Manifest() quarry.PluginManifest {
+	return quarry.PluginManifest{
 		ID:          "twilio-sms",
 		Name:        "Twilio SMS Notifier",
 		Version:     "1.0.0",
-		PluginType:  aisoc.PluginTypeAction,
+		PluginType:  quarry.PluginTypeAction,
 		Description: "Sends SMS messages via Twilio for paging and emergency notifications.",
-		Author:      "AiSOC Core Team",
+		Author:      "Quarry Core Team",
 		Tags:        []string{"notification", "sms", "twilio", "paging", "action"},
 	}
 }
 
-func (t *TwilioAction) OnLoad(_ context.Context, _ aisoc.PluginContext) error {
+func (t *TwilioAction) OnLoad(_ context.Context, _ quarry.PluginContext) error {
 	t.httpClient = &http.Client{Timeout: 30 * time.Second}
 	return nil
 }
@@ -45,10 +45,10 @@ func (t *TwilioAction) SupportedActions() []string {
 
 func (t *TwilioAction) Execute(
 	ctx context.Context,
-	req aisoc.ActionRequest,
-	pctx aisoc.PluginContext,
-) (aisoc.ActionResult, error) {
-	result := aisoc.ActionResult{
+	req quarry.ActionRequest,
+	pctx quarry.PluginContext,
+) (quarry.ActionResult, error) {
+	result := quarry.ActionResult{
 		ActionID: req.ActionID,
 		DryRun:   req.DryRun,
 		Details:  map[string]any{},
@@ -67,7 +67,7 @@ func (t *TwilioAction) Execute(
 		body, _ = req.Params["message"].(string)
 	}
 	if body == "" {
-		body = "AiSOC alert"
+		body = "Quarry alert"
 	}
 
 	if req.DryRun {
@@ -190,7 +190,7 @@ func (t *TwilioAction) send(
 }
 
 func main() {
-	registry := aisoc.NewRegistry()
+	registry := quarry.NewRegistry()
 	if err := registry.Register(&TwilioAction{}); err != nil {
 		panic(err)
 	}

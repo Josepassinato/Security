@@ -1,6 +1,6 @@
 {
   "_description": "Two-event lateral-movement scenario in Okta System Log format. The same user (alice@example.com) successfully authenticates from a New York corp IP at 09:30 UTC, then from a Saint Petersburg IP eight minutes later. Routes through the okta_system_log connector profile (OCSF class_uid 3002, Authentication) when posted to /v1/ingest/batch.",
-  "_usage": "aisoc submit examples/alerts/lateral-movement.json",
+  "_usage": "quarry submit examples/alerts/lateral-movement.json",
   "events": [
     {
       "uuid": "11111111-1111-4111-8111-111111111111",

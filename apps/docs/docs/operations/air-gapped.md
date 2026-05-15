@@ -6,7 +6,7 @@ sidebar_position: 6
 
 # Air-gapped / Local-LLM Mode
 
-AiSOC can run **entirely within your network perimeter** with zero outbound LLM
+Quarry can run **entirely within your network perimeter** with zero outbound LLM
 calls.  The feature is controlled by a single environment variable and a
 companion Docker Compose overlay that wires in a local inference server (Ollama,
 LiteLLM, or vLLM).
@@ -30,7 +30,7 @@ What it does:
 |-----------|--------|
 | `ollama` service | Starts `ollama/ollama:0.6.7` bound to `127.0.0.1:11434` |
 | `ollama-pull` init container | Pulls the pinned model on first boot (cached on restart) |
-| `agents` service override | Sets `AISOC_AIRGAPPED=true`, `LLM_BASE_URL`, `LLM_MODEL`, blanks external keys |
+| `agents` service override | Sets `QUARRY_AIRGAPPED=true`, `LLM_BASE_URL`, `LLM_MODEL`, blanks external keys |
 
 The pinned default model is **`llama3.2:3b-instruct-q4_K_M`** (~2 GB).  To use
 a larger model:
@@ -44,7 +44,7 @@ docker compose -f docker-compose.demo.yml -f docker-compose.airgap.yml up -d
 
 ## How air-gap enforcement works
 
-Setting `AISOC_AIRGAPPED=true` activates an allow-list check inside the LLM
+Setting `QUARRY_AIRGAPPED=true` activates an allow-list check inside the LLM
 resolver (`services/agents/app/security/llm_resolver.py`).  When a credential
 set is resolved:
 
@@ -65,7 +65,7 @@ set is resolved:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `AISOC_AIRGAPPED` | `false` | Set to `true` to enforce local-only LLM calls |
+| `QUARRY_AIRGAPPED` | `false` | Set to `true` to enforce local-only LLM calls |
 | `LLM_BASE_URL` | _(unset)_ | OpenAI-compatible base URL of the local server (e.g. `http://ollama:11434/v1`) |
 | `LLM_API_KEY` | _(unset)_ | API key passed to the local server (Ollama ignores it; use any non-empty string) |
 | `LLM_MODEL` | _(unset)_ | Model name as understood by the local server (e.g. `llama3.2:3b-instruct-q4_K_M`) |
@@ -77,7 +77,7 @@ set is resolved:
 ### Ollama (recommended)
 
 ```env
-AISOC_AIRGAPPED=true
+QUARRY_AIRGAPPED=true
 LLM_BASE_URL=http://ollama.internal:11434/v1
 LLM_API_KEY=ollama
 LLM_MODEL=llama3.1:70b-instruct-q4_K_M
@@ -89,7 +89,7 @@ LiteLLM can front multiple local backends (Ollama, vLLM, GGUF servers) behind a
 single OpenAI-compatible endpoint:
 
 ```env
-AISOC_AIRGAPPED=true
+QUARRY_AIRGAPPED=true
 LLM_BASE_URL=http://litellm.internal:4000
 LLM_API_KEY=<litellm-master-key>
 LLM_MODEL=ollama/llama3.1:70b-instruct
@@ -98,7 +98,7 @@ LLM_MODEL=ollama/llama3.1:70b-instruct
 ### vLLM
 
 ```env
-AISOC_AIRGAPPED=true
+QUARRY_AIRGAPPED=true
 LLM_BASE_URL=http://vllm.internal:8000/v1
 LLM_API_KEY=vllm-api-key
 LLM_MODEL=meta-llama/Llama-3.1-70B-Instruct
@@ -118,7 +118,7 @@ three local-provider options:
 | Local LiteLLM | `local-litellm` |
 | Local vLLM | `local-vllm` |
 
-When `AISOC_AIRGAPPED=true`, the resolver validates that the tenant-supplied
+When `QUARRY_AIRGAPPED=true`, the resolver validates that the tenant-supplied
 base URL is classified as a local endpoint before allowing it.  If a tenant
 tries to configure an external endpoint, the request is rejected with HTTP 422
 and the error `"airgap_violation"`.
@@ -158,12 +158,12 @@ kicks off an investigation with `"mode": "deterministic"`.  In this mode:
   `LLM_BASE_URL` is set, otherwise they use pre-computed deterministic stubs.
 * **All external connector calls** remain in simulation mode (no live
   integrations are contacted).
-* **Zero external LLM calls** are made when `AISOC_AIRGAPPED=true` and the
+* **Zero external LLM calls** are made when `QUARRY_AIRGAPPED=true` and the
   local server is healthy.
 
 ```bash
 # With the air-gap overlay running:
-docker exec aisoc-api python scripts/demo_seed.py
+docker exec quarry-api python scripts/demo_seed.py
 ```
 
 Expected output includes `investigation_status: closed` and no `openai.com`
@@ -177,7 +177,7 @@ For production air-gapped clusters add these env vars to the `agents` Deployment
 
 ```yaml
 env:
-  - name: AISOC_AIRGAPPED
+  - name: QUARRY_AIRGAPPED
     value: "true"
   - name: LLM_BASE_URL
     value: "http://ollama.llm-infra.svc.cluster.local:11434/v1"

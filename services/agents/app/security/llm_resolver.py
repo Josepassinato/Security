@@ -54,7 +54,7 @@ of "wait, which key did this request actually use?".
 Air-gap policy is the *last* thing we check, after layering. This
 mirrors the semantics of the legacy ``_llm_allowed()`` helper so a
 tenant who BYOKs a private LiteLLM gateway gets ``allowed=True`` even
-when ``AISOC_AIRGAPPED=true``, which is exactly what the air-gap
+when ``QUARRY_AIRGAPPED=true``, which is exactly what the air-gap
 deployment story promises.
 
 Failure modes
@@ -62,7 +62,7 @@ Failure modes
 
 This module is on the explain hot path, so every failure is best-
 effort: a missing ``DATABASE_URL``, an unreachable database, an
-unconfigured ``AISOC_CREDENTIAL_KEY``, a corrupt ciphertext, or a
+unconfigured ``QUARRY_CREDENTIAL_KEY``, a corrupt ciphertext, or a
 tenant row with ``enabled=false`` all degrade gracefully to the env-
 only baseline. The reason for the degradation is logged once at
 ``warning`` so an operator can spot misconfiguration, but the alert
@@ -152,11 +152,11 @@ def _env_baseline() -> tuple[str, str, str | None]:
     so the agents-side resolver and the API-side status indicator can
     never disagree about what "the env baseline" actually is. We
     intentionally accept both the modern ``LLM_*`` names and the legacy
-    ``OPENAI_*`` / ``AISOC_LLM_MODEL`` names — every deployment in the
+    ``OPENAI_*`` / ``QUARRY_LLM_MODEL`` names — every deployment in the
     field today uses some mix of the two.
     """
     base_url = os.getenv("OPENAI_BASE_URL", "").strip() or os.getenv("LLM_BASE_URL", "").strip()
-    model = os.getenv("OPENAI_MODEL", "").strip() or os.getenv("LLM_MODEL", "").strip() or os.getenv("AISOC_LLM_MODEL", "").strip()
+    model = os.getenv("OPENAI_MODEL", "").strip() or os.getenv("LLM_MODEL", "").strip() or os.getenv("QUARRY_LLM_MODEL", "").strip()
     api_key = os.getenv("OPENAI_API_KEY", "").strip() or os.getenv("LLM_API_KEY", "").strip()
     return base_url, model, (api_key or None)
 
@@ -171,8 +171,8 @@ def _airgap_blocks(base_url: str) -> tuple[bool, str]:
 
     Replicates the semantics of the legacy ``_llm_allowed`` helper:
 
-    * ``AISOC_AIRGAPPED`` off  → never blocks.
-    * ``AISOC_AIRGAPPED`` on:
+    * ``QUARRY_AIRGAPPED`` off  → never blocks.
+    * ``QUARRY_AIRGAPPED`` on:
         * empty ``base_url`` would default to ``api.openai.com`` → blocked.
         * ``base_url`` containing ``api.openai.com`` → blocked.
         * any other host (private LiteLLM/Ollama/vLLM proxy) → allowed.
@@ -182,7 +182,7 @@ def _airgap_blocks(base_url: str) -> tuple[bool, str]:
     agents service does not need (the request is already in-process,
     and the LLM host shape is enough to gate egress for explain).
     """
-    airgapped = os.getenv("AISOC_AIRGAPPED", "").lower() in ("1", "true", "yes")
+    airgapped = os.getenv("QUARRY_AIRGAPPED", "").lower() in ("1", "true", "yes")
     if not airgapped:
         return False, ""
 
@@ -190,7 +190,7 @@ def _airgap_blocks(base_url: str) -> tuple[bool, str]:
     if not base:
         return (
             True,
-            "AISOC_AIRGAPPED is on and no base_url is configured (would default to api.openai.com).",
+            "QUARRY_AIRGAPPED is on and no base_url is configured (would default to api.openai.com).",
         )
     try:
         parsed = urlparse(base)
@@ -200,7 +200,7 @@ def _airgap_blocks(base_url: str) -> tuple[bool, str]:
     # Check hostname exactly or as a subdomain to avoid substring-match bypass
     # (e.g. evil.com/api.openai.com or api.openai.com.evil.com).
     if hostname == "api.openai.com" or hostname.endswith(".api.openai.com"):
-        return True, "AISOC_AIRGAPPED is on and base_url points at api.openai.com."
+        return True, "QUARRY_AIRGAPPED is on and base_url points at api.openai.com."
     return False, ""
 
 
@@ -415,7 +415,7 @@ async def resolve_llm_config(tenant_ref: str | None) -> LlmConfig:
 def _decrypt_vault_token(vault_token: str, tenant_ref: str) -> str | None:
     """Decrypt a stored ``vault:v1:<base64>`` token. Returns ``None`` on failure.
 
-    The vault may be unconfigured (``AISOC_CREDENTIAL_KEY`` not set) on
+    The vault may be unconfigured (``QUARRY_CREDENTIAL_KEY`` not set) on
     operator boxes that haven't migrated to BYOK yet — that's a
     legitimate configuration, so we log once and fall back rather than
     treating it as an error.
@@ -425,7 +425,7 @@ def _decrypt_vault_token(vault_token: str, tenant_ref: str) -> str | None:
         logger.warning(
             "explain.llm_resolve_vault_disabled",
             tenant=tenant_ref,
-            reason=("AISOC_CREDENTIAL_KEY not set; tenant BYOK key cannot be decrypted, falling back to environment baseline"),
+            reason=("QUARRY_CREDENTIAL_KEY not set; tenant BYOK key cannot be decrypted, falling back to environment baseline"),
         )
         return None
     try:

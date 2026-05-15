@@ -1,4 +1,4 @@
--- AiSOC Row-Level Security (RLS) migration
+-- Quarry Row-Level Security (RLS) migration
 -- Enables tenant isolation so that each session can only see/modify its own rows.
 --
 -- Prerequisites:

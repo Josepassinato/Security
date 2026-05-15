@@ -444,7 +444,7 @@ export function Sidebar() {
           <span className="font-mono">v{APP_VERSION}</span>
           <span>·</span>
           <a
-            href="https://github.com/beenuar/AiSOC"
+            href="https://github.com/beenuar/Quarry"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-fg-muted transition-colors"

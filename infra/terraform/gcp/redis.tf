@@ -1,5 +1,5 @@
 /**
- * AiSOC — GCP serverless skeleton
+ * Quarry — GCP serverless skeleton
  *
  * Memorystore for Redis, private to the VPC. Used for Celery / queue
  * coordination, FastAPI rate limiting, and websocket fan-out.

@@ -1,6 +1,6 @@
 id: det-endpoint-106
 name: AdFind.exe Enumeration Detected
-description: AiSOC v1 curated detection. Triggers on the endpoint signal described by 'AdFind.exe Enumeration
+description: Quarry v1 curated detection. Triggers on the endpoint signal described by 'AdFind.exe Enumeration
   Detected'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: high
@@ -19,6 +19,6 @@ false_positives:
 - IT diagnostic with security ticket
 playbook: tpl-discovery
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

@@ -10,19 +10,19 @@
  * (path + body) so a future client refactor doesn't silently break
  * either tool.
  *
- * We mock the {@link AisocClient} via duck typing: the tools only use
+ * We mock the {@link QuarryClient} via duck typing: the tools only use
  * ``client.get`` / ``client.post``, so a stub with those two methods
  * is enough. Faking the whole class with a real ``ServerConfig`` would
  * pull in fetch / env / logger plumbing we don't need here.
  */
 import { describe, expect, it, vi } from "vitest";
 
-import type { AisocClient } from "../src/client.js";
+import type { QuarryClient } from "../src/client.js";
 import type { Logger } from "../src/config.js";
 import { lakeQueryTool, lakeSchemaTool } from "../src/tools/lake.js";
 import type { ToolContext } from "../src/tools/types.js";
 
-/** Shape we actually exercise from {@link AisocClient}. */
+/** Shape we actually exercise from {@link QuarryClient}. */
 interface StubClient {
   get: ReturnType<typeof vi.fn>;
   post: ReturnType<typeof vi.fn>;
@@ -40,7 +40,7 @@ function makeCtx(client: StubClient): ToolContext {
   // narrows the stub to the full client interface for the type
   // checker without us having to construct a real config object.
   return {
-    client: client as unknown as AisocClient,
+    client: client as unknown as QuarryClient,
     log: SILENT_LOG,
   };
 }
@@ -146,7 +146,7 @@ describe("lakeQueryTool — multi-statement guard", () => {
         rows: [[1]],
         row_count: 1,
         row_cap: 100_000,
-        referenced_tables: ["aisoc.raw_events"],
+        referenced_tables: ["quarry.raw_events"],
         elapsed_ms: 5,
         executed_at: "2026-05-08T19:00:00Z",
       }),
@@ -168,7 +168,7 @@ describe("lakeQueryTool — multi-statement guard", () => {
         rows: [],
         row_count: 0,
         row_cap: 100_000,
-        referenced_tables: ["aisoc.raw_events"],
+        referenced_tables: ["quarry.raw_events"],
         elapsed_ms: 1,
         executed_at: "2026-05-08T19:00:00Z",
       }),
@@ -190,7 +190,7 @@ describe("lakeQueryTool — multi-statement guard", () => {
         rows: [],
         row_count: 0,
         row_cap: 100_000,
-        referenced_tables: ["aisoc.raw_events"],
+        referenced_tables: ["quarry.raw_events"],
         elapsed_ms: 1,
         executed_at: "2026-05-08T19:00:00Z",
       }),
@@ -224,7 +224,7 @@ describe("lakeQueryTool — forbidden-table guard", () => {
     },
     {
       name: "remote() table function",
-      sql: "SELECT * FROM remote('other-host', 'aisoc', 'raw_events')",
+      sql: "SELECT * FROM remote('other-host', 'quarry', 'raw_events')",
     },
     {
       name: "url() table function",
@@ -236,7 +236,7 @@ describe("lakeQueryTool — forbidden-table guard", () => {
     },
     {
       name: "clusterAllReplicas() function",
-      sql: "SELECT * FROM clusterAllReplicas('cluster', 'aisoc.raw_events')",
+      sql: "SELECT * FROM clusterAllReplicas('cluster', 'quarry.raw_events')",
     },
     {
       name: "case-insensitive system reference",
@@ -267,7 +267,7 @@ describe("lakeQueryTool — forbidden-table guard", () => {
         rows: [[42]],
         row_count: 1,
         row_cap: 100_000,
-        referenced_tables: ["aisoc.raw_events"],
+        referenced_tables: ["quarry.raw_events"],
         elapsed_ms: 1,
         executed_at: "2026-05-08T19:00:00Z",
       }),
@@ -291,7 +291,7 @@ describe("lakeQueryTool — happy path", () => {
         rows: [[1], [2]],
         row_count: 2,
         row_cap: 5,
-        referenced_tables: ["aisoc.raw_events"],
+        referenced_tables: ["quarry.raw_events"],
         elapsed_ms: 12,
         executed_at: "2026-05-08T19:00:00Z",
       }),
@@ -329,7 +329,7 @@ describe("lakeQueryTool — happy path", () => {
         ],
         row_count: 2,
         row_cap: 100,
-        referenced_tables: ["aisoc.raw_events"],
+        referenced_tables: ["quarry.raw_events"],
         elapsed_ms: 7,
         executed_at: "2026-05-08T19:00:00Z",
       }),
@@ -363,7 +363,7 @@ describe("lakeQueryTool — happy path", () => {
         rows: [[1], [2], [3]],
         row_count: 3,
         row_cap: 3,
-        referenced_tables: ["aisoc.raw_events"],
+        referenced_tables: ["quarry.raw_events"],
         elapsed_ms: 5,
         executed_at: "2026-05-08T19:00:00Z",
       }),
@@ -388,7 +388,7 @@ describe("lakeQueryTool — happy path", () => {
         rows: [],
         row_count: 0,
         row_cap: 100_000,
-        referenced_tables: ["aisoc.raw_events"],
+        referenced_tables: ["quarry.raw_events"],
         elapsed_ms: 1,
         executed_at: "2026-05-08T19:00:00Z",
       }),
@@ -420,7 +420,7 @@ describe("lakeQueryTool — happy path", () => {
         rows: [[1, "extra"]],
         row_count: 1,
         row_cap: 100,
-        referenced_tables: ["aisoc.raw_events"],
+        referenced_tables: ["quarry.raw_events"],
         elapsed_ms: 1,
         executed_at: "2026-05-08T19:00:00Z",
       }),
@@ -450,7 +450,7 @@ describe("lakeQueryTool — happy path", () => {
         rows: [[1, "extra"]],
         row_count: 1,
         row_cap: 100,
-        referenced_tables: ["aisoc.raw_events"],
+        referenced_tables: ["quarry.raw_events"],
         elapsed_ms: 1,
         executed_at: "2026-05-08T19:00:00Z",
       }),
@@ -523,7 +523,7 @@ describe("lakeSchemaTool — handler", () => {
       get: vi.fn().mockResolvedValue({
         tables: [
           {
-            table: "aisoc.raw_events",
+            table: "quarry.raw_events",
             columns: [
               { name: "id", type: "UUID" },
               { name: "tenant_id", type: "UUID", comment: "Owning tenant" },
@@ -543,11 +543,11 @@ describe("lakeSchemaTool — handler", () => {
       get: vi.fn().mockResolvedValue({
         tables: [
           {
-            table: "aisoc.raw_events",
+            table: "quarry.raw_events",
             columns: [{ name: "id", type: "UUID" }],
           },
           {
-            table: "aisoc.alert_metrics",
+            table: "quarry.alert_metrics",
             columns: [{ name: "alert_id", type: "UUID" }],
           },
         ],
@@ -561,8 +561,8 @@ describe("lakeSchemaTool — handler", () => {
     };
     expect(data.total).toBe(2);
     expect(data.tables.map((t) => t.table)).toEqual([
-      "aisoc.raw_events",
-      "aisoc.alert_metrics",
+      "quarry.raw_events",
+      "quarry.alert_metrics",
     ]);
   });
 
@@ -575,22 +575,22 @@ describe("lakeSchemaTool — handler", () => {
       get: vi.fn().mockResolvedValue({
         tables: [
           {
-            table: "aisoc.raw_events",
+            table: "quarry.raw_events",
             columns: [{ name: "id", type: "UUID" }],
           },
           {
-            table: "aisoc.alert_metrics",
+            table: "quarry.alert_metrics",
             columns: [{ name: "alert_id", type: "UUID" }],
           },
           {
-            table: "aisoc.ioc_enrichments",
+            table: "quarry.ioc_enrichments",
             columns: [{ name: "ioc", type: "String" }],
           },
         ],
       }),
     };
     const result = await lakeSchemaTool.handle(makeCtx(client), {
-      tables: ["aisoc.raw_events", "AISOC.IOC_ENRICHMENTS"], // mixed case
+      tables: ["quarry.raw_events", "QUARRY.IOC_ENRICHMENTS"], // mixed case
     });
     if (result.kind !== "json") throw new Error("expected json");
     const data = result.data as {
@@ -599,8 +599,8 @@ describe("lakeSchemaTool — handler", () => {
     };
     expect(data.total).toBe(2);
     expect(data.tables.map((t) => t.table).sort()).toEqual([
-      "aisoc.ioc_enrichments",
-      "aisoc.raw_events",
+      "quarry.ioc_enrichments",
+      "quarry.raw_events",
     ]);
   });
 
@@ -613,7 +613,7 @@ describe("lakeSchemaTool — handler", () => {
       get: vi.fn().mockResolvedValue({
         tables: [
           {
-            table: "aisoc.raw_events",
+            table: "quarry.raw_events",
             columns: [
               { name: "id", type: "UUID" }, // no comment
               { name: "tenant_id", type: "UUID", comment: "Owning tenant" },

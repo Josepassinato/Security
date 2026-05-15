@@ -1,5 +1,5 @@
 /**
- * Hand-authored TypeScript types mirroring the AiSOC OpenAPI schema.
+ * Hand-authored TypeScript types mirroring the Quarry OpenAPI schema.
  *
  * These are kept in sync with docs/openapi.yaml via the `pnpm codegen` script
  * which regenerates src/openapi.d.ts.  The types below are a curated, ergonomic

@@ -49,12 +49,12 @@ def test_constructor_accepts_executor_kwargs():
         access_key_id="AKIA-test",
         secret_access_key="secret-test",
         region="us-west-2",
-        role_arn="arn:aws:iam::123456789012:role/aisoc",
-        session_name="aisoc-action",
+        role_arn="arn:aws:iam::123456789012:role/quarry",
+        session_name="quarry-action",
     )
     # Constructor must complete and stash the inputs without contacting AWS.
     assert client._region == "us-west-2"
-    assert client._role_arn == "arn:aws:iam::123456789012:role/aisoc"
+    assert client._role_arn == "arn:aws:iam::123456789012:role/quarry"
 
 
 def test_constructor_accepts_region_only_for_rollback_path():

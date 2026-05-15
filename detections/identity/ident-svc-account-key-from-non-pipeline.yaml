@@ -1,6 +1,6 @@
 id: det-identity-078
 name: Service Account Key Used From Non-Pipeline IP
-description: AiSOC v1 curated detection. Triggers on the identity signal described by 'Service Account
+description: Quarry v1 curated detection. Triggers on the identity signal described by 'Service Account
   Key Used From Non-Pipeline IP'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: high
@@ -20,6 +20,6 @@ false_positives:
 - Approved migration
 playbook: tpl-credential-access
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

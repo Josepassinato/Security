@@ -1,5 +1,5 @@
 """
-Okta Connector — AiSOC Reference Plugin
+Okta Connector — Quarry Reference Plugin
 ========================================
 Connects to the Okta Management API to perform identity-related actions
 during incident response and enrichment workflows.

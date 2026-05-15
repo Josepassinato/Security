@@ -27,7 +27,7 @@ vi.mock('next/link', () => ({
 import { Sidebar } from './Sidebar';
 
 describe('Sidebar', () => {
-  it('renders the AiSOC mark and the major nav sections', () => {
+  it('renders the Quarry mark and the major nav sections', () => {
     render(<Sidebar />);
 
     // Brand
@@ -56,6 +56,6 @@ describe('Sidebar', () => {
     render(<Sidebar />);
 
     const license = screen.getByRole('link', { name: /MIT License/i });
-    expect(license).toHaveAttribute('href', 'https://github.com/beenuar/AiSOC');
+    expect(license).toHaveAttribute('href', 'https://github.com/beenuar/Quarry');
   });
 });

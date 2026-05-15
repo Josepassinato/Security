@@ -1,15 +1,15 @@
 'use client';
 
 /**
- * "Run AiSOC where your data is allowed to live" — `deploy` section
+ * "Run Quarry where your data is allowed to live" — `deploy` section
  * from §6.10 of the brief.
  *
  * Three deploy-path cards in a 3-up grid (single column below `md`).
  *
- *   1. Managed (waitlist) — host on app.aisoc.dev.
+ *   1. Managed (waitlist) — host on app.quarry.dev.
  *   2. Self-host (recommended) — Render / Docker / Fly.io / Helm /
  *      AWS Terraform. The middle card is highlighted via `ShineBorder`.
- *   3. Sovereign / air-gap — `AISOC_AIRGAPPED=true`, Ollama sidecar.
+ *   3. Sovereign / air-gap — `QUARRY_AIRGAPPED=true`, Ollama sidecar.
  *
  * Each card exposes the same four-line stat strip (Time to live / LLM /
  * Residency / Body) so a buyer can scan horizontally without
@@ -57,7 +57,7 @@ const OPTIONS: ReadonlyArray<DeployOption> = [
     residency: 'Operator-defined',
     body:
       'Render one-click, Docker Compose, Fly.io, Helm, AWS Terraform — pick any. The slim demo stack ships pre-seeded with a LockBit case mid-investigation.',
-    cta: { label: 'Self-host on GitHub', href: 'https://github.com/beenuar/AiSOC' },
+    cta: { label: 'Self-host on GitHub', href: 'https://github.com/beenuar/Quarry' },
   },
   {
     id: 'sovereign',
@@ -67,7 +67,7 @@ const OPTIONS: ReadonlyArray<DeployOption> = [
     llm: 'Local Ollama · BYO LiteLLM',
     residency: 'Operator-defined',
     body:
-      'Set AISOC_AIRGAPPED=true and the platform refuses every outbound call. The Ollama sidecar ships a pinned local model so the demo seed runs end-to-end with zero external calls.',
+      'Set QUARRY_AIRGAPPED=true and the platform refuses every outbound call. The Ollama sidecar ships a pinned local model so the demo seed runs end-to-end with zero external calls.',
     cta: { label: 'Read the air-gap guide', href: '/sovereign' },
   },
 ];
@@ -169,7 +169,7 @@ export function DeployOptions() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-400">
-            Run AiSOC where your data is allowed to live
+            Run Quarry where your data is allowed to live
           </p>
           <h2
             id="deploy-heading"

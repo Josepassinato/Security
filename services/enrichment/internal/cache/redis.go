@@ -80,5 +80,5 @@ func (c *Client) Close() error {
 
 // MakeKey constructs a namespaced cache key.
 func MakeKey(iocType, value string) string {
-	return fmt.Sprintf("aisoc:enrich:%s:%s", iocType, value)
+	return fmt.Sprintf("quarry:enrich:%s:%s", iocType, value)
 }

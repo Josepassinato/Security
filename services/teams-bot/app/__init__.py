@@ -1,1 +1,1 @@
-"""AiSOC Teams bot — Adaptive Card approval flows."""
+"""Quarry Teams bot — Adaptive Card approval flows."""

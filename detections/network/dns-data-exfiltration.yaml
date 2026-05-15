@@ -21,6 +21,6 @@ false_positives:
 - DNSSEC and large CDN providers (allowlist parent domain)
 playbook: tpl-data-exfil
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

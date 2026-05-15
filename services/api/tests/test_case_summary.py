@@ -364,7 +364,7 @@ def test_render_case_summary_html_contains_sections(baseline_inputs: CaseSummary
     html = render_case_summary_html(summary)
 
     assert "<!DOCTYPE html>" in html
-    assert "AiSOC case auto-summary" in html
+    assert "Quarry case auto-summary" in html
     assert "Lifecycle" in html
     assert "MITRE ATT&amp;CK techniques" in html
     assert "Compliance frameworks" in html

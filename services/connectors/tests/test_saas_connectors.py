@@ -35,7 +35,7 @@ _CLIENT_ID = "11111111-1111-1111-1111-111111111111"
 _CLIENT_SECRET = "super-secret"
 _ACCOUNT_ID = "abc123def456"
 _TOKEN = "ghp_fakeFakeFakeFakeFakeFakeFakeFake"
-_ORG = "aisoc-test-org"
+_ORG = "quarry-test-org"
 _ADMIN_EMAIL = "audit-bot@example.com"
 
 
@@ -56,10 +56,10 @@ def fake_workspace_sa_json() -> str:
     return json.dumps(
         {
             "type": "service_account",
-            "project_id": "aisoc-workspace",
+            "project_id": "quarry-workspace",
             "private_key_id": "abc123",
             "private_key": pem,
-            "client_email": "audit-bot@aisoc-workspace.iam.gserviceaccount.com",
+            "client_email": "audit-bot@quarry-workspace.iam.gserviceaccount.com",
             "client_id": "111111111111111111111",
             "token_uri": "https://oauth2.googleapis.com/token",
         }
@@ -621,7 +621,7 @@ def test_github_normalize_audit_high_risk_action_is_high():
         "actor": "alice",
         "user_email": "alice@example.com",
         "actor_ip": "1.2.3.4",
-        "repo": "aisoc/aisoc",
+        "repo": "quarry/aisoc",
         "org": _ORG,
     }
     out = connector.normalize(raw)
@@ -673,8 +673,8 @@ def test_github_normalize_routine_action_is_info():
 def test_github_normalize_code_scanning_critical_preserves_critical():
     # GitHub Code Scanning ``critical`` security_severity_level represents
     # the highest severity findings (e.g. SQL injection, RCE) and maps
-    # directly to AiSOC's ``critical`` (P1, 15-minute MTTD SLA) — never
-    # collapse to ``high`` since AiSOC exposes a dedicated P1 tier.
+    # directly to Quarry's ``critical`` (P1, 15-minute MTTD SLA) — never
+    # collapse to ``high`` since Quarry exposes a dedicated P1 tier.
     connector = GitHubConnector(_ORG, _TOKEN)
     raw = {
         "_aisoc_stream": "code_scanning",
@@ -686,7 +686,7 @@ def test_github_normalize_code_scanning_critical_preserves_critical():
             "security_severity_level": "critical",
             "severity": "error",
         },
-        "repository": {"full_name": "aisoc/aisoc"},
+        "repository": {"full_name": "quarry/aisoc"},
         "tool": {"name": "CodeQL"},
         "most_recent_instance": {"location": {"path": "src/db.py"}},
     }
@@ -708,7 +708,7 @@ def test_github_normalize_code_scanning_low_is_low():
             "security_severity_level": "low",
             "severity": "warning",
         },
-        "repository": {"full_name": "aisoc/aisoc"},
+        "repository": {"full_name": "quarry/aisoc"},
         "tool": {"name": "CodeQL"},
         "most_recent_instance": {"location": {"path": "src/x.py"}},
     }
@@ -723,7 +723,7 @@ def test_github_normalize_code_scanning_unknown_severity_falls_back_to_info():
         "number": 99,
         "created_at": "2026-01-01T00:00:00Z",
         "rule": {"id": "rule-x"},
-        "repository": {"full_name": "aisoc/aisoc"},
+        "repository": {"full_name": "quarry/aisoc"},
     }
     out = connector.normalize(raw)
     assert out["severity"] == "info"
@@ -796,7 +796,7 @@ async def test_github_fetch_alerts_merges_audit_and_code_scanning():
                         "id": "py/sql-injection",
                         "security_severity_level": "high",
                     },
-                    "repository": {"full_name": "aisoc/aisoc"},
+                    "repository": {"full_name": "quarry/aisoc"},
                 }
             ],
         )
@@ -827,7 +827,7 @@ async def test_github_fetch_alerts_handles_audit_log_unavailable():
                         "id": "py/sql-injection",
                         "security_severity_level": "high",
                     },
-                    "repository": {"full_name": "aisoc/aisoc"},
+                    "repository": {"full_name": "quarry/aisoc"},
                 }
             ],
         )

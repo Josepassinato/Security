@@ -7,7 +7,7 @@ variable "region" {
 variable "cluster_name" {
   description = "EKS cluster / resource name prefix"
   type        = string
-  default     = "aisoc-byoc"
+  default     = "quarry-byoc"
 }
 
 variable "kubernetes_version" {
@@ -54,7 +54,7 @@ variable "redis_node_type" {
 variable "tags" {
   type    = map(string)
   default = {
-    Project     = "AiSOC"
+    Project     = "Quarry"
     Environment = "byoc"
     ManagedBy   = "Terraform"
   }

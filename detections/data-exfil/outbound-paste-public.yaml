@@ -1,6 +1,6 @@
 id: det-data-exfil-011
 name: Outbound Paste to Public Pastebin / Gist
-description: AiSOC v1 curated detection. Triggers on the data-exfil signal described by 'Outbound Paste
+description: Quarry v1 curated detection. Triggers on the data-exfil signal described by 'Outbound Paste
   to Public Pastebin / Gist'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: medium
@@ -20,6 +20,6 @@ false_positives:
 - Engineering posting OSS code (allowlist users)
 playbook: tpl-data-exfil
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

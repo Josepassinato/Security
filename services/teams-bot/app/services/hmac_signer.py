@@ -41,10 +41,10 @@ _spec = importlib.util.spec_from_file_location(_module_name, _SLACK_BOT_HMAC_PAT
 if _spec is None or _spec.loader is None:  # pragma: no cover - import-time guard
     raise ImportError(f"Cannot locate shared HMAC primitive at {_SLACK_BOT_HMAC_PATH}")
 
-# Allow ``AISOC_TEAMS_HMAC_MODULE_PATH`` to redirect the lookup in tests
+# Allow ``QUARRY_TEAMS_HMAC_MODULE_PATH`` to redirect the lookup in tests
 # or in unusual deployment topologies (eg. the two services live in
 # completely separate containers).
-override = os.environ.get("AISOC_TEAMS_HMAC_MODULE_PATH")
+override = os.environ.get("QUARRY_TEAMS_HMAC_MODULE_PATH")
 if override:
     _spec = importlib.util.spec_from_file_location(_module_name, override)
 

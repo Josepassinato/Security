@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "quarry-osquery-tls"
 version = "0.1.0"
-description = "AiSOC osquery TLS plugin service — direct osqueryd TLS endpoint without a separate fleet manager"
-authors = ["AiSOC Community"]
+description = "Quarry osquery TLS plugin service — direct osqueryd TLS endpoint without a separate fleet manager"
+authors = ["Quarry Community"]
 license = "MIT"
 readme = "README.md"
 

@@ -11,29 +11,29 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/beenuar/aisoc/plugin-sdk-go/aisoc"
+	"github.com/beenuar/quarry/plugin-sdk-go/quarry"
 )
 
-// SlackQuarantineNotifier implements aisoc.Action for Slack-based response comms.
+// SlackQuarantineNotifier implements quarry.Action for Slack-based response comms.
 type SlackQuarantineNotifier struct {
-	aisoc.BasePlugin
+	quarry.BasePlugin
 
 	httpClient *http.Client
 }
 
-func (s *SlackQuarantineNotifier) Manifest() aisoc.PluginManifest {
-	return aisoc.PluginManifest{
+func (s *SlackQuarantineNotifier) Manifest() quarry.PluginManifest {
+	return quarry.PluginManifest{
 		ID:          "slack-quarantine",
 		Name:        "Slack Quarantine Notifier",
 		Version:     "1.0.0",
-		PluginType:  aisoc.PluginTypeAction,
+		PluginType:  quarry.PluginTypeAction,
 		Description: "Posts incident-response notifications to Slack with Block Kit formatting.",
-		Author:      "AiSOC Core Team",
+		Author:      "Quarry Core Team",
 		Tags:        []string{"slack", "notification", "quarantine", "response"},
 	}
 }
 
-func (s *SlackQuarantineNotifier) OnLoad(_ context.Context, _ aisoc.PluginContext) error {
+func (s *SlackQuarantineNotifier) OnLoad(_ context.Context, _ quarry.PluginContext) error {
 	s.httpClient = &http.Client{Timeout: 30 * time.Second}
 	return nil
 }
@@ -48,10 +48,10 @@ func (s *SlackQuarantineNotifier) SupportedActions() []string {
 
 func (s *SlackQuarantineNotifier) Execute(
 	ctx context.Context,
-	req aisoc.ActionRequest,
-	pctx aisoc.PluginContext,
-) (aisoc.ActionResult, error) {
-	result := aisoc.ActionResult{
+	req quarry.ActionRequest,
+	pctx quarry.PluginContext,
+) (quarry.ActionResult, error) {
+	result := quarry.ActionResult{
 		ActionID: req.ActionID,
 		DryRun:   req.DryRun,
 		Details:  map[string]any{},
@@ -159,7 +159,7 @@ func (s *SlackQuarantineNotifier) Execute(
 	}
 }
 
-func (s *SlackQuarantineNotifier) buildBlocks(req aisoc.ActionRequest) []map[string]any {
+func (s *SlackQuarantineNotifier) buildBlocks(req quarry.ActionRequest) []map[string]any {
 	caseID, _ := req.Params["case_id"].(string)
 	if caseID == "" {
 		caseID = req.CaseID
@@ -253,7 +253,7 @@ func (s *SlackQuarantineNotifier) post(
 }
 
 func main() {
-	registry := aisoc.NewRegistry()
+	registry := quarry.NewRegistry()
 	if err := registry.Register(&SlackQuarantineNotifier{}); err != nil {
 		panic(err)
 	}

@@ -154,7 +154,7 @@ async def _generate_for_tenant(
 
         body_b64 = base64.b64encode(raw_bytes).decode("ascii")
         storage_key = f"weekly_digest/{tenant_id}/{period_start.strftime('%Y-%m-%d')}_{period_end.strftime('%Y-%m-%d')}.{output_format}"
-        title = f"AiSOC Weekly Executive Digest {period_start.strftime('%d %b')}–{period_end.strftime('%d %b %Y')}"
+        title = f"Quarry Weekly Executive Digest {period_start.strftime('%d %b')}–{period_end.strftime('%d %b %Y')}"
 
         artefact = ReportArtefact(
             id=uuid.uuid4(),

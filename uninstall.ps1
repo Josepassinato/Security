@@ -1,18 +1,18 @@
 <#
 .SYNOPSIS
-    AiSOC — Uninstaller for Windows.
+    Quarry — Uninstaller for Windows.
 
 .DESCRIPTION
-    Tears down whatever install.ps1 + `pnpm aisoc:demo` brought up, in
+    Tears down whatever install.ps1 + `pnpm quarry:demo` brought up, in
     decreasing levels of aggressiveness:
 
         default          Stop the demo stack and delete its named volumes.
-                         (Equivalent to: pnpm aisoc:demo:down)
-        -RemoveImages    Also remove ghcr.io/beenuar/aisoc-* images
+                         (Equivalent to: pnpm quarry:demo:down)
+        -RemoveImages    Also remove ghcr.io/beenuar/quarry-* images
                          (saves ~2-3 GB of disk).
         -RemoveNodeModules
                          Also delete node_modules trees in the repo (~1 GB).
-        -RemoveRepo      Also delete the AiSOC repo clone itself.
+        -RemoveRepo      Also delete the Quarry repo clone itself.
         -All             Equivalent to all three above.
 
     What this script DOES NOT do:
@@ -23,16 +23,16 @@
               winget uninstall --id OpenJS.NodeJS.LTS
               winget uninstall --id Docker.DockerDesktop
         - Touch any other Docker containers, images, or volumes outside the
-          aisoc-demo project. We're surgical here.
+          quarry-demo project. We're surgical here.
 
 .PARAMETER RemoveImages
-    Also remove the ghcr.io/beenuar/aisoc-* container images.
+    Also remove the ghcr.io/beenuar/quarry-* container images.
 
 .PARAMETER RemoveNodeModules
     Also delete node_modules trees inside the repo.
 
 .PARAMETER RemoveRepo
-    Also delete the AiSOC repo clone.
+    Also delete the Quarry repo clone.
 
 .PARAMETER All
     Shorthand for -RemoveImages -RemoveNodeModules -RemoveRepo.
@@ -52,9 +52,9 @@
     Exit codes:
         0  success
         1  invalid arguments / unexpected error
-        2  not run from inside an AiSOC clone (and -RemoveRepo wasn't given)
+        2  not run from inside an Quarry clone (and -RemoveRepo wasn't given)
         3  refused to delete a path for safety reasons (system dir, not an
-           AiSOC clone, etc.) — visible separately so CI scripts don't
+           Quarry clone, etc.) — visible separately so CI scripts don't
            silently treat a refusal as "all done"
 #>
 
@@ -82,11 +82,11 @@ $script:SafetyRefused = $false
 
 # ─── Logging helpers (match install.ps1 style) ──────────────────────────────
 
-function Write-Log     { param([string]$m) Write-Host "[aisoc] $m" -ForegroundColor DarkGray }
-function Write-Info    { param([string]$m) Write-Host "[aisoc] $m" -ForegroundColor Blue }
-function Write-Ok      { param([string]$m) Write-Host "[aisoc] $m" -ForegroundColor Green }
-function Write-Warn    { param([string]$m) Write-Host "[aisoc] $m" -ForegroundColor Yellow }
-function Write-Err     { param([string]$m) Write-Host "[aisoc] $m" -ForegroundColor Red }
+function Write-Log     { param([string]$m) Write-Host "[quarry] $m" -ForegroundColor DarkGray }
+function Write-Info    { param([string]$m) Write-Host "[quarry] $m" -ForegroundColor Blue }
+function Write-Ok      { param([string]$m) Write-Host "[quarry] $m" -ForegroundColor Green }
+function Write-Warn    { param([string]$m) Write-Host "[quarry] $m" -ForegroundColor Yellow }
+function Write-Err     { param([string]$m) Write-Host "[quarry] $m" -ForegroundColor Red }
 function Write-Section {
     param([string]$m)
     Write-Host ""
@@ -102,11 +102,11 @@ function Confirm-Action {
     return ($resp -match '^[yY]')
 }
 
-# ─── Locate the AiSOC repo ──────────────────────────────────────────────────
+# ─── Locate the Quarry repo ──────────────────────────────────────────────────
 # We need the path to docker-compose.demo.yml so `docker compose down -v` can
 # resolve project resources cleanly. Prefer the directory two levels above
 # this script (script lives in <repo>/scripts/install/), then fall back to
-# the canonical $env:USERPROFILE\aisoc.
+# the canonical $env:USERPROFILE\quarry.
 
 function Find-RepoRoot {
     # The uninstaller lives at the repo root, alongside install.ps1.
@@ -115,20 +115,20 @@ function Find-RepoRoot {
         (Test-Path (Join-Path $selfDir 'docker-compose.demo.yml')) -and
         (Test-Path (Join-Path $selfDir 'package.json'))) {
         $pkg = Get-Content (Join-Path $selfDir 'package.json') -Raw -ErrorAction SilentlyContinue
-        if ($pkg -match '"name"\s*:\s*"aisoc"') {
+        if ($pkg -match '"name"\s*:\s*"quarry"') {
             return $selfDir
         }
     }
-    # Fallback 1: $HOME/aisoc (where install.ps1 clones by default).
-    $homePath = Join-Path $env:USERPROFILE 'aisoc'
+    # Fallback 1: $HOME/quarry (where install.ps1 clones by default).
+    $homePath = Join-Path $env:USERPROFILE 'quarry'
     if (Test-Path (Join-Path $homePath 'docker-compose.demo.yml')) {
         return $homePath
     }
-    # Fallback 2: cwd is an aisoc clone.
+    # Fallback 2: cwd is an quarry clone.
     if ((Test-Path (Join-Path (Get-Location) 'docker-compose.demo.yml')) -and
         (Test-Path (Join-Path (Get-Location) 'package.json'))) {
         $pkg = Get-Content (Join-Path (Get-Location) 'package.json') -Raw -ErrorAction SilentlyContinue
-        if ($pkg -match '"name"\s*:\s*"aisoc"') {
+        if ($pkg -match '"name"\s*:\s*"quarry"') {
             return (Get-Location).Path
         }
     }
@@ -139,9 +139,9 @@ $RepoRoot = Find-RepoRoot
 
 if (-not $RepoRoot) {
     if ($RemoveImages -or $RemoveRepo) {
-        Write-Warn "Couldn't locate AiSOC clone. Skipping 'compose down' (orphan containers may remain)."
+        Write-Warn "Couldn't locate Quarry clone. Skipping 'compose down' (orphan containers may remain)."
     } else {
-        Write-Err "Run this from inside an AiSOC clone, or pass -RemoveRepo to clean up the cloned repo at `$env:USERPROFILE\aisoc."
+        Write-Err "Run this from inside an Quarry clone, or pass -RemoveRepo to clean up the cloned repo at `$env:USERPROFILE\quarry."
         exit 2
     }
 }
@@ -168,7 +168,7 @@ function Stop-DemoStack {
     }
     if (-not $RepoRoot) { return }
 
-    Write-Info "Stopping AiSOC demo stack and removing its volumes..."
+    Write-Info "Stopping Quarry demo stack and removing its volumes..."
     Push-Location $RepoRoot
     try {
         docker compose -f docker-compose.demo.yml down -v --remove-orphans
@@ -182,11 +182,11 @@ function Stop-DemoStack {
     }
 }
 
-# ─── Step 2: remove AiSOC images ────────────────────────────────────────────
-# Only ghcr.io/beenuar/aisoc-* — leaves alpine/postgres/redis/kafka alone
+# ─── Step 2: remove Quarry images ────────────────────────────────────────────
+# Only ghcr.io/beenuar/quarry-* — leaves alpine/postgres/redis/kafka alone
 # because those are widely shared and cheap to re-pull.
 
-function Remove-AiSOCImages {
+function Remove-QuarryImages {
     if (-not $RemoveImages) { return }
     if (-not (Get-Command docker -ErrorAction SilentlyContinue)) {
         Write-Warn "docker unreachable; skipping image removal."
@@ -196,10 +196,10 @@ function Remove-AiSOCImages {
         Write-Warn "docker daemon not reachable; skipping image removal."
         return
     }
-    Write-Section "Removing AiSOC container images"
-    $images = docker images --format '{{.Repository}}:{{.Tag}}' | Where-Object { $_ -like 'ghcr.io/beenuar/aisoc-*' }
+    Write-Section "Removing Quarry container images"
+    $images = docker images --format '{{.Repository}}:{{.Tag}}' | Where-Object { $_ -like 'ghcr.io/beenuar/quarry-*' }
     if (-not $images) {
-        Write-Info "No ghcr.io/beenuar/aisoc-* images found."
+        Write-Info "No ghcr.io/beenuar/quarry-* images found."
         return
     }
     $images | ForEach-Object { Write-Host "  $_" }
@@ -275,25 +275,25 @@ function Test-DangerousPath {
 
 function Remove-RepoClone {
     if (-not $RemoveRepo) { return }
-    $target = if ($RepoRoot) { $RepoRoot } else { Join-Path $env:USERPROFILE 'aisoc' }
+    $target = if ($RepoRoot) { $RepoRoot } else { Join-Path $env:USERPROFILE 'quarry' }
     if (-not (Test-Path $target)) {
         Write-Warn "No repo found at $target; nothing to remove."
         return
     }
-    # Final sanity check: target must look like an AiSOC clone. Stops us
+    # Final sanity check: target must look like an Quarry clone. Stops us
     # from rm -rf'ing some unrelated dir the user happened to put in
-    # %USERPROFILE%\aisoc.
+    # %USERPROFILE%\quarry.
     $composeFile = Join-Path $target 'docker-compose.demo.yml'
     $pkgFile = Join-Path $target 'package.json'
-    $looksLikeAiSOC = $false
+    $looksLikeQuarry = $false
     if ((Test-Path $composeFile) -and (Test-Path $pkgFile)) {
         $pkgContent = Get-Content $pkgFile -Raw -ErrorAction SilentlyContinue
-        if ($pkgContent -and $pkgContent -match '"name"\s*:\s*"aisoc"') {
-            $looksLikeAiSOC = $true
+        if ($pkgContent -and $pkgContent -match '"name"\s*:\s*"quarry"') {
+            $looksLikeQuarry = $true
         }
     }
-    if (-not $looksLikeAiSOC) {
-        Write-Warn "$target doesn't look like an AiSOC clone (missing compose file or package.json marker)."
+    if (-not $looksLikeQuarry) {
+        Write-Warn "$target doesn't look like an Quarry clone (missing compose file or package.json marker)."
         Write-Warn "Refusing to delete it — clean it up manually if you really want to."
         $script:SafetyRefused = $true
         return
@@ -304,7 +304,7 @@ function Remove-RepoClone {
         $script:SafetyRefused = $true
         return
     }
-    Write-Section "Removing AiSOC repo"
+    Write-Section "Removing Quarry repo"
     Write-Warn "About to recursively delete: $target"
     if (Confirm-Action "Are you absolutely sure?") {
         # cd somewhere safe before deleting — PowerShell holds a lock on
@@ -321,18 +321,18 @@ function Remove-RepoClone {
 
 # ─── Main ───────────────────────────────────────────────────────────────────
 
-Write-Section "AiSOC Uninstaller"
+Write-Section "Quarry Uninstaller"
 Stop-DemoStack
-Remove-AiSOCImages
+Remove-QuarryImages
 Remove-NodeModulesTrees
 Remove-RepoClone
 
 Write-Host ""
 if ($script:SafetyRefused) {
-    Write-Host "AiSOC uninstall finished — but at least one delete was refused for safety." -ForegroundColor Yellow
+    Write-Host "Quarry uninstall finished — but at least one delete was refused for safety." -ForegroundColor Yellow
     Write-Host "See messages above. Exiting with code 3 so CI/scripts notice." -ForegroundColor Yellow
 } else {
-    Write-Host "AiSOC uninstall complete." -ForegroundColor Green
+    Write-Host "Quarry uninstall complete." -ForegroundColor Green
 }
 Write-Host ""
 Write-Host "Things this script intentionally did NOT remove:" -ForegroundColor DarkGray
@@ -342,7 +342,7 @@ Write-Host "  - Other Docker images (postgres, redis, kafka, zookeeper, alpine)"
 Write-Host "  - Cached pnpm store at `$env:LOCALAPPDATA\pnpm-store"
 Write-Host ""
 Write-Host "To remove the leftover infrastructure images too:" -ForegroundColor DarkGray
-Write-Host "  docker image prune -a    # removes ALL dangling+unused images, not just AiSOC's"
+Write-Host "  docker image prune -a    # removes ALL dangling+unused images, not just Quarry's"
 Write-Host ""
 
 if ($script:SafetyRefused) { exit 3 }

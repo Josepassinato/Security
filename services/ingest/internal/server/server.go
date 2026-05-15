@@ -9,10 +9,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/beenuar/aisoc/services/ingest/internal/config"
-	"github.com/beenuar/aisoc/services/ingest/internal/graph_ws"
-	"github.com/beenuar/aisoc/services/ingest/internal/handler"
-	"github.com/beenuar/aisoc/services/ingest/internal/inbox"
+	"github.com/beenuar/quarry/services/ingest/internal/config"
+	"github.com/beenuar/quarry/services/ingest/internal/graph_ws"
+	"github.com/beenuar/quarry/services/ingest/internal/handler"
+	"github.com/beenuar/quarry/services/ingest/internal/inbox"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
@@ -21,13 +21,13 @@ import (
 )
 
 // resolveCORSOrigins mirrors the shared Python helper in services/api/app/core/cors.py:
-// it reads “AISOC_CORS_ORIGINS“ (canonical) and falls back to “CORS_ORIGINS“
+// it reads “QUARRY_CORS_ORIGINS“ (canonical) and falls back to “CORS_ORIGINS“
 // (legacy). When both are empty the default list keeps local dev usable. We do not
 // allow wildcard “*“ combined with credentials here because /v1/ingest doesn't
 // carry browser cookies, but operators can still tighten the allow-list per deploy
-// without touching code by setting AISOC_CORS_ORIGINS.
+// without touching code by setting QUARRY_CORS_ORIGINS.
 func resolveCORSOrigins() []string {
-	for _, env := range []string{"AISOC_CORS_ORIGINS", "CORS_ORIGINS"} {
+	for _, env := range []string{"QUARRY_CORS_ORIGINS", "CORS_ORIGINS"} {
 		if v := strings.TrimSpace(os.Getenv(env)); v != "" {
 			parts := strings.Split(v, ",")
 			out := make([]string, 0, len(parts))
@@ -67,7 +67,7 @@ type Server struct {
 // graphWSServer is the optional T1.4 WebSocket broadcaster (graph
 // update fan-out). Nil disables the /v1/graph_ws/stream route, which
 // is the expected default until an operator opts in via
-// AISOC_GRAPH_WS_ENABLED=true.
+// QUARRY_GRAPH_WS_ENABLED=true.
 func New(cfg *config.Config, h *handler.Handler, inboxHandler *inbox.Handler, graphWSServer *graph_ws.Server) *Server {
 	r := chi.NewRouter()
 
@@ -76,7 +76,7 @@ func New(cfg *config.Config, h *handler.Handler, inboxHandler *inbox.Handler, gr
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Timeout(30 * time.Second))
-	// Allow-list is resolved from AISOC_CORS_ORIGINS (canonical) / CORS_ORIGINS
+	// Allow-list is resolved from QUARRY_CORS_ORIGINS (canonical) / CORS_ORIGINS
 	// (legacy) with a safe default for local dev + the tryaisoc.com console.
 	// AllowCredentials stays false here — /v1/ingest is token-authenticated
 	// per request, not session-cookie-authenticated, so we don't need the
@@ -85,7 +85,7 @@ func New(cfg *config.Config, h *handler.Handler, inboxHandler *inbox.Handler, gr
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   resolveCORSOrigins(),
 		AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
-		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-Tenant-ID", "X-Inbox-Token", "X-Splunk-Token", "X-Signature", "X-Hub-Signature-256", "X-AiSOC-K8s-Token"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-Tenant-ID", "X-Inbox-Token", "X-Splunk-Token", "X-Signature", "X-Hub-Signature-256", "X-Quarry-K8s-Token"},
 		AllowCredentials: false,
 		MaxAge:           300,
 	}))
@@ -102,7 +102,7 @@ func New(cfg *config.Config, h *handler.Handler, inboxHandler *inbox.Handler, gr
 		// Tenant binding lives in the URL path (the apiserver's
 		// audit-webhook kubeconfig is awkward to add custom headers
 		// to but trivial to point at a templated URL); the auth
-		// boundary is the X-AiSOC-K8s-Token shared secret enforced
+		// boundary is the X-Quarry-K8s-Token shared secret enforced
 		// inside the handler. Disabled (returns 503) until an
 		// operator sets K8S_AUDIT_SHARED_SECRET on the ingest pod.
 		r.Post("/ingest/k8s-audit/{tenant_id}", h.K8sAuditEvents)

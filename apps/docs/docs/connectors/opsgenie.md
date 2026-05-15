@@ -1,7 +1,7 @@
 ---
 sidebar_position: 74
 title: Opsgenie
-description: Pull Opsgenie alerts and tenant audit log events into AiSOC via the REST API.
+description: Pull Opsgenie alerts and tenant audit log events into Quarry via the REST API.
 ---
 
 # Opsgenie
@@ -28,7 +28,7 @@ Events are normalised with `source: opsgenie`, `category: saas`.
 3. **Access Configuration**: tick **Read Audit Logs** if you want the audit stream (recommended).
 4. Copy the API key (a UUID).
 
-### 2. Add the connector in AiSOC
+### 2. Add the connector in Quarry
 
 1. **Connectors → Add connector → Opsgenie**.
 2. `api_key` = the API key (encrypted in the credential vault).
@@ -46,7 +46,7 @@ Events are normalised with `source: opsgenie`, `category: saas`.
 
 ## Severity mapping
 
-| Source | Vendor value | AiSOC severity |
+| Source | Vendor value | Quarry severity |
 |---|---|---|
 | alert | priority `P1` | `high` |
 | alert | priority `P2` | `medium` |
@@ -71,7 +71,7 @@ Events are normalised with `source: opsgenie`, `category: saas`.
 
 ## What this connector does **not** cover
 
-- **Outbound paging actions** — Opsgenie alert creation from AiSOC is a separate write-mode plugin (planned, not in wave-1).
+- **Outbound paging actions** — Opsgenie alert creation from Quarry is a separate write-mode plugin (planned, not in wave-1).
 - **Schedule on-call lookups** — `/v2/schedules` is intentionally omitted from polling; that data is fetched on-demand by the agent layer when investigating an alert.
 
 ## Related

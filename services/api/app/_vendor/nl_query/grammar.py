@@ -6,7 +6,7 @@ processing commands, dangling pipes) so that the API layer can refuse to
 execute output the LLM produced incorrectly.
 
 We deliberately avoid pulling in a heavy parser dependency — security teams
-running AiSOC in an air-gapped environment should not have to wait for a
+running Quarry in an air-gapped environment should not have to wait for a
 PyPI mirror sync just to validate that a query is well-formed.
 """
 

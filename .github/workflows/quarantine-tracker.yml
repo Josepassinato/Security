@@ -6,7 +6,7 @@ name: Quarantine Tracker
 # `scripts/build_quarantine_index.py` from the 1,989 quarantined rules. Without
 # CI enforcement the index silently drifts the moment someone adds, removes, or
 # rewrites a quarantined rule, and the community workstream that translates
-# these into native AiSOC detections loses its source of truth.
+# these into native Quarry detections loses its source of truth.
 #
 # This workflow re-runs the generator in `--check` mode on every PR/push that
 # touches the quarantine directory or the generator script, and fails if the

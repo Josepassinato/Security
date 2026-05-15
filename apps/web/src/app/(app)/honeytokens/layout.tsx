@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 
 // The honeytokens page itself is a client component (`"use client"`), so it
 // can't export `metadata` directly. Defining it on a colocated server layout
-// lets the page contribute a real <title> ("Honeytokens | AiSOC" via the root
+// lets the page contribute a real <title> ("Honeytokens | Quarry" via the root
 // layout's title template) instead of falling through to the global default.
 export const metadata: Metadata = {
   title: 'Honeytokens',

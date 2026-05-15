@@ -2,7 +2,7 @@
 AWS VPC Flow Logs connector.
 
 Pulls VPC Flow Log records from a CloudWatch Logs log group via
-``logs.filter_log_events`` and emits normalised AiSOC alerts.
+``logs.filter_log_events`` and emits normalised Quarry alerts.
 
 Why CloudWatch Logs and not S3?
 
@@ -209,7 +209,7 @@ class AWSVPCFlowLogsConnector(BaseConnector):
                     required=False,
                     default="v2",
                     help_text=(
-                        "AiSOC parses v2 (the AWS default 14-field "
+                        "Quarry parses v2 (the AWS default 14-field "
                         "layout) natively. For v5 custom layouts the "
                         "raw record passes through on raw_event so "
                         "detection content can match on the JSON."
@@ -357,7 +357,7 @@ class AWSVPCFlowLogsConnector(BaseConnector):
         return [self.normalize(e) for e in events]
 
     def normalize(self, raw: dict[str, Any]) -> dict[str, Any]:
-        """Map a CloudWatch Logs envelope to AiSOC's normalised shape.
+        """Map a CloudWatch Logs envelope to Quarry's normalised shape.
 
         ``raw`` is the envelope from ``filter_log_events``:
             {

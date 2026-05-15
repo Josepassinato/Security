@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render an AiSOC white-paper markdown file to PDF.
+"""Render an Quarry white-paper markdown file to PDF.
 
 This script converts a markdown white paper (as authored in
 ``apps/web/content/papers/``) into a publication-quality PDF for
@@ -25,7 +25,7 @@ the source markdown is the canonical artefact.
 
 This script is deliberately dependency-light.  It does not introduce a
 new heavy dependency (e.g. puppeteer / headless Chromium); WeasyPrint is
-already part of the AiSOC build profile for the API service.
+already part of the Quarry build profile for the API service.
 """
 
 from __future__ import annotations
@@ -49,7 +49,7 @@ PRINT_CSS = """
         color: #6b7280;
     }
     @top-right {
-        content: "AiSOC — L0–L4 Automation Maturity";
+        content: "Quarry — L0–L4 Automation Maturity";
         font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
         font-size: 8pt;
         color: #9ca3af;
@@ -145,10 +145,10 @@ COVER_HTML = """
       with audit trails.
     </div>
     <div style="margin-top: 18mm; font-size: 10pt; color: #64748b;">
-      AiSOC project · v1.0 · Released {date}
+      Quarry project · v1.0 · Released {date}
     </div>
     <div style="margin-top: 4mm; font-size: 10pt; color: #94a3b8;">
-      MIT licensed · github.com/beenuar/AiSOC
+      MIT licensed · github.com/beenuar/Quarry
     </div>
   </div>
 </div>
@@ -209,7 +209,7 @@ def render(markdown_path: Path, output_path: Path) -> None:
     cover = COVER_HTML.format(date=meta.get("date", ""))
     html = (
         "<!doctype html><html><head><meta charset='utf-8'/>"
-        f"<title>{meta.get('title', 'AiSOC White Paper')}</title>"
+        f"<title>{meta.get('title', 'Quarry White Paper')}</title>"
         "</head><body>"
         f"{cover}"
         f"{rendered_body}"

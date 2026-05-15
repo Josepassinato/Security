@@ -3,9 +3,9 @@
 import { useMemo, useState } from 'react';
 
 const CONTRIBUTE_URL =
-  'https://github.com/beenuar/AiSOC/blob/main/.github/PULL_REQUEST_TEMPLATE/detection_rule.md';
+  'https://github.com/beenuar/Quarry/blob/main/.github/PULL_REQUEST_TEMPLATE/detection_rule.md';
 const DETECTIONS_URL =
-  'https://github.com/beenuar/AiSOC/tree/main/detections';
+  'https://github.com/beenuar/Quarry/tree/main/detections';
 
 interface Contributor {
   name: string;
@@ -22,7 +22,7 @@ const BADGE_STYLES: Record<Contributor['badge'], { bg: string; text: string; bor
 };
 
 const CORE_CONTRIBUTORS: Contributor[] = [
-  { name: 'AiSOC', rules: 218, categories: ['cloud', 'endpoint', 'identity', 'network', 'application'], badge: 'platinum' },
+  { name: 'Quarry', rules: 218, categories: ['cloud', 'endpoint', 'identity', 'network', 'application'], badge: 'platinum' },
 ];
 
 const BADGE_THRESHOLDS: { tier: Contributor['badge']; min: number; label: string }[] = [

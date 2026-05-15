@@ -1,13 +1,13 @@
 """ChatOps user-verification executor.
 
-Wave 1 of the AiSOC v6 capability roadmap. The executor:
+Wave 1 of the Quarry v6 capability roadmap. The executor:
 
 1. Mints three HMAC-signed callback tokens — one per choice
    (``acknowledge`` / ``deny`` / ``escalate``) — using
    :mod:`app.security.chatops_token`. Each token carries the action,
    case, tenant, user reference, and an expiry derived from
-   ``AISOC_CHATOPS_TIMEOUT_SECONDS``.
-2. Builds three callback URLs against ``AISOC_ACTIONS_PUBLIC_URL``.
+   ``QUARRY_CHATOPS_TIMEOUT_SECONDS``.
+2. Builds three callback URLs against ``QUARRY_ACTIONS_PUBLIC_URL``.
 3. Posts the interactive prompt into the configured transport
    (``slack`` via Block Kit, ``teams`` via Connector Card) using the
    credential-vault-aware helpers in :mod:`app.services.chatops_prompt`.
@@ -81,12 +81,12 @@ class ChatOpsVerifyExecutor(BaseExecutor):
     async def execute(self, request: ActionRequest) -> ActionResult:
         settings = get_settings()
 
-        if not settings.AISOC_FEATURE_CHATOPS_VERIFY:
+        if not settings.QUARRY_FEATURE_CHATOPS_VERIFY:
             return ActionResult(
                 action_id=request.id,
                 status=ActionStatus.FAILED,
                 blast_radius=BlastRadius.MINIMAL,
-                error="ChatOps verification is disabled (AISOC_FEATURE_CHATOPS_VERIFY=False)",
+                error="ChatOps verification is disabled (QUARRY_FEATURE_CHATOPS_VERIFY=False)",
             )
 
         params: dict[str, Any] = request.parameters or {}
@@ -97,7 +97,7 @@ class ChatOpsVerifyExecutor(BaseExecutor):
         question = str(
             params.get(
                 "question",
-                f"AiSOC needs to confirm activity on your account ({request.target}).",
+                f"Quarry needs to confirm activity on your account ({request.target}).",
             )
         )
         context = str(
@@ -130,15 +130,15 @@ class ChatOpsVerifyExecutor(BaseExecutor):
                 ChatOpsButton(
                     label=label,
                     url=_build_callback_url(
-                        base_url=settings.AISOC_ACTIONS_PUBLIC_URL,
+                        base_url=settings.QUARRY_ACTIONS_PUBLIC_URL,
                         token=mint_token(
                             action_id=request.id,
                             case_id=request.incident_id,
                             tenant_id=request.tenant_id,
                             choice=choice,
                             user_ref=user_ref,
-                            secret=settings.AISOC_CHATOPS_RESPONSE_SECRET,
-                            ttl_seconds=settings.AISOC_CHATOPS_TIMEOUT_SECONDS,
+                            secret=settings.QUARRY_CHATOPS_RESPONSE_SECRET,
+                            ttl_seconds=settings.QUARRY_CHATOPS_TIMEOUT_SECONDS,
                         ),
                     ),
                     style=style,
@@ -196,7 +196,7 @@ class ChatOpsVerifyExecutor(BaseExecutor):
                 event_type="chatops.verify.prompted",
                 content=(
                     f"ChatOps verification sent to {user_ref} via {transport}. "
-                    f"Awaiting response (TTL {settings.AISOC_CHATOPS_TIMEOUT_SECONDS}s)."
+                    f"Awaiting response (TTL {settings.QUARRY_CHATOPS_TIMEOUT_SECONDS}s)."
                 ),
                 metadata={
                     "action_id": str(request.id),
@@ -205,7 +205,7 @@ class ChatOpsVerifyExecutor(BaseExecutor):
                     "channel": channel,
                     "user_ref": user_ref,
                     "question": question,
-                    "expires_in_seconds": settings.AISOC_CHATOPS_TIMEOUT_SECONDS,
+                    "expires_in_seconds": settings.QUARRY_CHATOPS_TIMEOUT_SECONDS,
                 },
             )
         except TimelineClientError as exc:
@@ -234,7 +234,7 @@ class ChatOpsVerifyExecutor(BaseExecutor):
                 "channel": channel,
                 "user_ref": user_ref,
                 "delivery": delivery,
-                "expires_in_seconds": settings.AISOC_CHATOPS_TIMEOUT_SECONDS,
+                "expires_in_seconds": settings.QUARRY_CHATOPS_TIMEOUT_SECONDS,
                 **({"timeline_warning": timeline_warning} if timeline_warning else {}),
             },
             executed_at=datetime.now(UTC),

@@ -30,6 +30,6 @@ Branch strategy: one branch per PR (`v1.5/pr-N-<slug>`), all targeting `main`.
 
 ## Conventions
 
-- Feature flags: `AISOC_FEATURE_CONSOLE`, `AISOC_FEATURE_EXPOSURE_TICKETS`, `AISOC_FEATURE_CRITICAL_SEVERITY` (all default OFF in prod, ON in demo seed).
+- Feature flags: `QUARRY_FEATURE_CONSOLE`, `QUARRY_FEATURE_EXPOSURE_TICKETS`, `QUARRY_FEATURE_CRITICAL_SEVERITY` (all default OFF in prod, ON in demo seed).
 - Backwards compat: every flat page stays — `/console` is additive.
 - All commits authored as `Beenu Arora <beenu@cyble.com>` via `GIT_AUTHOR_*` / `GIT_COMMITTER_*` env vars (no global git config mutation).

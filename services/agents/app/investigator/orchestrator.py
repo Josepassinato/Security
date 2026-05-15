@@ -35,9 +35,9 @@ logger = structlog.get_logger()
 try:
     from app.core.telemetry import get_tracer as _get_tracer
 
-    _tracer = _get_tracer("aisoc.investigator")
+    _tracer = _get_tracer("quarry.investigator")
 except Exception:
-    _tracer = trace.get_tracer("aisoc.investigator")
+    _tracer = trace.get_tracer("quarry.investigator")
 
 
 # ---------------------------------------------------------------------------

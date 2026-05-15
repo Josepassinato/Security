@@ -1,7 +1,7 @@
 ---
 sidebar_position: 2
 title: Investigation Rail on /alerts
-description: How AiSOC turns the legacy alert detail drawer into a structured triage rail — narrative, related entities, mini-timeline, and recommended actions — served by GET /api/v1/alerts/{id} and rendered to the right of the queue.
+description: How Quarry turns the legacy alert detail drawer into a structured triage rail — narrative, related entities, mini-timeline, and recommended actions — served by GET /api/v1/alerts/{id} and rendered to the right of the queue.
 ---
 
 # Investigation Rail on `/alerts`
@@ -54,7 +54,7 @@ The rail groups related entities into four buckets so the analyst can scan them 
 | Workflow | case ID, playbook run ID, ticket key |
 | Tenant | tenant slug, business unit, environment tag |
 
-Each entry has a `kind`, a `value`, an optional `displayLabel` (for example `analyst@aisoc.dev (Okta)`), and — most importantly — an optional `pivotPath`. When present, the rail renders the row as a `next/link`: clicking it sends the analyst straight to `AttackGraphView` or the corresponding workbench, with the entity prefocused. The whole point of this section is to make the queue a launchpad: every entity is a *verb*, not a label.
+Each entry has a `kind`, a `value`, an optional `displayLabel` (for example `analyst@quarry.dev (Okta)`), and — most importantly — an optional `pivotPath`. When present, the rail renders the row as a `next/link`: clicking it sends the analyst straight to `AttackGraphView` or the corresponding workbench, with the entity prefocused. The whole point of this section is to make the queue a launchpad: every entity is a *verb*, not a label.
 
 The grouping is computed server-side in `services/api/app/services/alert_rail.py` so the frontend never has to re-sort the list, and so two analysts looking at the same alert see exactly the same buckets in the same order.
 
@@ -111,15 +111,15 @@ The response is the `AlertDetailResponse` Pydantic contract:
   // ─── rail envelope (added in v1.5) ─────────────────────────────
   "narrative": "Fusion linked an Okta impossible-travel signal …",
   "related_entities": [
-    { "kind": "principal", "value": "analyst@aisoc.dev",
-      "display_label": "analyst@aisoc.dev (Okta)",
+    { "kind": "principal", "value": "analyst@quarry.dev",
+      "display_label": "analyst@quarry.dev (Okta)",
       "pivot_path": "/graph?focus=user:analyst%40aisoc.dev" },
     { "kind": "network",   "value": "203.0.113.42",
       "pivot_path": "/graph?focus=ip:203.0.113.42" }
   ],
   "mini_timeline": [
     { "id": "evt-1", "kind": "comment", "title": "Initial triage",
-      "actor": "tier1@aisoc.dev", "occurred_at": "2026-05-13T08:31:00Z" }
+      "actor": "tier1@quarry.dev", "occurred_at": "2026-05-13T08:31:00Z" }
   ],
   "recommended_actions": [
     { "priority": "critical",

@@ -1,7 +1,7 @@
 -- 044_alerts_idempotency_key.sql
 --
 -- Add an idempotency key to the ``alerts`` table so the ``POST /alerts/submit``
--- direct-write path (the founder-flow ``aisoc submit`` CLI, and any connector
+-- direct-write path (the founder-flow ``quarry submit`` CLI, and any connector
 -- that retries on transient errors) can safely retry without creating
 -- duplicate alert rows.
 --

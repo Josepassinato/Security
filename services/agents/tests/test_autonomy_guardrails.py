@@ -1,7 +1,7 @@
 """
 Autonomy Guardrails — Unit Tests
 =================================
-Tier-1 capability 1.3 from the AiSOC capability roadmap (2026 H2): every action
+Tier-1 capability 1.3 from the Quarry capability roadmap (2026 H2): every action
 the agent can take carries three confidence cutoffs (``auto``, ``review``,
 ``escalation``). This suite exercises the decision logic and the
 defaults → YAML → DB override precedence model in
@@ -42,9 +42,9 @@ from app.policy import guardrails as gmod  # noqa: E402
 def _set_yaml_path(path: Path | None) -> None:
     """Set or clear the YAML override path env var, then bust the cache."""
     if path is None:
-        os.environ.pop("AISOC_AUTONOMY_POLICY", None)
+        os.environ.pop("QUARRY_AUTONOMY_POLICY", None)
     else:
-        os.environ["AISOC_AUTONOMY_POLICY"] = str(path)
+        os.environ["QUARRY_AUTONOMY_POLICY"] = str(path)
     reset_yaml_cache()
 
 
@@ -315,7 +315,7 @@ class YamlOverrideTest(unittest.TestCase):
 
 class ShippedPolicyFileTest(unittest.TestCase):
     """The actual ``services/agents/config/autonomy_policy.yaml`` shipped with
-    AiSOC must parse cleanly and contain the documented action coverage."""
+    Quarry must parse cleanly and contain the documented action coverage."""
 
     def setUp(self) -> None:
         _set_yaml_path(None)

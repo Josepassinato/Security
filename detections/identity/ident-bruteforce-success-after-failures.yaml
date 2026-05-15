@@ -1,6 +1,6 @@
 id: det-identity-044
 name: Successful Login After 50+ Recent Failures
-description: AiSOC v1 curated detection. Triggers on the identity signal described by 'Successful Login
+description: Quarry v1 curated detection. Triggers on the identity signal described by 'Successful Login
   After 50+ Recent Failures'. Watch the 2 documented false-positive cases before tuning.
 version: 1.0.0
 severity: high
@@ -20,6 +20,6 @@ false_positives:
 - Helpdesk reset
 playbook: tpl-credential-access
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

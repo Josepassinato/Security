@@ -1,9 +1,9 @@
-# AiSOC on Render
+# Quarry on Render
 
-One-click deploy of the full AiSOC demo stack to [Render](https://render.com)
+One-click deploy of the full Quarry demo stack to [Render](https://render.com)
 via Render's [Blueprint](https://render.com/docs/blueprint-spec) feature.
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/beenuar/AiSOC)
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Josepassinato/quarry)
 
 ## What this deploys
 
@@ -12,12 +12,12 @@ the heavy storage tier:
 
 | Service | Plan | Role |
 |---|---|---|
-| `aisoc-api` | starter ($7/mo) | FastAPI core + investigation ledger |
-| `aisoc-agents` | standard ($25/mo) | LangGraph orchestrator (needs 2GB RAM) |
-| `aisoc-realtime` | starter ($7/mo) | WebSocket fanout |
-| `aisoc-web` | starter ($7/mo) | Next.js console + marketing |
-| `aisoc-postgres` | starter ($7/mo) | Managed Postgres (1GB) |
-| `aisoc-redis` | starter ($10/mo) | Managed Redis (25MB) |
+| `quarry-api` | starter ($7/mo) | FastAPI core + investigation ledger |
+| `quarry-agents` | standard ($25/mo) | LangGraph orchestrator (needs 2GB RAM) |
+| `quarry-realtime` | starter ($7/mo) | WebSocket fanout |
+| `quarry-web` | starter ($7/mo) | Next.js console + marketing |
+| `quarry-postgres` | starter ($7/mo) | Managed Postgres (1GB) |
+| `quarry-redis` | starter ($10/mo) | Managed Redis (25MB) |
 
 **Total: ~$63/mo** for an always-on, public-facing demo. Significantly
 cheaper than running the full storage tier (Kafka + ClickHouse + OpenSearch
@@ -28,11 +28,11 @@ cheaper than running the full storage tier (Kafka + ClickHouse + OpenSearch
 The Blueprint sets these flags on the api and agents services:
 
 ```yaml
-AISOC_DISABLE_KAFKA: "true"
-AISOC_DISABLE_CLICKHOUSE: "true"
-AISOC_DISABLE_OPENSEARCH: "true"
-AISOC_DISABLE_NEO4J: "true"
-AISOC_DISABLE_QDRANT: "true"
+QUARRY_DISABLE_KAFKA: "true"
+QUARRY_DISABLE_CLICKHOUSE: "true"
+QUARRY_DISABLE_OPENSEARCH: "true"
+QUARRY_DISABLE_NEO4J: "true"
+QUARRY_DISABLE_QDRANT: "true"
 ```
 
 The demo profile uses **Postgres + Redis** for everything — alerts, cases,
@@ -55,13 +55,13 @@ If you need the full storage tier in production, use:
 ### Option A: one-click (recommended)
 
 1. Click the **Deploy to Render** button above.
-2. Render asks for permission to read your fork of `beenuar/AiSOC`. Grant it.
+2. Render asks for permission to read your fork of `beenuar/Quarry`. Grant it.
 3. Render parses [`render.yaml`](../../render.yaml) at the repo root, shows
    the service plan, and asks you to confirm.
 4. Click **Apply**. Render provisions Postgres + Redis first (~2 min),
    then deploys the four web services in dependency order (~6-8 min for
    the first build because Docker layers aren't cached yet).
-5. Once `aisoc-web` is green, open `https://aisoc-web-<hash>.onrender.com`.
+5. Once `quarry-web` is green, open `https://quarry-web-<hash>.onrender.com`.
    The demo banner shows; the deeplink lands on a pre-seeded incident.
 
 ### Option B: manual
@@ -78,7 +78,7 @@ gh repo view --web
 ## Post-deploy: pre-warm the demo
 
 The blueprint wires `preDeployCommand: alembic upgrade head && python -m
-app.scripts.seed_demo` onto the `aisoc-api` service, so every Render deploy
+app.scripts.seed_demo` onto the `quarry-api` service, so every Render deploy
 runs migrations and seeds the demo tenant before the new instance accepts
 traffic. The seeder is idempotent — re-running against an already-seeded
 database is a cheap no-op that refreshes `INC-RT-001` (the in-flight
@@ -86,7 +86,7 @@ LockBit 3.0 ransomware investigation the demo deeplink targets) plus the
 14 other canonical incidents.
 
 If you ever need to re-seed manually (e.g. local recovery, or after a
-database reset), use Render's Shell tab on the `aisoc-api` service and run:
+database reset), use Render's Shell tab on the `quarry-api` service and run:
 
 ```bash
 python -m app.scripts.seed_demo
@@ -115,7 +115,7 @@ The web service's health check hits `/`, which requires the api to be up
 Render marks web as failed. Wait 60s and retry — Render auto-redeploys
 on failed health checks up to 3 times.
 
-### "Out of memory on aisoc-agents"
+### "Out of memory on quarry-agents"
 
 The starter plan (512MB) is not enough for LangGraph + the LLM client
 buffers. The Blueprint defaults agents to `standard` (2GB) for this
@@ -123,7 +123,7 @@ reason. If you downgraded it, bump back up.
 
 ### Demo banner not showing
 
-Check that `NEXT_PUBLIC_AISOC_DEMO_MODE=true` is set on the `aisoc-web`
+Check that `NEXT_PUBLIC_QUARRY_DEMO_MODE=true` is set on the `quarry-web`
 service. The variable is baked into the JS bundle at build time, so
 flipping it requires a redeploy (not just a restart).
 

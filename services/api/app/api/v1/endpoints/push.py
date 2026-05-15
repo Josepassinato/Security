@@ -13,8 +13,8 @@ to ``REALTIME_BASE_URL``. The gateway:
 
 * Authenticates the caller (JWT or API key) using the standard ``AuthUser``
   dependency, so unauthenticated PWAs cannot subscribe.
-* Stamps the realtime call with ``X-AiSOC-User-Id``, ``X-AiSOC-Tenant-Id``
-  and ``X-AiSOC-Internal-Token`` so the realtime side can attribute
+* Stamps the realtime call with ``X-Quarry-User-Id``, ``X-Quarry-Tenant-Id``
+  and ``X-Quarry-Internal-Token`` so the realtime side can attribute
   subscriptions to a real user without re-doing JWT verification.
 * Forwards the JSON body unchanged so we don't have to keep two schemas in
   sync.
@@ -53,15 +53,15 @@ async def _proxy(
     url = f"{settings.REALTIME_BASE_URL.rstrip('/')}{path}"
     headers: dict[str, str] = {"Accept": "application/json"}
     if settings.REALTIME_INTERNAL_TOKEN:
-        headers["X-AiSOC-Internal-Token"] = settings.REALTIME_INTERNAL_TOKEN
+        headers["X-Quarry-Internal-Token"] = settings.REALTIME_INTERNAL_TOKEN
     if user is not None:
         # Mirror what the realtime push module expects (x-tenant-id /
-        # x-user-id headers). We also send the AiSOC-prefixed variants so
+        # x-user-id headers). We also send the Quarry-prefixed variants so
         # any future audit logging in the realtime side can attribute
         # without parsing email separately.
         headers["X-Tenant-Id"] = str(user.tenant_id)
         headers["X-User-Id"] = str(user.user_id)
-        headers["X-AiSOC-User-Email"] = user.email
+        headers["X-Quarry-User-Email"] = user.email
 
     try:
         async with httpx.AsyncClient(timeout=_HTTP_TIMEOUT) as client:

@@ -53,4 +53,4 @@ provenance:
   upstream_path: rules/community/onelogin/onelogin_multiple_users_assumed.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

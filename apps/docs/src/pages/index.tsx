@@ -20,7 +20,7 @@ function HomepageHeader() {
           </Link>
           <Link
             className="button button--outline button--secondary button--lg"
-            href="https://github.com/beenuar/AiSOC">
+            href="https://github.com/beenuar/Quarry">
             GitHub
           </Link>
         </div>
@@ -41,7 +41,7 @@ const FEATURES = [
   {
     title: 'Public eval harness',
     description:
-      '200-incident, CI-gated regression harness over the AiSOC substrate (extractors, fusion, templates, judges). Reproducible on a laptop in seconds. The page describes what each metric measures and what it does not.',
+      '200-incident, CI-gated regression harness over the Quarry substrate (extractors, fusion, templates, judges). Reproducible on a laptop in seconds. The page describes what each metric measures and what it does not.',
   },
   {
     title: 'MIT-licensed, self-hostable',
@@ -116,7 +116,7 @@ type CompareCell = { kind: 'yes' | 'no' | 'caveat'; label: string };
 
 const COMPARE_HEADERS = [
   'Capability',
-  'AiSOC',
+  'Quarry',
   'Wazuh',
   'Splunk Enterprise Security',
   'Closed-source AI SOC',
@@ -202,9 +202,9 @@ function compareCellClass(cell: CompareCell): string {
 function ComparisonTable() {
   return (
     <div className="container margin-vert--xl">
-      <h2 className={styles.sectionTitle}>How AiSOC compares</h2>
+      <h2 className={styles.sectionTitle}>How Quarry compares</h2>
       <p className={styles.sectionLede}>
-        AiSOC is open-source and self-hostable, and every agent decision is
+        Quarry is open-source and self-hostable, and every agent decision is
         recorded in the investigation ledger. Closed-source AI SOCs run on
         vendor infrastructure and do not expose the agent loop, which makes
         them harder to review under SOC 2, ISO 27001, or DORA controls.
@@ -243,7 +243,7 @@ function ComparisonTable() {
       </div>
       <p className={styles.compareNote}>
         Capability claims for other vendors are sourced from their public
-        documentation as of 2026. AiSOC&apos;s claims map directly to code in
+        documentation as of 2026. Quarry&apos;s claims map directly to code in
         this repository — see <Link to="/docs/intro">the docs</Link>.
       </p>
     </div>

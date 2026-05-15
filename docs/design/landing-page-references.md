@@ -1,7 +1,7 @@
 # Landing-page design references
 
 > Companion to `landing-page-brief.md` §16. These are condensed teardown
-> notes for the UX designer kicking off the AiSOC landing page. Every
+> notes for the UX designer kicking off the Quarry landing page. Every
 > reference below sits in an adjacent category — developer tools,
 > open-source infrastructure, observability, DevSecOps — never in
 > direct SOC competition. Per `AGENTS.md`, no Security-Operations
@@ -22,7 +22,7 @@ to avoid**.
   product-narrative section (one feature, one big picture, one
   paragraph, repeat) is the cleanest pattern in SaaS marketing today.
 - **Avoid.** Their gradient-heavy "hero glow" backdrop reads as fashion
-  more than substance and would clash with AiSOC's "calm, technical,
+  more than substance and would clash with Quarry's "calm, technical,
   graph-native" tone. Resist the urge to copy their large all-caps
   category labels in body copy — they hurt readability at small
   sizes.
@@ -35,7 +35,7 @@ to avoid**.
   on the landing page itself instead of being hidden behind a separate
   marketing funnel. The light/dark theme parity (matters for us
   because of our existing CSS-variable theming).
-- **Avoid.** The relentless "we are platform-of-record" framing. AiSOC
+- **Avoid.** The relentless "we are platform-of-record" framing. Quarry
   is one tool that does one thing very well — don't position it as a
   platform that eats your entire stack.
 
@@ -45,8 +45,8 @@ to avoid**.
   with a one-line caption, then a "read the methodology" link
   directly underneath. This is the gold standard for being honest
   about performance claims without burying them in fine print, and it
-  maps directly onto AiSOC's substrate-vs-wet-eval disclosure.
-- **Avoid.** Heavy product-isometric illustrations. AiSOC's domain is
+  maps directly onto Quarry's substrate-vs-wet-eval disclosure.
+- **Avoid.** Heavy product-isometric illustrations. Quarry's domain is
   better served by clean line-art schematics of the four-agent
   topology and the entity graph, not stylised isometric servers.
 
@@ -69,7 +69,7 @@ to avoid**.
   landing page — what an operator sees, in what order, with which
   signals — rather than a wall of features. The persona-anchored sub-
   navigation ("for developers", "for SREs", "for security") is a
-  pattern AiSOC can mirror for L1 analysts vs. SOC managers vs.
+  pattern Quarry can mirror for L1 analysts vs. SOC managers vs.
   CISOs once we ship the dedicated solution pages.
 - **Avoid.** The over-rotated product-mark sprawl across their
   marketing footer. Footer hygiene matters — keep ours to five
@@ -79,11 +79,11 @@ to avoid**.
 
 - **Steal.** Their commitment to making the live product visible above
   the fold (their hero literally shows the issue list and stack trace
-  view). For AiSOC, the equivalent is making the Investigation Ledger
+  view). For Quarry, the equivalent is making the Investigation Ledger
   visible — not a hero animation, but an actual screenshot of a live
   case. Treat the demo embed as the product, not as decoration.
 - **Avoid.** Their colour palette skews loud (orange, magenta).
-  AiSOC's existing tokens — graphite, near-black, indigo, ember — are
+  Quarry's existing tokens — graphite, near-black, indigo, ember — are
   more disciplined and should not be muddied by louder accents.
 
 ## 7. Tailscale — `https://tailscale.com`
@@ -103,7 +103,7 @@ to avoid**.
 
 - **Steal.** The "deploy options" card grid: each card shows the
   deploy path, the time-to-live, the operational model. This is the
-  pattern AiSOC's `deploy` section in §6.k already mirrors, but
+  pattern Quarry's `deploy` section in §6.k already mirrors, but
   Render's execution is the cleanest example to study. Their
   one-click deploy button design (the badge, the gradient, the
   shadow) is also a near-perfect reference for our existing Render
@@ -116,14 +116,14 @@ to avoid**.
 ## 9. Cloudflare Workers — `https://workers.cloudflare.com`
 
 - **Steal.** Their FAQ pattern (clean accordions, two-sentence answers,
-  technical specificity without jargon). For AiSOC, the eight FAQ
+  technical specificity without jargon). For Quarry, the eight FAQ
   questions in `landing-page-content.md` should follow exactly this
   shape: a tight question, a concrete answer, one repo path link.
   Their navbar treatment of GitHub stars (a small chip with a star
   glyph, count refreshed via a public API) is also a useful pattern
   for our `nav` section.
 - **Avoid.** Their tendency to list every adjacent product in the
-  hero. AiSOC is one product. The landing page is allowed to focus.
+  hero. Quarry is one product. The landing page is allowed to focus.
 
 ## 10. Hashicorp — `https://www.hashicorp.com`
 
@@ -132,9 +132,9 @@ to avoid**.
   landing. The corporate-tone-without-corporate-blandness is hard to
   pull off and they consistently do. The way they treat
   open-source-and-enterprise as a single story (rather than two
-  separate marketing tracks) is exactly the bridge AiSOC needs to
+  separate marketing tracks) is exactly the bridge Quarry needs to
   build between the GitHub community and the managed waitlist.
-- **Avoid.** Their dense navigation mega-menus. AiSOC's nav stays
+- **Avoid.** Their dense navigation mega-menus. Quarry's nav stays
   to six items, full stop.
 
 ---

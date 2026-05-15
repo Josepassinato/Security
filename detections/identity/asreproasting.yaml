@@ -1,6 +1,6 @@
 id: det-identity-033
 name: AS-REP Roasting (Account with Pre-Auth Disabled)
-description: AiSOC v1 curated detection. Triggers on the identity signal described by 'AS-REP Roasting
+description: Quarry v1 curated detection. Triggers on the identity signal described by 'AS-REP Roasting
   (Account with Pre-Auth Disabled)'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: high
@@ -19,6 +19,6 @@ false_positives:
 - Legacy unix/krb5-style accounts with explicit allowlist
 playbook: tpl-credential-theft
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

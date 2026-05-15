@@ -1,7 +1,7 @@
 """
 MISP push service.
 
-Stage 3 #20 (AiSOC v1.0 buyer-value plan).
+Stage 3 #20 (Quarry v1.0 buyer-value plan).
 
 This module mirrors STIX 2.1 indicators and bundles created via
 ``/threatintel/stix/...`` into a downstream MISP instance. It is split
@@ -34,7 +34,7 @@ import httpx
 from app.core.airgap import enforce_airgap_for_url
 from app.core.config import settings
 
-logger = logging.getLogger("aisoc.misp_push")
+logger = logging.getLogger("quarry.misp_push")
 
 # ── STIX → MISP type mapping ────────────────────────────────────────────────
 
@@ -165,10 +165,10 @@ def stix_indicator_to_misp_attribute(
         "comment": indicator.get("description") or indicator.get("name") or "",
     }
     # MISP supports tagging on attributes — surface STIX labels so an
-    # operator filtering MISP for ``aisoc:apt-42`` finds it.
+    # operator filtering MISP for ``quarry:apt-42`` finds it.
     labels = indicator.get("labels") or []
     if labels:
-        attribute["Tag"] = [{"name": f"aisoc:{label}"} for label in labels]
+        attribute["Tag"] = [{"name": f"quarry:{label}"} for label in labels]
     return attribute
 
 
@@ -206,7 +206,7 @@ def stix_bundle_to_misp_event(
             indicator_names.append(str(obj["name"]))
 
     event_info = (
-        info or ("AiSOC bundle " + bundle.get("id", "") + (" — " + "; ".join(indicator_names[:3]) if indicator_names else "")).strip()
+        info or ("Quarry bundle " + bundle.get("id", "") + (" — " + "; ".join(indicator_names[:3]) if indicator_names else "")).strip()
     )
 
     return {
@@ -216,7 +216,7 @@ def stix_bundle_to_misp_event(
             "threat_level_id": threat_level_id,
             "analysis": analysis_id,
             "Attribute": attributes,
-            "Tag": [{"name": "aisoc:source=stix"}, {"name": f"aisoc:bundle={bundle.get('id', '')}"}],
+            "Tag": [{"name": "quarry:source=stix"}, {"name": f"quarry:bundle={bundle.get('id', '')}"}],
         },
         # Non-MISP bookkeeping fields, stripped before POST. Used by the
         # dry-run endpoint to surface visibility.
@@ -242,14 +242,14 @@ def stix_indicator_to_misp_event(
         return None
     return {
         "Event": {
-            "info": indicator.get("name") or f"AiSOC indicator {indicator.get('id', '')}",
+            "info": indicator.get("name") or f"Quarry indicator {indicator.get('id', '')}",
             "distribution": distribution_level,
             "threat_level_id": threat_level_id,
             "analysis": analysis_id,
             "Attribute": [attr],
             "Tag": [
-                {"name": "aisoc:source=stix"},
-                {"name": f"aisoc:indicator={indicator.get('id', '')}"},
+                {"name": "quarry:source=stix"},
+                {"name": f"quarry:indicator={indicator.get('id', '')}"},
             ],
         }
     }

@@ -1,6 +1,6 @@
 id: det-cloud-128
 name: Azure Key Vault Access Policy Adds Permission '*'
-description: AiSOC v1 curated detection. Triggers on the cloud signal described by 'Azure Key Vault Access
+description: Quarry v1 curated detection. Triggers on the cloud signal described by 'Azure Key Vault Access
   Policy Adds Permission '*''.
 version: 1.0.0
 severity: critical
@@ -18,6 +18,6 @@ detection:
 false_positives: []
 playbook: tpl-privilege-escalation
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

@@ -35,4 +35,4 @@ provenance:
   upstream_path: rules/_deprecated/soc_prime_rules/threat_hunting/windows/nanocore_rat_loaded_by_covid_19_update_xlsm_file.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

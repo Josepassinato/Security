@@ -35,10 +35,10 @@ Caller contract:
 Both knobs are env-driven so an operator running a historical backfill
 can widen ``MIN_AGE`` without redeploying:
 
-* ``AISOC_SUBMIT_MAX_TIMESTAMP_AGE_DAYS``  — default 90
-* ``AISOC_SUBMIT_MAX_FUTURE_SECONDS``      — default 300
+* ``QUARRY_SUBMIT_MAX_TIMESTAMP_AGE_DAYS``  — default 90
+* ``QUARRY_SUBMIT_MAX_FUTURE_SECONDS``      — default 300
 
-AiSOC — open-source AI Security Operations Center (MIT License)
+Quarry — open-source AI Security Operations Center (MIT License)
 Author: Beenu Arora <beenu@cyble.com>
 """
 
@@ -54,8 +54,8 @@ logger = logging.getLogger(__name__)
 
 # ─── env-driven knobs ───────────────────────────────────────────────────────
 
-_MAX_AGE_DAYS_ENV = "AISOC_SUBMIT_MAX_TIMESTAMP_AGE_DAYS"
-_MAX_FUTURE_SECONDS_ENV = "AISOC_SUBMIT_MAX_FUTURE_SECONDS"
+_MAX_AGE_DAYS_ENV = "QUARRY_SUBMIT_MAX_TIMESTAMP_AGE_DAYS"
+_MAX_FUTURE_SECONDS_ENV = "QUARRY_SUBMIT_MAX_FUTURE_SECONDS"
 
 # Default 90 days back is wide enough to ingest a quarter of historical
 # events on initial connector setup, but narrow enough to prevent the

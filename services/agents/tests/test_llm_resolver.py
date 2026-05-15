@@ -9,7 +9,7 @@ docstring:
 * tenant override fully replacing env (``source="tenant"``)
 * partial tenant override layered over env (``source="mixed"``)
 * corrupt / undecryptable tenant ciphertext degrading to env baseline
-* vault not configured (``AISOC_CREDENTIAL_KEY`` unset) degrading to env baseline
+* vault not configured (``QUARRY_CREDENTIAL_KEY`` unset) degrading to env baseline
 * air-gap policy blocking ``api.openai.com`` even with a valid key
 * air-gap policy *allowing* a private LiteLLM gateway
 * ledger import / pool failure degrading to env baseline
@@ -63,14 +63,14 @@ def _reset_vault() -> None:
 
 
 def _set_vault_key(monkeypatch: pytest.MonkeyPatch) -> bytes:
-    """Configure ``AISOC_CREDENTIAL_KEY`` with a fresh Fernet key.
+    """Configure ``QUARRY_CREDENTIAL_KEY`` with a fresh Fernet key.
 
     Returns the key bytes so a test can also instantiate a vault
     directly and produce a ciphertext to seed into a mocked DB row.
     """
     key = Fernet.generate_key()
-    monkeypatch.setenv("AISOC_CREDENTIAL_KEY", key.decode("ascii"))
-    monkeypatch.delenv("AISOC_CREDENTIAL_KEY_ROTATION_FROM", raising=False)
+    monkeypatch.setenv("QUARRY_CREDENTIAL_KEY", key.decode("ascii"))
+    monkeypatch.delenv("QUARRY_CREDENTIAL_KEY_ROTATION_FROM", raising=False)
     _reset_vault()
     return key
 
@@ -84,8 +84,8 @@ def _clear_llm_env(monkeypatch: pytest.MonkeyPatch) -> None:
         "LLM_API_KEY",
         "LLM_BASE_URL",
         "LLM_MODEL",
-        "AISOC_LLM_MODEL",
-        "AISOC_AIRGAPPED",
+        "QUARRY_LLM_MODEL",
+        "QUARRY_AIRGAPPED",
     ):
         monkeypatch.delenv(var, raising=False)
 
@@ -161,7 +161,7 @@ class TestEnvBaseline:
         assert key == "sk-from-openai"
 
     def test_aisoc_llm_model_legacy_env_supported(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.setenv("AISOC_LLM_MODEL", "claude-3.5-sonnet")
+        monkeypatch.setenv("QUARRY_LLM_MODEL", "claude-3.5-sonnet")
         resolver = _import_resolver()
         _, model, _ = resolver._env_baseline()
         assert model == "claude-3.5-sonnet"
@@ -176,7 +176,7 @@ class TestAirgapBlocks:
     """Air-gap policy must mirror the legacy ``_llm_allowed`` helper."""
 
     def test_airgap_off_never_blocks(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        # AISOC_AIRGAPPED unset → never block, regardless of host.
+        # QUARRY_AIRGAPPED unset → never block, regardless of host.
         resolver = _import_resolver()
         for url in ("", "https://api.openai.com", "http://litellm.internal"):
             blocked, _ = resolver._airgap_blocks(url)
@@ -184,14 +184,14 @@ class TestAirgapBlocks:
 
     @pytest.mark.parametrize("flag", ["1", "true", "yes"])
     def test_airgap_blocks_empty_base_url(self, flag: str, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.setenv("AISOC_AIRGAPPED", flag)
+        monkeypatch.setenv("QUARRY_AIRGAPPED", flag)
         resolver = _import_resolver()
         blocked, reason = resolver._airgap_blocks("")
         assert blocked is True
         assert "would default to api.openai.com" in reason
 
     def test_airgap_blocks_openai_host(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.setenv("AISOC_AIRGAPPED", "true")
+        monkeypatch.setenv("QUARRY_AIRGAPPED", "true")
         resolver = _import_resolver()
         blocked, reason = resolver._airgap_blocks("https://api.openai.com/v1")
         assert blocked is True
@@ -199,10 +199,10 @@ class TestAirgapBlocks:
         # bare hostname substring (avoids CodeQL's
         # ``py/incomplete-url-substring-sanitization`` heuristic, which fires on
         # any ``"api.openai.com" in <str>`` check even in test assertions).
-        assert reason == "AISOC_AIRGAPPED is on and base_url points at api.openai.com."
+        assert reason == "QUARRY_AIRGAPPED is on and base_url points at api.openai.com."
 
     def test_airgap_allows_private_litellm_host(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.setenv("AISOC_AIRGAPPED", "true")
+        monkeypatch.setenv("QUARRY_AIRGAPPED", "true")
         resolver = _import_resolver()
         blocked, _ = resolver._airgap_blocks("http://litellm.internal:4000/v1")
         assert blocked is False
@@ -276,8 +276,8 @@ class TestDecryptVaultToken:
     """Decryption is best-effort and must never raise."""
 
     def test_returns_none_when_vault_disabled(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        # No AISOC_CREDENTIAL_KEY set → vault.get_vault() returns None.
-        monkeypatch.delenv("AISOC_CREDENTIAL_KEY", raising=False)
+        # No QUARRY_CREDENTIAL_KEY set → vault.get_vault() returns None.
+        monkeypatch.delenv("QUARRY_CREDENTIAL_KEY", raising=False)
         _reset_vault()
 
         resolver = _import_resolver()
@@ -365,7 +365,7 @@ class TestResolveNoTenant:
     async def test_airgap_blocks_default_openai_endpoint(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setenv("OPENAI_API_KEY", "sk-env")
         monkeypatch.setenv("OPENAI_BASE_URL", "https://api.openai.com")
-        monkeypatch.setenv("AISOC_AIRGAPPED", "true")
+        monkeypatch.setenv("QUARRY_AIRGAPPED", "true")
 
         resolver = _import_resolver()
         cfg = await resolver.resolve_llm_config(None)
@@ -373,13 +373,13 @@ class TestResolveNoTenant:
         # See note in ``test_airgap_blocks_openai_host``: assert against the full
         # literal reason to avoid CodeQL's
         # ``py/incomplete-url-substring-sanitization`` false positive.
-        assert cfg.reason == "AISOC_AIRGAPPED is on and base_url points at api.openai.com."
+        assert cfg.reason == "QUARRY_AIRGAPPED is on and base_url points at api.openai.com."
 
     @pytest.mark.asyncio
     async def test_airgap_allows_private_endpoint(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setenv("OPENAI_API_KEY", "sk-env")
         monkeypatch.setenv("OPENAI_BASE_URL", "http://litellm.internal:4000/v1")
-        monkeypatch.setenv("AISOC_AIRGAPPED", "true")
+        monkeypatch.setenv("QUARRY_AIRGAPPED", "true")
 
         resolver = _import_resolver()
         cfg = await resolver.resolve_llm_config(None)
@@ -596,10 +596,10 @@ class TestResolveWithTenant:
 
     @pytest.mark.asyncio
     async def test_vault_disabled_falls_back_to_env_key(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        # AISOC_CREDENTIAL_KEY missing → vault.get_vault() returns None.
+        # QUARRY_CREDENTIAL_KEY missing → vault.get_vault() returns None.
         # Resolver must still surface tenant base_url/model and use env key.
         monkeypatch.setenv("OPENAI_API_KEY", "sk-env-fallback")
-        monkeypatch.delenv("AISOC_CREDENTIAL_KEY", raising=False)
+        monkeypatch.delenv("QUARRY_CREDENTIAL_KEY", raising=False)
         _reset_vault()
 
         row = {
@@ -683,9 +683,9 @@ class TestAirgapWithTenantOverride:
     @pytest.mark.asyncio
     async def test_airgap_allows_tenant_private_gateway(self, monkeypatch: pytest.MonkeyPatch) -> None:
         # The whole point of BYOK in air-gapped deployments: tenant
-        # points at their internal LLM, AISOC_AIRGAPPED=true does *not*
+        # points at their internal LLM, QUARRY_AIRGAPPED=true does *not*
         # block them.
-        monkeypatch.setenv("AISOC_AIRGAPPED", "true")
+        monkeypatch.setenv("QUARRY_AIRGAPPED", "true")
         _set_vault_key(monkeypatch)
         from app.security.credential_vault import get_vault  # noqa: PLC0415
 
@@ -713,8 +713,8 @@ class TestAirgapWithTenantOverride:
     @pytest.mark.asyncio
     async def test_airgap_blocks_tenant_byok_to_openai(self, monkeypatch: pytest.MonkeyPatch) -> None:
         # Even with a valid tenant BYOK row, if it points at OpenAI and
-        # AISOC_AIRGAPPED=true, we must refuse the live call.
-        monkeypatch.setenv("AISOC_AIRGAPPED", "true")
+        # QUARRY_AIRGAPPED=true, we must refuse the live call.
+        monkeypatch.setenv("QUARRY_AIRGAPPED", "true")
         _set_vault_key(monkeypatch)
         from app.security.credential_vault import get_vault  # noqa: PLC0415
 
@@ -739,4 +739,4 @@ class TestAirgapWithTenantOverride:
         # See note in ``test_airgap_blocks_openai_host``: assert against the full
         # literal reason to avoid CodeQL's
         # ``py/incomplete-url-substring-sanitization`` false positive.
-        assert cfg.reason == "AISOC_AIRGAPPED is on and base_url points at api.openai.com."
+        assert cfg.reason == "QUARRY_AIRGAPPED is on and base_url points at api.openai.com."

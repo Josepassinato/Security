@@ -3,16 +3,16 @@ import type { Config } from "@docusaurus/types";
 import type * as Preset from "@docusaurus/preset-classic";
 
 // Two deploy targets share this build:
-//   1. GitHub Pages (default): https://beenuar.github.io/AiSOC/
+//   1. GitHub Pages (default): https://beenuar.github.io/Quarry/
 //   2. Custom domain          : https://docs.tryaisoc.com/  (served behind cloudflared tunnel)
 //
 // Override at build time with:
 //   DOCS_URL=https://docs.tryaisoc.com DOCS_BASE_URL=/ pnpm --filter @quarry/docs build
 const DOCS_URL = process.env.DOCS_URL || "https://beenuar.github.io";
-const DOCS_BASE_URL = process.env.DOCS_BASE_URL || "/AiSOC/";
+const DOCS_BASE_URL = process.env.DOCS_BASE_URL || "/Quarry/";
 
 const config: Config = {
-  title: "AiSOC",
+  title: "Quarry",
   tagline:
     "Open-source AI SOC platform. Agent decisions are recorded in an investigation ledger and a public eval harness runs in CI. MIT-licensed and self-hostable.",
   favicon: "img/favicon.ico",
@@ -21,7 +21,7 @@ const config: Config = {
   baseUrl: DOCS_BASE_URL,
 
   organizationName: "beenuar",
-  projectName: "AiSOC",
+  projectName: "Quarry",
 
   headTags: [
     {
@@ -29,14 +29,14 @@ const config: Config = {
       attributes: {
         name: "keywords",
         content:
-          "AiSOC, AI SOC, open source SOC, SIEM alternative, MITRE ATT&CK, Sigma, purple team, alert fusion, detection engineering, SOAR, security automation, tryaisoc, self-hosted SOC, threat hunting, incident response, cybersecurity, infosec, LangGraph, MCP server",
+          "Quarry, AI SOC, open source SOC, SIEM alternative, MITRE ATT&CK, Sigma, purple team, alert fusion, detection engineering, SOAR, security automation, tryaisoc, self-hosted SOC, threat hunting, incident response, cybersecurity, infosec, LangGraph, MCP server",
       },
     },
     {
       tagName: "meta",
       attributes: {
         property: "og:site_name",
-        content: "AiSOC Docs",
+        content: "Quarry Docs",
       },
     },
   ],
@@ -60,11 +60,11 @@ const config: Config = {
       {
         docs: {
           sidebarPath: "./sidebars.ts",
-          editUrl: "https://github.com/beenuar/AiSOC/tree/main/apps/docs/",
+          editUrl: "https://github.com/beenuar/Quarry/tree/main/apps/docs/",
         },
         blog: {
           showReadingTime: true,
-          editUrl: "https://github.com/beenuar/AiSOC/tree/main/apps/docs/",
+          editUrl: "https://github.com/beenuar/Quarry/tree/main/apps/docs/",
         },
         theme: {
           customCss: "./src/css/custom.css",
@@ -74,11 +74,11 @@ const config: Config = {
   ],
 
   themeConfig: {
-    image: "img/aisoc-social-card.png",
+    image: "img/quarry-social-card.png",
     navbar: {
-      title: "AiSOC",
+      title: "Quarry",
       logo: {
-        alt: "AiSOC Logo",
+        alt: "Quarry Logo",
         src: "img/logo.svg",
       },
       items: [
@@ -90,7 +90,7 @@ const config: Config = {
         },
         { to: "/blog", label: "Blog", position: "left" },
         {
-          href: "https://github.com/beenuar/AiSOC",
+          href: "https://github.com/beenuar/Quarry",
           label: "GitHub",
           position: "right",
         },
@@ -112,11 +112,11 @@ const config: Config = {
           items: [
             {
               label: "GitHub Discussions",
-              href: "https://github.com/beenuar/AiSOC/discussions",
+              href: "https://github.com/beenuar/Quarry/discussions",
             },
             {
               label: "Issues",
-              href: "https://github.com/beenuar/AiSOC/issues",
+              href: "https://github.com/beenuar/Quarry/issues",
             },
           ],
         },
@@ -126,12 +126,12 @@ const config: Config = {
             { label: "Blog", to: "/blog" },
             {
               label: "GitHub",
-              href: "https://github.com/beenuar/AiSOC",
+              href: "https://github.com/beenuar/Quarry",
             },
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} AiSOC Contributors. MIT License.`,
+      copyright: `Copyright © ${new Date().getFullYear()} Quarry Contributors. MIT License.`,
     },
     prism: {
       theme: prismThemes.github,

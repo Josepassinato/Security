@@ -4,11 +4,11 @@ sidebar_position: 1
 
 # Docker Deployment
 
-AiSOC ships three Compose flavors. Pick the one that matches what you are doing.
+Quarry ships three Compose flavors. Pick the one that matches what you are doing.
 
 | File | Purpose | When to use |
 |------|---------|-------------|
-| `docker-compose.demo.yml` | Streamlined demo with seeded data | Trying AiSOC for the first time |
+| `docker-compose.demo.yml` | Streamlined demo with seeded data | Trying Quarry for the first time |
 | `docker-compose.yml` | Full developer stack | Active development against real source |
 | `docker-compose.prod.yml` | Production-leaning stack | Self-hosting on a single VM |
 
@@ -24,15 +24,15 @@ runs the slim stack, seeds an alert, kicks off an investigation, and prints the
 URL of the resulting case in roughly 3-4 minutes on a warm Docker daemon.
 
 ```bash
-pnpm aisoc:demo
+pnpm quarry:demo
 ```
 
 Behind the scenes this runs `docker compose -f docker-compose.demo.yml up -d`
-against `ghcr.io/beenuar/aisoc-*` images (with `pull_policy: missing`, so
+against `ghcr.io/beenuar/quarry-*` images (with `pull_policy: missing`, so
 re-runs don't re-pull). Stop it with:
 
 ```bash
-pnpm aisoc:demo:down
+pnpm quarry:demo:down
 ```
 
 If GHCR is unreachable on your network the orchestrator transparently falls
@@ -109,7 +109,7 @@ docker compose -f docker-compose.prod.yml up -d
 ```
 
 Before going live, walk through the
-[Hardening Runbook](https://github.com/beenuar/AiSOC/blob/main/docs/runbooks/HARDENING.md)
+[Hardening Runbook](https://github.com/Josepassinato/quarry/blob/main/docs/runbooks/HARDENING.md)
 — TLS termination, secret rotation, network policies, audit log forwarding,
 and tenant-scoped backups all need to be in place.
 
@@ -131,22 +131,22 @@ docker compose build agents
 For releases, prebuilt and signed images are published to GHCR:
 
 ```
-ghcr.io/beenuar/aisoc-api:<version>
-ghcr.io/beenuar/aisoc-agents:<version>
-ghcr.io/beenuar/aisoc-actions:<version>
-ghcr.io/beenuar/aisoc-fusion:<version>
-ghcr.io/beenuar/aisoc-threatintel:<version>
-ghcr.io/beenuar/aisoc-ueba:<version>
-ghcr.io/beenuar/aisoc-honeytokens:<version>
-ghcr.io/beenuar/aisoc-purple-team:<version>
-ghcr.io/beenuar/aisoc-connectors:<version>
-ghcr.io/beenuar/aisoc-osquery-tls:<version>
-ghcr.io/beenuar/aisoc-slack-bot:<version>
-ghcr.io/beenuar/aisoc-realtime:<version>
-ghcr.io/beenuar/aisoc-mcp:<version>
-ghcr.io/beenuar/aisoc-ingest:<version>
-ghcr.io/beenuar/aisoc-enrichment:<version>
-ghcr.io/beenuar/aisoc-web:<version>
+ghcr.io/beenuar/quarry-api:<version>
+ghcr.io/beenuar/quarry-agents:<version>
+ghcr.io/beenuar/quarry-actions:<version>
+ghcr.io/beenuar/quarry-fusion:<version>
+ghcr.io/beenuar/quarry-threatintel:<version>
+ghcr.io/beenuar/quarry-ueba:<version>
+ghcr.io/beenuar/quarry-honeytokens:<version>
+ghcr.io/beenuar/quarry-purple-team:<version>
+ghcr.io/beenuar/quarry-connectors:<version>
+ghcr.io/beenuar/quarry-osquery-tls:<version>
+ghcr.io/beenuar/quarry-slack-bot:<version>
+ghcr.io/beenuar/quarry-realtime:<version>
+ghcr.io/beenuar/quarry-mcp:<version>
+ghcr.io/beenuar/quarry-ingest:<version>
+ghcr.io/beenuar/quarry-enrichment:<version>
+ghcr.io/beenuar/quarry-web:<version>
 ```
 
 ### Image provenance
@@ -157,9 +157,9 @@ release artifact before deploying it into a sensitive environment:
 
 ```bash
 cosign verify \
-  --certificate-identity-regexp '^https://github.com/beenuar/AiSOC' \
+  --certificate-identity-regexp '^https://github.com/Josepassinato/quarry' \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com \
-  ghcr.io/beenuar/aisoc-api:<version>
+  ghcr.io/beenuar/quarry-api:<version>
 ```
 
 The certificate identity is bound to this repository's workflow, so a
@@ -196,8 +196,8 @@ docker compose logs -f ingest-worker
 ## Reference
 
 The canonical service inventory is in
-[`docker-compose.yml`](https://github.com/beenuar/AiSOC/blob/main/docker-compose.yml).
+[`docker-compose.yml`](https://github.com/Josepassinato/quarry/blob/main/docker-compose.yml).
 The deeper architectural picture — what each service owns, how the data plane
 fits together, and where ITSM / Slack / osquery bolt in — lives in
 [Architecture](../architecture) and the
-[System Design doc](https://github.com/beenuar/AiSOC/blob/main/docs/architecture/SYSTEM_DESIGN.md).
+[System Design doc](https://github.com/Josepassinato/quarry/blob/main/docs/architecture/SYSTEM_DESIGN.md).

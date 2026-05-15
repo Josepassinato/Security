@@ -3,12 +3,12 @@ name: Notion Incidents Sync
 version: "1.0.0"
 plugin_type: action
 description: >
-  Syncs AiSOC incidents to a Notion database. Creates a new page per
+  Syncs Quarry incidents to a Notion database. Creates a new page per
   incident with severity, status, MITRE techniques, summary, and a link
-  back to the AiSOC case. Useful for runbook archives and post-mortems.
-author: AiSOC Core Team
+  back to the Quarry case. Useful for runbook archives and post-mortems.
+author: Quarry Core Team
 tags: [collaboration, notion, incidents, postmortem, action]
-homepage: https://github.com/beenuar/AiSOC/tree/main/plugins/notion-incidents
+homepage: https://github.com/beenuar/Quarry/tree/main/plugins/notion-incidents
 license: MIT
 min_aisoc_version: "4.0.0"
 config_schema:

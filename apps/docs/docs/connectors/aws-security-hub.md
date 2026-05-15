@@ -7,7 +7,7 @@ description: AWS Security Hub findings (GuardDuty, Inspector, Macie, third-party
 # AWS Security Hub
 
 The AWS Security Hub connector pulls **findings from AWS Security Hub**
-into AiSOC and unlocks **inline containment** by writing ingress / egress
+into Quarry and unlocks **inline containment** by writing ingress / egress
 rules onto an EC2 security group.
 
 Security Hub aggregates findings from native AWS services
@@ -47,7 +47,7 @@ time via the actions service.
 - One of:
   - **Static access key** (`AccessKeyId` + `SecretAccessKey`) for a dedicated
     IAM user, **or**
-  - **No credentials at all** — AiSOC falls back to the **runtime IAM role
+  - **No credentials at all** — Quarry falls back to the **runtime IAM role
     / instance profile** of the host running the `connectors` service.
 
 The runtime-IAM-role path is strongly preferred for production deployments.
@@ -70,13 +70,13 @@ If you cannot use an instance role, create a dedicated IAM user with
   "Version": "2012-10-17",
   "Statement": [
     {
-      "Sid": "AiSOCSecurityHubRead",
+      "Sid": "QuarrySecurityHubRead",
       "Effect": "Allow",
       "Action": ["securityhub:GetFindings"],
       "Resource": "*"
     },
     {
-      "Sid": "AiSOCInlineContainment",
+      "Sid": "QuarryInlineContainment",
       "Effect": "Allow",
       "Action": [
         "ec2:AuthorizeSecurityGroupIngress",
@@ -89,15 +89,15 @@ If you cannot use an instance role, create a dedicated IAM user with
 }
 ```
 
-Drop the `AiSOCInlineContainment` statement if you only want read.
+Drop the `QuarryInlineContainment` statement if you only want read.
 
-### 3. Add the connector in AiSOC
+### 3. Add the connector in Quarry
 
 1. **Connectors → Add connector → AWS Security Hub**.
 2. Set **AWS Region** (e.g. `us-east-1`).
 3. Leave **Access Key ID** and **Secret Access Key** **blank** to use the
    runtime IAM role. Otherwise paste the static credentials from step 2.
-4. **Test connection** — AiSOC runs `GetFindings(MaxResults=1)` and
+4. **Test connection** — Quarry runs `GetFindings(MaxResults=1)` and
    confirms the call returns 200.
 5. **Save**.
 
@@ -113,9 +113,9 @@ Drop the `AiSOCInlineContainment` statement if you only want read.
 ## Severity mapping
 
 Security Hub uses the ASFF 4-tier ladder (`CRITICAL`, `HIGH`, `MEDIUM`,
-`LOW`). AiSOC maps these directly:
+`LOW`). Quarry maps these directly:
 
-| ASFF label | AiSOC severity |
+| ASFF label | Quarry severity |
 |---|---|
 | `CRITICAL` | `high` |
 | `HIGH` | `high` |
@@ -127,7 +127,7 @@ The original ASFF severity is preserved on `raw_event.Severity.Label`.
 
 ## Containment via security groups
 
-When an AiSOC playbook calls `BLOCK_IP` against an alert that came from
+When an Quarry playbook calls `BLOCK_IP` against an alert that came from
 this connector, the actions service authorizes a **deny ingress rule** on
 the configured security group:
 
@@ -137,7 +137,7 @@ the configured security group:
   STS:AssumeRole into the target account before authorizing.
 - `ALLOW_IP` reverses the same rule via `RevokeSecurityGroupIngress`.
 
-See [`services/actions/app/clients/aws_security_groups.py`](https://github.com/beenuar/AiSOC/tree/main/services/actions/app/clients/aws_security_groups.py)
+See [`services/actions/app/clients/aws_security_groups.py`](https://github.com/Josepassinato/quarry/tree/main/services/actions/app/clients/aws_security_groups.py)
 for the full client.
 
 ## Troubleshooting

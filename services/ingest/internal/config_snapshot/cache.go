@@ -23,7 +23,7 @@
 // to the cache TTL so two events 30 seconds apart against the same resource
 // hit the same cache slot — that's the whole point of the cache.
 //
-// AiSOC — open-source AI Security Operations Center (MIT License)
+// Quarry — open-source AI Security Operations Center (MIT License)
 package config_snapshot
 
 import (
@@ -71,7 +71,7 @@ func CacheKey(connectorID, resourceID string, ts time.Time, ttl time.Duration) s
 	// Slack channel ids) that an operator might not want in plaintext on
 	// a multi-tenant Redis cluster.
 	h := sha256.Sum256([]byte(resourceID))
-	return fmt.Sprintf("aisoc:cfg:%s:%s:%d", connectorID, hex.EncodeToString(h[:8]), bucket)
+	return fmt.Sprintf("quarry:cfg:%s:%s:%d", connectorID, hex.EncodeToString(h[:8]), bucket)
 }
 
 // MemoryCache is a process-local TTL cache. Default backend in tests.

@@ -6,7 +6,7 @@ attach, REDIS_URL via Upstash attach, and access to the rest of the API
 package), and is invoked one of three ways:
 
 * **Post-deploy** — `infra/fly/fly-demo-deploy.sh` runs it via
-  `flyctl ssh console -a aisoc-demo-api -C "python -m app.scripts.demo_seed
+  `flyctl ssh console -a quarry-demo-api -C "python -m app.scripts.demo_seed
   --reset --kickoff-investigation"` once the deploy completes, so visitors
   hitting `tryaisoc.com` immediately see a hot investigation.
 * **Daily cron** — A Fly scheduled machine on the api app re-runs this
@@ -60,10 +60,10 @@ log = logging.getLogger("demo-seed")
 # localhost. The agents live in a sibling app reachable via Fly's internal
 # 6PN DNS. Env vars override these for local docker-compose use.
 CORE_API_URL = os.getenv("CORE_API_URL", "http://localhost:8000")
-AGENTS_API_URL = os.getenv("AGENTS_API_URL", "http://aisoc-demo-agents.internal:8084")
-DEMO_TENANT = os.getenv("AISOC_DEMO_TENANT", "demo")
-DEMO_CASE_ID = os.getenv("AISOC_DEMO_CASE_ID", "INC-RT-001")
-HTTP_TIMEOUT = float(os.getenv("AISOC_DEMO_HTTP_TIMEOUT", "30"))
+AGENTS_API_URL = os.getenv("AGENTS_API_URL", "http://quarry-demo-agents.internal:8084")
+DEMO_TENANT = os.getenv("QUARRY_DEMO_TENANT", "demo")
+DEMO_CASE_ID = os.getenv("QUARRY_DEMO_CASE_ID", "INC-RT-001")
+HTTP_TIMEOUT = float(os.getenv("QUARRY_DEMO_HTTP_TIMEOUT", "30"))
 
 
 async def _wait_for_api(client: httpx.AsyncClient, url: str, timeout: int = 60) -> None:
@@ -110,7 +110,7 @@ def _run_local_seeder() -> None:
         subprocess.run(
             [sys.executable, "-m", "app.scripts.seed_demo"],
             check=True,
-            env={**os.environ, "AISOC_DEMO_TENANT": DEMO_TENANT},
+            env={**os.environ, "QUARRY_DEMO_TENANT": DEMO_TENANT},
         )
         return
 
@@ -193,7 +193,7 @@ async def main_async(args: argparse.Namespace) -> int:
 
 
 def main() -> int:
-    p = argparse.ArgumentParser(description="Reset and warm up the hosted AiSOC demo.")
+    p = argparse.ArgumentParser(description="Reset and warm up the hosted Quarry demo.")
     p.add_argument(
         "--reset",
         action="store_true",
@@ -218,7 +218,7 @@ def main() -> int:
     p.add_argument(
         "--wait-timeout",
         type=int,
-        default=int(os.getenv("AISOC_DEMO_WAIT_TIMEOUT", "120")),
+        default=int(os.getenv("QUARRY_DEMO_WAIT_TIMEOUT", "120")),
         help="Seconds to wait for api+agents health before giving up.",
     )
     p.add_argument(

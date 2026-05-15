@@ -86,4 +86,4 @@ provenance:
   upstream_path: rules/community/okta/okta_mismatch_between_source_and_response_for_verify_push_request.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

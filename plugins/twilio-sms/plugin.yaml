@@ -6,9 +6,9 @@ description: >
   Sends SMS messages via Twilio's REST API. Useful for paging on-call
   responders, emergency notifications, and out-of-band alerts when email
   or chat are unavailable.
-author: AiSOC Core Team
+author: Quarry Core Team
 tags: [notification, sms, twilio, paging, action]
-homepage: https://github.com/beenuar/AiSOC/tree/main/plugins/twilio-sms
+homepage: https://github.com/beenuar/Quarry/tree/main/plugins/twilio-sms
 license: MIT
 min_aisoc_version: "4.0.0"
 config_schema:

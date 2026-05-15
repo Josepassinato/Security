@@ -75,4 +75,4 @@ provenance:
   upstream_path: rules/community/microsoft/windows/win_repeatedAuthFailure_thenSuccess_T1110_001_user_asset_entity.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

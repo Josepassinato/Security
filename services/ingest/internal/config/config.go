@@ -6,7 +6,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/beenuar/aisoc/services/ingest/internal/envmode"
+	"github.com/beenuar/quarry/services/ingest/internal/envmode"
 )
 
 // Config holds all ingest service configuration
@@ -48,7 +48,7 @@ type Config struct {
 	// Kubernetes audit webhook (Track D, v7.1.0).
 	//
 	// K8sAuditSharedSecret is the value the apiserver must present in the
-	// X-AiSOC-K8s-Token header on every POST /v1/ingest/k8s-audit/{tenant}
+	// X-Quarry-K8s-Token header on every POST /v1/ingest/k8s-audit/{tenant}
 	// request. The route returns 503 when this is empty and 401 when the
 	// header is missing or doesn't match. Empty by default so a fresh
 	// install doesn't accidentally accept anonymous K8s audit pushes.
@@ -137,7 +137,7 @@ func Load() (*Config, error) {
 		// ``.env.example`` and docker-compose). ``KAFKA_BROKERS`` is honored
 		// as a back-compat alias for older deployments.
 		KafkaBrokers: getEnvFallback("KAFKA_BOOTSTRAP_SERVERS", "KAFKA_BROKERS", "localhost:9092"),
-		KafkaTopic:   getEnv("KAFKA_TOPIC", "aisoc.raw_events"),
+		KafkaTopic:   getEnv("KAFKA_TOPIC", "quarry.raw_events"),
 		RedisAddr:       getEnv("REDIS_ADDR", "localhost:6379"),
 		DatabaseDSN:     getEnv("DATABASE_DSN", ""),
 		AttckDataPath:   getEnv("ATTCK_DATA_PATH", "/data/enterprise-attack.json"),
@@ -155,7 +155,7 @@ func Load() (*Config, error) {
 
 		// CVE correlation
 		VulnCorrelEnabled: getEnv("VULN_CORREL_ENABLED", "true") == "true",
-		VulnKafkaTopic:    getEnv("VULN_KAFKA_TOPIC", "aisoc.vulnerability_matches"),
+		VulnKafkaTopic:    getEnv("VULN_KAFKA_TOPIC", "quarry.vulnerability_matches"),
 		NvdAPIKey:         getEnv("NVD_API_KEY", ""),
 
 		// Universal capture (Workstream 6).
@@ -168,31 +168,31 @@ func Load() (*Config, error) {
 		K8sAuditMaxBodyBytes: int64(mustGetEnvInt("K8S_AUDIT_MAX_BODY_BYTES", 16*1024*1024)),
 
 		// Graph writer (T1.1, v8.0).
-		GraphEnabled:         getEnv("AISOC_GRAPH_ENABLED", "false") == "true",
-		Neo4jURI:             getEnv("AISOC_NEO4J_URI", "bolt://localhost:7687"),
-		Neo4jUser:            getEnv("AISOC_NEO4J_USER", "neo4j"),
-		Neo4jPassword:        getEnv("AISOC_NEO4J_PASSWORD", "neo4j"),
-		Neo4jDatabase:        getEnv("AISOC_NEO4J_DATABASE", "neo4j"),
-		GraphBatchSize:       mustGetEnvInt("AISOC_GRAPH_BATCH_SIZE", 100),
-		GraphFlushIntervalMs: mustGetEnvInt("AISOC_GRAPH_FLUSH_INTERVAL_MS", 100),
-		GraphQueueSize:       mustGetEnvInt("AISOC_GRAPH_QUEUE_SIZE", 2048),
-		GraphUpdatesTopic:    getEnv("AISOC_GRAPH_UPDATES_TOPIC", "security.graph_updates"),
+		GraphEnabled:         getEnv("QUARRY_GRAPH_ENABLED", "false") == "true",
+		Neo4jURI:             getEnv("QUARRY_NEO4J_URI", "bolt://localhost:7687"),
+		Neo4jUser:            getEnv("QUARRY_NEO4J_USER", "neo4j"),
+		Neo4jPassword:        getEnv("QUARRY_NEO4J_PASSWORD", "neo4j"),
+		Neo4jDatabase:        getEnv("QUARRY_NEO4J_DATABASE", "neo4j"),
+		GraphBatchSize:       mustGetEnvInt("QUARRY_GRAPH_BATCH_SIZE", 100),
+		GraphFlushIntervalMs: mustGetEnvInt("QUARRY_GRAPH_FLUSH_INTERVAL_MS", 100),
+		GraphQueueSize:       mustGetEnvInt("QUARRY_GRAPH_QUEUE_SIZE", 2048),
+		GraphUpdatesTopic:    getEnv("QUARRY_GRAPH_UPDATES_TOPIC", "security.graph_updates"),
 
 		// Graph-update WebSocket fan-out (T1.4, v8.0). Disabled by
-		// default — operators flip AISOC_GRAPH_WS_ENABLED=true once
+		// default — operators flip QUARRY_GRAPH_WS_ENABLED=true once
 		// the consumer side (Python API proxy + web hook) is
 		// rolled out.
-		GraphWSEnabled:          getEnv("AISOC_GRAPH_WS_ENABLED", "false") == "true",
-		GraphWSGroupID:          getEnv("AISOC_GRAPH_WS_GROUP_ID", ""),
-		GraphWSSubscriberBuffer: mustGetEnvInt("AISOC_GRAPH_WS_BUFFER", 256),
+		GraphWSEnabled:          getEnv("QUARRY_GRAPH_WS_ENABLED", "false") == "true",
+		GraphWSGroupID:          getEnv("QUARRY_GRAPH_WS_GROUP_ID", ""),
+		GraphWSSubscriberBuffer: mustGetEnvInt("QUARRY_GRAPH_WS_BUFFER", 256),
 
 		// Config snapshots (T1.2, v8.0). Disabled by default — operators
-		// flip AISOC_SNAPSHOT_ENABLED=true once the connectors service
+		// flip QUARRY_SNAPSHOT_ENABLED=true once the connectors service
 		// exposes the resource-config endpoint.
-		SnapshotEnabled:           getEnv("AISOC_SNAPSHOT_ENABLED", "false") == "true",
-		SnapshotCacheTTLSecs:      mustGetEnvInt("AISOC_SNAPSHOT_CACHE_TTL_SECS", 600),
-		SnapshotProviderURL:       getEnv("AISOC_SNAPSHOT_PROVIDER_URL", ""),
-		SnapshotProviderTimeoutMs: mustGetEnvInt("AISOC_SNAPSHOT_PROVIDER_TIMEOUT_MS", 1500),
+		SnapshotEnabled:           getEnv("QUARRY_SNAPSHOT_ENABLED", "false") == "true",
+		SnapshotCacheTTLSecs:      mustGetEnvInt("QUARRY_SNAPSHOT_CACHE_TTL_SECS", 600),
+		SnapshotProviderURL:       getEnv("QUARRY_SNAPSHOT_PROVIDER_URL", ""),
+		SnapshotProviderTimeoutMs: mustGetEnvInt("QUARRY_SNAPSHOT_PROVIDER_TIMEOUT_MS", 1500),
 	}
 
 	// JWT_SECRET is required outside development-class environments. The

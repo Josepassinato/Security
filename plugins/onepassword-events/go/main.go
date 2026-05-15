@@ -1,6 +1,6 @@
 // Package main is the 1Password Events connector reference implementation in Go.
 //
-// Demonstrates the AiSOC Go Plugin SDK for an identity event-source connector
+// Demonstrates the Quarry Go Plugin SDK for an identity event-source connector
 // against the 1Password Events API.
 package main
 
@@ -14,7 +14,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/beenuar/aisoc/plugin-sdk-go/aisoc"
+	"github.com/beenuar/quarry/plugin-sdk-go/quarry"
 )
 
 var regionHosts = map[string]string{
@@ -29,33 +29,33 @@ var feedPaths = map[string]string{
 	"auditevents":    "/api/v1/auditevents",
 }
 
-// OnePasswordConnector implements aisoc.Connector for the 1Password Events API.
+// OnePasswordConnector implements quarry.Connector for the 1Password Events API.
 type OnePasswordConnector struct {
-	aisoc.BasePlugin
+	quarry.BasePlugin
 
 	httpClient *http.Client
 }
 
-func (o *OnePasswordConnector) Manifest() aisoc.PluginManifest {
-	return aisoc.PluginManifest{
+func (o *OnePasswordConnector) Manifest() quarry.PluginManifest {
+	return quarry.PluginManifest{
 		ID:          "onepassword-events",
 		Name:        "1Password Events Connector",
 		Version:     "1.0.0",
-		PluginType:  aisoc.PluginTypeConnector,
+		PluginType:  quarry.PluginTypeConnector,
 		Description: "Pulls sign-in, item-usage, and audit events from the 1Password Events API.",
-		Author:      "AiSOC Core Team",
+		Author:      "Quarry Core Team",
 		Tags:        []string{"identity", "secrets", "1password", "events", "connector"},
 	}
 }
 
-func (o *OnePasswordConnector) OnLoad(ctx context.Context, pctx aisoc.PluginContext) error {
+func (o *OnePasswordConnector) OnLoad(ctx context.Context, pctx quarry.PluginContext) error {
 	o.httpClient = &http.Client{Timeout: 30 * time.Second}
 	return nil
 }
 
 func (o *OnePasswordConnector) TestConnection(
 	ctx context.Context,
-	pctx aisoc.PluginContext,
+	pctx quarry.PluginContext,
 ) (bool, error) {
 	body, err := json.Marshal(map[string]any{
 		"limit":      1,
@@ -72,7 +72,7 @@ func (o *OnePasswordConnector) TestConnection(
 
 func (o *OnePasswordConnector) FetchEvents(
 	ctx context.Context,
-	pctx aisoc.PluginContext,
+	pctx quarry.PluginContext,
 	since string,
 ) (<-chan map[string]any, error) {
 	out := make(chan map[string]any)
@@ -129,7 +129,7 @@ func (o *OnePasswordConnector) FetchEvents(
 
 func (o *OnePasswordConnector) do(
 	ctx context.Context,
-	pctx aisoc.PluginContext,
+	pctx quarry.PluginContext,
 	method, path string,
 	body []byte,
 ) ([]byte, error) {
@@ -163,7 +163,7 @@ func (o *OnePasswordConnector) do(
 }
 
 func main() {
-	registry := aisoc.NewRegistry()
+	registry := quarry.NewRegistry()
 	if err := registry.Register(&OnePasswordConnector{}); err != nil {
 		panic(err)
 	}

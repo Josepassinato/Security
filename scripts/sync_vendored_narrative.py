@@ -5,7 +5,7 @@ The correlation-narrative builder lives canonically under
 ``services/fusion/app/services/narrative.py`` and is consumed by both the
 fusion service (at fusion time, to populate ``FusedAlert.narrative``) and the
 API service (lazily, when a row's ``narrative`` column is ``NULL``). Because
-the ``aisoc-api`` Docker image is built with ``services/api`` as its build
+the ``quarry-api`` Docker image is built with ``services/api`` as its build
 context, anything under ``services/fusion`` is not available at runtime. To
 keep the API container self-contained we ship a vendored mirror of
 ``narrative.py`` inside the API package.
@@ -19,7 +19,7 @@ Run modes
 The script is intentionally tiny and dependency-free so it can run in any CI
 runner.
 
-AiSOC — open-source AI Security Operations Center (MIT License)
+Quarry — open-source AI Security Operations Center (MIT License)
 Author: Beenu Arora <beenu@cyble.com>
 """
 

@@ -1,4 +1,4 @@
--- AiSOC Immutable Audit Log migration
+-- Quarry Immutable Audit Log migration
 -- Creates an append-only audit_log table with Postgres-enforced immutability.
 
 -- ============================================================

@@ -1,6 +1,6 @@
 id: det-identity-062
 name: Privileged User Login From New Country
-description: AiSOC v1 curated detection. Triggers on the identity signal described by 'Privileged User
+description: Quarry v1 curated detection. Triggers on the identity signal described by 'Privileged User
   Login From New Country'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: medium
@@ -20,6 +20,6 @@ false_positives:
 - Authorised travel
 playbook: tpl-credential-access
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

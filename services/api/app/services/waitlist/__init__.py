@@ -1,4 +1,4 @@
-"""Waitlist service module — T6.1 (managed-instance `app.aisoc.dev`).
+"""Waitlist service module — T6.1 (managed-instance `app.quarry.dev`).
 
 Exposes the helpers the signup endpoint needs without dragging the
 endpoint into the implementation details of either the rate limiter or

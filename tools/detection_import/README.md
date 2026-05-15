@@ -1,6 +1,6 @@
 # Detection Importers
 
-Tools for pulling detection content from upstream open-source projects and converting it into AiSOC's native YAML schema. Every imported rule carries a populated `provenance` block so the source is always traceable.
+Tools for pulling detection content from upstream open-source projects and converting it into Quarry's native YAML schema. Every imported rule carries a populated `provenance` block so the source is always traceable.
 
 ## Layout
 

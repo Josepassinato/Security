@@ -1,6 +1,6 @@
 id: det-data-exfil-003
 name: rclone or megacmd Process Spawned on Host
-description: AiSOC v1 curated detection. Triggers on the data-exfil signal described by 'rclone or megacmd
+description: Quarry v1 curated detection. Triggers on the data-exfil signal described by 'rclone or megacmd
   Process Spawned on Host'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: high
@@ -18,6 +18,6 @@ false_positives:
 - Allowlisted backup tooling (must be in allowlist)
 playbook: tpl-data-exfil
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

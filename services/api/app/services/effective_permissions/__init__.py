@@ -1,7 +1,7 @@
 """Effective-permissions resolver package (T3.2).
 
 The resolver answers "what can principal X actually do, on which resources,
-right now?" across the providers AiSOC connects to. It is the read-side of the
+right now?" across the providers Quarry connects to. It is the read-side of the
 identity graph: ingest writes the structural ``:HAS_PERMISSION`` / ``:GRANTS``
 / ``:MEMBER_OF`` edges as policy snapshots arrive, and this package walks
 those edges + applies provider-specific resolution rules (deny-overrides, SCP

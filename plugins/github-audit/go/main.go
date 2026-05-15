@@ -1,7 +1,7 @@
 // Package main is the GitHub Audit Log connector reference implementation in Go.
 //
 // This file mirrors the Python plugin.py and demonstrates cross-language SDK
-// parity. The AiSOC runtime currently invokes plugin.py at execution time;
+// parity. The Quarry runtime currently invokes plugin.py at execution time;
 // this Go reference is intended for operators who prefer to ship native
 // binary plugins.
 package main
@@ -15,34 +15,34 @@ import (
 	"strings"
 	"time"
 
-	"github.com/beenuar/aisoc/plugin-sdk-go/aisoc"
+	"github.com/beenuar/quarry/plugin-sdk-go/quarry"
 )
 
-// GitHubAuditConnector implements aisoc.Connector against the GitHub Audit Log API.
+// GitHubAuditConnector implements quarry.Connector against the GitHub Audit Log API.
 type GitHubAuditConnector struct {
-	aisoc.BasePlugin
+	quarry.BasePlugin
 
 	httpClient *http.Client
 }
 
-func (g *GitHubAuditConnector) Manifest() aisoc.PluginManifest {
-	return aisoc.PluginManifest{
+func (g *GitHubAuditConnector) Manifest() quarry.PluginManifest {
+	return quarry.PluginManifest{
 		ID:          "github-audit",
 		Name:        "GitHub Audit Log Connector",
 		Version:     "1.0.0",
-		PluginType:  aisoc.PluginTypeConnector,
+		PluginType:  quarry.PluginTypeConnector,
 		Description: "Pulls GitHub org audit log events and secret-scanning alerts.",
-		Author:      "AiSOC Core Team",
+		Author:      "Quarry Core Team",
 		Tags:        []string{"vcs", "github", "audit", "supply-chain"},
 	}
 }
 
-func (g *GitHubAuditConnector) OnLoad(ctx context.Context, pctx aisoc.PluginContext) error {
+func (g *GitHubAuditConnector) OnLoad(ctx context.Context, pctx quarry.PluginContext) error {
 	g.httpClient = &http.Client{Timeout: 30 * time.Second}
 	return nil
 }
 
-func (g *GitHubAuditConnector) TestConnection(ctx context.Context, pctx aisoc.PluginContext) (bool, error) {
+func (g *GitHubAuditConnector) TestConnection(ctx context.Context, pctx quarry.PluginContext) (bool, error) {
 	if err := g.checkConfig(pctx); err != nil {
 		return false, err
 	}
@@ -63,7 +63,7 @@ func (g *GitHubAuditConnector) TestConnection(ctx context.Context, pctx aisoc.Pl
 
 func (g *GitHubAuditConnector) FetchEvents(
 	ctx context.Context,
-	pctx aisoc.PluginContext,
+	pctx quarry.PluginContext,
 	since string,
 ) (<-chan map[string]any, error) {
 	out := make(chan map[string]any)
@@ -97,7 +97,7 @@ func (g *GitHubAuditConnector) FetchEvents(
 	return out, nil
 }
 
-func (g *GitHubAuditConnector) checkConfig(pctx aisoc.PluginContext) error {
+func (g *GitHubAuditConnector) checkConfig(pctx quarry.PluginContext) error {
 	for _, k := range []string{"org", "token"} {
 		if pctx.Config[k] == nil {
 			return fmt.Errorf("missing config key: %s", k)
@@ -108,7 +108,7 @@ func (g *GitHubAuditConnector) checkConfig(pctx aisoc.PluginContext) error {
 
 func (g *GitHubAuditConnector) newRequest(
 	ctx context.Context,
-	pctx aisoc.PluginContext,
+	pctx quarry.PluginContext,
 	method, path string,
 ) (*http.Request, error) {
 	base := "https://api.github.com"
@@ -126,7 +126,7 @@ func (g *GitHubAuditConnector) newRequest(
 }
 
 func main() {
-	registry := aisoc.NewRegistry()
+	registry := quarry.NewRegistry()
 	if err := registry.Register(&GitHubAuditConnector{}); err != nil {
 		panic(err)
 	}

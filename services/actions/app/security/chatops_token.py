@@ -81,7 +81,7 @@ def mint_token(
     the right principal without trusting a query-string field.
     """
     if not secret:
-        raise ChatOpsTokenError("AISOC_CHATOPS_RESPONSE_SECRET is required to mint tokens")
+        raise ChatOpsTokenError("QUARRY_CHATOPS_RESPONSE_SECRET is required to mint tokens")
     if choice not in {"acknowledge", "deny", "escalate"}:
         raise ChatOpsTokenError(f"unsupported choice: {choice!r}")
 
@@ -109,7 +109,7 @@ def verify_token(token: str, secret: str, *, now: int | None = None) -> ChatOpsT
     rejected once a response has already been recorded against it.
     """
     if not secret:
-        raise ChatOpsTokenError("AISOC_CHATOPS_RESPONSE_SECRET is required to verify tokens")
+        raise ChatOpsTokenError("QUARRY_CHATOPS_RESPONSE_SECRET is required to verify tokens")
     if not isinstance(token, str) or token.count(".") != 1:
         raise ChatOpsTokenError("malformed")
 

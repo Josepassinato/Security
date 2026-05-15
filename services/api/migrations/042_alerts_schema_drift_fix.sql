@@ -7,7 +7,7 @@
 -- assignment, merge/parent-child relationships, enrichment, tags) that
 -- were declared in code but never added to the schema via a migration.
 -- That gap surfaced during the v7.3.0 founder-flow smoke test: a fresh
--- `aisoc serve` + `aisoc db upgrade` brings the stack up cleanly, but
+-- `quarry serve` + `quarry db upgrade` brings the stack up cleanly, but
 -- `GET /api/v1/alerts` returns 500 because asyncpg can't find
 -- `alerts.affected_ips`, `alerts.tags`, etc.
 --

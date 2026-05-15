@@ -1,4 +1,4 @@
-"""Pack loader: reads AiSOC osquery pack YAML files from disk.
+"""Pack loader: reads Quarry osquery pack YAML files from disk.
 
 Packs live under ``<repo_root>/packs/`` in YAML format documented at
 ``packs/README.md``.  This module handles discovery, parsing, validation,
@@ -30,7 +30,7 @@ import yaml
 
 def _find_packs_dir() -> Path:
     """Return the absolute path to the ``packs/`` directory."""
-    env_override = os.environ.get("AISOC_PACKS_DIR")
+    env_override = os.environ.get("QUARRY_PACKS_DIR")
     if env_override:
         p = Path(env_override)
         if p.is_dir():
@@ -193,7 +193,7 @@ def _parse_pack(path: Path) -> OsqueryPack:
 # Registry (in-memory cache with TTL)
 # ---------------------------------------------------------------------------
 
-_CACHE_TTL: int = int(os.environ.get("AISOC_PACKS_CACHE_TTL", "300"))  # seconds
+_CACHE_TTL: int = int(os.environ.get("QUARRY_PACKS_CACHE_TTL", "300"))  # seconds
 # Use a mutable container so all mutations are visible to CodeQL static analysis
 _cache_state: dict[str, object] = {"packs": {}, "ts": 0.0}
 

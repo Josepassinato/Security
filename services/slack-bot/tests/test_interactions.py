@@ -26,12 +26,12 @@ from app.interactions import (
     NEED_INFO_ACTION_ID,
     handle_action_decision,
 )
-from app.services.aisoc_clients import AisocClientError
+from app.services.aisoc_clients import QuarryClientError
 from app.services.approval_audit import InMemoryAuditSink
 
 
 class FakeActionsClient:
-    """Minimal stand-in for :class:`AisocActionsClient` for interaction tests."""
+    """Minimal stand-in for :class:`QuarryActionsClient` for interaction tests."""
 
     def __init__(
         self,
@@ -58,13 +58,13 @@ class FakeActionsClient:
 
     async def approve_action(self, action_id: str) -> dict[str, Any]:
         if self._raise_on == "approve":
-            raise AisocClientError("upstream approve boom", status_code=502)
+            raise QuarryClientError("upstream approve boom", status_code=502)
         self.approve_calls.append(action_id)
         return self._approve_response
 
     async def reject_action(self, action_id: str) -> dict[str, Any]:
         if self._raise_on == "reject":
-            raise AisocClientError("upstream reject boom", status_code=502)
+            raise QuarryClientError("upstream reject boom", status_code=502)
         self.reject_calls.append(action_id)
         return self._reject_response
 

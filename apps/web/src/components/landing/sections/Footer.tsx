@@ -64,7 +64,7 @@ const COLUMNS: ReadonlyArray<LinkColumn> = [
     links: [
       {
         label: 'License (MIT)',
-        href: 'https://github.com/beenuar/AiSOC/blob/main/LICENSE',
+        href: 'https://github.com/beenuar/Quarry/blob/main/LICENSE',
       },
       { label: 'Privacy', href: '/privacy' },
       { label: 'Terms', href: '/terms' },
@@ -75,8 +75,8 @@ const COLUMNS: ReadonlyArray<LinkColumn> = [
     heading: 'Status & GitHub',
     links: [
       { label: 'Status page', href: 'https://status.tryaisoc.com' },
-      { label: 'GitHub repo', href: 'https://github.com/beenuar/AiSOC' },
-      { label: 'Discord', href: 'https://discord.gg/aisoc' },
+      { label: 'GitHub repo', href: 'https://github.com/beenuar/Quarry' },
+      { label: 'Discord', href: 'https://discord.gg/quarry' },
       { label: 'RSS', href: '/rss.xml' },
     ],
   },
@@ -125,8 +125,8 @@ const SOCIAL_LINKS: ReadonlyArray<{
   href: string;
   Icon: (props: SVGProps<SVGSVGElement>) => ReactElement;
 }> = [
-  { label: 'GitHub', href: 'https://github.com/beenuar/AiSOC', Icon: GithubMark },
-  { label: 'Discord', href: 'https://discord.gg/aisoc', Icon: DiscordIcon },
+  { label: 'GitHub', href: 'https://github.com/beenuar/Quarry', Icon: GithubMark },
+  { label: 'Discord', href: 'https://discord.gg/quarry', Icon: DiscordIcon },
   { label: 'X (Twitter)', href: 'https://twitter.com/tryaisoc', Icon: XIcon },
 ];
 
@@ -151,7 +151,7 @@ export function Footer() {
 
         <div className="mt-12 flex flex-col items-start justify-between gap-4 border-t border-surface-border pt-8 sm:flex-row sm:items-center">
           <p className="text-xs text-fg-muted">
-            © 2024–present AiSOC contributors · MIT-licensed · v{VERSION}
+            © 2024–present Quarry contributors · MIT-licensed · v{VERSION}
           </p>
           <ul className="flex items-center gap-3">
             {SOCIAL_LINKS.map(({ label, href, Icon }) => (
@@ -160,7 +160,7 @@ export function Footer() {
                   href={href}
                   rel="noreferrer"
                   target="_blank"
-                  aria-label={`AiSOC on ${label}`}
+                  aria-label={`Quarry on ${label}`}
                   className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-surface-border text-fg-muted transition-colors duration-200 hover:border-brand-500/40 hover:text-fg-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-base"
                 >
                   <Icon className="h-4 w-4" />

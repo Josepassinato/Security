@@ -16,7 +16,7 @@ from typing import Any
 
 from .loader import HuntDefinition, HuntIndicator
 
-logger = logging.getLogger("aisoc.hunt.engine")
+logger = logging.getLogger("quarry.hunt.engine")
 
 
 # ---------------------------------------------------------------------------

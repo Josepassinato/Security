@@ -78,7 +78,7 @@ class SnowflakeConnector(BaseConnector):
                     "user",
                     "string",
                     "Service user",
-                    placeholder="AISOC_SVC",
+                    placeholder="QUARRY_SVC",
                     help_text="Snowflake user the JWT identifies.",
                 ),
                 Field(

@@ -1,6 +1,6 @@
-# AiSOC System Design
+# Quarry System Design
 
-This document describes the end-to-end architecture of the AiSOC platform after the v2 enterprise upgrade. It covers data flow, the new knowledge graph, the detection rule engine, the threat intelligence pipeline, and the ML-augmented alert fusion pipeline.
+This document describes the end-to-end architecture of the Quarry platform after the v2 enterprise upgrade. It covers data flow, the new knowledge graph, the detection rule engine, the threat intelligence pipeline, and the ML-augmented alert fusion pipeline.
 
 ---
 
@@ -100,7 +100,7 @@ This document describes the end-to-end architecture of the AiSOC platform after 
 | `services/purple-team` | Python 3.11 | Adversary emulation orchestrator (ATT&CK technique runner) | Detection-coverage scorer |
 | `services/osquery-tls` | Go 1.25 | TLS server for osquery enrol / config / distributed / log endpoints | Ships normalised host events into `services/ingest` |
 | `services/osquery-extensions` | Go 1.25 | Out-of-band osquery extensions (custom virtual tables + decorators) | Loaded by `osquery-tls`-managed agents |
-| `services/slack-bot` | Python 3.11 | ChatOps surface: posts approval prompts, `/aisoc` slash command | Verifies inbound interactions with HMAC-signed Slack request signatures |
+| `services/slack-bot` | Python 3.11 | ChatOps surface: posts approval prompts, `/quarry` slash command | Verifies inbound interactions with HMAC-signed Slack request signatures |
 | `services/realtime` | Node 20 | WebSocket fan-out + Web Push for the web console + Responder PWA | n/a |
 | `services/mcp` | Node 20 (TypeScript) | Model Context Protocol stdio server, 11 tools for IDE-side agents (Claude / Cursor / Continue / Cody) | n/a |
 | `apps/web` | Next.js 14 | Server components + SWR + Responder PWA route group + benchmark scoreboard | n/a |
@@ -294,7 +294,7 @@ Each agent emits chain-of-thought traces persisted in PostgreSQL for explainabil
 | Environment | Recommended |
 |-------------|-------------|
 | Dev / demo | `docker compose up` (this repo) |
-| Single-cluster prod | Helm chart at `infra/helm/aisoc` |
+| Single-cluster prod | Helm chart at `infra/helm/quarry` |
 | Multi-region | Terraform `infra/terraform` + EKS + cross-region MSK |
 | Air-gapped | Swap LLM to Ollama-compatible endpoint (`OPENAI_BASE_URL`) |
 
@@ -320,9 +320,9 @@ A first-class, in-process polling tier with **50 registered connector classes** 
 * `capabilities()` — tuple of `Capability` enum values (`PULL_ALERTS`, `PUSH_CASE`, `PUSH_STATUS`, `FEDERATED_SEARCH`, …) that the orchestrator inspects at runtime.
 * `normalize()` — collapses each vendor's severity ladder into the four-tier `info | low | medium | high` scheme.
 
-Sensitive `auth_config` fields (marked `secret=True` in the schema) are encrypted at the application layer by `CredentialVault` (Fernet AES-128-CBC + HMAC-SHA256, vault token format `vault:v1:<base64>`). Key rotation is supported via `MultiFernet` with `AISOC_CREDENTIAL_KEY_ROTATION_FROM`. The API service holds the encrypt/decrypt keypair authority; `services/connectors` ships a vendored read-path `decrypt_dict()` so the scheduler can decrypt at poll time without owning the write path.
+Sensitive `auth_config` fields (marked `secret=True` in the schema) are encrypted at the application layer by `CredentialVault` (Fernet AES-128-CBC + HMAC-SHA256, vault token format `vault:v1:<base64>`). Key rotation is supported via `MultiFernet` with `QUARRY_CREDENTIAL_KEY_ROTATION_FROM`. The API service holds the encrypt/decrypt keypair authority; `services/connectors` ships a vendored read-path `decrypt_dict()` so the scheduler can decrypt at poll time without owning the write path.
 
-Polling runs in-process via `ConnectorScheduler` (APScheduler): one job per enabled instance, 5-minute default cadence, overridable per-instance via `connector_config.poll_interval_seconds`. The scheduler reloads jobs every 30 seconds. Disable in tests with `AISOC_CONNECTORS_DISABLE_SCHEDULER=1`.
+Polling runs in-process via `ConnectorScheduler` (APScheduler): one job per enabled instance, 5-minute default cadence, overridable per-instance via `connector_config.poll_interval_seconds`. The scheduler reloads jobs every 30 seconds. Disable in tests with `QUARRY_CONNECTORS_DISABLE_SCHEDULER=1`.
 
 Normalized events flow through `IngestClient` to `services/ingest`'s `/v1/ingest/batch` endpoint with an `X-Tenant-ID` header — preserving the OCSF normalization, ATT&CK tagging, and KEV correlation already described in §1.
 
@@ -333,7 +333,7 @@ Normalized events flow through `IngestClient` to `services/ingest`'s `/v1/ingest
 
 For sources that don't fit a polled connector — internal SIEM forwarders, syslog/CEF gateways, vendor webhooks, email alerts — `services/api` exposes a per-tenant token-authenticated webhook inbox. Each token is bound to a `template_id` (`generic-json`, `cef`, `splunk-hec`, `dns-zonefile`, `itsm-inbound`, …) that controls how the body is parsed before it hits the same OCSF normalizer.
 
-Tokens are minted via `POST /v1/inbox/tokens`, stored hashed (never plaintext), and rate-limited per token. The HMAC verification path (`X-AiSOC-Signature: sha256=<hex>`) is shared between universal capture and the ITSM inbound webhook described in §12.4.
+Tokens are minted via `POST /v1/inbox/tokens`, stored hashed (never plaintext), and rate-limited per token. The HMAC verification path (`X-Quarry-Signature: sha256=<hex>`) is shared between universal capture and the ITSM inbound webhook described in §12.4.
 
 ### 12.3 Tenant Lake API
 
@@ -341,21 +341,21 @@ A scoped, tenant-isolated query surface over the OpenSearch `events-*` indices. 
 
 ### 12.4 Case Fan-out and Bidirectional ITSM (WS8)
 
-AiSOC is the **source of truth** for case state. ITSM systems (Jira, ServiceNow) are projections — analysts working in their familiar ticket UI still see correct context, but the canonical state lives in AiSOC.
+Quarry is the **source of truth** for case state. ITSM systems (Jira, ServiceNow) are projections — analysts working in their familiar ticket UI still see correct context, but the canonical state lives in Quarry.
 
-**Outbound (AiSOC → ITSM):** When a case is created or its status changes, `services/api/app/services/case_fanout.py` looks up every connector instance the tenant has enabled with `Capability.PUSH_CASE` (or `PUSH_STATUS`) and projects the change. Successes write a row to `case_external_refs (case_id, connector_id, external_system, external_id, external_url, external_status, last_synced_at)` so subsequent updates target the correct external record. Failures are logged but never block the AiSOC case write — the canonical state is already durable.
+**Outbound (Quarry → ITSM):** When a case is created or its status changes, `services/api/app/services/case_fanout.py` looks up every connector instance the tenant has enabled with `Capability.PUSH_CASE` (or `PUSH_STATUS`) and projects the change. Successes write a row to `case_external_refs (case_id, connector_id, external_system, external_id, external_url, external_status, last_synced_at)` so subsequent updates target the correct external record. Failures are logged but never block the Quarry case write — the canonical state is already durable.
 
-**Inbound (ITSM → AiSOC):** A public-facing webhook at `POST /v1/inbox/itsm` accepts Jira and ServiceNow status-change payloads. The endpoint:
+**Inbound (ITSM → Quarry):** A public-facing webhook at `POST /v1/inbox/itsm` accepts Jira and ServiceNow status-change payloads. The endpoint:
 
-1. Verifies the per-tenant HMAC (`X-AiSOC-Signature`).
+1. Verifies the per-tenant HMAC (`X-Quarry-Signature`).
 2. Parses the vendor-specific payload (`issue.key` + `issue.fields.status.name` for Jira; `sys_id` + `state` for ServiceNow).
-3. Maps the vendor status into the AiSOC enum via `_JIRA_INBOUND_STATUS` / `_SNOW_INBOUND_STATUS`.
-4. Looks up the matching `case_external_refs` row to find the AiSOC `case_id`.
-5. Idempotently applies the status change to the AiSOC case (no-op if the case is already in that state).
+3. Maps the vendor status into the Quarry enum via `_JIRA_INBOUND_STATUS` / `_SNOW_INBOUND_STATUS`.
+4. Looks up the matching `case_external_refs` row to find the Quarry `case_id`.
+5. Idempotently applies the status change to the Quarry case (no-op if the case is already in that state).
 
-The mapping is intentionally lossy in one direction: vendor-specific fields (Jira priority, ServiceNow assignment_group, etc.) are **not** synced back into AiSOC. The contract is "case status converges, ITSM-specific metadata stays in ITSM."
+The mapping is intentionally lossy in one direction: vendor-specific fields (Jira priority, ServiceNow assignment_group, etc.) are **not** synced back into Quarry. The contract is "case status converges, ITSM-specific metadata stays in ITSM."
 
-→ [ITSM as a projection of AiSOC (full architecture doc)](../../apps/docs/docs/architecture/itsm-as-source-of-truth.md)
+→ [ITSM as a projection of Quarry (full architecture doc)](../../apps/docs/docs/architecture/itsm-as-source-of-truth.md)
 
 ### 12.5 Test Coverage
 
@@ -381,21 +381,21 @@ Connectors are also the unit of distribution. Every connector ships a marketplac
 
 ## 13. v2.2 Additions (Endpoint Telemetry, ChatOps, Responder PWA, MCP, One-Click Install)
 
-The v2.2 increment is scoped to first-mile ergonomics — getting events into AiSOC from every realistic source, getting analysts out of the console for routine approvals, and getting the entire stack onto a freshly-imaged laptop in one command.
+The v2.2 increment is scoped to first-mile ergonomics — getting events into Quarry from every realistic source, getting analysts out of the console for routine approvals, and getting the entire stack onto a freshly-imaged laptop in one command.
 
 ### 13.1 Endpoint Telemetry (osquery TLS server + extensions)
 
-`services/osquery-tls` is a Go TLS server that implements the four osquery endpoints — `/enroll`, `/config`, `/distributed/read`, `/distributed/write`, `/log` — so that any host running osquery can be enrolled into AiSOC with a single enrol secret. Result rows are normalised into OCSF and shipped to `services/ingest`'s `/v1/ingest/batch` endpoint, sharing the same KEV correlator and ATT&CK tagger described in §1.
+`services/osquery-tls` is a Go TLS server that implements the four osquery endpoints — `/enroll`, `/config`, `/distributed/read`, `/distributed/write`, `/log` — so that any host running osquery can be enrolled into Quarry with a single enrol secret. Result rows are normalised into OCSF and shipped to `services/ingest`'s `/v1/ingest/batch` endpoint, sharing the same KEV correlator and ATT&CK tagger described in §1.
 
-`services/osquery-extensions` registers custom virtual tables and decorators that the standard osquery distribution doesn't ship — for example, AiSOC-specific process-lineage and EDR-correlated host metadata — and is loaded out-of-band by agents managed by `osquery-tls`. The split (server vs extensions) keeps the TLS server's surface area minimal and lets the extensions iterate without touching the enrol path.
+`services/osquery-extensions` registers custom virtual tables and decorators that the standard osquery distribution doesn't ship — for example, Quarry-specific process-lineage and EDR-correlated host metadata — and is loaded out-of-band by agents managed by `osquery-tls`. The split (server vs extensions) keeps the TLS server's surface area minimal and lets the extensions iterate without touching the enrol path.
 
-This makes AiSOC self-sufficient for endpoint telemetry: a tenant who doesn't own a CrowdStrike or SentinelOne licence can still get host events into the platform without standing up a separate fleet manager.
+This makes Quarry self-sufficient for endpoint telemetry: a tenant who doesn't own a CrowdStrike or SentinelOne licence can still get host events into the platform without standing up a separate fleet manager.
 
 ### 13.2 ChatOps (`services/slack-bot`)
 
-A first-class Slack surface that closes the loop on the action-gating layer described in §8. When `services/actions` requires approval for a high-blast-radius action, the slack-bot posts an interactive message into the configured channel; an authorised approver clicks the button; Slack posts back to the bot, which verifies the request with an HMAC-signed Slack signature and forwards the approval to the actions service. The bot also exposes a `/aisoc` slash command for ad-hoc queries (case lookup, ledger snippet, IOC reputation).
+A first-class Slack surface that closes the loop on the action-gating layer described in §8. When `services/actions` requires approval for a high-blast-radius action, the slack-bot posts an interactive message into the configured channel; an authorised approver clicks the button; Slack posts back to the bot, which verifies the request with an HMAC-signed Slack signature and forwards the approval to the actions service. The bot also exposes a `/quarry` slash command for ad-hoc queries (case lookup, ledger snippet, IOC reputation).
 
-Crucially, **AiSOC remains the source of truth** — Slack is a projection. If the bot is offline, approvals fall back to the web console with no state divergence.
+Crucially, **Quarry remains the source of truth** — Slack is a projection. If the bot is offline, approvals fall back to the web console with no state divergence.
 
 ### 13.3 Responder PWA
 
@@ -403,11 +403,11 @@ A route group inside `apps/web` (Next.js 14) registers as an installable PWA tar
 
 ### 13.4 Model Context Protocol Server (`services/mcp`)
 
-A TypeScript stdio MCP server that exposes 11 AiSOC tools (case search, alert detail, IOC pivot, ledger query, detection-as-code lookup, …) to IDE-side AI agents — Claude Code, Cursor, Continue, Cody. This makes AiSOC a first-class context source for any analyst writing detections, runbooks, or post-mortems in their editor. The MCP server is read-only by default; write tools require an explicit per-tool capability token.
+A TypeScript stdio MCP server that exposes 11 Quarry tools (case search, alert detail, IOC pivot, ledger query, detection-as-code lookup, …) to IDE-side AI agents — Claude Code, Cursor, Continue, Cody. This makes Quarry a first-class context source for any analyst writing detections, runbooks, or post-mortems in their editor. The MCP server is read-only by default; write tools require an explicit per-tool capability token.
 
 ### 13.5 Investigation Ledger and Ambient Copilot
 
-Every prompt, tool invocation, and agent step inside `services/agents` is persisted into the **investigation ledger** — a per-case, append-only log that is replayable end-to-end. The ledger is the substrate for the Ambient Copilot in `apps/web`: a sidebar that shows what the agent is doing right now, why it picked the next tool, and what the analyst can do to redirect it. Combined with the LangGraph DAG in §7, this gives AiSOC a debugging surface for AI-driven investigations that mirrors the kind of structured logging analysts already expect from deterministic systems.
+Every prompt, tool invocation, and agent step inside `services/agents` is persisted into the **investigation ledger** — a per-case, append-only log that is replayable end-to-end. The ledger is the substrate for the Ambient Copilot in `apps/web`: a sidebar that shows what the agent is doing right now, why it picked the next tool, and what the analyst can do to redirect it. Combined with the LangGraph DAG in §7, this gives Quarry a debugging surface for AI-driven investigations that mirrors the kind of structured logging analysts already expect from deterministic systems.
 
 ### 13.6 One-Click Install Pipeline
 
@@ -416,7 +416,7 @@ Two cross-platform bootstrap installers live at the repo root:
 * `install.sh` — Linux + macOS bash; supports `apt`, `dnf`, `pacman`, `zypper`, `apk`, and `brew`. Idempotent; safe to re-run.
 * `install.ps1` — Windows PowerShell; uses `winget` and handles WSL2 enablement for Docker Desktop.
 
-Both detect the OS, install missing prerequisites (git, Docker Engine + Compose v2 / Docker Desktop, Node.js 20 LTS, pnpm 8+ via `corepack`), clone the repo into `~/aisoc`, then invoke `pnpm aisoc:demo` to bring up the slim demo stack from the published GHCR images and open the browser at the seeded LockBit case. Companion uninstallers (`uninstall.sh`, `uninstall.ps1`) provide graduated cleanup — stop stack only, drop volumes, remove pulled images, delete `node_modules`, delete the repo clone — gated behind interactive confirmation prompts unless `--all --yes` is supplied.
+Both detect the OS, install missing prerequisites (git, Docker Engine + Compose v2 / Docker Desktop, Node.js 20 LTS, pnpm 8+ via `corepack`), clone the repo into `~/quarry`, then invoke `pnpm quarry:demo` to bring up the slim demo stack from the published GHCR images and open the browser at the seeded LockBit case. Companion uninstallers (`uninstall.sh`, `uninstall.ps1`) provide graduated cleanup — stop stack only, drop volumes, remove pulled images, delete `node_modules`, delete the repo clone — gated behind interactive confirmation prompts unless `--all --yes` is supplied.
 
 → [One-click install (Docusaurus)](../../apps/docs/docs/installation.md)
 → [Quick install reference](../QUICK_INSTALL.md)

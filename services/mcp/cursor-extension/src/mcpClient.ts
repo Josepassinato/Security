@@ -1,14 +1,14 @@
 /**
- * Typed JSON-RPC client for the AiSOC MCP gateway.
+ * Typed JSON-RPC client for the Quarry MCP gateway.
  *
- * The AiSOC MCP server (`services/mcp/`) speaks the Model Context Protocol
+ * The Quarry MCP server (`services/mcp/`) speaks the Model Context Protocol
  * over stdio. For the IDE extension we expect a thin HTTP gateway in front
  * of that server (default `http://localhost:8765/mcp`) that translates
  * JSON-RPC `tools/call` requests over HTTP POST into stdio calls against
  * the underlying server. That gateway can be any of:
  *
- *   - An `aisoc-mcp-http` wrapper run alongside the IDE.
- *   - A future first-class HTTP transport baked into the AiSOC API.
+ *   - An `quarry-mcp-http` wrapper run alongside the IDE.
+ *   - A future first-class HTTP transport baked into the Quarry API.
  *   - A self-hosted reverse proxy that fronts the stdio process.
  *
  * The wire shape we send is canonical JSON-RPC 2.0:
@@ -29,7 +29,7 @@
  *
  * The response shape mirrors `CallToolResult` from the MCP SDK — a content
  * array (text blocks) and an optional `structuredContent` payload that the
- * AiSOC server returns alongside the rendered text. We surface both so the
+ * Quarry server returns alongside the rendered text. We surface both so the
  * webview can show the pretty markdown and the raw JSON side-by-side.
  *
  * Errors map onto a single `McpClientError` class so the extension code
@@ -106,7 +106,7 @@ const DEFAULT_TIMEOUT_MS = 30_000;
  * Each public method returns the full `McpToolResult` so callers can render
  * both the human-readable text content and the structured payload. The
  * underscored argument names (`case_id`, `run_id`, …) match the wire shape
- * the AiSOC MCP server's tool schemas validate against — we deliberately
+ * the Quarry MCP server's tool schemas validate against — we deliberately
  * keep the public surface aligned with that wire shape to avoid a
  * translation layer that drifts on schema changes.
  */
@@ -140,7 +140,7 @@ export class McpClient {
   }
 
   /**
-   * Kick off the AiSOC multi-agent investigator on a case.
+   * Kick off the Quarry multi-agent investigator on a case.
    *
    * Wraps `aisoc_run_investigation`. The MCP tool returns a `run_id` that
    * the caller can subsequently feed back into `replayDecision`.
@@ -261,7 +261,7 @@ export class McpClient {
         "transport",
         aborted
           ? `Request to ${this.endpoint} timed out after ${this.timeoutMs}ms.`
-          : `Failed to reach AiSOC MCP endpoint at ${this.endpoint}: ${stringifyError(err)}`,
+          : `Failed to reach Quarry MCP endpoint at ${this.endpoint}: ${stringifyError(err)}`,
         { cause: err },
       );
     } finally {
@@ -337,7 +337,7 @@ function normaliseEndpoint(endpoint: string): string {
   if (!trimmed) {
     throw new McpClientError(
       "transport",
-      "AiSOC MCP endpoint is empty. Set `aisoc.mcpEndpoint` in your IDE settings.",
+      "Quarry MCP endpoint is empty. Set `quarry.mcpEndpoint` in your IDE settings.",
     );
   }
   try {
@@ -345,7 +345,7 @@ function normaliseEndpoint(endpoint: string): string {
     if (url.protocol !== "http:" && url.protocol !== "https:") {
       throw new McpClientError(
         "transport",
-        `AiSOC MCP endpoint must use http:// or https:// (got ${url.protocol}).`,
+        `Quarry MCP endpoint must use http:// or https:// (got ${url.protocol}).`,
       );
     }
     return url.toString().replace(/\/$/, "");
@@ -353,7 +353,7 @@ function normaliseEndpoint(endpoint: string): string {
     if (err instanceof McpClientError) throw err;
     throw new McpClientError(
       "transport",
-      `AiSOC MCP endpoint \`${trimmed}\` is not a valid URL.`,
+      `Quarry MCP endpoint \`${trimmed}\` is not a valid URL.`,
       { cause: err },
     );
   }
@@ -389,5 +389,5 @@ function defaultIdGenerator(): string {
   if (cryptoLike?.randomUUID) {
     return cryptoLike.randomUUID();
   }
-  return `aisoc-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+  return `quarry-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 }

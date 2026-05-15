@@ -20,7 +20,7 @@ without ``pip install`` having been done first.
 Behaviour
 ---------
 * Inspects the environment for ``WET_EVAL_OPENAI_KEY`` (the key used to
-  call the LLM provider) and ``AISOC_BENCH_BOT_TOKEN`` (the fine-grained
+  call the LLM provider) and ``QUARRY_BENCH_BOT_TOKEN`` (the fine-grained
   GH PAT that opens the weekly PR).
 * Exit code is **always 0** so the workflow can branch on the JSON
   status file rather than a non-zero exit. We never want a missing
@@ -59,7 +59,7 @@ from pathlib import Path
 # ``apps/docs/docs/operations/secrets.md`` so docs and code stay in step.
 _REQUIRED_SECRETS_FOR_LIVE_RUN = (
     "WET_EVAL_OPENAI_KEY",  # LLM provider key used by the live agent.
-    "AISOC_BENCH_BOT_TOKEN",  # Fine-grained PAT used to open the weekly PR.
+    "QUARRY_BENCH_BOT_TOKEN",  # Fine-grained PAT used to open the weekly PR.
 )
 
 

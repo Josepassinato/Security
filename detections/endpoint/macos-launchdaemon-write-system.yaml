@@ -1,6 +1,6 @@
 id: det-endpoint-191
 name: LaunchDaemon Plist Written To /Library/LaunchDaemons
-description: AiSOC v1 curated detection. Triggers on the endpoint signal described by 'LaunchDaemon Plist
+description: Quarry v1 curated detection. Triggers on the endpoint signal described by 'LaunchDaemon Plist
   Written To /Library/LaunchDaemons'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: high
@@ -20,6 +20,6 @@ false_positives:
 - Vendor pkg install (allow-listed)
 playbook: tpl-persistence
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

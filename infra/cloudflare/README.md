@@ -1,10 +1,10 @@
 # Cloudflare Tunnel for `tryaisoc.com`
 
-This directory contains everything needed to expose a local AiSOC stack to the
+This directory contains everything needed to expose a local Quarry stack to the
 public internet through a Cloudflare Tunnel, anchored at the domain
 [`tryaisoc.com`](https://tryaisoc.com).
 
-It is the canonical way to host a **public, read-only demo** of AiSOC on your
+It is the canonical way to host a **public, read-only demo** of Quarry on your
 own machine without opening a single inbound port on your router or firewall.
 
 > **Why a tunnel and not a direct LAN bind?**
@@ -22,7 +22,7 @@ own machine without opening a single inbound port on your router or firewall.
    control — point `tunnel.sh` at it via the `DOMAIN` env var; no source edits
    required).
 3. **One auth method** (see *Two auth modes* below).
-4. **A running stack** — the demo profile from `pnpm aisoc:demo` is the
+4. **A running stack** — the demo profile from `pnpm quarry:demo` is the
    intended target. The wrapper `pnpm demo:public` (see below) brings the
    stack up and the tunnel up in one command.
 
@@ -36,7 +36,7 @@ The script auto-detects which one is in use; you only need to supply one.
 Run `cloudflared tunnel login` once. It opens a browser, you pick the zone, and
 `cloudflared` writes `~/.cloudflared/cert.pem`. From there, `tunnel.sh` will:
 
-1. Create / reuse the named tunnel (`TUNNEL_NAME`, default `aisoc-tryaisoc`).
+1. Create / reuse the named tunnel (`TUNNEL_NAME`, default `quarry-tryaisoc`).
 2. Render `config.yml` from `config.yml.example`.
 3. Add DNS routes for the apex + each subdomain in `SUBDOMAINS`.
 4. Run `cloudflared tunnel run` against the rendered config.
@@ -51,7 +51,7 @@ machines, headless servers, etc), create the tunnel in the [Cloudflare Zero Trus
 dashboard](https://one.dash.cloudflare.com/) instead:
 
 1. **Networks → Tunnels → Create a tunnel → Cloudflared.**
-2. Name the tunnel (e.g. `aisoc-tryaisoc`) and copy the long `--token ey…` value
+2. Name the tunnel (e.g. `quarry-tryaisoc`) and copy the long `--token ey…` value
    the dashboard hands you.
 3. **Public Hostnames** tab — add four entries on the zone you control:
 
@@ -134,7 +134,7 @@ SKIP_RUN=1 pnpm demo:public:setup
 Under the hood:
 
 - `pnpm demo:public` → [`scripts/demo-public.sh`](../../scripts/demo-public.sh) → runs
-  `pnpm aisoc:demo --no-open`, then execs `infra/cloudflare/tunnel.sh`.
+  `pnpm quarry:demo --no-open`, then execs `infra/cloudflare/tunnel.sh`.
 - `pnpm demo:public:tunnel-only` → same wrapper with `--skip-stack`.
 - `pnpm demo:public:setup` → `bash infra/cloudflare/tunnel.sh` directly, with
   no stack management.
@@ -143,7 +143,7 @@ If you'd rather drive the pieces yourself:
 
 ```sh
 # 1. Make sure the stack is up.
-pnpm aisoc:demo            # or: docker compose -f docker-compose.demo.yml up -d
+pnpm quarry:demo            # or: docker compose -f docker-compose.demo.yml up -d
 
 # 2. Bring up the tunnel.
 bash infra/cloudflare/tunnel.sh
@@ -152,7 +152,7 @@ bash infra/cloudflare/tunnel.sh
 `tunnel.sh` in **origin-cert mode** (default, no token set) will:
 
 1. Verify `cloudflared` is installed and authenticated (`~/.cloudflared/cert.pem`).
-2. Create a tunnel named `aisoc-tryaisoc` (configurable via `TUNNEL_NAME`) if
+2. Create a tunnel named `quarry-tryaisoc` (configurable via `TUNNEL_NAME`) if
    it doesn't already exist.
 3. Render `config.yml` from `config.yml.example`, substituting the tunnel
    UUID, the credentials path, and the apex domain (`DOMAIN`, default
@@ -180,7 +180,7 @@ same set:
 | Var                       | Default          | Purpose                                                  |
 | ------------------------- | ---------------- | -------------------------------------------------------- |
 | `DOMAIN`                  | `tryaisoc.com`   | Apex domain. In **origin-cert mode** the script routes `DOMAIN` and each subdomain in `SUBDOMAINS` to the tunnel. In **token mode** it's used purely for log/banner output (the dashboard already knows the hostnames). |
-| `TUNNEL_NAME`             | `aisoc-tryaisoc` | Cloudflare tunnel name. Reused if it already exists. **Ignored in token mode** — the dashboard owns the tunnel name. |
+| `TUNNEL_NAME`             | `quarry-tryaisoc` | Cloudflare tunnel name. Reused if it already exists. **Ignored in token mode** — the dashboard owns the tunnel name. |
 | `SUBDOMAINS`              | `"api ws docs"`  | Space-separated list of subdomains to route in addition to the apex. **Ignored in token mode** — the dashboard already routes them. |
 | `SKIP_DNS`                | *(unset)*        | If set to `1`, don't touch DNS records (assume they exist). **No-op in token mode** — DNS is already managed by the dashboard. |
 | `SKIP_RUN`                | *(unset)*        | If set to `1`, set everything up but don't run the tunnel — pair with `cloudflared service install` for a 24/7 setup. Honoured in both modes. |
@@ -195,10 +195,10 @@ same set:
 | File                  | Purpose                                                                                      |
 | --------------------- | -------------------------------------------------------------------------------------------- |
 | `tunnel.sh`           | Idempotent helper that creates the tunnel, sets DNS routes, and runs `cloudflared`.          |
-| `config.yml.example`  | Ingress template. The script renders this into `~/.cloudflared/aisoc-tryaisoc.yml`.           |
+| `config.yml.example`  | Ingress template. The script renders this into `~/.cloudflared/quarry-tryaisoc.yml`.           |
 | `README.md`           | This file.                                                                                   |
 
-The rendered `aisoc-tryaisoc.yml` and the `*-credentials.json` file live in
+The rendered `quarry-tryaisoc.yml` and the `*-credentials.json` file live in
 `~/.cloudflared/` — they are **not** stored in the repo. The credentials JSON
 is what proves to Cloudflare that this machine is allowed to run the tunnel.
 
@@ -210,17 +210,17 @@ template uses placeholders that the script substitutes at run time.
 
 ```sh
 # Apex + the same default subdomains (api, ws, docs) on a zone you own:
-DOMAIN=aisoc.example.com pnpm demo:public
+DOMAIN=quarry.example.com pnpm demo:public
 
 # Custom tunnel name + a different set of subdomains:
-DOMAIN=aisoc.example.com \
-TUNNEL_NAME=acme-aisoc \
+DOMAIN=quarry.example.com \
+TUNNEL_NAME=acme-quarry \
 SUBDOMAINS="api ws" \
   pnpm demo:public
 
 # Set everything up against your zone, but don't run cloudflared yet
 # (e.g. so you can install it as a system service afterwards):
-DOMAIN=aisoc.example.com SKIP_RUN=1 pnpm demo:public:setup
+DOMAIN=quarry.example.com SKIP_RUN=1 pnpm demo:public:setup
 ```
 
 Cloudflare needs to manage DNS for the zone, and you need to have run
@@ -235,10 +235,10 @@ running. To take everything down:
 
 ```sh
 # Bring the local stack down (works in either auth mode):
-pnpm aisoc:demo:down
+pnpm quarry:demo:down
 
 # Origin-cert mode only — release the tunnel + DNS records the script created:
-cloudflared tunnel delete aisoc-tryaisoc
+cloudflared tunnel delete quarry-tryaisoc
 
 # Token mode — delete the tunnel from the Cloudflare Zero Trust dashboard
 # (Networks → Tunnels → … → Delete). The CLI command above won't work here
@@ -255,7 +255,7 @@ If you want to leave the demo up 24/7 without a terminal window pinned, run
 ```sh
 # macOS
 sudo cloudflared service install \
-  --config "$HOME/.cloudflared/aisoc-tryaisoc.yml"
+  --config "$HOME/.cloudflared/quarry-tryaisoc.yml"
 
 # Linux
 sudo cloudflared service install
@@ -275,7 +275,7 @@ sudo cloudflared service install ey…   # paste the same token you use locally
 ## What the tunnel does NOT do
 
 - **It does not change auth.** The demo profile still uses the seeded
-  `aisoc:aisoc_dev_secret` credentials. Treat the public demo as a sandbox.
+  `quarry:aisoc_dev_secret` credentials. Treat the public demo as a sandbox.
 - **It does not protect the API.** Anyone with the URL can hit
   `api.tryaisoc.com`. If you need access control, wire up Cloudflare Access
   in front of the hostnames — `tunnel.sh` is intentionally Access-agnostic so

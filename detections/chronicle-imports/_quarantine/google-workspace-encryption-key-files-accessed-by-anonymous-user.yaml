@@ -54,4 +54,4 @@ provenance:
   upstream_path: rules/community/workspace/google_workspace_encryption_key_files_accessed_by_anonymous_user.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

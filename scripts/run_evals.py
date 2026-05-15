@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-AiSOC Pillar-1 Unified Eval Runner
+Quarry Pillar-1 Unified Eval Runner
 ===================================
 Runs all four offline evaluation suites against the 200-incident benchmark
 dataset and emits a single JSON report (and a human-readable summary).
@@ -738,7 +738,7 @@ def _build_per_investigation_block(model: str, *, keep_records: bool) -> dict:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="AiSOC Pillar-1 unified evaluation runner.")
+    parser = argparse.ArgumentParser(description="Quarry Pillar-1 unified evaluation runner.")
     parser.add_argument(
         "--suite",
         choices=("all", *_SUITE_NAMES),
@@ -746,7 +746,7 @@ def main() -> None:
         help=(
             "Which eval suite to run. 'all' (default) executes every suite; "
             "pass a single suite name to run it in isolation. This is the "
-            "flag the AiSOC demo video uses (`--suite all`)."
+            "flag the Quarry demo video uses (`--suite all`)."
         ),
     )
     parser.add_argument("--json", action="store_true", help="Print JSON report to stdout.")
@@ -875,7 +875,7 @@ def main() -> None:
             print()
             print("=" * 78)
             label = "DRY RUN" if wet_mode == "dry_run" else "LIVE"
-            print(f"  AiSOC wet-eval ({label}) — 200-incident synthetic corpus")
+            print(f"  Quarry wet-eval ({label}) — 200-incident synthetic corpus")
             print("=" * 78)
             print(f"  Mode:           {wet_block['mode']}")
             print(f"  Model:          {wet_block['model']}")
@@ -1002,7 +1002,7 @@ def main() -> None:
         pi = summary["per_investigation"]
         print()
         print("=" * 78)
-        print("  AiSOC Eval - per-investigation telemetry (deterministic substrate)")
+        print("  Quarry Eval - per-investigation telemetry (deterministic substrate)")
         print("=" * 78)
         print(f"  Mode:          {pi['mode']}")
         print(f"  Model:         {pi['model']}")
@@ -1040,7 +1040,7 @@ def main() -> None:
     else:
         print()
         print("=" * 78)
-        print("  AiSOC Pillar-1 Eval - 200-incident synthetic benchmark")
+        print("  Quarry Pillar-1 Eval - 200-incident synthetic benchmark")
         print("=" * 78)
         for name, suite in summary["suites"].items():
             mark = "PASS" if suite["passed"] else "FAIL"

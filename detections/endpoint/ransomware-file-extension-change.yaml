@@ -20,6 +20,6 @@ false_positives:
 - Bulk archive operations (must be in allowlisted backup tools)
 playbook: tpl-ransomware
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

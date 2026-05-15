@@ -1,7 +1,7 @@
 ---
 sidebar_position: 24
 title: Kubernetes Audit Logs
-description: Dual-mode Kubernetes apiserver audit log connector — webhook (apiserver pushes to AiSOC's inbox) or file_tail (AiSOC reads a local audit log forward from a byte cursor). Powers cluster-level detections for kubectl exec, RBAC escalation, ServiceAccount token theft, and impersonation.
+description: Dual-mode Kubernetes apiserver audit log connector — webhook (apiserver pushes to Quarry's inbox) or file_tail (Quarry reads a local audit log forward from a byte cursor). Powers cluster-level detections for kubectl exec, RBAC escalation, ServiceAccount token theft, and impersonation.
 ---
 
 # Kubernetes Audit Logs
@@ -23,12 +23,12 @@ codes instead of a vendor-normalised abstraction.
 
 ## Two delivery modes
 
-Kubernetes audit logging supports two output channels, and AiSOC
+Kubernetes audit logging supports two output channels, and Quarry
 exposes both as a single connector with a `mode` switch:
 
-| Mode | When to pick it | How AiSOC consumes it |
+| Mode | When to pick it | How Quarry consumes it |
 |---|---|---|
-| **`webhook`** | Managed clusters (EKS / GKE / AKS) where you cannot mount the apiserver audit log into a sidecar | The apiserver POSTs each `EventList` batch to AiSOC's tenant-scoped endpoint `POST /v1/ingest/k8s-audit/<tenant_id>` and authenticates with the `X-AiSOC-K8s-Token` shared-secret header. The Go ingest service normalises every item in the batch directly. A legacy fallback via the AiSOC inbox at `/v1/inbox/<token>` is also supported for clusters that cannot set custom headers in audit-webhook kubeconfig. |
+| **`webhook`** | Managed clusters (EKS / GKE / AKS) where you cannot mount the apiserver audit log into a sidecar | The apiserver POSTs each `EventList` batch to Quarry's tenant-scoped endpoint `POST /v1/ingest/k8s-audit/<tenant_id>` and authenticates with the `X-Quarry-K8s-Token` shared-secret header. The Go ingest service normalises every item in the batch directly. A legacy fallback via the Quarry inbox at `/v1/inbox/<token>` is also supported for clusters that cannot set custom headers in audit-webhook kubeconfig. |
 | **`file_tail`** | Self-hosted clusters where the audit log path is mountable | The connector pod tails the audit log file forward from a byte cursor on its configured poll interval. Cursor survives pod restarts; file rotation / truncation resets cleanly. |
 
 You only configure one mode per connector instance. To cover
@@ -69,10 +69,10 @@ connector or your own `kubectl` runner.
 
 ## Severity heuristic
 
-The connector buckets events into AiSOC's four-tier severity
+The connector buckets events into Quarry's four-tier severity
 ladder using verb + resource + response code:
 
-| Condition | AiSOC severity |
+| Condition | Quarry severity |
 |---|---|
 | `verb=impersonate` (any resource) | `high` |
 | `verb=create/update/patch/delete` on `clusterrolebindings` or `rolebindings` | `high` |
@@ -97,9 +97,9 @@ filter on `severity ∈ {high, medium}` only.
   - Cluster admin access to update the apiserver's
     `--audit-webhook-config-file` flag (or push an `AuditSink`
     resource).
-  - Network reachability from the apiserver to AiSOC's ingest
+  - Network reachability from the apiserver to Quarry's ingest
     endpoint.
-  - The AiSOC ingest service must have `K8S_AUDIT_SHARED_SECRET`
+  - The Quarry ingest service must have `K8S_AUDIT_SHARED_SECRET`
     set in its environment. The webhook is **disabled by default**
     and the route returns `503 Service Unavailable` until an
     operator turns it on. Pick a long random value
@@ -112,9 +112,9 @@ filter on `severity ∈ {high, medium}` only.
     created with the `k8s-audit` template is also supported.
 - For **file_tail mode**:
   - The apiserver audit log path mounted **read-only** into the
-    AiSOC connector pod.
+    Quarry connector pod.
   - A writeable directory next to that path for the byte cursor
-    file (defaults to `<audit_log_path>.aisoc-cursor`).
+    file (defaults to `<audit_log_path>.quarry-cursor`).
 
 ## Setup — webhook mode (recommended for managed clusters)
 
@@ -122,9 +122,9 @@ The recommended webhook path is the dedicated tenant-scoped
 endpoint:
 
 ```
-POST https://<your-aisoc-host>/v1/ingest/k8s-audit/<tenant_id>
+POST https://<your-quarry-host>/v1/ingest/k8s-audit/<tenant_id>
 Content-Type: application/json
-X-AiSOC-K8s-Token: <shared-secret>
+X-Quarry-K8s-Token: <shared-secret>
 ```
 
 The endpoint accepts a Kubernetes
@@ -135,14 +135,14 @@ batch is normalised to OCSF `API Activity (6003)`, severity
 classified using the heuristic above, and forwarded to the
 detection pipeline.
 
-The route is **disabled by default** so a stock AiSOC install
+The route is **disabled by default** so a stock Quarry install
 will return `503 Service Unavailable` until you turn it on.
 Authentication is via a single installation-wide shared secret
 (`K8S_AUDIT_SHARED_SECRET`), compared with constant-time
 equality so a partial-prefix attacker cannot brute-force it
 byte by byte.
 
-### 1. Enable the webhook on the AiSOC ingest service
+### 1. Enable the webhook on the Quarry ingest service
 
 Set both env vars on the `services/ingest` deployment, then
 restart:
@@ -164,28 +164,28 @@ a coverage hole, not an integration win.
 ### 2. Wire up the apiserver
 
 Write an `audit-webhook-config-file` kubeconfig that targets
-the AiSOC route and presents the shared secret as a header.
+the Quarry route and presents the shared secret as a header.
 Apiserver kubeconfigs do not natively support custom request
 headers, so use the cluster's `tls-server-name` /
 `server` fields and either an apiserver authn-proxy or a
 sidecar to inject the header. The most common pattern is a
 small forwarder (e.g. nginx) that the apiserver hits over
 loopback, which then adds the header before forwarding to
-AiSOC. A reference apiserver kubeconfig that talks to such a
+Quarry. A reference apiserver kubeconfig that talks to such a
 forwarder:
 
 ```yaml
 apiVersion: v1
 kind: Config
 clusters:
-  - name: aisoc-audit
+  - name: quarry-audit
     cluster:
       server: http://127.0.0.1:8080/forward
 contexts:
-  - name: aisoc-audit
+  - name: quarry-audit
     context:
-      cluster: aisoc-audit
-current-context: aisoc-audit
+      cluster: quarry-audit
+current-context: quarry-audit
 ```
 
 And the matching forwarder snippet (nginx):
@@ -194,9 +194,9 @@ And the matching forwarder snippet (nginx):
 server {
     listen 127.0.0.1:8080;
     location /forward {
-        proxy_set_header X-AiSOC-K8s-Token "<shared-secret>";
+        proxy_set_header X-Quarry-K8s-Token "<shared-secret>";
         proxy_set_header Content-Type application/json;
-        proxy_pass https://<your-aisoc-host>/v1/ingest/k8s-audit/<tenant_id>;
+        proxy_pass https://<your-quarry-host>/v1/ingest/k8s-audit/<tenant_id>;
     }
 }
 ```
@@ -216,17 +216,17 @@ spec:
 ```
 
 For **EKS** specifically, control-plane logging publishes audit
-to CloudWatch — pair this connector with the AiSOC AWS
+to CloudWatch — pair this connector with the Quarry AWS
 CloudTrail / VPC Flow Logs connectors and run a thin Lambda
 that subscribes to the audit log group and POSTs each batch
-to the AiSOC endpoint with the header set.
+to the Quarry endpoint with the header set.
 
 Use the bundled
 [recommended audit policy](https://kubernetes.io/docs/tasks/debug/debug-cluster/audit/#audit-policy)
 as a starting point — at minimum log `Metadata` for RBAC,
 secrets, and pod subresources.
 
-### 3. Add the connector in AiSOC
+### 3. Add the connector in Quarry
 
 1. **Connectors → Add connector → Kubernetes Audit Logs**.
 2. **Delivery mode**: `Webhook`.
@@ -234,7 +234,7 @@ secrets, and pod subresources.
    (e.g. `prod-eks-us-east-1`). This is stamped on every event
    so detections can filter by cluster.
 4. Leave **Inbox token** blank when using the dedicated route.
-5. **Test connection** — AiSOC confirms the dedicated route is
+5. **Test connection** — Quarry confirms the dedicated route is
    reachable and the shared secret is configured on the ingest
    service.
 6. **Save**.
@@ -248,9 +248,9 @@ you).
 ### Setup — webhook mode (legacy inbox-token path)
 
 If your control plane will not let you inject a custom header,
-fall back to the AiSOC inbox path. Each token is bound to a
+fall back to the Quarry inbox path. Each token is bound to a
 normalisation template at creation time, so the apiserver does
-not need to know anything about AiSOC's internal schema — it
+not need to know anything about Quarry's internal schema — it
 just POSTs raw audit events to the bound URL.
 
 1. **Inbox → Tokens → Create token**.
@@ -261,12 +261,12 @@ just POSTs raw audit events to the bound URL.
 The endpoint to give the apiserver is:
 
 ```
-POST https://<your-aisoc-host>/v1/inbox/<token>
+POST https://<your-quarry-host>/v1/inbox/<token>
 Content-Type: application/json
 ```
 
 Then in the connector configuration paste the token into the
-**Inbox token (legacy path)** field. AiSOC routes events from
+**Inbox token (legacy path)** field. Quarry routes events from
 this path through the same `k8s-audit` normalisation template
 as the dedicated route, so detections behave identically.
 
@@ -296,7 +296,7 @@ spec:
         type: DirectoryOrCreate
 ```
 
-### 2. Mount the audit log into the AiSOC connector pod
+### 2. Mount the audit log into the Quarry connector pod
 
 The connector reads the audit log via standard POSIX file APIs —
 mount it read-only into `services/connectors` at a stable path:
@@ -310,7 +310,7 @@ spec:
           mountPath: /var/log/kubernetes/audit
           readOnly: true
         - name: k8s-audit-cursor
-          mountPath: /var/lib/aisoc/k8s-audit
+          mountPath: /var/lib/quarry/k8s-audit
   volumes:
     - name: k8s-audit-log
       hostPath:
@@ -323,17 +323,17 @@ spec:
 (In production, replace `emptyDir` with a PVC so the cursor
 survives pod restarts.)
 
-### 3. Add the connector in AiSOC
+### 3. Add the connector in Quarry
 
 1. **Connectors → Add connector → Kubernetes Audit Logs**.
 2. **Delivery mode**: `File tail`.
 3. **Cluster name**: a human-readable cluster identifier.
 4. **Audit log path**: `/var/log/kubernetes/audit/audit.log`
    (default).
-5. **Cursor file path**: `/var/lib/aisoc/k8s-audit/audit.cursor`
+5. **Cursor file path**: `/var/lib/quarry/k8s-audit/audit.cursor`
    if you mounted a dedicated cursor volume. Defaults to
-   `<audit_log_path>.aisoc-cursor` if blank.
-6. **Test connection** — AiSOC confirms the audit log exists
+   `<audit_log_path>.quarry-cursor` if blank.
+6. **Test connection** — Quarry confirms the audit log exists
    and is readable.
 7. **Save**.
 
@@ -351,7 +351,7 @@ survives pod restarts.)
   each successful read.
 - **Rotation handling**: if the file size shrinks between polls
   (logrotate truncated it, or the apiserver opened a new
-  segment) the cursor resets to 0 — AiSOC starts over from the
+  segment) the cursor resets to 0 — Quarry starts over from the
   top of the current segment.
 - **Partial-line handling**: a final line without a trailing
   `\n` is treated as in-flight and left for the next poll, so
@@ -398,14 +398,14 @@ A full reference policy lives in the
 ## Troubleshooting
 
 **Apiserver logs `failed to send audit events to webhook: 503`** —
-the AiSOC ingest service is up, but `K8S_AUDIT_SHARED_SECRET`
+the Quarry ingest service is up, but `K8S_AUDIT_SHARED_SECRET`
 is unset. The webhook stays disabled until an operator turns
 it on. Set the env var on `services/ingest`, restart, retry.
 
 **Apiserver logs `failed to send audit events to webhook: 401`** —
 the shared secret on the apiserver side does not match the one
-on AiSOC. Check the value the forwarder is injecting into the
-`X-AiSOC-K8s-Token` header. Note that AiSOC compares with
+on Quarry. Check the value the forwarder is injecting into the
+`X-Quarry-K8s-Token` header. Note that Quarry compares with
 constant-time equality, so a partial-prefix match also fails
 (this is intentional).
 
@@ -413,7 +413,7 @@ constant-time equality, so a partial-prefix match also fails
 either the body exceeded `K8S_AUDIT_MAX_BODY_BYTES` (default 16
 MiB) or the batch exceeded the ingest `MaxBatchSize` cap. Lower
 the apiserver's `--audit-webhook-batch-max-size` or raise the
-AiSOC limit.
+Quarry limit.
 
 **`Test connection` returns `inbox_token is required in webhook
 mode`** — you picked **Webhook** with the **legacy** path but
@@ -433,9 +433,9 @@ plane to roll). You can also smoke-test the dedicated route end
 to end with `curl`:
 
 ```bash
-curl -X POST https://<your-aisoc-host>/v1/ingest/k8s-audit/<tenant_id> \
+curl -X POST https://<your-quarry-host>/v1/ingest/k8s-audit/<tenant_id> \
   -H "Content-Type: application/json" \
-  -H "X-AiSOC-K8s-Token: <shared-secret>" \
+  -H "X-Quarry-K8s-Token: <shared-secret>" \
   -d '{"kind":"EventList","apiVersion":"audit.k8s.io/v1","items":[]}'
 ```
 
@@ -447,7 +447,7 @@ file is not persistent. Mount a real volume (PVC or hostPath)
 for the cursor directory instead of `emptyDir`.
 
 **Severity is too noisy / too quiet** — adjust the audit policy
-upstream, not the connector. AiSOC's severity heuristic operates
+upstream, not the connector. Quarry's severity heuristic operates
 on what the apiserver actually sends. If you only log
 `Metadata`-level requests for RBAC, that's still enough for the
 detection content — the verbs and resources are present.

@@ -1,18 +1,18 @@
 ---
 sidebar_position: 1
 title: Funnel KPIs and pipeline health
-description: How AiSOC turns raw telemetry into a six-tile operations funnel, an efficiency report, and a five-stage pipeline-health rail on the dashboard — backed by /metrics/funnel and /health/pipeline.
+description: How Quarry turns raw telemetry into a six-tile operations funnel, an efficiency report, and a five-stage pipeline-health rail on the dashboard — backed by /metrics/funnel and /health/pipeline.
 ---
 
 # Funnel KPIs and pipeline health
 
-Tier-1 SOC consoles open on the same picture: a row of funnel tiles that says how much signal made it into the analyst's queue, an efficiency report that says how well the pipeline converted raw events into alerts, and a per-stage health rail that says where the next outage will come from. v1.5 brings that picture to AiSOC's `/dashboard` without breaking the existing flat per-page layout.
+Tier-1 SOC consoles open on the same picture: a row of funnel tiles that says how much signal made it into the analyst's queue, an efficiency report that says how well the pipeline converted raw events into alerts, and a per-stage health rail that says where the next outage will come from. v1.5 brings that picture to Quarry's `/dashboard` without breaking the existing flat per-page layout.
 
 This page documents the three widgets, their data sources, and the endpoints they call.
 
 ## Where the widgets sit
 
-The new `funnel-kpis` and `efficiency-and-pipeline` widgets render at the top of `/dashboard`, above the existing top-metrics row. Both are drag-and-drop reorderable; their order persists in `localStorage` under `aisoc:dashboard-widget-order` (the dashboard auto-migrates older saved orders to include the new widgets).
+The new `funnel-kpis` and `efficiency-and-pipeline` widgets render at the top of `/dashboard`, above the existing top-metrics row. Both are drag-and-drop reorderable; their order persists in `localStorage` under `quarry:dashboard-widget-order` (the dashboard auto-migrates older saved orders to include the new widgets).
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
@@ -115,7 +115,7 @@ Returns:
 Key implementation notes (`services/api/app/api/v1/endpoints/metrics.py`):
 
 - Tenant-scoped via `AuthUser`; every query joins on `tenant_id` or — for ClickHouse — passes through `services/api/app/services/lake_sql.py:rewrite_for_tenant` which uses `sqlglot` to enforce the tenant clause before the query reaches the lake.
-- `events_of_interest` reads from ClickHouse `aisoc.raw_events` when the lake is enabled, with a Postgres-only fallback (alerts table count) for air-gapped deployments where `AISOC_DISABLE_CLICKHOUSE=1`.
+- `events_of_interest` reads from ClickHouse `quarry.raw_events` when the lake is enabled, with a Postgres-only fallback (alerts table count) for air-gapped deployments where `QUARRY_DISABLE_CLICKHOUSE=1`.
 - `mttd_seconds` reuses the exact same `AVG(EXTRACT EPOCH FROM (created_at - first_seen_at))` expression as the existing SOC metrics endpoint so the two never disagree.
 - `signal_to_noise` is `1 − (FP count / total dispositioned)` — alerts with `disposition` in `false_positive` divided by alerts with any disposition. Returns `0.0` when there is no dispositioned alert (no work done yet).
 - Deltas are signed fractions, not percent: `0.05` means +5%. The previous-period window is the same duration immediately before the current one.
@@ -150,9 +150,9 @@ Configuration lives in `services/api/app/core/config.py`:
 
 | Setting | Default | Purpose |
 |---|---|---|
-| `AISOC_FUNNEL_MITRE_TOTAL` | `201` | Denominator for MITRE coverage. Set to your active framework's technique count (e.g. ATT&CK Enterprise v15 = 201). The numerator is computed live from rules with at least one alert in window. |
-| `AISOC_PIPELINE_STALE_WARN_SECONDS` | `300` | Per-stage staleness threshold below which a stage stays `green`. Above this, the stage flips to `yellow`. |
-| `AISOC_PIPELINE_STALE_DOWN_SECONDS` | `900` | Per-stage staleness threshold above which a stage flips to `red`. |
+| `QUARRY_FUNNEL_MITRE_TOTAL` | `201` | Denominator for MITRE coverage. Set to your active framework's technique count (e.g. ATT&CK Enterprise v15 = 201). The numerator is computed live from rules with at least one alert in window. |
+| `QUARRY_PIPELINE_STALE_WARN_SECONDS` | `300` | Per-stage staleness threshold below which a stage stays `green`. Above this, the stage flips to `yellow`. |
+| `QUARRY_PIPELINE_STALE_DOWN_SECONDS` | `900` | Per-stage staleness threshold above which a stage flips to `red`. |
 
 All three are env-driven and tenant-uniform (deliberately — the picture of "is my pipeline healthy" should not vary per tenant).
 
@@ -172,7 +172,7 @@ A few design choices are worth calling out:
 | MTTD tile is red and rising | Triage queue is backlogged, or alerts are firing without `first_seen_at` getting written | Open `/queue` and look at oldest unclaimed; verify the alert worker is running |
 | Signal / Noise dropping below `0.5` | Recent rule change is over-firing | `/detection/tuning` to find the noisiest rule |
 | Fuse stage in yellow with high backlog | Correlation rule is slow or unbounded | Inspect last fusion logs; check rule windowing |
-| All stages `unknown` | No connectors have polled in `> AISOC_PIPELINE_STALE_DOWN_SECONDS` | Likely a deployment issue, not a data issue — check the connector scheduler |
+| All stages `unknown` | No connectors have polled in `> QUARRY_PIPELINE_STALE_DOWN_SECONDS` | Likely a deployment issue, not a data issue — check the connector scheduler |
 
 ## Related
 

@@ -135,7 +135,7 @@ export function BenchmarkBand() {
             />
           </Link>
           <Link
-            href="https://docs.aisoc.dev/benchmark-scoreboard"
+            href="https://docs.quarry.dev/benchmark-scoreboard"
             className="inline-flex items-center gap-1 text-sm font-medium text-fg-muted transition-colors duration-200 hover:text-fg-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-base"
           >
             Open the public scoreboard

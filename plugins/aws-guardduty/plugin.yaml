@@ -8,9 +8,9 @@ description: >
   GuardDuty API (not Security Hub) for richer per-finding context including
   network connection action, runtime details, EKS audit shape, and S3 access
   patterns. One connector per region.
-author: AiSOC Core Team
+author: Quarry Core Team
 tags: [cloud, aws, guardduty, threat-detection, native]
-homepage: https://github.com/beenuar/AiSOC/tree/main/services/connectors/app/connectors/aws_guardduty.py
+homepage: https://github.com/beenuar/Quarry/tree/main/services/connectors/app/connectors/aws_guardduty.py
 license: MIT
 min_aisoc_version: "7.1.0"
 config_schema:

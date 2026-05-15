@@ -1,6 +1,6 @@
 id: det-identity-050
 name: Account Locked Out 3+ Times In 1 Hour
-description: AiSOC v1 curated detection. Triggers on the identity signal described by 'Account Locked
+description: Quarry v1 curated detection. Triggers on the identity signal described by 'Account Locked
   Out 3+ Times In 1 Hour'. Watch the 2 documented false-positive cases before tuning.
 version: 1.0.0
 severity: medium
@@ -20,6 +20,6 @@ false_positives:
 - Confirmed test/tuning activity
 playbook: tpl-credential-access
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

@@ -28,7 +28,7 @@ same inputs and the same mocked sub-agents.
 Feature flag
 ============
 
-``AISOC_AGENT_PARALLEL_TOPOLOGY`` (env). Defaults to **on** for dev / CI;
+``QUARRY_AGENT_PARALLEL_TOPOLOGY`` (env). Defaults to **on** for dev / CI;
 flip it off in production until the eval scoreboard confirms green:
 
     - ``1`` / ``true`` / ``on``  → parallel fan-out (new behaviour)
@@ -63,7 +63,7 @@ from app.models.state import AgentStatus, InvestigationState
 
 logger = structlog.get_logger()
 
-PARALLEL_TOPOLOGY_FLAG = "AISOC_AGENT_PARALLEL_TOPOLOGY"
+PARALLEL_TOPOLOGY_FLAG = "QUARRY_AGENT_PARALLEL_TOPOLOGY"
 
 # Lazy imports of the four sub-agent runners so this module can be imported
 # at app startup even before the heavyweight LLM dependencies are wired.
@@ -410,7 +410,7 @@ class RouterOrchestrator:
     :class:`app.investigator.orchestrator.InvestigatorOrchestrator` but
     operates on ``InvestigationState`` (the four-agent shared state) and
     selects between the parallel fan-out / sequential reference path on
-    every call via the ``AISOC_AGENT_PARALLEL_TOPOLOGY`` flag.
+    every call via the ``QUARRY_AGENT_PARALLEL_TOPOLOGY`` flag.
     """
 
     def __init__(self) -> None:

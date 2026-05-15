@@ -1,6 +1,6 @@
 id: det-cloud-170
 name: Kubernetes Request By system:anonymous
-description: AiSOC v1 curated detection. Triggers on the cloud signal described by 'Kubernetes Request
+description: Quarry v1 curated detection. Triggers on the cloud signal described by 'Kubernetes Request
   By system:anonymous'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: critical
@@ -19,6 +19,6 @@ false_positives:
 - Healthz probe (must be ticketed)
 playbook: tpl-initial-access
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

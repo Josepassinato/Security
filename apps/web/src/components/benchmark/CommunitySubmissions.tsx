@@ -12,7 +12,7 @@
  * same way the latest report is.
  */
 const SUBMISSION_URL =
-  'https://github.com/beenuar/AiSOC/issues/new?template=benchmark_submission.yml';
+  'https://github.com/beenuar/Quarry/issues/new?template=benchmark_submission.yml';
 
 const RULES: { title: string; body: string }[] = [
   {
@@ -86,7 +86,7 @@ export function CommunitySubmissions() {
           No accepted community submissions yet.
         </p>
         <p className="mt-1 text-xs text-gray-500">
-          The leaderboard fills up as runs are merged. AiSOC&apos;s own numbers
+          The leaderboard fills up as runs are merged. Quarry&apos;s own numbers
           appear in the cards above.
         </p>
       </div>

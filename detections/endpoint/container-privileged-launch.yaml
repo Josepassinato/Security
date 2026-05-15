@@ -1,6 +1,6 @@
 id: det-endpoint-028
 name: Container Launched with --privileged Flag
-description: AiSOC v1 curated detection. Triggers on the endpoint signal described by 'Container Launched
+description: Quarry v1 curated detection. Triggers on the endpoint signal described by 'Container Launched
   with --privileged Flag'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: high
@@ -19,6 +19,6 @@ false_positives:
 - Allowlisted node-debug containers (kubectl-debug)
 playbook: tpl-container-escape
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

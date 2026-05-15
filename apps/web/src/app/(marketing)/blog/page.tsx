@@ -15,14 +15,14 @@ import { formatPostDate, listPosts } from '@/lib/blog';
  */
 
 export const metadata: Metadata = {
-  title: 'Engineering blog — AiSOC',
+  title: 'Engineering blog — Quarry',
   description:
-    'Long-form, technical writing from the team building AiSOC: graph-at-ingest, sub-minute investigation latency, the L0–L4 SOC automation maturity model.',
+    'Long-form, technical writing from the team building Quarry: graph-at-ingest, sub-minute investigation latency, the L0–L4 SOC automation maturity model.',
   alternates: { canonical: '/blog' },
   openGraph: {
-    title: 'Engineering blog — AiSOC',
+    title: 'Engineering blog — Quarry',
     description:
-      'Long-form, opinionated writing on agentic SOC architecture from the AiSOC engineering team.',
+      'Long-form, opinionated writing on agentic SOC architecture from the Quarry engineering team.',
     type: 'website',
   },
 };
@@ -44,7 +44,7 @@ export default function BlogIndexPage() {
             Blog
           </span>
           <h1 className="mt-3 text-4xl font-bold tracking-tight text-white md:text-5xl">
-            Engineering writing from the AiSOC team.
+            Engineering writing from the Quarry team.
           </h1>
           <p className="mt-5 max-w-2xl text-lg leading-relaxed text-gray-400">
             Architecture decisions, latency budgets, and opinionated takes on
@@ -116,19 +116,19 @@ export default function BlogIndexPage() {
 
           <div className="mt-12 rounded-2xl border border-brand-500/20 bg-brand-500/[0.04] p-6">
             <h3 className="text-base font-semibold tracking-tight text-white">
-              Want to write for the AiSOC blog?
+              Want to write for the Quarry blog?
             </h3>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-gray-300">
               Send a one-paragraph pitch to{' '}
               <a
-                href="mailto:hello@aisoc.dev"
+                href="mailto:hello@quarry.dev"
                 className="text-brand-300 underline underline-offset-2 hover:text-brand-200"
               >
-                hello@aisoc.dev
+                hello@quarry.dev
               </a>{' '}
               or open an issue on{' '}
               <a
-                href="https://github.com/beenuar/AiSOC/issues"
+                href="https://github.com/beenuar/Quarry/issues"
                 target="_blank"
                 rel="noreferrer"
                 className="text-brand-300 underline underline-offset-2 hover:text-brand-200"

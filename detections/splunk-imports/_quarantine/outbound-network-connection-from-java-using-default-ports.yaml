@@ -60,4 +60,4 @@ provenance:
 notes:
   splunk_status: production
   splunk_data_source: []
-  quarantine_reason: raw SPL — needs translation to AiSOC detection schema
+  quarantine_reason: raw SPL — needs translation to Quarry detection schema

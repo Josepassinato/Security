@@ -1,5 +1,5 @@
 /**
- * AiSOC — GCP serverless skeleton
+ * Quarry — GCP serverless skeleton
  *
  * Per-service runtime identities. Cloud Run services run as dedicated SAs so
  * IAM bindings stay scoped to one service at a time. The compute default SA
@@ -10,20 +10,20 @@
 
 resource "google_service_account" "api" {
   account_id   = "${var.name_prefix}-api"
-  display_name = "AiSOC API runtime"
-  description  = "Runtime identity for the AiSOC FastAPI Cloud Run service."
+  display_name = "Quarry API runtime"
+  description  = "Runtime identity for the Quarry FastAPI Cloud Run service."
 }
 
 resource "google_service_account" "web" {
   account_id   = "${var.name_prefix}-web"
-  display_name = "AiSOC web runtime"
-  description  = "Runtime identity for the AiSOC Next.js Cloud Run service."
+  display_name = "Quarry web runtime"
+  description  = "Runtime identity for the Quarry Next.js Cloud Run service."
 }
 
 resource "google_service_account" "ingest" {
   account_id   = "${var.name_prefix}-ingest"
-  display_name = "AiSOC ingest runtime"
-  description  = "Runtime identity for the AiSOC ingest Cloud Run service."
+  display_name = "Quarry ingest runtime"
+  description  = "Runtime identity for the Quarry ingest Cloud Run service."
 }
 
 # ─── Common bindings ─────────────────────────────────────────────────────────

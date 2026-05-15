@@ -40,8 +40,8 @@ def test_sslmode_disable_translated_to_false():
 
 
 def test_other_query_params_preserved():
-    url, args = _normalize_async_pg_url("postgresql://u:p@h/db?application_name=aisoc&sslmode=verify-full")
-    assert "application_name=aisoc" in url
+    url, args = _normalize_async_pg_url("postgresql://u:p@h/db?application_name=quarry&sslmode=verify-full")
+    assert "application_name=quarry" in url
     assert "sslmode" not in url
     assert args == {"ssl": "verify-full"}
 

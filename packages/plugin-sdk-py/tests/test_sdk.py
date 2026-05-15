@@ -1,8 +1,8 @@
-"""Unit tests for the AiSOC Python plugin SDK."""
+"""Unit tests for the Quarry Python plugin SDK."""
 
 import pytest
 
-from aisoc_plugin_sdk import (
+from quarry_plugin_sdk import (
     PluginManifest,
     PluginContext,
     EnricherPlugin,

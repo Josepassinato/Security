@@ -7,9 +7,9 @@ description: >
   or user has been isolated during an incident response. Supports rich Block
   Kit formatting, direct-message escalations to the on-call analyst, and
   thread-based updates as the incident evolves.
-author: AiSOC Core Team
+author: Quarry Core Team
 tags: [slack, notification, quarantine, response]
-homepage: https://github.com/beenuar/AiSOC/tree/main/plugins/slack-quarantine
+homepage: https://github.com/beenuar/Quarry/tree/main/plugins/slack-quarantine
 license: MIT
 min_aisoc_version: "4.0.0"
 config_schema:

@@ -124,7 +124,7 @@ class ModelBreakdown(BaseModel):
 class TopCostCase(BaseModel):
     """The most expensive cases over the window.
 
-    Top-cost playbooks ≈ top-cost cases in the AiSOC data model: a
+    Top-cost playbooks ≈ top-cost cases in the Quarry data model: a
     case is the unit of work an analyst (or playbook) drives, and
     ``investigation_runs.case_id`` is the only stable join we can make
     between LLM cost and "what was this money spent on?".

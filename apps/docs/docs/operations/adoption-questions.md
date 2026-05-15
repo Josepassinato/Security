@@ -1,12 +1,12 @@
 ---
 sidebar_position: 3
 title: Adoption consultation questions
-description: A structured question set to run with a security leader before deploying AiSOC — coverage, agent autonomy, compliance, ITSM, SLOs, and success metrics.
+description: A structured question set to run with a security leader before deploying Quarry — coverage, agent autonomy, compliance, ITSM, SLOs, and success metrics.
 ---
 
 # Adoption consultation questions
 
-This page is the question set we walk through with a security leader (CISO, head of SecOps, IR lead) before deploying AiSOC. It exists because most failed SOC-tooling rollouts fail not on capability but on **boundary** — the tool was given too much or too little autonomy, was wired to the wrong source of truth, or was measured against a goal it could not move.
+This page is the question set we walk through with a security leader (CISO, head of SecOps, IR lead) before deploying Quarry. It exists because most failed SOC-tooling rollouts fail not on capability but on **boundary** — the tool was given too much or too little autonomy, was wired to the wrong source of truth, or was measured against a goal it could not move.
 
 The structure below is meant to be taken **in order**. Each section depends on answers from the section above it. Skipping ahead — particularly to "agent autonomy" before answering "what does success look like" — is the most common way these conversations go sideways.
 
@@ -20,11 +20,11 @@ Establish the goal _before_ talking about tools.
 
 1. **What is the single number that is unacceptable today?**
    (Mean time to triage? P1 backlog? Analyst hours per week on false positives? Time to contain a confirmed identity compromise?)
-2. **In 90 days, what change in that number is the bar for "AiSOC is working"?**
+2. **In 90 days, what change in that number is the bar for "Quarry is working"?**
    Concrete numbers only — "fewer false positives" is not an answer.
 3. **Who reviews that number with you, and how often?**
    (Board, CIO, weekly ops review, monthly business review.)
-4. **What change in that number would cause you to expand AiSOC?** **What change would cause you to roll it back?**
+4. **What change in that number would cause you to expand Quarry?** **What change would cause you to roll it back?**
 5. **Are there qualitative outcomes the number does not capture?**
    (Analyst retention, on-call burden, audit findings, cyber-insurance posture.)
 6. **Which two adjacent teams stand to benefit if this works?**
@@ -34,7 +34,7 @@ Establish the goal _before_ talking about tools.
 
 ## 2. Threat model & coverage requirements
 
-Before integrations, agree on what AiSOC must detect and respond to.
+Before integrations, agree on what Quarry must detect and respond to.
 
 1. **What are your top three threat scenarios?**
    Phrase each as a story: who, doing what, against which asset, and what would tip you off. Avoid generic categories like "ransomware."
@@ -60,14 +60,14 @@ Map the existing surface area to the [connector catalog](/docs/connectors/api-co
 5. **SaaS surfaces.** M365 audit? Google Workspace audit? GitHub audit? Slack audit? Salesforce login history? Which of these does compliance require you to retain, and for how long?
 6. **Network.** Cisco Umbrella / Zscaler / Tailscale / firewall syslog — which are present, and is there a centralized aggregator?
 7. **Vulnerability + posture.** Tenable, Wiz, Lacework — what runs today, and where do its findings flow?
-8. **For each integration above, who owns the credential rotation policy?** Who would be paged if AiSOC's poll started failing?
+8. **For each integration above, who owns the credential rotation policy?** Who would be paged if Quarry's poll started failing?
 9. **Are any sources only available behind your corporate VPN / on-prem network?** This determines whether the air-gap deployment shape is needed.
 
 ---
 
 ## 4. Case lifecycle & ITSM source of truth
 
-This is where rollouts most often break — see [ITSM as a projection of AiSOC](/docs/architecture/itsm-as-source-of-truth) for the architectural answer.
+This is where rollouts most often break — see [ITSM as a projection of Quarry](/docs/architecture/itsm-as-source-of-truth) for the architectural answer.
 
 1. **Where does an incident "live" today?**
    (Jira project, ServiceNow Security Incident Response, a Confluence runbook, a Slack channel, an email thread.)
@@ -90,9 +90,9 @@ This is where rollouts most often break — see [ITSM as a projection of AiSOC](
 
 The hardest conversation. Refusing it explicitly is a red flag.
 
-1. **What actions is AiSOC _allowed_ to take without human approval, ever?**
+1. **What actions is Quarry _allowed_ to take without human approval, ever?**
    (Enrich a domain. Pull a process tree. Query the SIEM. Read mailbox audit.)
-2. **What actions require explicit human approval before AiSOC takes them?**
+2. **What actions require explicit human approval before Quarry takes them?**
    (Isolate a host. Disable a user account. Quarantine a file. Block a hash globally. Revoke a token.)
 3. **For the approval-required actions, who can approve, on which channel, and what is the timeout?**
    (ChatOps verification model — see the action contracts.)
@@ -113,10 +113,10 @@ The hardest conversation. Refusing it explicitly is a red flag.
 2. **Where must the data physically reside?**
    (Single region, multi-region, on-prem only, EU only.)
 3. **What is your data retention requirement** for raw logs, normalized events, and case records? Do they differ?
-4. **Who is your DPO / privacy contact?** Have they reviewed how AiSOC handles PII (usernames, IPs, email addresses, device names)?
+4. **Who is your DPO / privacy contact?** Have they reviewed how Quarry handles PII (usernames, IPs, email addresses, device names)?
 5. **What is your encryption standard for data at rest and for credentials?**
-   (AiSOC uses Fernet AES-128-CBC + HMAC-SHA256 by default; if you require AES-256 or KMS-backed keys, we need to know now.)
-6. **Do you require an immutable audit trail of every action AiSOC takes?**
+   (Quarry uses Fernet AES-128-CBC + HMAC-SHA256 by default; if you require AES-256 or KMS-backed keys, we need to know now.)
+6. **Do you require an immutable audit trail of every action Quarry takes?**
    (We provide one — make sure it is reviewed.)
 7. **Is air-gapped deployment a hard requirement** for any of your environments? If yes, see [air-gap operations](/docs/operations/airgap).
 8. **Are you subject to AI-specific regulation** (EU AI Act, sectoral AI guidance) that constrains which model providers are usable?
@@ -125,9 +125,9 @@ The hardest conversation. Refusing it explicitly is a red flag.
 
 ## 7. Identity, access, and tenancy
 
-1. **How will analysts log in to AiSOC?**
+1. **How will analysts log in to Quarry?**
    (SSO via your IdP — which?) Will MFA be enforced at the IdP, the app, or both?
-2. **What is the role model in AiSOC?**
+2. **What is the role model in Quarry?**
    (Read-only, triage, responder, admin, super-admin — how does that map to your existing security team structure?)
 3. **Do you need SCIM provisioning?**
 4. **Is multi-tenancy needed within your org?**
@@ -144,9 +144,9 @@ The hardest conversation. Refusing it explicitly is a red flag.
    (Seconds, minutes, hours.)
 3. **What latency do you need from detection to a triaged case?**
 4. **What is your acceptable false-positive rate** on the top 10 detection rules? How is that measured?
-5. **How do you want to be alerted when AiSOC itself is degraded?**
+5. **How do you want to be alerted when Quarry itself is degraded?**
    (Connector failing, ingest backlog, agent unable to call its tools.)
-6. **Who owns the on-call rotation for AiSOC the platform** (separate from the SOC analyst rotation)?
+6. **Who owns the on-call rotation for Quarry the platform** (separate from the SOC analyst rotation)?
 7. **What is your release tolerance?**
    (Auto-update is fine. Bi-weekly windows. Quarterly with internal validation.)
 8. **Do you require a staging environment** that mirrors prod? At what fidelity?
@@ -157,10 +157,10 @@ The hardest conversation. Refusing it explicitly is a red flag.
 
 1. **What does the weekly report to leadership need to contain?**
 2. **What does the quarterly report to the board need to contain?**
-3. **Are there external reporting obligations** — to insurers, customers, regulators — that AiSOC outputs need to feed?
+3. **Are there external reporting obligations** — to insurers, customers, regulators — that Quarry outputs need to feed?
 4. **Do you need an exec dashboard** distinct from the analyst console?
 5. **What language do you use for severity, externally?**
-   (Critical / high / medium / low? P1-P4? Numbered SEV?) AiSOC needs to map to it.
+   (Critical / high / medium / low? P1-P4? Numbered SEV?) Quarry needs to map to it.
 
 ---
 
@@ -168,12 +168,12 @@ The hardest conversation. Refusing it explicitly is a red flag.
 
 The honest question that almost no procurement conversation asks.
 
-1. **Under what conditions would you decommission AiSOC?**
+1. **Under what conditions would you decommission Quarry?**
    Be specific.
 2. **What data would you need to take with you?**
    (Cases, evidence, audit trail, detection rules.)
 3. **Who is the off-boarding executive sponsor** if the project lead leaves?
-4. **What does success look like _without_ AiSOC** — i.e. if it works so well it makes itself less needed?
+4. **What does success look like _without_ Quarry** — i.e. if it works so well it makes itself less needed?
 
 ---
 

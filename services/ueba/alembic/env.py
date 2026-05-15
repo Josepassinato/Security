@@ -19,7 +19,7 @@ target_metadata = Base.metadata
 
 DATABASE_URL = os.environ.get("DATABASE_URL") or os.environ.get(
     "UEBA_DATABASE_URL",
-    "postgresql+asyncpg://aisoc:aisoc@localhost:5432/aisoc",
+    "postgresql+asyncpg://quarry:aisoc@localhost:5432/quarry",
 )
 
 

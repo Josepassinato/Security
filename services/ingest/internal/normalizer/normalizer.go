@@ -8,9 +8,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/beenuar/aisoc/services/ingest/internal/attck"
-	"github.com/beenuar/aisoc/services/ingest/internal/config"
-	"github.com/beenuar/aisoc/services/ingest/internal/enrichment"
+	"github.com/beenuar/quarry/services/ingest/internal/attck"
+	"github.com/beenuar/quarry/services/ingest/internal/config"
+	"github.com/beenuar/quarry/services/ingest/internal/enrichment"
 	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
 )

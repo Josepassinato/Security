@@ -137,20 +137,20 @@ services/api
 PostgreSQL  ──▶  /alerts console (lights up immediately)
 ```
 
-This is the path used by the `aisoc submit` CLI command and the
-[`examples/alerts/lateral-movement.json`](https://github.com/beenuar/AiSOC/tree/main/examples/alerts/lateral-movement.json)
+This is the path used by the `quarry submit` CLI command and the
+[`examples/alerts/lateral-movement.json`](https://github.com/Josepassinato/quarry/tree/main/examples/alerts/lateral-movement.json)
 canonical payload. The classic Kafka-fed pipeline above is still the
 **production** path; the direct-write endpoint exists so a fresh clone of
-the repo, an `aisoc serve` process, and a single `aisoc submit` call are
+the repo, an `quarry serve` process, and a single `quarry submit` call are
 enough to see an alert on `/alerts` — no broker, no schedulers, no
 connectors required.
 
 The `services/api` service holds the **encrypt** authority for the vault
 and is the only writer to `connectors.auth_config_encrypted`.
 `services/connectors` ships a vendored read-path `decrypt_dict()` that
-pairs to the same `AISOC_CREDENTIAL_KEY` so the scheduler can decrypt
+pairs to the same `QUARRY_CREDENTIAL_KEY` so the scheduler can decrypt
 per-poll without owning the write path. Key rotation is supported via
-`MultiFernet` and the `AISOC_CREDENTIAL_KEY_ROTATION_FROM` env var; the
+`MultiFernet` and the `QUARRY_CREDENTIAL_KEY_ROTATION_FROM` env var; the
 [Operations: Credentials](./operations/credentials) page documents the
 full rotation procedure, threat model, and hosted-OAuth roadmap.
 
@@ -163,7 +163,7 @@ database.
 ## Monorepo Layout
 
 ```
-AiSOC/
+Quarry/
 ├── apps/
 │   ├── web/                # Next.js 14 React frontend (incl. Responder PWA)
 │   └── docs/               # This Docusaurus site
@@ -192,7 +192,7 @@ AiSOC/
 │   ├── sdk-ts/             # TypeScript client SDK
 │   └── sdk-go/             # Go models / client helpers
 ├── infra/
-│   ├── helm/aisoc/         # Helm chart (Kubernetes, HA-ready)
+│   ├── helm/quarry/         # Helm chart (Kubernetes, HA-ready)
 │   ├── terraform/          # Terraform modules
 │   ├── coolify/            # One-click deploy on Coolify
 │   ├── fly/                # Fly.io demo deployments
@@ -205,7 +205,7 @@ AiSOC/
 ├── marketplace/            # Marketplace index (index.json)
 ├── docs/                   # OpenAPI spec (openapi.yaml)
 ├── docker-compose.yml      # Full development stack
-├── docker-compose.demo.yml # Slim profile for `pnpm aisoc:demo`
+├── docker-compose.demo.yml # Slim profile for `pnpm quarry:demo`
 └── scripts/                # Utilities (seed, eval harness, build, validate)
 ```
 
@@ -229,7 +229,7 @@ AiSOC/
 | `mcp` | n/a | TypeScript | Model Context Protocol stdio server, 11 tools for IDE-side agents (Claude / Cursor / Continue / Cody) |
 | `osquery-tls` | 8443 | Go | TLS server implementing osquery's enrol/config/distributed/log endpoints; ships normalised host events into `ingest` |
 | `osquery-extensions` | — | Go | Out-of-band osquery extensions registering custom virtual tables and decorators consumed by `osquery-tls` |
-| `slack-bot` | — | Python | ChatOps surface: posts approval prompts, exposes `/aisoc` slash command, verifies inbound interactions with HMAC-signed Slack request signatures |
+| `slack-bot` | — | Python | ChatOps surface: posts approval prompts, exposes `/quarry` slash command, verifies inbound interactions with HMAC-signed Slack request signatures |
 | `web` | 3000 | TypeScript (Next.js) | React console + Responder PWA route group, **`/alerts` Investigation Rail**, **benchmark scoreboard**, conversational investigation chat |
 
 ## Storage Tier
@@ -253,11 +253,11 @@ prompt hash, and timestamp. The Case workspace renders this as a
 scrubbable timeline so analysts can replay the agent's reasoning.
 
 The schema is defined in
-[`services/api/migrations/008_investigation_ledger.sql`](https://github.com/beenuar/AiSOC/blob/main/services/api/migrations/008_investigation_ledger.sql).
+[`services/api/migrations/008_investigation_ledger.sql`](https://github.com/Josepassinato/quarry/blob/main/services/api/migrations/008_investigation_ledger.sql).
 The agent-side writer lives in
-[`services/agents/app/investigator/ledger.py`](https://github.com/beenuar/AiSOC/blob/main/services/agents/app/investigator/ledger.py),
+[`services/agents/app/investigator/ledger.py`](https://github.com/Josepassinato/quarry/blob/main/services/agents/app/investigator/ledger.py),
 and the UI consumer is
-[`apps/web/src/components/cases/InvestigationLedger.tsx`](https://github.com/beenuar/AiSOC/blob/main/apps/web/src/components/cases/InvestigationLedger.tsx).
+[`apps/web/src/components/cases/InvestigationLedger.tsx`](https://github.com/Josepassinato/quarry/blob/main/apps/web/src/components/cases/InvestigationLedger.tsx).
 
 ### Prompt sanitization layer
 
@@ -265,7 +265,7 @@ Investigator agents (`recon`, `forensic`, `responder`, `report_writer`) consume
 attacker-influenced strings — enrichment payloads, dark-web excerpts, vendor
 descriptions, raw alert fields — and hand them to an LLM. Every one of those
 agents now routes its context through
-[`services/agents/app/investigator/prompt_sanitizer.py`](https://github.com/beenuar/AiSOC/blob/main/services/agents/app/investigator/prompt_sanitizer.py),
+[`services/agents/app/investigator/prompt_sanitizer.py`](https://github.com/Josepassinato/quarry/blob/main/services/agents/app/investigator/prompt_sanitizer.py),
 which strips known role / chat delimiters, redacts common jailbreak phrasings,
 caps field length, bounds list size and recursion depth, and wraps the result
 in explicit `<UNTRUSTED_DATA>` tags. The agents still validate the LLM's
@@ -276,17 +276,17 @@ for the threat model and defence-in-depth layers.
 ## Investigation Rail and correlation narrative
 
 The alert queue (`/alerts`) pairs the sortable table with an **Investigation Rail**
-([`InvestigationRail.tsx`](https://github.com/beenuar/AiSOC/blob/main/apps/web/src/components/alerts/InvestigationRail.tsx))
+([`InvestigationRail.tsx`](https://github.com/Josepassinato/quarry/blob/main/apps/web/src/components/alerts/InvestigationRail.tsx))
 fed by `GET /api/v1/alerts/{id}`. The response envelope is assembled in
-[`services/api/app/services/alert_rail.py`](https://github.com/beenuar/AiSOC/blob/main/services/api/app/services/alert_rail.py)
+[`services/api/app/services/alert_rail.py`](https://github.com/Josepassinato/quarry/blob/main/services/api/app/services/alert_rail.py)
 (narrative text, entity buckets, merged mini-timeline, recommended actions).
 
 **Narrative** — At fusion time, `services/fusion` runs the same deterministic
-builder as the API vendored copy ([`narrative.py`](https://github.com/beenuar/AiSOC/blob/main/services/fusion/app/services/narrative.py))
+builder as the API vendored copy ([`narrative.py`](https://github.com/Josepassinato/quarry/blob/main/services/fusion/app/services/narrative.py))
 so promoted alerts persist a short explanation of *which* signals correlated
 and *why*. Reads do not call an LLM. Alerts created before this shipped get a
 lazy projection on first detail fetch via
-[`narrative_projection.py`](https://github.com/beenuar/AiSOC/blob/main/services/api/app/services/narrative_projection.py),
+[`narrative_projection.py`](https://github.com/Josepassinato/quarry/blob/main/services/api/app/services/narrative_projection.py),
 then the text is cached on the row (see migration `041_alert_correlation_narrative.sql`).
 
 **Sync** — When the narrative builder changes, run `scripts/sync_vendored_narrative.py`
@@ -302,9 +302,9 @@ shows the on-call rotation, lists pending approvals, supports VAPID
 Web Push for high-severity alerts, and ships an offline shell.
 
 The schema is defined in
-[`009_responder_pwa.sql`](https://github.com/beenuar/AiSOC/blob/main/services/api/migrations/009_responder_pwa.sql).
+[`009_responder_pwa.sql`](https://github.com/Josepassinato/quarry/blob/main/services/api/migrations/009_responder_pwa.sql).
 The push pipeline lives in
-[`services/realtime/src/push.ts`](https://github.com/beenuar/AiSOC/blob/main/services/realtime/src/push.ts).
+[`services/realtime/src/push.ts`](https://github.com/Josepassinato/quarry/blob/main/services/realtime/src/push.ts).
 
 ## Enterprise Security Controls
 
@@ -320,7 +320,7 @@ The push pipeline lives in
 
 ## Plugin Extension Points
 
-Plugins extend AiSOC at three key points:
+Plugins extend Quarry at three key points:
 
 - **Enrichers** — Add context to indicators (IP, domain, hash, email)
 - **Actions** — Execute response steps (block IP, disable user, create ticket)

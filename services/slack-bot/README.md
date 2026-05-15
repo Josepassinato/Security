@@ -1,27 +1,27 @@
-# AiSOC Slack Bot
+# Quarry Slack Bot
 
-ChatOps surface for AiSOC: slash commands and interactive approval flows that
+ChatOps surface for Quarry: slash commands and interactive approval flows that
 let an L1/L2 analyst run the SOC without leaving Slack.
 
 This service is a thin **adapter** — it owns no security state. Every request
 is forwarded to `services/api` (cases, alerts, investigations) or
 `services/actions` (response actions, approvals) using a service-scoped
-`aisoc_*` API key. The bot itself just translates Slack events ↔ AiSOC HTTP
+`aisoc_*` API key. The bot itself just translates Slack events ↔ Quarry HTTP
 calls and renders the result as Block Kit messages.
 
 ## Slash commands
 
-All commands live under a single `/aisoc` slash command (Slack only allows
+All commands live under a single `/quarry` slash command (Slack only allows
 verb-based parsing inside the command text).
 
 | Command                         | Behaviour                                                              |
 | ------------------------------- | ---------------------------------------------------------------------- |
-| `/aisoc list`                   | Open cases (top 10), severity-coloured cards, links into the web UI.   |
-| `/aisoc investigate <case>`     | Kick off an investigation run for the case (no LLM cost in air-gap).   |
-| `/aisoc explain <case>`         | Pull the per-case auto-summary (`GET /cases/{id}/summary`).            |
-| `/aisoc isolate <host>`         | Submit `isolate_host` action — gated, posts an approval card.          |
-| `/aisoc block <ip>`             | Submit `block_ip` action — gated, posts an approval card.              |
-| `/aisoc help`                   | Inline command reference.                                              |
+| `/quarry list`                   | Open cases (top 10), severity-coloured cards, links into the web UI.   |
+| `/quarry investigate <case>`     | Kick off an investigation run for the case (no LLM cost in air-gap).   |
+| `/quarry explain <case>`         | Pull the per-case auto-summary (`GET /cases/{id}/summary`).            |
+| `/quarry isolate <host>`         | Submit `isolate_host` action — gated, posts an approval card.          |
+| `/quarry block <ip>`             | Submit `block_ip` action — gated, posts an approval card.              |
+| `/quarry help`                   | Inline command reference.                                              |
 
 `isolate` and `block` always require explicit human approval; the bot posts a
 "Approve / Deny" card and forwards the analyst's choice back to
@@ -35,13 +35,13 @@ Configured entirely via environment variables (Pydantic settings):
 | ------------------------------------- | -------- | ------------------------------------------------------------ |
 | `SLACK_BOT_TOKEN`                     | yes      | `xoxb-…` — bot user OAuth token.                             |
 | `SLACK_SIGNING_SECRET`                | yes      | Used by Bolt to verify incoming Slack request signatures.    |
-| `AISOC_API_BASE_URL`                  | yes      | e.g. `http://aisoc-api:8000` (in-cluster).                   |
-| `AISOC_ACTIONS_BASE_URL`              | yes      | e.g. `http://aisoc-actions:8085` (in-cluster).               |
-| `AISOC_API_SERVICE_TOKEN`             | yes      | `aisoc_…` API key with `cases:read,cases:write,alerts:read`. |
-| `AISOC_ACTIONS_SERVICE_TOKEN`         | yes      | `aisoc_…` API key with `actions:write` (or shared key).      |
-| `AISOC_WEB_BASE_URL`                  | no       | Public web URL used to deep-link case cards. Default `https://app.tryaisoc.com`. |
-| `AISOC_DEFAULT_TENANT_ID`             | yes      | UUID of the tenant Slack actions belong to (single-tenant Slack workspace assumption). |
-| `AISOC_SLACK_BOT_PORT`                | no       | Bolt FastAPI port. Default `8089`.                           |
+| `QUARRY_API_BASE_URL`                  | yes      | e.g. `http://quarry-api:8000` (in-cluster).                   |
+| `QUARRY_ACTIONS_BASE_URL`              | yes      | e.g. `http://quarry-actions:8085` (in-cluster).               |
+| `QUARRY_API_SERVICE_TOKEN`             | yes      | `aisoc_…` API key with `cases:read,cases:write,alerts:read`. |
+| `QUARRY_ACTIONS_SERVICE_TOKEN`         | yes      | `aisoc_…` API key with `actions:write` (or shared key).      |
+| `QUARRY_WEB_BASE_URL`                  | no       | Public web URL used to deep-link case cards. Default `https://app.tryaisoc.com`. |
+| `QUARRY_DEFAULT_TENANT_ID`             | yes      | UUID of the tenant Slack actions belong to (single-tenant Slack workspace assumption). |
+| `QUARRY_SLACK_BOT_PORT`                | no       | Bolt FastAPI port. Default `8089`.                           |
 
 Secrets must be mounted via your secret store (Doppler / Vault / k8s Secret) —
 do **not** check them into the repo. `pnpm preflight` will fail if it detects
@@ -55,11 +55,11 @@ a Slack token in tracked files.
 poetry install
 export SLACK_BOT_TOKEN=xoxb-…
 export SLACK_SIGNING_SECRET=…
-export AISOC_API_BASE_URL=http://localhost:8000
-export AISOC_ACTIONS_BASE_URL=http://localhost:8002
-export AISOC_API_SERVICE_TOKEN=aisoc_…
-export AISOC_ACTIONS_SERVICE_TOKEN=aisoc_…
-export AISOC_DEFAULT_TENANT_ID=00000000-0000-0000-0000-000000000000
+export QUARRY_API_BASE_URL=http://localhost:8000
+export QUARRY_ACTIONS_BASE_URL=http://localhost:8002
+export QUARRY_API_SERVICE_TOKEN=aisoc_…
+export QUARRY_ACTIONS_SERVICE_TOKEN=aisoc_…
+export QUARRY_DEFAULT_TENANT_ID=00000000-0000-0000-0000-000000000000
 poetry run uvicorn app.main:app --reload --port 8089
 ```
 
@@ -75,9 +75,9 @@ it up alongside the rest of the stack:
 # in repo root .env (do not commit)
 SLACK_BOT_TOKEN=xoxb-…
 SLACK_SIGNING_SECRET=…
-AISOC_SLACK_API_TOKEN=aisoc_…           # cases:read, cases:write, alerts:read
-AISOC_SLACK_ACTIONS_TOKEN=aisoc_…       # actions:write
-AISOC_DEFAULT_TENANT_ID=00000000-0000-0000-0000-000000000000
+QUARRY_SLACK_API_TOKEN=aisoc_…           # cases:read, cases:write, alerts:read
+QUARRY_SLACK_ACTIONS_TOKEN=aisoc_…       # actions:write
+QUARRY_DEFAULT_TENANT_ID=00000000-0000-0000-0000-000000000000
 
 docker compose --profile chatops up slack-bot
 ```
@@ -98,7 +98,7 @@ verbatim.
 - [ ] **OAuth scopes (bot)**: `chat:write`, `commands`, `users:read`,
       `users:read.email`, `im:write`. We do not need `channels:history` —
       v1 only reacts to slash commands and interactive payloads.
-- [ ] **Slash command**: `/aisoc` registered with request URL
+- [ ] **Slash command**: `/quarry` registered with request URL
       `https://<deployment>/slack/events`. *(Bolt's FastAPI adapter routes
       slash commands, interactive payloads, and the URL-verification
       handshake through a single endpoint — there are no separate
@@ -117,9 +117,9 @@ verbatim.
       reachable.
 - [ ] **App icon (512×512)** and **app description** match the marketplace
       listing copy.
-- [ ] **Long description** explains the data Slack ↔ AiSOC exchanges (case
+- [ ] **Long description** explains the data Slack ↔ Quarry exchanges (case
       titles, severity, host/IP identifiers in approval prompts) and that
-      AiSOC stores no Slack message content beyond the audit-trail event
+      Quarry stores no Slack message content beyond the audit-trail event
       noting which user approved or denied an action.
 
 ### End-to-end verification
@@ -154,6 +154,6 @@ verbatim.
 poetry run pytest
 ```
 
-Unit tests cover Block Kit builders, the AiSOC HTTP clients (with `respx`
+Unit tests cover Block Kit builders, the Quarry HTTP clients (with `respx`
 mocks), command parsing, and approve/deny action handlers. They do not call
 the real Slack API.

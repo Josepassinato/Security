@@ -1,4 +1,4 @@
-# AiSOC — developer compose entrypoint.
+# Quarry — developer compose entrypoint.
 #
 # This file is a thin alias over `docker-compose.yml` so that the Quickstart
 # guide and demo scripts can use a stable, dev-flavoured command:

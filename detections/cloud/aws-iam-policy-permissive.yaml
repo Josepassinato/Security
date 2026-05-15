@@ -1,6 +1,6 @@
 id: det-cloud-007
 name: AWS IAM Policy with Wildcard Action
-description: AiSOC v1 curated detection. Triggers on the cloud signal described by 'AWS IAM Policy with
+description: Quarry v1 curated detection. Triggers on the cloud signal described by 'AWS IAM Policy with
   Wildcard Action'. Watch the 2 documented false-positive cases before tuning.
 version: 1.0.0
 severity: high
@@ -22,6 +22,6 @@ false_positives:
 - Break-glass policy
 playbook: tpl-privilege-escalation
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

@@ -461,7 +461,7 @@ class ContextBundleBuilder:
         api_token: str | None = None,
     ) -> None:
         self.depth = depth if depth is not None else int(
-            os.getenv("AISOC_CONTEXT_BUNDLE_DEPTH", str(self.DEFAULT_DEPTH))
+            os.getenv("QUARRY_CONTEXT_BUNDLE_DEPTH", str(self.DEFAULT_DEPTH))
         )
         self.max_neighborhood_nodes = max_neighborhood_nodes
         self.history_limit = history_limit
@@ -654,7 +654,7 @@ class ContextBundleBuilder:
         except Exception as exc:  # noqa: BLE001
             raise RuntimeError(f"httpx unavailable: {exc}") from exc
 
-        ueba_url = os.getenv("AISOC_UEBA_URL", "http://ueba:8086")
+        ueba_url = os.getenv("QUARRY_UEBA_URL", "http://ueba:8086")
         principals = [
             e for e in entities if e.type in ("user", "email", "host", "ip")
         ]

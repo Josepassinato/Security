@@ -42,4 +42,4 @@ provenance:
   upstream_path: rules/community/sap/sap_hanadb_assign_admin_authorizations.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

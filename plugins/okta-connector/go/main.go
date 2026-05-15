@@ -1,6 +1,6 @@
 // Package main is the Okta connector reference implementation in Go.
 //
-// Implements both aisoc.Connector (system log streaming) and aisoc.Action
+// Implements both quarry.Connector (system log streaming) and quarry.Action
 // (lifecycle actions: suspend, unsuspend, MFA reset, session expiry) on the
 // same plugin struct. The Registry's interface checks pick up both roles
 // independently.
@@ -17,34 +17,34 @@ import (
 	"strings"
 	"time"
 
-	"github.com/beenuar/aisoc/plugin-sdk-go/aisoc"
+	"github.com/beenuar/quarry/plugin-sdk-go/quarry"
 )
 
 // OktaConnector is a connector + action plugin for the Okta Identity Cloud.
 type OktaConnector struct {
-	aisoc.BasePlugin
+	quarry.BasePlugin
 
 	httpClient *http.Client
 }
 
-func (o *OktaConnector) Manifest() aisoc.PluginManifest {
-	return aisoc.PluginManifest{
+func (o *OktaConnector) Manifest() quarry.PluginManifest {
+	return quarry.PluginManifest{
 		ID:          "okta-connector",
 		Name:        "Okta Connector",
 		Version:     "1.0.0",
-		PluginType:  aisoc.PluginTypeConnector,
+		PluginType:  quarry.PluginTypeConnector,
 		Description: "Okta Identity Cloud connector for log streaming and account response actions.",
-		Author:      "AiSOC Core Team",
+		Author:      "Quarry Core Team",
 		Tags:        []string{"identity", "okta", "iam", "sso"},
 	}
 }
 
-func (o *OktaConnector) OnLoad(ctx context.Context, pctx aisoc.PluginContext) error {
+func (o *OktaConnector) OnLoad(ctx context.Context, pctx quarry.PluginContext) error {
 	o.httpClient = &http.Client{Timeout: 30 * time.Second}
 	return nil
 }
 
-func (o *OktaConnector) baseURL(pctx aisoc.PluginContext) (string, error) {
+func (o *OktaConnector) baseURL(pctx quarry.PluginContext) (string, error) {
 	domain, _ := pctx.Config["okta_domain"].(string)
 	if domain == "" {
 		return "", errors.New("okta_domain is required")
@@ -56,7 +56,7 @@ func (o *OktaConnector) baseURL(pctx aisoc.PluginContext) (string, error) {
 	return domain, nil
 }
 
-func (o *OktaConnector) authHeader(pctx aisoc.PluginContext) (string, error) {
+func (o *OktaConnector) authHeader(pctx quarry.PluginContext) (string, error) {
 	token, _ := pctx.Config["api_token"].(string)
 	if token == "" {
 		return "", errors.New("api_token is required")
@@ -69,7 +69,7 @@ func (o *OktaConnector) authHeader(pctx aisoc.PluginContext) (string, error) {
 // what Okta returns for the endpoint.
 func (o *OktaConnector) request(
 	ctx context.Context,
-	pctx aisoc.PluginContext,
+	pctx quarry.PluginContext,
 	method, path string,
 	params url.Values,
 ) (map[string]any, []map[string]any, error) {
@@ -123,7 +123,7 @@ func (o *OktaConnector) request(
 // tokens scoped to an org).
 func (o *OktaConnector) TestConnection(
 	ctx context.Context,
-	pctx aisoc.PluginContext,
+	pctx quarry.PluginContext,
 ) (bool, error) {
 	if _, _, err := o.request(ctx, pctx, http.MethodGet, "/api/v1/users/me", nil); err != nil {
 		if _, _, err := o.request(ctx, pctx, http.MethodGet, "/api/v1/org", nil); err != nil {
@@ -138,7 +138,7 @@ func (o *OktaConnector) TestConnection(
 // route per-source.
 func (o *OktaConnector) FetchEvents(
 	ctx context.Context,
-	pctx aisoc.PluginContext,
+	pctx quarry.PluginContext,
 	since string,
 ) (<-chan map[string]any, error) {
 	out := make(chan map[string]any)
@@ -187,16 +187,16 @@ func (o *OktaConnector) SupportedActions() []string {
 // without calling Okta.
 func (o *OktaConnector) Execute(
 	ctx context.Context,
-	req aisoc.ActionRequest,
-	pctx aisoc.PluginContext,
-) (aisoc.ActionResult, error) {
+	req quarry.ActionRequest,
+	pctx quarry.PluginContext,
+) (quarry.ActionResult, error) {
 	userID, _ := req.Params["user_id"].(string)
 	if userID == "" {
 		userID, _ = req.Params["login"].(string)
 	}
 	if userID == "" {
 		err := errors.New("user_id or login is required")
-		return aisoc.ActionResult{
+		return quarry.ActionResult{
 			ActionID: req.ActionID,
 			Success:  false,
 			DryRun:   req.DryRun,
@@ -205,7 +205,7 @@ func (o *OktaConnector) Execute(
 	}
 
 	if req.DryRun {
-		return aisoc.ActionResult{
+		return quarry.ActionResult{
 			ActionID: req.ActionID,
 			Success:  true,
 			DryRun:   true,
@@ -218,9 +218,9 @@ func (o *OktaConnector) Execute(
 	case "lookup_user":
 		obj, _, err := o.request(ctx, pctx, http.MethodGet, "/api/v1/users/"+userID, nil)
 		if err != nil {
-			return aisoc.ActionResult{ActionID: req.ActionID, Error: err.Error()}, err
+			return quarry.ActionResult{ActionID: req.ActionID, Error: err.Error()}, err
 		}
-		return aisoc.ActionResult{
+		return quarry.ActionResult{
 			ActionID: req.ActionID,
 			Success:  true,
 			Summary:  "looked up user " + userID,
@@ -233,9 +233,9 @@ func (o *OktaConnector) Execute(
 			"/api/v1/users/"+userID+"/lifecycle/suspend", nil,
 		)
 		if err != nil {
-			return aisoc.ActionResult{ActionID: req.ActionID, Error: err.Error()}, err
+			return quarry.ActionResult{ActionID: req.ActionID, Error: err.Error()}, err
 		}
-		return aisoc.ActionResult{
+		return quarry.ActionResult{
 			ActionID: req.ActionID,
 			Success:  true,
 			Summary:  "suspended user " + userID,
@@ -248,9 +248,9 @@ func (o *OktaConnector) Execute(
 			"/api/v1/users/"+userID+"/lifecycle/unsuspend", nil,
 		)
 		if err != nil {
-			return aisoc.ActionResult{ActionID: req.ActionID, Error: err.Error()}, err
+			return quarry.ActionResult{ActionID: req.ActionID, Error: err.Error()}, err
 		}
-		return aisoc.ActionResult{
+		return quarry.ActionResult{
 			ActionID: req.ActionID,
 			Success:  true,
 			Summary:  "unsuspended user " + userID,
@@ -263,7 +263,7 @@ func (o *OktaConnector) Execute(
 			"/api/v1/users/"+userID+"/factors", nil,
 		)
 		if err != nil {
-			return aisoc.ActionResult{ActionID: req.ActionID, Error: err.Error()}, err
+			return quarry.ActionResult{ActionID: req.ActionID, Error: err.Error()}, err
 		}
 		var deleted []string
 		for _, f := range factors {
@@ -275,7 +275,7 @@ func (o *OktaConnector) Execute(
 				ctx, pctx, http.MethodDelete,
 				"/api/v1/users/"+userID+"/factors/"+fid, nil,
 			); err != nil {
-				return aisoc.ActionResult{
+				return quarry.ActionResult{
 					ActionID: req.ActionID,
 					Error:    err.Error(),
 					Details:  map[string]any{"deleted_so_far": deleted, "failed_at": fid},
@@ -283,7 +283,7 @@ func (o *OktaConnector) Execute(
 			}
 			deleted = append(deleted, fid)
 		}
-		return aisoc.ActionResult{
+		return quarry.ActionResult{
 			ActionID: req.ActionID,
 			Success:  true,
 			Summary:  fmt.Sprintf("cleared %d MFA factors for user %s", len(deleted), userID),
@@ -297,9 +297,9 @@ func (o *OktaConnector) Execute(
 			url.Values{"oauthTokens": []string{"true"}},
 		)
 		if err != nil {
-			return aisoc.ActionResult{ActionID: req.ActionID, Error: err.Error()}, err
+			return quarry.ActionResult{ActionID: req.ActionID, Error: err.Error()}, err
 		}
-		return aisoc.ActionResult{
+		return quarry.ActionResult{
 			ActionID: req.ActionID,
 			Success:  true,
 			Summary:  "expired all sessions for user " + userID,
@@ -307,7 +307,7 @@ func (o *OktaConnector) Execute(
 		}, nil
 
 	default:
-		return aisoc.ActionResult{
+		return quarry.ActionResult{
 			ActionID: req.ActionID,
 			Error:    "unsupported action: " + req.ActionID,
 		}, nil
@@ -315,7 +315,7 @@ func (o *OktaConnector) Execute(
 }
 
 func main() {
-	registry := aisoc.NewRegistry()
+	registry := quarry.NewRegistry()
 	if err := registry.Register(&OktaConnector{}); err != nil {
 		panic(err)
 	}

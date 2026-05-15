@@ -1,13 +1,13 @@
 ---
 sidebar_position: 19
 title: Prisma Cloud
-description: Prisma Cloud (Palo Alto Networks) cloud security alerts across CSPM, CWPP, CIEM, and DSPM into AiSOC via the unified /alert/v1/alert API.
+description: Prisma Cloud (Palo Alto Networks) cloud security alerts across CSPM, CWPP, CIEM, and DSPM into Quarry via the unified /alert/v1/alert API.
 ---
 
 # Prisma Cloud
 
 The Prisma Cloud connector pulls **open security alerts** from a Prisma
-Cloud tenant into AiSOC. One connector instance covers every Prisma Cloud
+Cloud tenant into Quarry. One connector instance covers every Prisma Cloud
 surface — **CSPM**, **CWPP**, **CIEM**, and **DSPM** — because the
 `/alert/v1/alert` REST endpoint aggregates findings across all of them.
 There is no per-product configuration to babysit.
@@ -42,7 +42,7 @@ Prisma Cloud only shows it once.
 
 1. In the Prisma Cloud console, **Settings → Access Control → Access
    Keys → Add New**.
-2. Name the key `aisoc-prod` (or similar) and pick an expiry — match it
+2. Name the key `quarry-prod` (or similar) and pick an expiry — match it
    to your secrets-rotation policy.
 3. Copy the **Access Key ID** and **Secret Key** to a password manager.
 4. Confirm the **role** attached to the key has at least read access to
@@ -50,16 +50,16 @@ Prisma Cloud only shows it once.
    Admin` roles work; for least-privilege, create a custom role with the
    `Alerts: View` permission only.
 
-### 2. Add the connector in AiSOC
+### 2. Add the connector in Quarry
 
 1. **Connectors → Add connector → Prisma Cloud**.
 2. **API URL** — paste the region-specific value from
    **System → API Endpoints** (e.g. `https://api.prismacloud.io`).
 3. **Access Key ID** and **Secret Key** — paste from step 1.
-4. **Compute API URL** — leave blank. AiSOC only consumes the unified
+4. **Compute API URL** — leave blank. Quarry only consumes the unified
    `/alert` endpoint, which already includes runtime findings collapsed
    in from Compute (Twistlock).
-5. **Test connection** — AiSOC exchanges the access keys for a
+5. **Test connection** — Quarry exchanges the access keys for a
    short-lived JWT via `POST /login` and confirms a successful auth.
 6. **Save**.
 
@@ -81,10 +81,10 @@ Prisma Cloud only shows it once.
 
 ## Severity mapping
 
-Prisma Cloud uses a 4-tier severity ladder. AiSOC maps directly into the
+Prisma Cloud uses a 4-tier severity ladder. Quarry maps directly into the
 canonical 4-tier set:
 
-| Prisma Cloud severity | AiSOC severity |
+| Prisma Cloud severity | Quarry severity |
 |---|---|
 | `critical` | `high` |
 | `high` | `high` |
@@ -92,7 +92,7 @@ canonical 4-tier set:
 | `low` | `low` |
 | `informational` | `info` |
 
-`critical` collapses into `high` because AiSOC does not expose a
+`critical` collapses into `high` because Quarry does not expose a
 separate critical band. The original tier is preserved under
 `raw_event.policy.severity` so playbooks that need to distinguish
 `critical` vs `high` still can.
@@ -102,7 +102,7 @@ separate critical band. The original tier is preserved under
 The unified `/alert` endpoint includes findings from every Prisma Cloud
 module you license:
 
-| Module | What you'll see in AiSOC |
+| Module | What you'll see in Quarry |
 |---|---|
 | **CSPM** (Cloud Security Posture) | Misconfigured S3 buckets, public DBs, IAM drift, network exposure |
 | **CWPP** (Workload Protection) | Vulnerable images, runtime drift, host posture findings |
@@ -110,7 +110,7 @@ module you license:
 | **DSPM** (Data Security Posture) | Sensitive data exposure, classification findings, data-flow risks |
 
 If a module isn't licensed on the tenant, no alerts of that type appear
-— there is nothing to disable in AiSOC.
+— there is nothing to disable in Quarry.
 
 ## Live actions
 
@@ -135,7 +135,7 @@ curl -X POST "https://api.prismacloud.io/login" \
 ```
 
 A 200 response with `{ "token": "..." }` confirms the credentials are
-good — the issue is then in the AiSOC field values (most often, wrong
+good — the issue is then in the Quarry field values (most often, wrong
 region URL).
 
 **`HTTP 403` on `/alert/v1/alert`** — the role attached to the access

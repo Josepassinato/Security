@@ -1,4 +1,4 @@
-# AiSOC landing page — component recipes
+# Quarry landing page — component recipes
 
 > Companion to `landing-page-brief.md` §6 and
 > `landing-page-design-tokens.md`. One recipe per IA section, in the
@@ -162,7 +162,7 @@ Three sub-section bands with anchor IDs `features-detect`,
 ## §12 — `open-source`
 
 - **Primitives:**
-  - Aceternity **Code Block** — `git clone … && pnpm aisoc:demo`. `language="bash"`, `filename="terminal"`, `theme="dark"`.
+  - Aceternity **Code Block** — `git clone … && pnpm quarry:demo`. `language="bash"`, `filename="terminal"`, `theme="dark"`.
   - MagicUI **Number Ticker** — repo card star count.
   - Aceternity **Sparkles** — *optional* behind H2. Skip if it competes with §3.
 - **Custom:** Repo card mirrors GitHub's repo card in `surface-card` with brand-tinted hover. Octocat from `apps/web/public/glyphs/octocat.svg`, brand-tinted via CSS filter.

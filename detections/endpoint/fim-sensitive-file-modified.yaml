@@ -3,7 +3,7 @@ name: Sensitive System File Modified (FIM)
 description: >
   A file in a sensitive system path (/etc/passwd, /etc/shadow, /etc/sudoers,
   /etc/crontab, /etc/hosts, /etc/ssh/sshd_config, /etc/ld.so.*)  was created,
-  deleted, or modified as reported by osquery file_events via the AiSOC FIM
+  deleted, or modified as reported by osquery file_events via the Quarry FIM
   pipeline.  Adversaries commonly target these files for credential theft
   (T1003.008), persistence (T1037, T1053.003), lateral movement, and privilege
   escalation (T1548.001).
@@ -44,7 +44,7 @@ false_positives:
   - SSO/LDAP integration tooling updating /etc/nsswitch.conf
 playbook: tpl-credential-access
 enabled: true
-author: AiSOC
+author: Quarry
 references:
   - https://attack.mitre.org/techniques/T1003/008/
   - https://attack.mitre.org/techniques/T1053/003/

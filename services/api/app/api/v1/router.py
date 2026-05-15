@@ -248,9 +248,9 @@ api_router.include_router(inbox.router)
 # Bidirectional ITSM webhook receiver (Workstream 8 of AI Stack plan).
 # /inbox/itsm/{tenant_token}/{connector_instance_id} accepts inbound
 # Jira / ServiceNow webhooks, resolves the external ticket back to its
-# AiSOC case via case_external_refs, and mirrors the status onto
+# Quarry case via case_external_refs, and mirrors the status onto
 # aisoc_cases. This is the *inbound* counterpart to case_fanout (which
-# handles outbound AiSOC → ITSM projection) and is what makes the
+# handles outbound Quarry → ITSM projection) and is what makes the
 # operator's existing ITSM the source of truth for case status.
 api_router.include_router(inbox_itsm.router)
 
@@ -263,7 +263,7 @@ api_router.include_router(inbox_itsm.router)
 # queries without column-name guesswork.
 api_router.include_router(lake.router)
 
-# Managed-instance onboarding — T6.1 (`app.aisoc.dev` beta).
+# Managed-instance onboarding — T6.1 (`app.quarry.dev` beta).
 # /waitlist exposes the public signup + admin entries CRUD that feeds
 # the sales funnel; /admin/tenants promotes approved entries into live
 # tenants. Admin endpoints gate on `admin:waitlist` / `admin:tenants`
@@ -275,6 +275,6 @@ api_router.include_router(tenant_provision.router)
 # Public-facing graph-update WebSocket proxy — T1.4 (v8.0 parallel team plan).
 # /graph_ws/stream authenticates the browser's session token, rebinds the
 # tenant_id from the resolved user, and proxies to the internal ingest
-# broadcaster (AISOC_INGEST_GRAPH_WS_URL). Backs the RealtimeGraph
+# broadcaster (QUARRY_INGEST_GRAPH_WS_URL). Backs the RealtimeGraph
 # Cytoscape view; gates on graph:read.
 api_router.include_router(graph_ws.router)

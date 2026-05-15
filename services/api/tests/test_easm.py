@@ -194,11 +194,11 @@ async def test_active_scan_no_open_ports():
 @pytest.mark.asyncio
 async def test_run_discovery_uses_configured_connectors():
     fake_settings = MagicMock()
-    fake_settings.AISOC_EASM_SHODAN_API_KEY = "sk-test"
-    fake_settings.AISOC_EASM_CENSYS_API_ID = ""
-    fake_settings.AISOC_EASM_CENSYS_API_SECRET = ""
-    fake_settings.AISOC_EASM_ACTIVE_SCAN_ENABLED = False
-    fake_settings.AISOC_EASM_SCAN_PORTS = [80]
+    fake_settings.QUARRY_EASM_SHODAN_API_KEY = "sk-test"
+    fake_settings.QUARRY_EASM_CENSYS_API_ID = ""
+    fake_settings.QUARRY_EASM_CENSYS_API_SECRET = ""
+    fake_settings.QUARRY_EASM_ACTIVE_SCAN_ENABLED = False
+    fake_settings.QUARRY_EASM_SCAN_PORTS = [80]
 
     shodan_asset = DiscoveredAsset(
         asset_type=ExternalAssetType.IP,
@@ -224,11 +224,11 @@ async def test_run_discovery_uses_configured_connectors():
 @pytest.mark.asyncio
 async def test_run_discovery_runs_active_when_enabled():
     fake_settings = MagicMock()
-    fake_settings.AISOC_EASM_SHODAN_API_KEY = ""
-    fake_settings.AISOC_EASM_CENSYS_API_ID = ""
-    fake_settings.AISOC_EASM_CENSYS_API_SECRET = ""
-    fake_settings.AISOC_EASM_ACTIVE_SCAN_ENABLED = True
-    fake_settings.AISOC_EASM_SCAN_PORTS = [22, 80]
+    fake_settings.QUARRY_EASM_SHODAN_API_KEY = ""
+    fake_settings.QUARRY_EASM_CENSYS_API_ID = ""
+    fake_settings.QUARRY_EASM_CENSYS_API_SECRET = ""
+    fake_settings.QUARRY_EASM_ACTIVE_SCAN_ENABLED = True
+    fake_settings.QUARRY_EASM_SCAN_PORTS = [22, 80]
 
     active_asset = DiscoveredAsset(
         asset_type=ExternalAssetType.IP,

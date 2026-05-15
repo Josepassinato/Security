@@ -2,7 +2,7 @@
 AWS CloudTrail connector.
 
 Polls a curated allow-list of high-signal CloudTrail events via
-``cloudtrail.lookup_events`` and emits normalized AiSOC alerts.
+``cloudtrail.lookup_events`` and emits normalized Quarry alerts.
 
 Why an allow-list, not a firehose?
 
@@ -68,7 +68,7 @@ logger = structlog.get_logger()
 
 # Critical-severity events: irreversible-or-incident-grade actions
 # that almost always represent active tamper / take-over. These map
-# straight to AiSOC's ``critical`` tier so they fire the P1 SLA.
+# straight to Quarry's ``critical`` tier so they fire the P1 SLA.
 _CRITICAL_SEVERITY_EVENTS = frozenset(
     {
         # Visibility kill switches — silencing the audit trail itself.
@@ -201,7 +201,7 @@ DEFAULT_EVENT_NAMES: tuple[str, ...] = (
 
 
 def _event_severity(event_name: str, error_code: str | None) -> str:
-    """Bucket a CloudTrail event into AiSOC's 5-tier severity ladder.
+    """Bucket a CloudTrail event into Quarry's 5-tier severity ladder.
 
     Heuristic:
         - CRITICAL if it's in ``_CRITICAL_SEVERITY_EVENTS`` (visibility
@@ -274,7 +274,7 @@ class AWSCloudTrailConnector(BaseConnector):
                     default="",
                     help_text=(
                         "Override the default curated event list. "
-                        "Leave blank to use AiSOC's curated list, or "
+                        "Leave blank to use Quarry's curated list, or "
                         "set to '*' to pull every CloudTrail event in "
                         "the window (high volume — not recommended)."
                     ),

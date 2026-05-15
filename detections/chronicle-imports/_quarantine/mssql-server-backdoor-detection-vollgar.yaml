@@ -49,4 +49,4 @@ provenance:
   upstream_path: rules/_deprecated/soc_prime_rules/ioc_sigma/windows/ms_sql_server_backdoor_detection__vollgar.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

@@ -1,4 +1,4 @@
--- AiSOC Hunt-as-code migration (Wave 2 — w2-hac)
+-- Quarry Hunt-as-code migration (Wave 2 — w2-hac)
 -- Stores the catalog of registered hunt hypotheses (loaded from the YAML
 -- corpus in `hunts/`) plus first-class artifacts for every hunt run and
 -- finding so they sit alongside the Investigation Ledger as queryable,

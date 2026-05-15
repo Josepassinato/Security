@@ -186,7 +186,7 @@
         "action": "workflow_run.completed",
         "workflow": "ci.yml",
         "actor": "dependabot[bot]",
-        "repository": "aisoc/web",
+        "repository": "quarry/web",
         "conclusion": "success",
         "package_added": "event-stream@4.0.1"
       },
@@ -1838,7 +1838,7 @@
         "ClientIP": "AWS-EC2-PROD-API",
         "Subject": "URGENT: Wire instructions from CFO",
         "From": "cfo@example.com.spoof",
-        "ReplyTo": "cfo-aisoc@protonmail.com",
+        "ReplyTo": "cfo-quarry@protonmail.com",
         "threat_actor": "ALPHV/BlackCat"
       }
     ]
@@ -1877,7 +1877,7 @@
           "userName": "ops-lead@example.com"
         },
         "requestParameters": {
-          "bucketName": "aisoc-employees",
+          "bucketName": "quarry-employees",
           "AccessControlPolicy": {
             "Grants": [
               {
@@ -1895,7 +1895,7 @@
         "awsRegion": "us-east-1",
         "sourceIPAddress": "203.0.113.45",
         "requestParameters": {
-          "bucketName": "aisoc-employees",
+          "bucketName": "quarry-employees",
           "max-keys": 1000
         },
         "userIdentity": {
@@ -2058,8 +2058,8 @@
         "Computer": "WIN-EXCHANGE-01",
         "User": "grace@example.com",
         "EventType": "SetValue",
-        "TargetObject": "HKCU\\Software\\Microsoft\\Office\\Outlook\\Addins\\Aisoc.Updater",
-        "Details": "LoadBehavior=3;Manifest=file:///C:/Users/grace@example.com/AppData/Roaming/aisoc.vsto"
+        "TargetObject": "HKCU\\Software\\Microsoft\\Office\\Outlook\\Addins\\Quarry.Updater",
+        "Details": "LoadBehavior=3;Manifest=file:///C:/Users/grace@example.com/AppData/Roaming/quarry.vsto"
       },
       {
         "source": "sysmon",
@@ -2406,7 +2406,7 @@
         "action": "workflow_run.requested",
         "workflow": "deploy.yml",
         "actor": "external-contrib",
-        "repository": "aisoc/web",
+        "repository": "quarry/web",
         "event": "pull_request",
         "runner": "AZURE-VM-FIN-001"
       },
@@ -2695,7 +2695,7 @@
         "action": "workflow_run.completed",
         "workflow": "ci.yml",
         "actor": "dependabot[bot]",
-        "repository": "aisoc/web",
+        "repository": "quarry/web",
         "conclusion": "success",
         "package_added": "event-stream@4.0.1"
       },
@@ -4347,7 +4347,7 @@
         "ClientIP": "GCP-GKE-NODE-04",
         "Subject": "URGENT: Wire instructions from CFO",
         "From": "cfo@example.com.spoof",
-        "ReplyTo": "cfo-aisoc@protonmail.com",
+        "ReplyTo": "cfo-quarry@protonmail.com",
         "threat_actor": "APT29"
       }
     ]
@@ -4386,7 +4386,7 @@
           "userName": "ops-lead@example.com"
         },
         "requestParameters": {
-          "bucketName": "aisoc-employees",
+          "bucketName": "quarry-employees",
           "AccessControlPolicy": {
             "Grants": [
               {
@@ -4404,7 +4404,7 @@
         "awsRegion": "us-east-1",
         "sourceIPAddress": "91.134.231.15",
         "requestParameters": {
-          "bucketName": "aisoc-employees",
+          "bucketName": "quarry-employees",
           "max-keys": 1000
         },
         "userIdentity": {
@@ -4567,8 +4567,8 @@
         "Computer": "WIN-FILE-SHARE",
         "User": "grace@example.com",
         "EventType": "SetValue",
-        "TargetObject": "HKCU\\Software\\Microsoft\\Office\\Outlook\\Addins\\Aisoc.Updater",
-        "Details": "LoadBehavior=3;Manifest=file:///C:/Users/grace@example.com/AppData/Roaming/aisoc.vsto"
+        "TargetObject": "HKCU\\Software\\Microsoft\\Office\\Outlook\\Addins\\Quarry.Updater",
+        "Details": "LoadBehavior=3;Manifest=file:///C:/Users/grace@example.com/AppData/Roaming/quarry.vsto"
       },
       {
         "source": "sysmon",
@@ -4915,7 +4915,7 @@
         "action": "workflow_run.requested",
         "workflow": "deploy.yml",
         "actor": "external-contrib",
-        "repository": "aisoc/web",
+        "repository": "quarry/web",
         "event": "pull_request",
         "runner": "LIN-BUILD-CI03"
       },
@@ -5204,7 +5204,7 @@
         "action": "workflow_run.completed",
         "workflow": "ci.yml",
         "actor": "dependabot[bot]",
-        "repository": "aisoc/web",
+        "repository": "quarry/web",
         "conclusion": "success",
         "package_added": "event-stream@4.0.1"
       },
@@ -6856,7 +6856,7 @@
         "ClientIP": "WIN-FILE-SHARE",
         "Subject": "URGENT: Wire instructions from CFO",
         "From": "cfo@example.com.spoof",
-        "ReplyTo": "cfo-aisoc@protonmail.com",
+        "ReplyTo": "cfo-quarry@protonmail.com",
         "threat_actor": "APT29"
       }
     ]
@@ -6895,7 +6895,7 @@
           "userName": "ops-lead@example.com"
         },
         "requestParameters": {
-          "bucketName": "aisoc-employees",
+          "bucketName": "quarry-employees",
           "AccessControlPolicy": {
             "Grants": [
               {
@@ -6913,7 +6913,7 @@
         "awsRegion": "us-east-1",
         "sourceIPAddress": "91.134.231.15",
         "requestParameters": {
-          "bucketName": "aisoc-employees",
+          "bucketName": "quarry-employees",
           "max-keys": 1000
         },
         "userIdentity": {
@@ -7076,8 +7076,8 @@
         "Computer": "WIN-DC-SECONDARY",
         "User": "carol@example.com",
         "EventType": "SetValue",
-        "TargetObject": "HKCU\\Software\\Microsoft\\Office\\Outlook\\Addins\\Aisoc.Updater",
-        "Details": "LoadBehavior=3;Manifest=file:///C:/Users/carol@example.com/AppData/Roaming/aisoc.vsto"
+        "TargetObject": "HKCU\\Software\\Microsoft\\Office\\Outlook\\Addins\\Quarry.Updater",
+        "Details": "LoadBehavior=3;Manifest=file:///C:/Users/carol@example.com/AppData/Roaming/quarry.vsto"
       },
       {
         "source": "sysmon",
@@ -7424,7 +7424,7 @@
         "action": "workflow_run.requested",
         "workflow": "deploy.yml",
         "actor": "external-contrib",
-        "repository": "aisoc/web",
+        "repository": "quarry/web",
         "event": "pull_request",
         "runner": "AZURE-VM-FIN-001"
       },
@@ -7713,7 +7713,7 @@
         "action": "workflow_run.completed",
         "workflow": "ci.yml",
         "actor": "dependabot[bot]",
-        "repository": "aisoc/web",
+        "repository": "quarry/web",
         "conclusion": "success",
         "package_added": "event-stream@4.0.1"
       },

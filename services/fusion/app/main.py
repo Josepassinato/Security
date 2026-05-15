@@ -18,7 +18,7 @@ from app.workers.consumer import FusionWorker
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     configure_logging()
-    logger.info("Starting AiSOC Alert Fusion Service", port=settings.http_port)
+    logger.info("Starting Quarry Alert Fusion Service", port=settings.http_port)
 
     redis_client = aioredis.from_url(settings.redis_url, decode_responses=False)
 
@@ -52,7 +52,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="AiSOC Alert Fusion Service",
+    title="Quarry Alert Fusion Service",
     description="Real-time alert deduplication and correlation engine",
     version="0.1.0",
     lifespan=lifespan,

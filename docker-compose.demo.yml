@@ -1,5 +1,5 @@
 ###############################################################################
-# AiSOC - AI Security Operations Center
+# Quarry - AI Security Operations Center
 # Docker Compose - Slim Demo Profile (time-to-wow under 5 minutes)
 #
 # This profile pulls prebuilt images from GHCR instead of building locally,
@@ -11,7 +11,7 @@
 # actions, connectors, monitoring) are intentionally excluded.
 #
 # Usage:
-#   pnpm aisoc:demo
+#   pnpm quarry:demo
 #
 # Manual usage:
 #   docker compose -f docker-compose.demo.yml pull
@@ -28,7 +28,7 @@
 ###############################################################################
 
 networks:
-  aisoc-demo:
+  quarry-demo:
     driver: bridge
 
 volumes:
@@ -42,36 +42,36 @@ services:
 
   postgres:
     image: postgres:16-alpine
-    container_name: aisoc-demo-postgres
+    container_name: quarry-demo-postgres
     environment:
-      POSTGRES_DB: aisoc
-      POSTGRES_USER: aisoc
-      POSTGRES_PASSWORD: aisoc_dev_secret
-    # Host port is overridable so `pnpm aisoc:demo` can fall forward to the
+      POSTGRES_DB: quarry
+      POSTGRES_USER: quarry
+      POSTGRES_PASSWORD: quarry_dev_secret
+    # Host port is overridable so `pnpm quarry:demo` can fall forward to the
     # next free port when a local Postgres is already bound to 5432. The
     # container port stays at 5432; only the publish side changes.
     ports:
-      - "127.0.0.1:${AISOC_POSTGRES_PORT:-5432}:5432"
+      - "127.0.0.1:${QUARRY_POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_demo_data:/var/lib/postgresql/data
     networks:
-      - aisoc-demo
+      - quarry-demo
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U aisoc"]
+      test: ["CMD-SHELL", "pg_isready -U quarry"]
       interval: 5s
       timeout: 3s
       retries: 10
 
   redis:
     image: redis:7-alpine
-    container_name: aisoc-demo-redis
+    container_name: quarry-demo-redis
     command: redis-server --appendonly yes --requirepass redis_dev_secret
     ports:
-      - "127.0.0.1:${AISOC_REDIS_PORT:-6379}:6379"
+      - "127.0.0.1:${QUARRY_REDIS_PORT:-6379}:6379"
     volumes:
       - redis_demo_data:/data
     networks:
-      - aisoc-demo
+      - quarry-demo
     healthcheck:
       test: ["CMD", "redis-cli", "-a", "redis_dev_secret", "ping"]
       interval: 5s
@@ -80,12 +80,12 @@ services:
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
-    container_name: aisoc-demo-zookeeper
+    container_name: quarry-demo-zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     networks:
-      - aisoc-demo
+      - quarry-demo
     healthcheck:
       test: ["CMD", "nc", "-z", "localhost", "2181"]
       interval: 5s
@@ -94,12 +94,12 @@ services:
 
   kafka:
     image: confluentinc/cp-kafka:7.5.0
-    container_name: aisoc-demo-kafka
+    container_name: quarry-demo-kafka
     depends_on:
       zookeeper:
         condition: service_healthy
     ports:
-      - "127.0.0.1:${AISOC_KAFKA_PORT:-9092}:9092"
+      - "127.0.0.1:${QUARRY_KAFKA_PORT:-9092}:9092"
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
@@ -110,7 +110,7 @@ services:
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
       KAFKA_LOG_RETENTION_HOURS: 24
     networks:
-      - aisoc-demo
+      - quarry-demo
     volumes:
       - kafka_demo_data:/var/lib/kafka/data
     healthcheck:
@@ -122,14 +122,14 @@ services:
   # ─── Application Services (prebuilt from GHCR) ──────────────────────────────
 
   api:
-    image: ghcr.io/beenuar/aisoc-core-api:${AISOC_TAG:-latest}
-    # Local build context for `pnpm aisoc:demo --rebuild`. Without this the
+    image: ghcr.io/beenuar/quarry-core-api:${QUARRY_TAG:-latest}
+    # Local build context for `pnpm quarry:demo --rebuild`. Without this the
     # `--build` flag is a no-op because compose has nothing to build from.
     # When pulling prebuilt images this block is ignored.
     build:
       context: ./services/api
-    container_name: aisoc-demo-api
-    # `missing` lets `pnpm aisoc:demo --rebuild` use locally built images
+    container_name: quarry-demo-api
+    # `missing` lets `pnpm quarry:demo --rebuild` use locally built images
     # without being clobbered by a registry pull. Compose still pulls when
     # the image isn't present locally (first run) or when the user runs
     # `docker compose pull` explicitly.
@@ -142,9 +142,9 @@ services:
       kafka:
         condition: service_healthy
     ports:
-      - "127.0.0.1:${AISOC_API_PORT:-8000}:8000"
+      - "127.0.0.1:${QUARRY_API_PORT:-8000}:8000"
     environment:
-      DATABASE_URL: postgresql+asyncpg://aisoc:aisoc_dev_secret@postgres:5432/aisoc
+      DATABASE_URL: postgresql+asyncpg://quarry:quarry_dev_secret@postgres:5432/quarry
       REDIS_URL: redis://:redis_dev_secret@redis:6379/0
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       SECRET_KEY: dev_secret_key_change_in_production
@@ -154,14 +154,14 @@ services:
       # Browser → api CORS origin tracks the web host port so a fallback
       # publish (e.g. 3001) still passes the api's CORS preflight when a
       # caller hits the api directly.
-      CORS_ORIGINS: http://localhost:${AISOC_WEB_PORT:-3000}
+      CORS_ORIGINS: http://localhost:${QUARRY_WEB_PORT:-3000}
       # The agents service listens on port 8084 inside the Docker network
       # (see its Dockerfile + the agents service block below). Without this
       # the api defaults to `http://agents:8000` and every playbook / case
       # investigation request 503s with "All connection attempts failed".
       AGENTS_SERVICE_URL: http://agents:8084
     networks:
-      - aisoc-demo
+      - quarry-demo
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "python -c 'import urllib.request; urllib.request.urlopen(\"http://localhost:8000/health\")' || exit 1"]
@@ -171,10 +171,10 @@ services:
       start_period: 30s
 
   agents:
-    image: ghcr.io/beenuar/aisoc-agents:${AISOC_TAG:-latest}
+    image: ghcr.io/beenuar/quarry-agents:${QUARRY_TAG:-latest}
     build:
       context: ./services/agents
-    container_name: aisoc-demo-agents
+    container_name: quarry-demo-agents
     pull_policy: missing
     depends_on:
       postgres:
@@ -182,9 +182,9 @@ services:
       redis:
         condition: service_healthy
     ports:
-      - "127.0.0.1:${AISOC_AGENTS_PORT:-8001}:8084"
+      - "127.0.0.1:${QUARRY_AGENTS_PORT:-8001}:8084"
     environment:
-      DATABASE_URL: postgresql+asyncpg://aisoc:aisoc_dev_secret@postgres:5432/aisoc
+      DATABASE_URL: postgresql+asyncpg://quarry:quarry_dev_secret@postgres:5432/quarry
       REDIS_URL: redis://:redis_dev_secret@redis:6379/4
       CORE_API_URL: http://api:8000
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
@@ -192,14 +192,14 @@ services:
       OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
       ENV: development
     networks:
-      - aisoc-demo
+      - quarry-demo
     restart: unless-stopped
 
   realtime:
-    image: ghcr.io/beenuar/aisoc-realtime:${AISOC_TAG:-latest}
+    image: ghcr.io/beenuar/quarry-realtime:${QUARRY_TAG:-latest}
     build:
       context: ./services/realtime
-    container_name: aisoc-demo-realtime
+    container_name: quarry-demo-realtime
     pull_policy: missing
     depends_on:
       redis:
@@ -207,14 +207,14 @@ services:
       kafka:
         condition: service_healthy
     ports:
-      - "127.0.0.1:${AISOC_REALTIME_PORT:-8086}:4000"
+      - "127.0.0.1:${QUARRY_REALTIME_PORT:-8086}:4000"
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       REDIS_URL: redis://:redis_dev_secret@redis:6379
       REDIS_PASSWORD: redis_dev_secret
       PORT: 4000
     networks:
-      - aisoc-demo
+      - quarry-demo
     restart: unless-stopped
 
   # ─── One-shot demo seeder ───────────────────────────────────────────────────
@@ -223,34 +223,34 @@ services:
   # case_numbers before inserting), so repeated `docker compose up -d` runs
   # don't double-seed. `restart: "no"` makes compose treat the clean exit as
   # success and stop trying to bring it back. The orchestrator script
-  # (scripts/aisoc-demo.ts) waits for this container to terminate before
+  # (scripts/quarry-demo.ts) waits for this container to terminate before
   # reading /v1/cases — that's how we get a deterministic INC-RT-001 in the
   # API on first browser load.
   seed:
-    image: ghcr.io/beenuar/aisoc-core-api:${AISOC_TAG:-latest}
+    image: ghcr.io/beenuar/quarry-core-api:${QUARRY_TAG:-latest}
     build:
       context: ./services/api
-    container_name: aisoc-demo-seed
+    container_name: quarry-demo-seed
     pull_policy: missing
     depends_on:
       api:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgresql+asyncpg://aisoc:aisoc_dev_secret@postgres:5432/aisoc
+      DATABASE_URL: postgresql+asyncpg://quarry:quarry_dev_secret@postgres:5432/quarry
       REDIS_URL: redis://:redis_dev_secret@redis:6379/0
       SECRET_KEY: dev_secret_key_change_in_production
       ENV: development
       ENVIRONMENT: development
       LOG_LEVEL: info
-      AISOC_DISABLE_KAFKA: "true"
+      QUARRY_DISABLE_KAFKA: "true"
     networks:
-      - aisoc-demo
+      - quarry-demo
     restart: "no"
     command: ["python", "-m", "app.scripts.seed_demo"]
 
   web:
-    image: ghcr.io/beenuar/aisoc-web:${AISOC_TAG:-latest}
-    # Build context for `pnpm aisoc:demo --rebuild`. The Dockerfile bakes the
+    image: ghcr.io/beenuar/quarry-web:${QUARRY_TAG:-latest}
+    # Build context for `pnpm quarry:demo --rebuild`. The Dockerfile bakes the
     # frontend bundle with empty NEXT_PUBLIC_* defaults so every fetch is a
     # same-origin relative path (`/api/v1/...`, `/ws/...`). Next.js then
     # proxies those to the services below using the Docker DNS targets in
@@ -272,22 +272,22 @@ services:
         # these the bundle ships with empty strings and `isDemoMode()` returns
         # false → no banner, no auto-login, visitor gets bounced to /login on
         # first navigation. Mirrors the prod hosted defaults in
-        # apps/web/Dockerfile so `pnpm aisoc:demo --rebuild` produces an image
-        # behaviourally identical to the published ghcr.io/beenuar/aisoc-web
+        # apps/web/Dockerfile so `pnpm quarry:demo --rebuild` produces an image
+        # behaviourally identical to the published ghcr.io/beenuar/quarry-web
         # image used by the no-flag default flow.
         NEXT_PUBLIC_DEMO_MODE: "true"
         NEXT_PUBLIC_DEMO_DEEPLINK: "/cases/INC-RT-001?tab=ledger"
         NEXT_PUBLIC_DEMO_BANNER: "Demo data resets daily at 00:00 UTC. All write actions are disabled."
-        NEXT_PUBLIC_DEMO_AUTOLOGIN_EMAIL: "demo@aisoc.dev"
-        NEXT_PUBLIC_DEMO_AUTOLOGIN_PASSWORD: "aisoc-demo"
-    container_name: aisoc-demo-web
+        NEXT_PUBLIC_DEMO_AUTOLOGIN_EMAIL: "demo@quarry.dev"
+        NEXT_PUBLIC_DEMO_AUTOLOGIN_PASSWORD: "quarry-demo"
+    container_name: quarry-demo-web
     pull_policy: missing
     depends_on:
       - api
       - agents
       - realtime
     ports:
-      - "127.0.0.1:${AISOC_WEB_PORT:-3000}:3000"
+      - "127.0.0.1:${QUARRY_WEB_PORT:-3000}:3000"
     environment:
       # Server-side rewrite targets (used by the Next.js Node process).
       # These never reach the browser — only the proxy layer in next.config.js.
@@ -296,5 +296,5 @@ services:
       REALTIME_URL: http://realtime:4000
       NODE_ENV: production
     networks:
-      - aisoc-demo
+      - quarry-demo
     restart: unless-stopped

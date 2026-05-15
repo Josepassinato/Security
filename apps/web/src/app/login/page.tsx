@@ -9,7 +9,7 @@
  * footer ("Sign in on desktop").
  *
  * Demo credentials live in `services/api/app/api/v1/dev_auth.py`:
- *   demo@aisoc.dev / aisoc-demo
+ *   demo@quarry.dev / quarry-demo
  */
 
 import Link from 'next/link';
@@ -21,8 +21,8 @@ type Phase = 'idle' | 'pending' | 'success' | 'error';
 
 export const dynamic = 'force-dynamic';
 
-const DEMO_EMAIL = 'demo@aisoc.dev';
-const DEMO_PASSWORD = 'aisoc-demo';
+const DEMO_EMAIL = 'demo@quarry.dev';
+const DEMO_PASSWORD = 'quarry-demo';
 
 /**
  * Sanitize the ``?next=`` redirect target so a crafted link can't be used to
@@ -100,7 +100,7 @@ function LoginInner() {
             <Link
               href="/"
               className="w-14 h-14 rounded-2xl bg-indigo-600 flex items-center justify-center mb-5 hover:bg-indigo-500 transition"
-              aria-label="Back to AiSOC home"
+              aria-label="Back to Quarry home"
             >
               <svg
                 className="w-8 h-8 text-white"
@@ -117,7 +117,7 @@ function LoginInner() {
               </svg>
             </Link>
             <h1 className="text-2xl font-semibold tracking-tight">
-              Sign in to AiSOC
+              Sign in to Quarry
             </h1>
             <p className="text-sm text-zinc-400 mt-2 leading-relaxed">
               Open-source AI SOC console. Use the demo credentials below or
@@ -131,8 +131,8 @@ function LoginInner() {
               <div>
                 <p className="font-medium text-indigo-300">Public demo</p>
                 <p className="text-xs text-zinc-400 mt-0.5">
-                  <code className="text-zinc-300">demo@aisoc.dev</code> /{' '}
-                  <code className="text-zinc-300">aisoc-demo</code>
+                  <code className="text-zinc-300">demo@quarry.dev</code> /{' '}
+                  <code className="text-zinc-300">quarry-demo</code>
                 </p>
               </div>
               <button
@@ -251,7 +251,7 @@ function LoginInner() {
 
       <div className="px-6 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4 text-center">
         <p className="text-[10px] text-zinc-700 uppercase tracking-widest">
-          AiSOC · MIT-licensed · Open-source AI SOC
+          Quarry · MIT-licensed · Open-source AI SOC
         </p>
       </div>
     </div>

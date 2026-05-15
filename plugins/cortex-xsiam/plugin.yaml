@@ -7,9 +7,9 @@ description: >
   Palo Alto Networks Cortex XSIAM — pulls correlated incidents and supports XQL
   queries over the platform's data lake. Endpoint isolation is exposed as an
   agent action.
-author: AiSOC Core Team
+author: Quarry Core Team
 tags: [siem, xsiam, palo-alto, cortex]
-homepage: https://github.com/beenuar/AiSOC/tree/main/services/connectors/app/connectors/cortex_xsiam.py
+homepage: https://github.com/beenuar/Quarry/tree/main/services/connectors/app/connectors/cortex_xsiam.py
 license: MIT
 min_aisoc_version: "4.0.0"
 config_schema:

@@ -4,17 +4,17 @@ import { LandingNav } from '@/components/landing/LandingNav';
 import { Footer } from '@/components/landing/Footer';
 
 export const metadata: Metadata = {
-  // Use `absolute` so the root layout's `template: '%s | AiSOC'` doesn't
-  // append a redundant " | AiSOC" to a title that already leads with the
+  // Use `absolute` so the root layout's `template: '%s | Quarry'` doesn't
+  // append a redundant " | Quarry" to a title that already leads with the
   // brand name.
-  title: { absolute: 'Why AiSOC is open source' },
+  title: { absolute: 'Why Quarry is open source' },
   description:
-    'AiSOC is MIT-licensed and self-hostable, with the agent loop and prompt templates in the repo. This page explains why that posture matters for regulated buyers and what the trade-offs are.',
+    'Quarry is MIT-licensed and self-hostable, with the agent loop and prompt templates in the repo. This page explains why that posture matters for regulated buyers and what the trade-offs are.',
   alternates: { canonical: '/why-open-source' },
   openGraph: {
-    title: 'Why AiSOC is open source',
+    title: 'Why Quarry is open source',
     description:
-      'AiSOC is MIT-licensed and self-hostable. The agent loop and prompts are in the repo, and a 200-incident eval harness runs in CI.',
+      'Quarry is MIT-licensed and self-hostable. The agent loop and prompts are in the repo, and a 200-incident eval harness runs in CI.',
     type: 'article',
   },
 };
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 const PILLARS = [
   {
     label: 'Investigation Ledger',
-    href: 'https://github.com/beenuar/AiSOC#investigation-ledger',
+    href: 'https://github.com/beenuar/Quarry#investigation-ledger',
     body: 'Every prompt, tool call, evidence citation, and decision the agent emits is written to a durable, queryable, replayable ledger. The ledger stores the literal LLM input and output, not a summary.',
   },
   {
@@ -32,7 +32,7 @@ const PILLARS = [
   },
   {
     label: 'MIT, end-to-end',
-    href: 'https://github.com/beenuar/AiSOC/blob/main/LICENSE',
+    href: 'https://github.com/beenuar/Quarry/blob/main/LICENSE',
     body: 'No CLA, no SSPL, no BSL conversion clause, no open-core with the agent in a private repo. The licence permits audit, fork, air-gapped deployment, and building a competing product.',
   },
 ] as const;
@@ -78,7 +78,7 @@ const CONTRASTS: readonly Contrast[] = [
     ],
   },
   {
-    label: 'AiSOC',
+    label: 'Quarry',
     points: [
       'Agent runs on the buyer infrastructure. Incident data, by default, does not leave the buyer network.',
       'Every prompt, response, tool call, and decision is written to the Investigation Ledger and replayable per case.',
@@ -118,10 +118,10 @@ export default function WhyOpenSourcePage() {
             <span className="text-xs text-gray-500">~7 min read</span>
           </div>
           <h1 className="text-4xl font-bold tracking-tight md:text-5xl">
-            Why AiSOC is open source.
+            Why Quarry is open source.
           </h1>
           <p className="mt-5 text-lg leading-relaxed text-gray-400">
-            AiSOC is MIT-licensed and self-hostable. The agent loop, prompt
+            Quarry is MIT-licensed and self-hostable. The agent loop, prompt
             templates, and eval harness are in this repo. This page describes
             what that posture means in practice — for buyers in regulated
             industries and for everyone else — and is explicit about the
@@ -150,7 +150,7 @@ export default function WhyOpenSourcePage() {
             triage queue being kept for regulated ones.
           </p>
           <p>
-            AiSOC takes the opposite approach: the agent is in the repo, the
+            Quarry takes the opposite approach: the agent is in the repo, the
             substrate eval is a CI gate, data stays in the buyer network by
             default, and the MIT licence is permanent.
           </p>
@@ -242,10 +242,10 @@ export default function WhyOpenSourcePage() {
       <section className="px-6 pb-16">
         <div className="mx-auto max-w-5xl">
           <h2 className="text-2xl font-semibold tracking-tight">
-            How AiSOC differs from the common patterns
+            How Quarry differs from the common patterns
           </h2>
           <p className="mt-3 max-w-3xl text-sm text-gray-400">
-            The two non-AiSOC columns describe common patterns in the AI SOC
+            The two non-Quarry columns describe common patterns in the AI SOC
             market, not specific vendors. Counter-examples are welcome via
             issue or pull request.
           </p>
@@ -294,7 +294,7 @@ export default function WhyOpenSourcePage() {
             What the licence does and does not allow
           </h2>
           <p>
-            Open source is overloaded as a term. AiSOC ships under MIT with no
+            Open source is overloaded as a term. Quarry ships under MIT with no
             CLA, and the project commitment is to keep the core under MIT.
             What that means in practice:
           </p>
@@ -308,7 +308,7 @@ export default function WhyOpenSourcePage() {
             <li className="rounded-lg border border-white/5 bg-white/[0.02] p-4">
               <span className="font-semibold text-gray-200">No telemetry.</span>{' '}
               Self-hosted deployments emit no analytics back to the project.
-              The only network calls AiSOC initiates are the ones the
+              The only network calls Quarry initiates are the ones the
               operator configured (LLM provider, threat intelligence feed,
               integrations).
             </li>
@@ -372,7 +372,7 @@ export default function WhyOpenSourcePage() {
           <ul className="space-y-3">
             <li className="rounded-lg border border-white/5 bg-white/[0.02] p-4">
               <span className="font-semibold text-gray-200">
-                AiSOC does not claim better agent accuracy than every vendor.
+                Quarry does not claim better agent accuracy than every vendor.
               </span>{' '}
               The project ships a public, reproducible eval harness over the
               substrate. The{' '}
@@ -392,7 +392,7 @@ export default function WhyOpenSourcePage() {
               </span>{' '}
               Operators run Postgres, Redis, ClickHouse, and an LLM endpoint.
               The{' '}
-              <code className="text-gray-300">pnpm aisoc:demo</code> command
+              <code className="text-gray-300">pnpm quarry:demo</code> command
               and one-click deploy buttons shorten the on-ramp, but the
               stack is operated by the deployer.
             </li>
@@ -403,7 +403,7 @@ export default function WhyOpenSourcePage() {
               The agent sends prompts to whichever LLM endpoint is
               configured. The Investigation Ledger logs every prompt, so
               what leaves the network is auditable, but the trust boundary
-              is the configured LLM provider, not AiSOC. A future
+              is the configured LLM provider, not Quarry. A future
               local-inference mode is on the roadmap.
             </li>
           </ul>
@@ -445,7 +445,7 @@ export default function WhyOpenSourcePage() {
               Read the eval harness
             </Link>
             <a
-              href="https://github.com/beenuar/AiSOC"
+              href="https://github.com/beenuar/Quarry"
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-2 rounded-md border border-white/10 bg-white/[0.03] px-4 py-2 text-sm font-medium text-gray-300 transition hover:border-white/20 hover:bg-white/[0.06] hover:text-white"

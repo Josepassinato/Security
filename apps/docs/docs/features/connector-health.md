@@ -1,18 +1,18 @@
 ---
 sidebar_position: 1
 title: Connector health & schema-drift sentinel
-description: How AiSOC fingerprints every connector's event schema, detects drift the moment a vendor changes its API, and gives you a single pane of health across every integration.
+description: How Quarry fingerprints every connector's event schema, detects drift the moment a vendor changes its API, and gives you a single pane of health across every integration.
 ---
 
 # Connector health and schema-drift sentinel
 
-Every SOC integration breaks the same way: a vendor ships an API change in their next release, your normalizer silently starts dropping fields, and three weeks later somebody notices a detection went quiet. The schema-drift sentinel exists so that hour-zero is the same as hour-three-weeks: AiSOC notices the drift on the next poll and surfaces it before any downstream rule misfires.
+Every SOC integration breaks the same way: a vendor ships an API change in their next release, your normalizer silently starts dropping fields, and three weeks later somebody notices a detection went quiet. The schema-drift sentinel exists so that hour-zero is the same as hour-three-weeks: Quarry notices the drift on the next poll and surfaces it before any downstream rule misfires.
 
 This page documents the model, the API surface, and how to operate it.
 
 ## What it does
 
-Every time the connector scheduler polls a vendor and normalizes a batch of events, AiSOC computes a stable **schema fingerprint** — a SHA-256 hash of the sorted set of top-level field names in the normalized payload. That fingerprint is stored on the connector instance.
+Every time the connector scheduler polls a vendor and normalizes a batch of events, Quarry computes a stable **schema fingerprint** — a SHA-256 hash of the sorted set of top-level field names in the normalized payload. That fingerprint is stored on the connector instance.
 
 On the next poll:
 

@@ -88,7 +88,7 @@ def _admin_user(*, allow: bool = True) -> SimpleNamespace:
         user_id=uuid.uuid4(),
         tenant_id=uuid.uuid4(),
         role="tenant_admin",
-        email="admin@aisoc.dev",
+        email="admin@quarry.dev",
         has_permission_db=_check,
     )
 

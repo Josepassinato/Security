@@ -1,6 +1,6 @@
 id: det-application-046
 name: CI Workflow Modified By Account Without CODEOWNER Approval
-description: AiSOC v1 curated detection. Triggers on the application signal described by 'CI Workflow
+description: Quarry v1 curated detection. Triggers on the application signal described by 'CI Workflow
   Modified By Account Without CODEOWNER Approval'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: high
@@ -20,6 +20,6 @@ false_positives:
 - Bootstrap of new repository
 playbook: tpl-supply-chain
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

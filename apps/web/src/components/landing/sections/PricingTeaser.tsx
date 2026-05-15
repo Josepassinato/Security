@@ -40,7 +40,7 @@ const TIERS: ReadonlyArray<Tier> = [
       'Public benchmark harness',
       'Community Discord',
     ],
-    cta: { label: 'Clone on GitHub', href: 'https://github.com/beenuar/AiSOC' },
+    cta: { label: 'Clone on GitHub', href: 'https://github.com/beenuar/Quarry' },
   },
   {
     id: 'team',
@@ -49,7 +49,7 @@ const TIERS: ReadonlyArray<Tier> = [
     tagline: 'We run it. You log in.',
     includes: [
       'Everything in Community',
-      'Managed instance on app.aisoc.dev',
+      'Managed instance on app.quarry.dev',
       'BYOK LLM',
       'Email support',
       'SOC 2 (in progress)',

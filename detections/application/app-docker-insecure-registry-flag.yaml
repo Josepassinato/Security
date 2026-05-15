@@ -1,6 +1,6 @@
 id: det-application-055
 name: Docker Daemon Started With --insecure-registry Flag
-description: AiSOC v1 curated detection. Triggers on the application signal described by 'Docker Daemon
+description: Quarry v1 curated detection. Triggers on the application signal described by 'Docker Daemon
   Started With --insecure-registry Flag'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: medium
@@ -19,6 +19,6 @@ false_positives:
 - Internal mirror without TLS (deprecated, must be ticketed)
 playbook: tpl-supply-chain
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

@@ -1,10 +1,10 @@
 /**
- * AiSOC — GCP serverless skeleton
+ * Quarry — GCP serverless skeleton
  *
  * Bootstraps shared resources required by every other file in this stack:
  *   - the GCP APIs the rest of the stack needs
  *   - a private VPC + Serverless VPC Access connector for Cloud Run egress
- *   - a regional Artifact Registry repo for AiSOC container images
+ *   - a regional Artifact Registry repo for Quarry container images
  *
  * Service-specific resources live in:
  *   database.tf   — Cloud SQL (Postgres)
@@ -103,7 +103,7 @@ resource "google_vpc_access_connector" "main" {
 resource "google_artifact_registry_repository" "containers" {
   location      = var.region
   repository_id = "${var.name_prefix}-containers"
-  description   = "Container images for AiSOC services."
+  description   = "Container images for Quarry services."
   format        = "DOCKER"
   labels        = var.labels
 

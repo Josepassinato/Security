@@ -1,4 +1,4 @@
-# AiSOC Hosted Demo (Fly.io)
+# Quarry Hosted Demo (Fly.io)
 
 This directory contains the infrastructure-as-code for the public demo at
 **[tryaisoc.com](https://tryaisoc.com)**, deployed on Fly.io.
@@ -7,9 +7,9 @@ Three public hostnames front the stack:
 
 | Hostname             | Fly app                | Purpose                          |
 |----------------------|------------------------|----------------------------------|
-| `tryaisoc.com`       | `aisoc-demo-web`       | Next.js UI (apex/root domain)    |
-| `api.tryaisoc.com`   | `aisoc-demo-api`       | FastAPI: `/health`, `/api/v1/*`  |
-| `ws.tryaisoc.com`    | `aisoc-demo-realtime`  | WebSocket fanout (`wss://`)      |
+| `tryaisoc.com`       | `quarry-demo-web`       | Next.js UI (apex/root domain)    |
+| `api.tryaisoc.com`   | `quarry-demo-api`       | FastAPI: `/health`, `/api/v1/*`  |
+| `ws.tryaisoc.com`    | `quarry-demo-realtime`  | WebSocket fanout (`wss://`)      |
 
 Why three hostnames instead of routing everything through `tryaisoc.com`:
 the realtime service speaks raw WebSocket which Next.js rewrites can't
@@ -19,7 +19,7 @@ is the standard pattern and keeps the browser's CORS/CSP boundary explicit.
 
 ## Goal
 
-> A visitor clicks the README's "Live Demo" button and sees an AiSOC agent
+> A visitor clicks the README's "Live Demo" button and sees an Quarry agent
 > mid-investigation in **under 60 seconds**, with the full agent decision
 > ledger streaming live — no signup, no install.
 
@@ -33,7 +33,7 @@ this stack is engineered for.
         │                       │                     │
         ▼                       ▼                     ▼
   ┌──────────────┐     ┌──────────────────┐   ┌──────────────────────┐
-  │ aisoc-demo-  │     │ aisoc-demo-api   │   │ aisoc-demo-realtime  │
+  │ quarry-demo-  │     │ quarry-demo-api   │   │ quarry-demo-realtime  │
   │ web (Next.js)│     │ (FastAPI)        │   │ (WebSocket)          │
   │ shared-cpu-1x│     │ shared-cpu-1x    │   │ shared-cpu-1x · 0.5GB│
   │ 1GB · min=1  │     │ 1GB · min=1      │   │ auto_stop=off (WS)   │
@@ -46,22 +46,22 @@ this stack is engineered for.
                        └───────┬────────┘
                                ▼
               ┌──────────────────────────────────┐
-              │  aisoc-demo-agents (LangGraph)   │
+              │  quarry-demo-agents (LangGraph)   │
               │  shared-cpu-2x · 2GB · min=1     │
-              │  AISOC_AGENT_MODE=deterministic  │
+              │  QUARRY_AGENT_MODE=deterministic  │
               └──────────────────────────────────┘
                                │
                 ┌──────────────┴──────────────┐
                 ▼                             ▼
    ┌────────────────────────┐   ┌──────────────────────┐
    │ Fly Postgres            │   │ Upstash Redis        │
-   │ aisoc-demo-postgres     │   │ aisoc-demo-redis     │
+   │ quarry-demo-postgres     │   │ quarry-demo-redis     │
    │ dev plan, 3GB volume    │   │ Free plan            │
    └────────────────────────┘   └──────────────────────┘
 
    ┌──────────────────────────────────────────────┐
-   │  aisoc-demo-seed-cron (scheduled machine)    │  no public traffic
-   │  Lives on the aisoc-demo-api app, runs       │
+   │  quarry-demo-seed-cron (scheduled machine)    │  no public traffic
+   │  Lives on the quarry-demo-api app, runs       │
    │  daily at 00:00 UTC using the api image:     │
    │   1. python -m app.scripts.seed_demo         │
    │   2. seeder is idempotent — refreshes        │
@@ -102,8 +102,8 @@ maintaining a fifth Dockerfile or Fly app:
 | When                     | How                                                                                  |
 |--------------------------|--------------------------------------------------------------------------------------|
 | Every deploy             | `[deploy].release_command` in `infra/fly/api/fly.toml` runs `alembic upgrade head && python -m app.scripts.seed_demo` on every `flyctl deploy`. Idempotent — a no-op against an already-seeded volume. |
-| Post-deploy (bootstrap)  | `flyctl ssh console -a aisoc-demo-api -C "python -m app.scripts.seed_demo"` runs once on a live api machine. Belt-and-suspenders for first-time deploys. |
-| Daily refresh (00:00 UTC)| A scheduled Fly machine on the `aisoc-demo-api` app, named `aisoc-demo-seed-cron`, boots from the same api image, runs the same command, and exits. |
+| Post-deploy (bootstrap)  | `flyctl ssh console -a quarry-demo-api -C "python -m app.scripts.seed_demo"` runs once on a live api machine. Belt-and-suspenders for first-time deploys. |
+| Daily refresh (00:00 UTC)| A scheduled Fly machine on the `quarry-demo-api` app, named `quarry-demo-seed-cron`, boots from the same api image, runs the same command, and exits. |
 | Local recovery           | `python -m app.scripts.seed_demo` inside the api container of a `docker-compose -f docker-compose.demo.yml` stack — same module, same idempotency. |
 
 The canonical implementation lives in
@@ -153,8 +153,8 @@ flyctl auth login
 export FLY_ORG=personal
 
 # 3. Reserve app names (one-time, idempotent)
-for app in aisoc-demo-api aisoc-demo-agents aisoc-demo-web \
-           aisoc-demo-realtime; do
+for app in quarry-demo-api quarry-demo-agents quarry-demo-web \
+           quarry-demo-realtime; do
   flyctl apps create "$app" --org "$FLY_ORG" 2>/dev/null || true
 done
 
@@ -162,13 +162,13 @@ done
 ./infra/fly/fly-demo-deploy.sh --provision
 
 # 5. Add DNS at your provider (the deploy script prints the exact records):
-#    tryaisoc.com.       CNAME  aisoc-demo-web.fly.dev.
-#    api.tryaisoc.com.   CNAME  aisoc-demo-api.fly.dev.
-#    ws.tryaisoc.com.    CNAME  aisoc-demo-realtime.fly.dev.
+#    tryaisoc.com.       CNAME  quarry-demo-web.fly.dev.
+#    api.tryaisoc.com.   CNAME  quarry-demo-api.fly.dev.
+#    ws.tryaisoc.com.    CNAME  quarry-demo-realtime.fly.dev.
 #
 #    tryaisoc.com is an apex/root record. If your DNS provider doesn't support
 #    CNAME at apex, use ALIAS/ANAME, or run
-#      flyctl certs show tryaisoc.com --app aisoc-demo-web
+#      flyctl certs show tryaisoc.com --app quarry-demo-web
 #    to get the A/AAAA records to use instead.
 ```
 
@@ -184,33 +184,33 @@ calls fail-soft.
 
 ## Demo mode at runtime
 
-The `AISOC_DEMO_MODE` flag is set on every Fly app's `[env]` block. This
+The `QUARRY_DEMO_MODE` flag is set on every Fly app's `[env]` block. This
 flag drives two pieces of behavior:
 
 1. **API middleware (`services/api/app/middleware/demo_mode.py`)**
    Returns 403 for non-allowlisted writes (POST/PUT/PATCH/DELETE) and stamps
-   `X-AiSOC-Demo: true` plus `X-AiSOC-Demo-Banner` headers on every response.
+   `X-Quarry-Demo: true` plus `X-Quarry-Demo-Banner` headers on every response.
    Allowlisted writes: auth flows, `/cases/INC-RT-001/investigate`, alert ack.
 
 2. **Web banner (`apps/web/src/components/demo/DemoBanner.tsx`)**
    Renders a fixed amber strip at the top of every authenticated page with
-   the daily-reset notice and a "Self-host AiSOC →" link.
+   the daily-reset notice and a "Self-host Quarry →" link.
 
 Both layers read from environment variables surfaced through the
-`fly.toml` `[env]` blocks, so flipping any AiSOC self-hoster into demo
+`fly.toml` `[env]` blocks, so flipping any Quarry self-hoster into demo
 mode (e.g., for a customer presentation) is a one-flag operation.
 
 ## Smoke checks
 
 ```bash
 # API liveness
-curl -sf https://aisoc-demo-api.fly.dev/health
+curl -sf https://quarry-demo-api.fly.dev/health
 
 # Demo headers visible
-curl -sI https://aisoc-demo-api.fly.dev/api/v1/cases | grep -i x-aisoc
+curl -sI https://quarry-demo-api.fly.dev/api/v1/cases | grep -i x-quarry
 
 # Mutating writes blocked
-curl -si -X POST https://aisoc-demo-api.fly.dev/api/v1/cases | head -3
+curl -si -X POST https://quarry-demo-api.fly.dev/api/v1/cases | head -3
 # expect: HTTP/2 403 …
 
 # Public domain (after DNS propagates)
@@ -226,11 +226,11 @@ open https://tryaisoc.com/cases/INC-RT-001?tab=ledger
 |---------------------------------------------|----------------------------------------------------|
 | `flyctl deploy` hangs on builder            | Nuke remote builder: `flyctl builders destroy`     |
 | API 503 on first hit                        | Cold start; `min_machines_running=1` should fix    |
-| Web shows "demo data resets" but writes work| API's `AISOC_DEMO_MODE` not set; redeploy api       |
-| `INC-RT-001` case missing                    | Re-run seed: `flyctl ssh console -a aisoc-demo-api -C "python -m app.scripts.seed_demo"` (idempotent) |
-| Daily seed cron not firing                   | Verify the scheduled machine: `flyctl machine list -a aisoc-demo-api` (look for `aisoc-demo-seed-cron`) |
+| Web shows "demo data resets" but writes work| API's `QUARRY_DEMO_MODE` not set; redeploy api       |
+| `INC-RT-001` case missing                    | Re-run seed: `flyctl ssh console -a quarry-demo-api -C "python -m app.scripts.seed_demo"` (idempotent) |
+| Daily seed cron not firing                   | Verify the scheduled machine: `flyctl machine list -a quarry-demo-api` (look for `quarry-demo-seed-cron`) |
 | WS disconnects in 30s                        | Realtime `auto_stop_machines = "off"` — verify fly.toml |
-| Cert pending                                 | `flyctl certs show tryaisoc.com --app aisoc-demo-web` (and same for `api.` / `ws.` subdomains) |
+| Cert pending                                 | `flyctl certs show tryaisoc.com --app quarry-demo-web` (and same for `api.` / `ws.` subdomains) |
 
 ## Cost envelope
 

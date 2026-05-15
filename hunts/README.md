@@ -1,6 +1,6 @@
-# AiSOC hunts/ — hunt-as-code corpus
+# Quarry hunts/ — hunt-as-code corpus
 
-This directory holds AiSOC's hunt hypotheses as YAML. Each file describes a
+This directory holds Quarry's hunt hypotheses as YAML. Each file describes a
 single threat hypothesis the agent layer can run on a schedule, scoring the
 target telemetry corpus against a set of expected indicators.
 
@@ -52,7 +52,7 @@ expected:
   negative_incident_id: INC-HUNT-001-NEG
 references:
   - https://attack.mitre.org/techniques/T1078/
-author: AiSOC
+author: Quarry
 created: '2026-05-05'
 modified: '2026-05-05'
 ```

@@ -69,7 +69,7 @@ const ALL_TOPICS: { id: string; label: string; help: string }[] = [
   },
 ];
 
-const TOPIC_PREF_KEY = 'aisoc.responder.push.topics';
+const TOPIC_PREF_KEY = 'quarry.responder.push.topics';
 
 function loadTopicPrefs(): Set<string> {
   if (typeof window === 'undefined') {
@@ -280,7 +280,7 @@ export default function ResponderSettingsPage() {
   const handleInstall = useCallback(async () => {
     const outcome = await showInstallPrompt();
     if (outcome === 'accepted') {
-      showToast('Installed. Look for the AiSOC icon on your home screen.');
+      showToast('Installed. Look for the Quarry icon on your home screen.');
       setStandalone(true);
     } else if (outcome === 'dismissed') {
       showToast('Install cancelled.');
@@ -497,7 +497,7 @@ export default function ResponderSettingsPage() {
         description={
           standalone
             ? 'Running as an installed PWA. Pushes will deliver even when the browser is closed.'
-            : 'Add AiSOC to your home screen for full-screen access and faster cold-starts.'
+            : 'Add Quarry to your home screen for full-screen access and faster cold-starts.'
         }
       >
         <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/50 px-4 py-3">
@@ -510,7 +510,7 @@ export default function ResponderSettingsPage() {
                 {standalone
                   ? 'Already installed.'
                   : installAvailable
-                    ? 'Tap install to drop the AiSOC icon on your home screen.'
+                    ? 'Tap install to drop the Quarry icon on your home screen.'
                     : 'Use your browser’s “Add to Home Screen” menu (Safari: Share → Add to Home Screen).'}
               </div>
             </div>
@@ -689,7 +689,7 @@ export default function ResponderSettingsPage() {
           Sign out
         </button>
         <p className="mt-3 text-[10px] uppercase tracking-widest text-zinc-700 text-center">
-          AiSOC · MIT-licensed AI SOC ·{' '}
+          Quarry · MIT-licensed AI SOC ·{' '}
           <Link
             href="/responder/triage"
             className="hover:text-zinc-500 underline-offset-2 hover:underline"

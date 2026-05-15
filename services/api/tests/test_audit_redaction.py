@@ -142,7 +142,7 @@ class TestSizeCap:
 
     def test_oversized_payload_replaced_with_marker(self, monkeypatch):
         # Lower the cap to make the test fast and deterministic.
-        monkeypatch.setenv("AISOC_AUDIT_MAX_CHANGES_BYTES", "256")
+        monkeypatch.setenv("QUARRY_AUDIT_MAX_CHANGES_BYTES", "256")
         # ~10KB of content — comfortably over 256 bytes when JSON-encoded.
         payload = {"data": "x" * 10_000}
         out = redact_changes(payload)
@@ -155,7 +155,7 @@ class TestSizeCap:
         assert "truncated" in json.dumps(out).lower() or "size" in json.dumps(out).lower()
 
     def test_under_cap_passes_through(self, monkeypatch):
-        monkeypatch.setenv("AISOC_AUDIT_MAX_CHANGES_BYTES", "65536")
+        monkeypatch.setenv("QUARRY_AUDIT_MAX_CHANGES_BYTES", "65536")
         payload = {"title": "ok", "count": 3}
         out = redact_changes(payload)
         assert out == payload

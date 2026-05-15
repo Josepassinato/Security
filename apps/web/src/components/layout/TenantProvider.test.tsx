@@ -245,7 +245,7 @@ describe('TenantProvider', () => {
 
     const switchedEvents: CustomEvent[] = [];
     const handler = (e: Event) => switchedEvents.push(e as CustomEvent);
-    window.addEventListener('aisoc:tenant-switched', handler as EventListener);
+    window.addEventListener('quarry:tenant-switched', handler as EventListener);
 
     const { result } = renderHook(() => useTenant(), { wrapper });
     await waitFor(() => expect(result.current.loading).toBe(false));
@@ -260,7 +260,7 @@ describe('TenantProvider', () => {
     expect((switchedEvents[0].detail as { tenantId: string }).tenantId).toBe('c1');
     expect(result.current.current?.id).toBe('c1');
 
-    window.removeEventListener('aisoc:tenant-switched', handler as EventListener);
+    window.removeEventListener('quarry:tenant-switched', handler as EventListener);
   });
 });
 

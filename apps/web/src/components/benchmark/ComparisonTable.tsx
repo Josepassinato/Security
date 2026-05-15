@@ -11,7 +11,7 @@ interface Vendor {
 }
 
 /**
- * The AiSOC row uses qualifiers that match what the harness actually does:
+ * The Quarry row uses qualifiers that match what the harness actually does:
  * - Alert reduction is a *real* measurement against a fixed noisy stream, so
  *   we tag it "measured".
  * - MITRE "accuracy" is a substrate self-consistency check (extractor vs.
@@ -22,7 +22,7 @@ interface Vendor {
  */
 const VENDORS: Vendor[] = [
   {
-    name: 'AiSOC',
+    name: 'Quarry',
     type: 'open',
     reduction: '75.3% (measured on fixed noisy stream)',
     mitre: '97% (substrate regression gate)',
@@ -79,7 +79,7 @@ export function ComparisonTable() {
         </thead>
         <tbody className="divide-y divide-white/5">
           {VENDORS.map((vendor) => {
-            const isUs = vendor.name === 'AiSOC';
+            const isUs = vendor.name === 'Quarry';
             return (
               <tr
                 key={vendor.name}

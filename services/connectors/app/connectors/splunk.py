@@ -45,7 +45,7 @@ class SplunkConnector(BaseConnector):
                     "string",
                     "Saved Search Name",
                     required=False,
-                    default="AiSOC_Alerts",
+                    default="Quarry_Alerts",
                 ),
                 Field(
                     "ssl_verify",
@@ -75,7 +75,7 @@ class SplunkConnector(BaseConnector):
         self,
         base_url: str,
         token: str,
-        saved_search: str = "AiSOC_Alerts",
+        saved_search: str = "Quarry_Alerts",
         ssl_verify: bool = True,
     ):
         self._base_url = base_url.rstrip("/")

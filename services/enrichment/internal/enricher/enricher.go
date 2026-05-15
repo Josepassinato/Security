@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/beenuar/aisoc/enrichment/internal/cache"
+	"github.com/beenuar/quarry/enrichment/internal/cache"
 	"github.com/rs/zerolog/log"
 )
 

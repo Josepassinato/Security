@@ -13,28 +13,28 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/beenuar/aisoc/plugin-sdk-go/aisoc"
+	"github.com/beenuar/quarry/plugin-sdk-go/quarry"
 	// _ "github.com/snowflakedb/gosnowflake"
 )
 
-// SnowflakeConnector implements aisoc.Connector for Snowflake account usage.
+// SnowflakeConnector implements quarry.Connector for Snowflake account usage.
 type SnowflakeConnector struct {
-	aisoc.BasePlugin
+	quarry.BasePlugin
 }
 
-func (s *SnowflakeConnector) Manifest() aisoc.PluginManifest {
-	return aisoc.PluginManifest{
+func (s *SnowflakeConnector) Manifest() quarry.PluginManifest {
+	return quarry.PluginManifest{
 		ID:          "snowflake-events",
 		Name:        "Snowflake Events Connector",
 		Version:     "1.0.0",
-		PluginType:  aisoc.PluginTypeConnector,
+		PluginType:  quarry.PluginTypeConnector,
 		Description: "Polls login/query history from SNOWFLAKE.ACCOUNT_USAGE.",
-		Author:      "AiSOC Core Team",
+		Author:      "Quarry Core Team",
 		Tags:        []string{"data", "snowflake", "warehouse", "events", "connector"},
 	}
 }
 
-func (s *SnowflakeConnector) connect(pctx aisoc.PluginContext) (*sql.DB, error) {
+func (s *SnowflakeConnector) connect(pctx quarry.PluginContext) (*sql.DB, error) {
 	account, _ := pctx.Config["account"].(string)
 	user, _ := pctx.Config["user"].(string)
 	password, _ := pctx.Config["password"].(string)
@@ -55,7 +55,7 @@ func (s *SnowflakeConnector) connect(pctx aisoc.PluginContext) (*sql.DB, error) 
 
 func (s *SnowflakeConnector) TestConnection(
 	ctx context.Context,
-	pctx aisoc.PluginContext,
+	pctx quarry.PluginContext,
 ) (bool, error) {
 	db, err := s.connect(pctx)
 	if err != nil {
@@ -70,7 +70,7 @@ func (s *SnowflakeConnector) TestConnection(
 
 func (s *SnowflakeConnector) FetchEvents(
 	ctx context.Context,
-	pctx aisoc.PluginContext,
+	pctx quarry.PluginContext,
 	since string,
 ) (<-chan map[string]any, error) {
 	out := make(chan map[string]any)
@@ -124,7 +124,7 @@ func (s *SnowflakeConnector) FetchEvents(
 }
 
 func main() {
-	registry := aisoc.NewRegistry()
+	registry := quarry.NewRegistry()
 	if err := registry.Register(&SnowflakeConnector{}); err != nil {
 		panic(err)
 	}

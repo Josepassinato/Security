@@ -11,16 +11,16 @@ class Settings(BaseSettings):
     )
 
     # Service
-    service_name: str = "aisoc-fusion"
+    service_name: str = "quarry-fusion"
     http_port: int = Field(default=8003, alias="HTTP_PORT")
     log_level: str = Field(default="INFO", alias="LOG_LEVEL")
     environment: str = Field(default="development", alias="ENVIRONMENT")
 
     # Kafka
     kafka_bootstrap_servers: str = Field(default="localhost:9092", alias="KAFKA_BOOTSTRAP_SERVERS")
-    kafka_topic_alerts_raw: str = Field(default="aisoc.alerts.raw", alias="KAFKA_TOPIC_ALERTS_RAW")
-    kafka_topic_alerts_fused: str = Field(default="aisoc.alerts.fused", alias="KAFKA_TOPIC_ALERTS_FUSED")
-    kafka_consumer_group: str = Field(default="aisoc-fusion-consumer", alias="KAFKA_CONSUMER_GROUP")
+    kafka_topic_alerts_raw: str = Field(default="quarry.alerts.raw", alias="KAFKA_TOPIC_ALERTS_RAW")
+    kafka_topic_alerts_fused: str = Field(default="quarry.alerts.fused", alias="KAFKA_TOPIC_ALERTS_FUSED")
+    kafka_consumer_group: str = Field(default="quarry-fusion-consumer", alias="KAFKA_CONSUMER_GROUP")
 
     # Redis
     redis_url: str = Field(default="redis://localhost:6379/2", alias="REDIS_URL")
@@ -29,7 +29,7 @@ class Settings(BaseSettings):
 
     # Database
     database_url: str = Field(
-        default="postgresql+asyncpg://aisoc:aisoc_secret@localhost:5432/aisoc",
+        default="postgresql+asyncpg://quarry:aisoc_secret@localhost:5432/quarry",
         alias="DATABASE_URL",
     )
 
@@ -41,7 +41,7 @@ class Settings(BaseSettings):
     # Risk-Based Alerting (RBA) — accumulates signals onto entities (user / host /
     # ip / domain) before promotion. Targets the published 2026 KPI bar of
     # alert-to-incident ratio ≥ 50:1.
-    rba_enabled: bool = Field(default=True, alias="AISOC_FEATURE_RBA")
+    rba_enabled: bool = Field(default=True, alias="QUARRY_FEATURE_RBA")
     rba_promotion_threshold: float = Field(default=80.0, alias="RBA_PROMOTION_THRESHOLD")
     rba_window_seconds: int = Field(default=86400, alias="RBA_WINDOW_SECONDS")  # 24h decay window
     rba_decay_half_life_seconds: int = Field(default=14400, alias="RBA_DECAY_HALF_LIFE_SECONDS")  # 4h half-life
@@ -57,10 +57,10 @@ class Settings(BaseSettings):
     # Detection confidence + explainability — every fused alert carries a
     # high/medium/low label and an evidence chain. Disabled only as a
     # break-glass; the UI degrades gracefully (no chip / no rationale panel).
-    confidence_enabled: bool = Field(default=True, alias="AISOC_FEATURE_CONFIDENCE")
+    confidence_enabled: bool = Field(default=True, alias="QUARRY_FEATURE_CONFIDENCE")
 
     # Vuln↔alert correlation w/ exploit-in-wild boost (Tier 3.5)
-    vuln_boost_enabled: bool = Field(default=True, alias="AISOC_VULN_BOOST")
+    vuln_boost_enabled: bool = Field(default=True, alias="QUARRY_VULN_BOOST")
 
     # Enrichment service
     enrichment_service_url: str = Field(default="http://localhost:8082", alias="ENRICHMENT_SERVICE_URL")

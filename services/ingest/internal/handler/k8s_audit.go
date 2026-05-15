@@ -15,7 +15,7 @@
 // from the URL (rather than a header) because audit-webhook config in
 // the apiserver kubeconfig file is brittle to add custom headers to,
 // but a path-templated URL is trivial. The webhook is authenticated
-// with a single shared secret presented in `X-AiSOC-K8s-Token`. We
+// with a single shared secret presented in `X-Quarry-K8s-Token`. We
 // only ever compare it with `subtle.ConstantTimeCompare` so a slow
 // guesser can't shave bytes off via timing.
 //
@@ -38,7 +38,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/beenuar/aisoc/services/ingest/internal/normalizer"
+	"github.com/beenuar/quarry/services/ingest/internal/normalizer"
 	"github.com/go-chi/chi/v5"
 	"github.com/rs/zerolog/log"
 )
@@ -54,7 +54,7 @@ const k8sAuditConnectorType = "kubernetes_audit"
 // cfg.K8sAuditSharedSecret. We chose a custom header rather than
 // Authorization: Bearer to avoid colliding with the apiserver's own
 // service-account-token plumbing in some hosted control planes.
-const k8sAuditTokenHeader = "X-AiSOC-K8s-Token"
+const k8sAuditTokenHeader = "X-Quarry-K8s-Token"
 
 // k8sEventList mirrors the shape of audit.k8s.io/v1 EventList. We
 // intentionally type Items as []json.RawMessage so the payload travels
@@ -72,7 +72,7 @@ type k8sEventList struct {
 //
 // On the happy path it returns 200 with an IngestResponse summarizing
 // counts, matching IngestEvents shape so apiserver operators see the
-// same JSON regardless of which AiSOC ingest endpoint they pointed at.
+// same JSON regardless of which Quarry ingest endpoint they pointed at.
 // The apiserver's webhook backend treats any 2xx as success and won't
 // retry, so we only return non-2xx for genuine "do not deliver this
 // batch again" or "fix your config" conditions.
@@ -83,13 +83,13 @@ func (h *Handler) K8sAuditEvents(w http.ResponseWriter, r *http.Request) {
 	// the *server* isn't ready, not that *they* did something wrong.
 	if h.cfg.K8sAuditSharedSecret == "" {
 		writeError(w, http.StatusServiceUnavailable,
-			"kubernetes audit webhook not enabled on this AiSOC installation")
+			"kubernetes audit webhook not enabled on this Quarry installation")
 		return
 	}
 
 	// 2. Tenant comes from the URL path, set by the chi route pattern.
 	// This is the only auth boundary that ties an event to a specific
-	// AiSOC tenant on this code path, which is why the secret is
+	// Quarry tenant on this code path, which is why the secret is
 	// installation-wide rather than per-tenant — the tenant binding
 	// happens at apiserver-config time when the operator pastes the
 	// URL into the audit webhook kubeconfig.
@@ -111,7 +111,7 @@ func (h *Handler) K8sAuditEvents(w http.ResponseWriter, r *http.Request) {
 			Str("tenant_id", tenantID).
 			Str("remote_addr", r.RemoteAddr).
 			Msg("k8s-audit webhook: shared-secret mismatch")
-		writeError(w, http.StatusUnauthorized, "invalid or missing X-AiSOC-K8s-Token")
+		writeError(w, http.StatusUnauthorized, "invalid or missing X-Quarry-K8s-Token")
 		return
 	}
 

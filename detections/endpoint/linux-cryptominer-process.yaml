@@ -1,6 +1,6 @@
 id: det-endpoint-178
 name: Likely Cryptominer Process Detected
-description: AiSOC v1 curated detection. Triggers on the endpoint signal described by 'Likely Cryptominer
+description: Quarry v1 curated detection. Triggers on the endpoint signal described by 'Likely Cryptominer
   Process Detected'. Watch the 2 documented false-positive cases before tuning.
 version: 1.0.0
 severity: critical
@@ -20,6 +20,6 @@ false_positives:
 - Authorized stress-test
 playbook: tpl-impact
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

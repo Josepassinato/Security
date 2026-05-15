@@ -67,4 +67,4 @@ provenance:
   upstream_path: rules/community/microsoft/windows/lsass_process_memory_dump_file_creation.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

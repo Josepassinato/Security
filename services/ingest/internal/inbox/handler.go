@@ -13,8 +13,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/beenuar/aisoc/services/ingest/internal/normalizer"
-	"github.com/beenuar/aisoc/services/ingest/internal/publisher"
+	"github.com/beenuar/quarry/services/ingest/internal/normalizer"
+	"github.com/beenuar/quarry/services/ingest/internal/publisher"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"github.com/prometheus/client_golang/prometheus"
@@ -202,7 +202,7 @@ func (h *Handler) ServeCEF(w http.ResponseWriter, r *http.Request) {
 // ServeHEC handles POST /v1/inbox/hec.
 //
 // Speaks Splunk HEC's wire protocol so any tool that can ship to Splunk
-// can ship to AiSOC by changing only the URL. Token comes via the
+// can ship to Quarry by changing only the URL. Token comes via the
 // Splunk-style "Authorization: Splunk <token>" header (or Bearer).
 //
 // Body is either a single HEC envelope ({"event": ..., "time": ...,

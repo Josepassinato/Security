@@ -7,7 +7,7 @@ be updated in lockstep.
 
 It deliberately avoids importing the example as a Python module — the
 tutorial loads it through ``load_plugin_from_directory`` exactly the way
-the AiSOC plugin runtime would, which doubles as proof that the
+the Quarry plugin runtime would, which doubles as proof that the
 manifest + entry-point shape on disk is loadable in production.
 """
 
@@ -18,13 +18,13 @@ from pathlib import Path
 
 import pytest
 
-from aisoc_plugin_sdk import (
+from quarry_plugin_sdk import (
     EnricherPlugin,
     EnrichmentRequest,
     PluginContext,
     PluginRegistry,
 )
-from aisoc_plugin_sdk.loader import load_plugin_from_directory
+from quarry_plugin_sdk.loader import load_plugin_from_directory
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 HELLO_PLUGIN_DIR = REPO_ROOT / "plugins" / "community" / "_examples" / "hello-plugin"
@@ -40,7 +40,7 @@ def test_hello_plugin_example_files_exist() -> None:
         f"Expected hello-plugin example at {HELLO_PLUGIN_DIR}. "
         "If this directory moved, update apps/docs/docs/plugins/hello-plugin.md."
     )
-    assert (HELLO_PLUGIN_DIR / "aisoc-plugin.yaml").is_file()
+    assert (HELLO_PLUGIN_DIR / "quarry-plugin.yaml").is_file()
     assert (HELLO_PLUGIN_DIR / "plugin.py").is_file()
     assert (HELLO_PLUGIN_DIR / "README.md").is_file()
 
@@ -51,7 +51,7 @@ def test_hello_plugin_is_excluded_from_marketplace() -> None:
     The marketplace builder (``scripts/build_marketplace.py``) discovers
     plugins by walking ``plugins/community/<id>/plugin.yaml``. The tutorial
     avoids both signals on purpose: it lives one directory deeper, and its
-    manifest is named ``aisoc-plugin.yaml`` (the SDK loader filename), not
+    manifest is named ``quarry-plugin.yaml`` (the SDK loader filename), not
     ``plugin.yaml`` (the marketplace filename). If anyone "fixes" either
     of those, this test will catch it.
     """
@@ -75,7 +75,7 @@ def test_hello_plugin_loads_via_loader() -> None:
     plugin = load_plugin_from_directory(HELLO_PLUGIN_DIR)
 
     assert isinstance(plugin, EnricherPlugin)
-    assert plugin.manifest.id == "aisoc.hello-plugin"
+    assert plugin.manifest.id == "quarry.hello-plugin"
     assert plugin.manifest.plugin_type == "enricher"
     assert plugin.manifest.version == "1.0.0"
     assert "tutorial" in plugin.manifest.tags
@@ -187,6 +187,6 @@ async def test_hello_plugin_registers_as_enricher(ctx: PluginContext) -> None:
     assert len(registry) == 1
     enrichers = registry.enrichers()
     assert len(enrichers) == 1
-    assert enrichers[0].manifest.id == "aisoc.hello-plugin"
+    assert enrichers[0].manifest.id == "quarry.hello-plugin"
     # Lookup by ID works the same way the runtime resolves enrichers.
-    assert registry.get("aisoc.hello-plugin") is plugin
+    assert registry.get("quarry.hello-plugin") is plugin

@@ -58,4 +58,4 @@ provenance:
   upstream_path: rules/community/threat_intel/dns_query_to_recently_created_domain.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

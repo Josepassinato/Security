@@ -4,7 +4,7 @@ sidebar_position: 4
 
 # Environment Variables
 
-This page is the source of truth for every environment variable AiSOC reads at runtime. Each section maps to a single service, mirroring the layout of [`services/`](https://github.com/beenuar/AiSOC/tree/main/services) in the repo.
+This page is the source of truth for every environment variable Quarry reads at runtime. Each section maps to a single service, mirroring the layout of [`services/`](https://github.com/Josepassinato/quarry/tree/main/services) in the repo.
 
 If you spot drift between this page and the code, please open a PR — the matching config files are linked at the top of every section.
 
@@ -12,7 +12,7 @@ If you spot drift between this page and the code, please open a PR — the match
 
 ## API service (`services/api`)
 
-Source: [`services/api/app/core/config.py`](https://github.com/beenuar/AiSOC/blob/main/services/api/app/core/config.py)
+Source: [`services/api/app/core/config.py`](https://github.com/Josepassinato/quarry/blob/main/services/api/app/core/config.py)
 
 The API uses bare environment variable names (no prefix). Booleans accept `true` / `false`; lists accept comma-separated strings.
 
@@ -20,7 +20,7 @@ The API uses bare environment variable names (no prefix). Booleans accept `true`
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `APP_NAME` | `AiSOC API` | Display name in OpenAPI docs |
+| `APP_NAME` | `Quarry API` | Display name in OpenAPI docs |
 | `APP_VERSION` | `0.1.0` | Reported in `/healthz` |
 | `ENV` / `ENVIRONMENT` | `development` | One of `development`, `staging`, `production` |
 | `DEBUG` | `false` | Enables verbose error responses — never enable in production |
@@ -38,25 +38,25 @@ The API uses bare environment variable names (no prefix). Booleans accept `true`
 
 ### Audit log
 
-Source: [`services/api/app/services/audit.py`](https://github.com/beenuar/AiSOC/blob/main/services/api/app/services/audit.py), [`services/api/app/core/trusted_proxy.py`](https://github.com/beenuar/AiSOC/blob/main/services/api/app/core/trusted_proxy.py), [`services/api/app/services/audit_redaction.py`](https://github.com/beenuar/AiSOC/blob/main/services/api/app/services/audit_redaction.py). Background: [Security operations → Audit logging](../operations/security#audit-logging).
+Source: [`services/api/app/services/audit.py`](https://github.com/Josepassinato/quarry/blob/main/services/api/app/services/audit.py), [`services/api/app/core/trusted_proxy.py`](https://github.com/Josepassinato/quarry/blob/main/services/api/app/core/trusted_proxy.py), [`services/api/app/services/audit_redaction.py`](https://github.com/Josepassinato/quarry/blob/main/services/api/app/services/audit_redaction.py). Background: [Security operations → Audit logging](../operations/security#audit-logging).
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `AISOC_TRUSTED_PROXIES` | _empty_ | Comma-separated list of CIDRs (e.g. `10.0.0.0/8,192.168.0.0/16`) for trusted ingress / load balancer hops. When empty, `X-Forwarded-For` is **ignored** and `actor_ip` is the direct TCP peer — set this in production so the audit log records the real client IP without being spoofable from the public side. |
-| `AISOC_AUDIT_MAX_CHANGES_BYTES` | `65536` | Hard cap on the serialized `changes` payload stored per audit row. Over-sized values are replaced with a `{ "_truncated": true, "_size": <bytes> }` marker. Set higher only if you genuinely need richer diffs and have provisioned the storage. |
+| `QUARRY_TRUSTED_PROXIES` | _empty_ | Comma-separated list of CIDRs (e.g. `10.0.0.0/8,192.168.0.0/16`) for trusted ingress / load balancer hops. When empty, `X-Forwarded-For` is **ignored** and `actor_ip` is the direct TCP peer — set this in production so the audit log records the real client IP without being spoofable from the public side. |
+| `QUARRY_AUDIT_MAX_CHANGES_BYTES` | `65536` | Hard cap on the serialized `changes` payload stored per audit row. Over-sized values are replaced with a `{ "_truncated": true, "_size": <bytes> }` marker. Set higher only if you genuinely need richer diffs and have provisioned the storage. |
 
 ### Passkeys (WebAuthn)
 
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `PASSKEY_RP_ID` | `localhost` | Relying-party ID — must match the eTLD+1 of the PWA origin (no scheme, no port) |
-| `PASSKEY_RP_NAME` | `AiSOC` | Display name shown in the OS passkey prompt |
+| `PASSKEY_RP_NAME` | `Quarry` | Display name shown in the OS passkey prompt |
 | `PASSKEY_RP_ORIGINS` | `http://localhost:3000,http://localhost:3001` | Comma-separated list of allowed origins |
 | `PASSKEY_CHALLENGE_TTL_SECONDS` | `300` | Lifetime of a single ceremony challenge |
 
 ### SSO — OIDC
 
-Source: [`services/api/app/auth/oidc.py`](https://github.com/beenuar/AiSOC/blob/main/services/api/app/auth/oidc.py)
+Source: [`services/api/app/auth/oidc.py`](https://github.com/Josepassinato/quarry/blob/main/services/api/app/auth/oidc.py)
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -72,7 +72,7 @@ Source: [`services/api/app/auth/oidc.py`](https://github.com/beenuar/AiSOC/blob/
 
 ### SSO — SAML 2.0
 
-Source: [`services/api/app/auth/saml.py`](https://github.com/beenuar/AiSOC/blob/main/services/api/app/auth/saml.py)
+Source: [`services/api/app/auth/saml.py`](https://github.com/Josepassinato/quarry/blob/main/services/api/app/auth/saml.py)
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -90,14 +90,14 @@ Source: [`services/api/app/auth/saml.py`](https://github.com/beenuar/AiSOC/blob/
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `DATABASE_URL` | `postgresql+asyncpg://aisoc:aisoc@localhost:5432/aisoc` | Async Postgres DSN |
+| `DATABASE_URL` | `postgresql+asyncpg://quarry:aisoc@localhost:5432/quarry` | Async Postgres DSN |
 | `DATABASE_POOL_SIZE` | `20` | SQLAlchemy pool size |
 | `DATABASE_MAX_OVERFLOW` | `10` | SQLAlchemy max overflow |
 | `REDIS_URL` | `redis://localhost:6379/0` | Redis DSN |
 | `REDIS_POOL_SIZE` | `20` | Redis connection pool size |
 | `KAFKA_BOOTSTRAP_SERVERS` | `localhost:9092` | Comma-separated broker list (canonical name; `KAFKA_BROKERS` is honored as a back-compat alias) |
-| `KAFKA_TOPIC_EVENTS` | `aisoc.normalized_events` | Topic for normalized events |
-| `KAFKA_TOPIC_ALERTS` | `aisoc.alerts` | Topic for emitted alerts |
+| `KAFKA_TOPIC_EVENTS` | `quarry.normalized_events` | Topic for normalized events |
+| `KAFKA_TOPIC_ALERTS` | `quarry.alerts` | Topic for emitted alerts |
 
 ### Search and graph
 
@@ -108,7 +108,7 @@ Source: [`services/api/app/auth/saml.py`](https://github.com/beenuar/AiSOC/blob/
 | `NEO4J_USER` | `neo4j` | Neo4j user |
 | `NEO4J_PASSWORD` | — | Neo4j password |
 | `QDRANT_URL` | `http://localhost:6333` | Qdrant base URL |
-| `CLICKHOUSE_HOST` / `CLICKHOUSE_PORT` / `CLICKHOUSE_DATABASE` / `CLICKHOUSE_USER` / `CLICKHOUSE_PASSWORD` | `localhost` / `9000` / `aisoc` / `default` / — | ClickHouse connection details |
+| `CLICKHOUSE_HOST` / `CLICKHOUSE_PORT` / `CLICKHOUSE_DATABASE` / `CLICKHOUSE_USER` / `CLICKHOUSE_PASSWORD` | `localhost` / `9000` / `quarry` / `default` / — | ClickHouse connection details |
 
 ### Realtime, demo, and feature toggles
 
@@ -116,30 +116,30 @@ Source: [`services/api/app/auth/saml.py`](https://github.com/beenuar/AiSOC/blob/
 |----------|---------|-------------|
 | `REALTIME_BASE_URL` | `http://realtime:8086` | Internal URL the API uses to fan out push events |
 | `REALTIME_INTERNAL_TOKEN` | — | Shared secret with the realtime service for internal RPC |
-| `AISOC_CORS_ORIGINS` | _(uses service default)_ | Canonical, repo-wide, comma-separated CORS allow-list. Applies to every API, agent, ingest, enrichment, realtime, UEBA, honeytoken, purple-team, and connectors process. See [CORS configuration](#cors-configuration) below for the full rules. |
-| `CORS_ORIGINS` | `http://localhost:3000,http://localhost:3001` | Legacy alias kept for backwards compatibility. `AISOC_CORS_ORIGINS` takes precedence when both are set. |
+| `QUARRY_CORS_ORIGINS` | _(uses service default)_ | Canonical, repo-wide, comma-separated CORS allow-list. Applies to every API, agent, ingest, enrichment, realtime, UEBA, honeytoken, purple-team, and connectors process. See [CORS configuration](#cors-configuration) below for the full rules. |
+| `CORS_ORIGINS` | `http://localhost:3000,http://localhost:3001` | Legacy alias kept for backwards compatibility. `QUARRY_CORS_ORIGINS` takes precedence when both are set. |
 | `OTEL_ENDPOINT` | — | OTLP collector endpoint |
 | `MAX_TENANTS` | `1000` | Hard cap for multi-tenant deployments |
 | `DEFAULT_TENANT_PLAN` | `starter` | Default plan for newly provisioned tenants |
-| `AISOC_PLUGINS_DIR` | `/opt/aisoc/plugins` | Filesystem path the plugin loader scans |
+| `QUARRY_PLUGINS_DIR` | `/opt/quarry/plugins` | Filesystem path the plugin loader scans |
 | `PLUGIN_TRUST_MODE` | `warn` | `disabled` skips signature checks, `warn` records `signature_status` but loads anyway, `strict` rejects unsigned/invalid plugins (including OCI installs). See [Operations → Security → OCI install hardening](../operations/security#oci-install-hardening-h-3). |
-| `PLUGIN_TRUSTED_KEYS_DIR` | `/etc/aisoc/plugin-keys` | Directory of Ed25519 public keys (`*.pem`/`*.pub`) that are allowed to sign plugins. |
-| `AISOC_DEMO_MODE` | `false` | When `true`, mutating requests outside the demo tenant return 403 |
-| `AISOC_DEMO_TENANT` | `demo` | Tenant slug allowed to write in demo mode |
-| `AISOC_DEMO_BANNER` | `Demo data resets daily at 00:00 UTC. All write actions are disabled.` | Banner text rendered by the web app |
-| `AISOC_DISABLE_KAFKA` / `AISOC_DISABLE_CLICKHOUSE` / `AISOC_DISABLE_OPENSEARCH` / `AISOC_DISABLE_NEO4J` / `AISOC_DISABLE_QDRANT` | `false` | Skip the corresponding subsystem at boot — endpoints that need it return 503 |
+| `PLUGIN_TRUSTED_KEYS_DIR` | `/etc/quarry/plugin-keys` | Directory of Ed25519 public keys (`*.pem`/`*.pub`) that are allowed to sign plugins. |
+| `QUARRY_DEMO_MODE` | `false` | When `true`, mutating requests outside the demo tenant return 403 |
+| `QUARRY_DEMO_TENANT` | `demo` | Tenant slug allowed to write in demo mode |
+| `QUARRY_DEMO_BANNER` | `Demo data resets daily at 00:00 UTC. All write actions are disabled.` | Banner text rendered by the web app |
+| `QUARRY_DISABLE_KAFKA` / `QUARRY_DISABLE_CLICKHOUSE` / `QUARRY_DISABLE_OPENSEARCH` / `QUARRY_DISABLE_NEO4J` / `QUARRY_DISABLE_QDRANT` | `false` | Skip the corresponding subsystem at boot — endpoints that need it return 503 |
 
 ---
 
 ## Agents service (`services/agents`)
 
-Source: [`services/agents/app/`](https://github.com/beenuar/AiSOC/tree/main/services/agents/app)
+Source: [`services/agents/app/`](https://github.com/Josepassinato/quarry/tree/main/services/agents/app)
 
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `OPENAI_API_KEY` | — | **Required.** OpenAI key used by the investigator and copilot agents |
 | `OPENAI_MODEL` | `gpt-4o` | LLM identifier — set per agent if you need different models |
-| `DATABASE_URL` | `postgresql+asyncpg://aisoc:aisoc@localhost:5432/aisoc` | Postgres DSN for the Investigation Ledger |
+| `DATABASE_URL` | `postgresql+asyncpg://quarry:aisoc@localhost:5432/quarry` | Postgres DSN for the Investigation Ledger |
 | `QDRANT_URL` | `http://localhost:6333` | Vector store for case memory and RAG |
 | `ENRICHMENT_SERVICE_URL` | `http://enrichment:8011` | URL of the enrichment service (Go) |
 | `API_SERVICE_URL` / `API_URL` | `http://api:8000` | URL of the FastAPI service |
@@ -148,20 +148,20 @@ Source: [`services/agents/app/`](https://github.com/beenuar/AiSOC/tree/main/serv
 | `PLAYBOOK_STORE_DIR` | `/data/playbooks` | Filesystem path for executable playbook DSL files |
 | `PLAYBOOK_PACK_ROOT` | `/data/playbook-packs` | Root directory for community playbook packs |
 | `ATTCK_DATA_PATH` | — | Path to a local MITRE ATT&CK STIX bundle (falls back to the bundled snapshot) |
-| `OTEL_SERVICE_NAME` | `aisoc-agents` | Service name in OTel traces |
-| `AISOC_VERSION` | `0.1.0` | Reported in OTel resource attributes |
+| `OTEL_SERVICE_NAME` | `quarry-agents` | Service name in OTel traces |
+| `QUARRY_VERSION` | `0.1.0` | Reported in OTel resource attributes |
 | `JAEGER_HOST` / `JAEGER_PORT` | `localhost` / `6831` | Jaeger agent endpoint (used when `OTEL_EXPORTER=jaeger`) |
 | `OTEL_EXPORTER_OTLP_ENDPOINT` | — | OTLP collector endpoint |
 | `OTEL_EXPORTER` | `otlp` | One of `otlp`, `jaeger`, `console` |
-| `AISOC_SSRF_ALLOWED_SCHEMES` | `http,https` | Comma-separated list of URL schemes allowed for outbound `http_request` and `notify` playbook steps. Anything else is rejected. |
-| `AISOC_SSRF_ALLOW_PRIVATE` | `false` | When `true`, lets playbook steps reach loopback / RFC1918 / link-local destinations. Leave off in production; enable only for self-hosted webhooks on a private network. |
-| `AISOC_SSRF_EXTRA_BLOCKED_HOSTS` | — | Comma-separated extra hosts or IPs to deny in addition to the built-in cloud-metadata block list (`169.254.169.254`, `metadata.google.internal`, …). |
+| `QUARRY_SSRF_ALLOWED_SCHEMES` | `http,https` | Comma-separated list of URL schemes allowed for outbound `http_request` and `notify` playbook steps. Anything else is rejected. |
+| `QUARRY_SSRF_ALLOW_PRIVATE` | `false` | When `true`, lets playbook steps reach loopback / RFC1918 / link-local destinations. Leave off in production; enable only for self-hosted webhooks on a private network. |
+| `QUARRY_SSRF_EXTRA_BLOCKED_HOSTS` | — | Comma-separated extra hosts or IPs to deny in addition to the built-in cloud-metadata block list (`169.254.169.254`, `metadata.google.internal`, …). |
 
 ---
 
 ## Realtime service (`services/realtime`)
 
-Source: [`services/realtime/src/index.ts`](https://github.com/beenuar/AiSOC/blob/main/services/realtime/src/index.ts)
+Source: [`services/realtime/src/index.ts`](https://github.com/Josepassinato/quarry/blob/main/services/realtime/src/index.ts)
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -169,7 +169,7 @@ Source: [`services/realtime/src/index.ts`](https://github.com/beenuar/AiSOC/blob
 | `LOG_LEVEL` | `info` | Pino log level (`trace`, `debug`, `info`, `warn`, `error`) |
 | `REDIS_URL` | `redis://localhost:6379/4` | Redis connection used for the push subscription store |
 | `KAFKA_BOOTSTRAP_SERVERS` | `localhost:9092` | Kafka brokers — the realtime service consumes the fused-alerts topic to push to clients |
-| `KAFKA_TOPIC_FUSED` | `aisoc.alerts.fused` | Topic with fused alerts that should reach connected SOC clients |
+| `KAFKA_TOPIC_FUSED` | `quarry.alerts.fused` | Topic with fused alerts that should reach connected SOC clients |
 | `VAPID_PUBLIC_KEY` | — | VAPID public key for Web Push — generate with `npx web-push generate-vapid-keys` |
 | `VAPID_PRIVATE_KEY` | — | VAPID private key — keep in a secret manager |
 | `VAPID_SUBJECT` | `mailto:soc@example.com` | Contact email or URL surfaced to push services |
@@ -179,24 +179,24 @@ Source: [`services/realtime/src/index.ts`](https://github.com/beenuar/AiSOC/blob
 
 ## MCP server (`services/mcp`)
 
-Source: [`services/mcp/src/config.ts`](https://github.com/beenuar/AiSOC/blob/main/services/mcp/src/config.ts)
+Source: [`services/mcp/src/config.ts`](https://github.com/Josepassinato/quarry/blob/main/services/mcp/src/config.ts)
 
 The MCP server runs as a sidecar that exposes Investigation Ledger tools to LLM clients (Claude Desktop, Cursor, Copilot, …) via the Model Context Protocol.
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `AISOC_URL` | `http://localhost:8081` | Base URL of the AiSOC API |
-| `AISOC_API_URL` | falls back to `AISOC_URL` | Override the API URL independently if the API and web app live on separate hosts |
-| `AISOC_API_KEY` | — | Long-lived API key (preferred for server-to-server use) |
-| `AISOC_TOKEN` | — | Short-lived JWT (alternative to `AISOC_API_KEY`) |
-| `AISOC_TIMEOUT_MS` | `20000` | HTTP timeout for outbound calls to the AiSOC API |
-| `AISOC_MCP_VERBOSE` | `0` | Set to `1` to log every tool invocation to stderr |
+| `QUARRY_URL` | `http://localhost:8081` | Base URL of the Quarry API |
+| `QUARRY_API_URL` | falls back to `QUARRY_URL` | Override the API URL independently if the API and web app live on separate hosts |
+| `QUARRY_API_KEY` | — | Long-lived API key (preferred for server-to-server use) |
+| `QUARRY_TOKEN` | — | Short-lived JWT (alternative to `QUARRY_API_KEY`) |
+| `QUARRY_TIMEOUT_MS` | `20000` | HTTP timeout for outbound calls to the Quarry API |
+| `QUARRY_MCP_VERBOSE` | `0` | Set to `1` to log every tool invocation to stderr |
 
 ---
 
 ## Ingest service (`services/ingest`)
 
-Source: [`services/ingest/internal/config/config.go`](https://github.com/beenuar/AiSOC/blob/main/services/ingest/internal/config/config.go)
+Source: [`services/ingest/internal/config/config.go`](https://github.com/Josepassinato/quarry/blob/main/services/ingest/internal/config/config.go)
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -204,12 +204,12 @@ Source: [`services/ingest/internal/config/config.go`](https://github.com/beenuar
 | `KAFKA_BOOTSTRAP_SERVERS` | `localhost:9092` | Comma-separated broker list (canonical; `KAFKA_BROKERS` accepted as alias) |
 | `KAFKA_TOPIC` | `security.events` | Topic for normalized events |
 | `REDIS_ADDR` | `localhost:6379` | Redis address (for dedup and rate limiting) |
-| `DATABASE_DSN` | `postgres://aisoc:aisoc@localhost:5432/aisoc?sslmode=disable` | Postgres DSN |
+| `DATABASE_DSN` | `postgres://quarry:aisoc@localhost:5432/quarry?sslmode=disable` | Postgres DSN |
 | `ATTCK_DATA_PATH` | — | Path to MITRE ATT&CK STIX bundle for technique tagging |
 | `NORMALIZER_MODE` | `auto` | `auto`, `strict`, or `passthrough` |
 | `MAX_BATCH_SIZE` | `1000` | Max events flushed per batch |
 | `WORKER_COUNT` | `4` | Number of normalization workers |
-| `TENANT_HEADER_KEY` | `X-AiSOC-Tenant` | HTTP header that carries the tenant slug |
+| `TENANT_HEADER_KEY` | `X-Quarry-Tenant` | HTTP header that carries the tenant slug |
 | `JWT_SECRET` | — | **Required outside `ENV=development`.** HMAC secret used to verify ingest tokens. |
 | `METRICS_PORT` | `9090` | Prometheus exporter port |
 | `SHODAN_API_KEY` | — | Optional — enables Shodan enrichment when paired with `SHODAN_ENRICH_ENABLED=true` |
@@ -223,15 +223,15 @@ Source: [`services/ingest/internal/config/config.go`](https://github.com/beenuar
 
 ## UEBA service (`services/ueba`)
 
-Source: [`services/ueba/app/core/config.py`](https://github.com/beenuar/AiSOC/blob/main/services/ueba/app/core/config.py)
+Source: [`services/ueba/app/core/config.py`](https://github.com/Josepassinato/quarry/blob/main/services/ueba/app/core/config.py)
 
 Every variable in this section accepts **both** an unprefixed name (e.g. `DATABASE_URL`, `KAFKA_BOOTSTRAP_SERVERS`) and the legacy `UEBA_`-prefixed name (e.g. `UEBA_DATABASE_URL`, `UEBA_KAFKA_BOOTSTRAP_SERVERS`). When both are set, the **unprefixed form wins** — this matches the convention used by every other Python service in the repo and the `services/ueba` section of `docker-compose.yml`, which exports unprefixed names.
 
-The table below shows the canonical (unprefixed) name first and the legacy alias second. New deployments should prefer the unprefixed form. (See PR [#135](https://github.com/beenuar/AiSOC/pull/135) for the implementation and [Issue #134](https://github.com/beenuar/AiSOC/issues/134) for the original report.)
+The table below shows the canonical (unprefixed) name first and the legacy alias second. New deployments should prefer the unprefixed form. (See PR [#135](https://github.com/Josepassinato/quarry/pull/135) for the implementation and [Issue #134](https://github.com/Josepassinato/quarry/issues/134) for the original report.)
 
 | Variable | Legacy alias | Default | Description |
 |----------|--------------|---------|-------------|
-| `DATABASE_URL` | `UEBA_DATABASE_URL` | `postgresql+asyncpg://aisoc:aisoc@localhost:5432/aisoc` | Postgres DSN for baselines and anomalies |
+| `DATABASE_URL` | `UEBA_DATABASE_URL` | `postgresql+asyncpg://quarry:aisoc@localhost:5432/quarry` | Postgres DSN for baselines and anomalies |
 | `KAFKA_BOOTSTRAP_SERVERS` | `UEBA_KAFKA_BOOTSTRAP_SERVERS` | `localhost:9092` | Kafka brokers |
 | `KAFKA_INPUT_TOPIC` | `UEBA_KAFKA_INPUT_TOPIC` | `security.events` | Topic the scorer consumes |
 | `KAFKA_OUTPUT_TOPIC` | `UEBA_KAFKA_OUTPUT_TOPIC` | `ueba.anomalies` | Topic the scorer emits to |
@@ -241,7 +241,7 @@ The table below shows the canonical (unprefixed) name first and the legacy alias
 | `PEER_GROUP_MIN_SIZE` | `UEBA_PEER_GROUP_MIN_SIZE` | `3` | Minimum peers required for peer-group analysis |
 | `SCORING_BATCH_SIZE` | `UEBA_SCORING_BATCH_SIZE` | `100` | Events processed per scoring batch |
 | `OTEL_ENDPOINT` | `UEBA_OTEL_ENDPOINT` | `http://localhost:4317` | OTLP gRPC endpoint |
-| `SERVICE_NAME` | `UEBA_SERVICE_NAME` | `aisoc-ueba` | OTel service name |
+| `SERVICE_NAME` | `UEBA_SERVICE_NAME` | `quarry-ueba` | OTel service name |
 | `HOST` | `UEBA_HOST` | `0.0.0.0` | HTTP listener interface |
 | `PORT` | `UEBA_PORT` | `8004` | HTTP listener port |
 
@@ -251,18 +251,18 @@ The table below shows the canonical (unprefixed) name first and the legacy alias
 
 ## Honeytokens service (`services/honeytokens`)
 
-Source: [`services/honeytokens/app/core/config.py`](https://github.com/beenuar/AiSOC/blob/main/services/honeytokens/app/core/config.py)
+Source: [`services/honeytokens/app/core/config.py`](https://github.com/Josepassinato/quarry/blob/main/services/honeytokens/app/core/config.py)
 
 All variables use the `HONEYTOKEN_` prefix.
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `HONEYTOKEN_DATABASE_URL` | `postgresql+asyncpg://aisoc:aisoc@localhost:5432/aisoc` | Postgres DSN for token metadata and triggers |
+| `HONEYTOKEN_DATABASE_URL` | `postgresql+asyncpg://quarry:aisoc@localhost:5432/quarry` | Postgres DSN for token metadata and triggers |
 | `HONEYTOKEN_ALERT_WEBHOOK_URL` | — | Webhook called when a token is triggered |
 | `HONEYTOKEN_ALERT_WEBHOOK_SECRET` | `changeme` | **Rotate before going live.** HMAC-SHA256 secret for webhook signing |
 | `HONEYTOKEN_TOKEN_TTL_DAYS` | `365` | Default token expiry |
 | `HONEYTOKEN_OTEL_ENDPOINT` | `http://localhost:4317` | OTLP collector endpoint |
-| `HONEYTOKEN_SERVICE_NAME` | `aisoc-honeytokens` | OTel service name |
+| `HONEYTOKEN_SERVICE_NAME` | `quarry-honeytokens` | OTel service name |
 | `HONEYTOKEN_HOST` | `0.0.0.0` | HTTP listener interface |
 | `HONEYTOKEN_PORT` | `8005` | HTTP listener port |
 
@@ -270,20 +270,20 @@ All variables use the `HONEYTOKEN_` prefix.
 
 ## Purple Team service (`services/purple-team`)
 
-Source: [`services/purple-team/app/core/config.py`](https://github.com/beenuar/AiSOC/blob/main/services/purple-team/app/core/config.py)
+Source: [`services/purple-team/app/core/config.py`](https://github.com/Josepassinato/quarry/blob/main/services/purple-team/app/core/config.py)
 
 All variables use the `PURPLE_TEAM_` prefix.
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `PURPLE_TEAM_DATABASE_URL` | `postgresql+asyncpg://aisoc:aisoc@localhost:5432/aisoc` | Postgres DSN for emulation runs and findings |
+| `PURPLE_TEAM_DATABASE_URL` | `postgresql+asyncpg://quarry:aisoc@localhost:5432/quarry` | Postgres DSN for emulation runs and findings |
 | `PURPLE_TEAM_CALDERA_URL` | `http://localhost:8888` | Caldera server URL |
 | `PURPLE_TEAM_CALDERA_API_KEY` | `ADMIN123` | **Rotate before going live.** Caldera REST API key |
 | `PURPLE_TEAM_ART_REPO_PATH` | `/opt/atomic-red-team` | Filesystem path to the Atomic Red Team checkout |
 | `PURPLE_TEAM_ART_ATOMICS_PATH` | `/opt/atomic-red-team/atomics` | Path to the `atomics/` directory inside ART |
 | `PURPLE_TEAM_ATTACK_STIX_URL` | `https://raw.githubusercontent.com/mitre/cti/master/enterprise-attack/enterprise-attack.json` | URL to the MITRE ATT&CK STIX bundle |
 | `PURPLE_TEAM_OTEL_ENDPOINT` | `http://localhost:4317` | OTLP collector endpoint |
-| `PURPLE_TEAM_SERVICE_NAME` | `aisoc-purple-team` | OTel service name |
+| `PURPLE_TEAM_SERVICE_NAME` | `quarry-purple-team` | OTel service name |
 | `PURPLE_TEAM_HOST` | `0.0.0.0` | HTTP listener interface |
 | `PURPLE_TEAM_PORT` | `8006` | HTTP listener port |
 
@@ -304,32 +304,32 @@ The Next.js frontend reads only public, build-time variables. Anything sensitive
 
 ## CORS configuration
 
-CORS is configured the same way across every AiSOC service — Python (FastAPI), Go (`ingest`, `enrichment`), and TypeScript (`realtime`) — by reading a single environment variable. This is the variable to set when you put AiSOC behind a custom domain or want to restrict cross-origin access in production.
+CORS is configured the same way across every Quarry service — Python (FastAPI), Go (`ingest`, `enrichment`), and TypeScript (`realtime`) — by reading a single environment variable. This is the variable to set when you put Quarry behind a custom domain or want to restrict cross-origin access in production.
 
 ### Variables
 
 | Variable | Priority | Description |
 |----------|----------|-------------|
-| `AISOC_CORS_ORIGINS` | **1 (canonical)** | Comma-separated allow-list. Set this in every environment. |
-| `CORS_ORIGINS` | 2 (legacy alias) | Honoured when `AISOC_CORS_ORIGINS` is unset. Existing Helm charts and dev scripts that already use this keep working. |
+| `QUARRY_CORS_ORIGINS` | **1 (canonical)** | Comma-separated allow-list. Set this in every environment. |
+| `CORS_ORIGINS` | 2 (legacy alias) | Honoured when `QUARRY_CORS_ORIGINS` is unset. Existing Helm charts and dev scripts that already use this keep working. |
 | _(none set)_ | 3 (default) | Each service falls back to `http://localhost:3000`, `http://localhost:3001`, `http://127.0.0.1:3000`, `http://127.0.0.1:3001`, `https://tryaisoc.com`, `https://www.tryaisoc.com`. |
 
 Examples:
 
 ```bash
 # Production, single console domain
-AISOC_CORS_ORIGINS=https://soc.example.com
+QUARRY_CORS_ORIGINS=https://soc.example.com
 
 # Multiple consoles (analyst app + responder PWA on a subdomain)
-AISOC_CORS_ORIGINS=https://soc.example.com,https://responder.example.com
+QUARRY_CORS_ORIGINS=https://soc.example.com,https://responder.example.com
 
 # Local dev across the standard ports (matches the default)
-AISOC_CORS_ORIGINS=http://localhost:3000,http://localhost:3001
+QUARRY_CORS_ORIGINS=http://localhost:3000,http://localhost:3001
 ```
 
 ### Production safety guard
 
-The Python helper at [`services/api/app/core/cors.py`](https://github.com/beenuar/AiSOC/blob/main/services/api/app/core/cors.py) (vendored byte-identical into every Python service) and the TypeScript guard in [`services/realtime/src/index.ts`](https://github.com/beenuar/AiSOC/blob/main/services/realtime/src/index.ts) both **refuse to start** if the allow-list contains `*` while `allow_credentials` is `true` and any of `AISOC_ENV`, `ENVIRONMENT`, or `APP_ENV` equals `production` or `prod`. This catches the canonical CORS misconfiguration (wildcard + cookies / `Authorization` headers) before the deploy goes live.
+The Python helper at [`services/api/app/core/cors.py`](https://github.com/Josepassinato/quarry/blob/main/services/api/app/core/cors.py) (vendored byte-identical into every Python service) and the TypeScript guard in [`services/realtime/src/index.ts`](https://github.com/Josepassinato/quarry/blob/main/services/realtime/src/index.ts) both **refuse to start** if the allow-list contains `*` while `allow_credentials` is `true` and any of `QUARRY_ENV`, `ENVIRONMENT`, or `APP_ENV` equals `production` or `prod`. This catches the canonical CORS misconfiguration (wildcard + cookies / `Authorization` headers) before the deploy goes live.
 
 Outside production the same combination logs a warning and silently disables credentials — local dev stays usable when someone exports `CORS_ORIGINS=*`.
 
@@ -337,7 +337,7 @@ The `honeytokens`, `purple-team`, and `ueba` services run with `allow_credential
 
 ### Go services (`ingest`, `enrichment`) and the realtime service (`realtime`)
 
-These services read the same `AISOC_CORS_ORIGINS` / `CORS_ORIGINS` pair and fall back to the same default allow-list. `ingest` and `enrichment` keep `AllowCredentials: false` (they are token-authenticated per request, not cookie-authenticated). The realtime service runs with credentials enabled because the SSE / WebSocket streams carry the console's session cookie; it enforces the same production wildcard guard as the Python helper.
+These services read the same `QUARRY_CORS_ORIGINS` / `CORS_ORIGINS` pair and fall back to the same default allow-list. `ingest` and `enrichment` keep `AllowCredentials: false` (they are token-authenticated per request, not cookie-authenticated). The realtime service runs with credentials enabled because the SSE / WebSocket streams carry the console's session cookie; it enforces the same production wildcard guard as the Python helper.
 
 ---
 
@@ -347,13 +347,13 @@ These services read the same `AISOC_CORS_ORIGINS` / `CORS_ORIGINS` pair and fall
 # --- API ---
 SECRET_KEY=$(openssl rand -hex 32)
 ACCESS_TOKEN_EXPIRE_MINUTES=30
-DATABASE_URL=postgresql+asyncpg://aisoc:changeme@localhost:5432/aisoc
+DATABASE_URL=postgresql+asyncpg://quarry:changeme@localhost:5432/quarry
 REDIS_URL=redis://localhost:6379/0
 KAFKA_BOOTSTRAP_SERVERS=localhost:9092
 OPENSEARCH_URL=http://localhost:9200
 QDRANT_URL=http://localhost:6333
 # Canonical, applies to every service. Legacy CORS_ORIGINS still works.
-AISOC_CORS_ORIGINS=http://localhost:3000
+QUARRY_CORS_ORIGINS=http://localhost:3000
 
 # --- API: SSO (set both blocks if you actually use SSO) ---
 JWT_SECRET=$(openssl rand -hex 32)
@@ -371,13 +371,13 @@ INTERNAL_TOKEN=$(openssl rand -hex 32)
 REALTIME_INTERNAL_TOKEN=${INTERNAL_TOKEN}
 
 # --- MCP ---
-AISOC_URL=http://localhost:8000
-AISOC_API_KEY=...
+QUARRY_URL=http://localhost:8000
+QUARRY_API_KEY=...
 
 # --- Ingest ---
 HTTP_PORT=8080
 KAFKA_TOPIC=security.events
-DATABASE_DSN=postgres://aisoc:changeme@localhost:5432/aisoc?sslmode=disable
+DATABASE_DSN=postgres://quarry:changeme@localhost:5432/quarry?sslmode=disable
 JWT_SECRET=${JWT_SECRET}
 
 # --- UEBA / Honeytokens / Purple Team ---
@@ -393,4 +393,4 @@ NEXT_PUBLIC_REALTIME_URL=ws://localhost:8086
 NEXT_PUBLIC_VAPID_PUBLIC_KEY=${VAPID_PUBLIC_KEY}
 ```
 
-Before going to production, run through the [Hardening Runbook](https://github.com/beenuar/AiSOC/blob/main/docs/runbooks/HARDENING.md) to make sure every secret has been rotated away from the example values above.
+Before going to production, run through the [Hardening Runbook](https://github.com/Josepassinato/quarry/blob/main/docs/runbooks/HARDENING.md) to make sure every secret has been rotated away from the example values above.

@@ -1,6 +1,6 @@
-# AiSOC public papers
+# Quarry public papers
 
-This directory hosts publication-quality PDFs that the AiSOC marketing
+This directory hosts publication-quality PDFs that the Quarry marketing
 site and docs site link to.  Source markdown lives at
 `apps/web/content/papers/`; PDFs here are generated artefacts.
 
@@ -16,7 +16,7 @@ python3 scripts/render_white_paper.py \
 
 The script depends on two Python packages — `markdown` and
 `weasyprint` — and on the native libs WeasyPrint requires (Pango,
-Cairo, GLib, libffi, libssl).  The AiSOC API service image
+Cairo, GLib, libffi, libssl).  The Quarry API service image
 (`services/api/Dockerfile`) already installs the native libs, so
 running the script from the API service container is the easiest path:
 

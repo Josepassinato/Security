@@ -279,7 +279,7 @@ def test_ioc_density_increases_score(scorer: ConfidenceScorer) -> None:
 
 
 def test_disabled_scorer_passes_alert_through_unchanged() -> None:
-    """When ``AISOC_FEATURE_CONFIDENCE`` is off the scorer must be a no-op:
+    """When ``QUARRY_FEATURE_CONFIDENCE`` is off the scorer must be a no-op:
     the alert keeps the FusedAlert defaults (MEDIUM / 0.5 / []) so the
     frontend degrades gracefully and downstream consumers never see a
     half-populated rationale."""

@@ -1,12 +1,12 @@
 ---
 sidebar_position: 1
 title: Platform Capabilities
-description: Full index of AiSOC Tier 1, 2, and 3 capabilities with API references.
+description: Full index of Quarry Tier 1, 2, and 3 capabilities with API references.
 ---
 
 # Platform Capabilities
 
-AiSOC ships a layered capability model across three tiers.  Tier 1 items are core
+Quarry ships a layered capability model across three tiers.  Tier 1 items are core
 SOC operations shipped from day one.  Tier 2 items are intelligent-automation
 extensions.  Tier 3 items are advanced analyst workflows.
 
@@ -85,7 +85,7 @@ hypothesis-driven hunts.
 
 | Capability | API / Surface | Description |
 |---|---|---|
-| **Risk-Based Alerting (RBA)** | `services/fusion/app/services/entity_risk.py` | Alerts contribute time-decayed risk points to entities (user, host, src_ip, domain). Points decay exponentially with a configurable half-life. When an entity's score crosses `rba_promotion_threshold`, AiSOC promotes it to an incident with contributing alerts attached. The entity-centric queue surfaces the top-N highest-risk entities. CI-gated at ≥ 50:1 alert-to-incident ratio. |
+| **Risk-Based Alerting (RBA)** | `services/fusion/app/services/entity_risk.py` | Alerts contribute time-decayed risk points to entities (user, host, src_ip, domain). Points decay exponentially with a configurable half-life. When an entity's score crosses `rba_promotion_threshold`, Quarry promotes it to an incident with contributing alerts attached. The entity-centric queue surfaces the top-N highest-risk entities. CI-gated at ≥ 50:1 alert-to-incident ratio. |
 | **ChatOps user verification** | `services/actions/app/executors/chatops.py` | Sends Slack/Teams interactive prompts with three HMAC-signed callback choices (acknowledge / deny / escalate). Tokens carry action, case, tenant, user reference, and expiry. Timeout auto-escalates. |
 | **L0–L4 remediation maturity tiers** | `/api/v1/remediation` | Each tier unlocks progressively more autonomous remediation. `evaluate_gate()` checks tier, blast-radius, and per-action whitelist before allowing auto-execution. Full gate audit log. See the [Automation Maturity concept page](./automation-maturity.md) and the [L0–L4 white paper](https://tryaisoc.com/papers/l0-l4-automation-maturity.pdf) for the full model. |
 
@@ -95,7 +95,7 @@ hypothesis-driven hunts.
 
 | Capability | API prefix | Description |
 |---|---|---|
-| **EASM** | `/api/v1/easm` | External Attack Surface Management — passive (Shodan/Censys) + optional active port scanning. Discovers assets, tracks drift (new ports, certs, subdomains), and generates alerts. Feature-flagged via `AISOC_FEATURE_EASM`. |
+| **EASM** | `/api/v1/easm` | External Attack Surface Management — passive (Shodan/Censys) + optional active port scanning. Discovers assets, tracks drift (new ports, certs, subdomains), and generates alerts. Feature-flagged via `QUARRY_FEATURE_EASM`. |
 | **Insider threat** | `/api/v1/insider-threat` | User risk profiles, behavioural indicators (login anomaly, data exfil, privilege abuse), peer-group deviation scoring, and watchlist management. |
 | **Asset inventory** | `/api/v1/assets` | Auto-correlated asset records with vulnerability tracking and alert-to-asset linking for blast-radius context. |
 | **MSSP console** | `/api/v1/mssp` | Parent-tenant console — onboard/manage child tenants, delegate actions cross-tenant, view rollup metrics, per-tenant detection scoping via rule packs with overrides. |
@@ -144,7 +144,7 @@ hypothesis-driven hunts.
 
 ## Detection Rule Formats
 
-AiSOC translates between the following formats natively:
+Quarry translates between the following formats natively:
 
 | Format | Read | Write |
 |---|---|---|
@@ -159,7 +159,7 @@ AiSOC translates between the following formats natively:
 
 ## Severity Ladder
 
-All connectors normalise to the AiSOC four-tier severity model:
+All connectors normalise to the Quarry four-tier severity model:
 
 ```
 info → low → medium → high

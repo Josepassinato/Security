@@ -1,5 +1,5 @@
 // Source: https://ui.aceternity.com/components/text-generate-effect
-// Licensed under MIT. Vendored implementation tuned for the AiSOC hero H1:
+// Licensed under MIT. Vendored implementation tuned for the Quarry hero H1:
 // per-word framer-motion reveal with a 30 ms stagger and the `out-expo`
 // easing curve from `docs/design/landing-page-design-tokens.md` §7.
 'use client';

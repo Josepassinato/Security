@@ -1,5 +1,5 @@
 /**
- * AiSOC VPC Module
+ * Quarry VPC Module
  */
 
 resource "aws_vpc" "main" {

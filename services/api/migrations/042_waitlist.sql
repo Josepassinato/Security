@@ -1,4 +1,4 @@
--- Migration 042: Managed-instance waitlist (T6.1 — `app.aisoc.dev`).
+-- Migration 042: Managed-instance waitlist (T6.1 — `app.quarry.dev`).
 --
 -- Stores every public signup against ``/waitlist`` so the support team
 -- can triage demand, contact prospects, and (once approved) promote

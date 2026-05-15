@@ -4,22 +4,22 @@ sidebar_position: 3
 
 # Quick Start
 
-Four paths to a running AiSOC instance, in increasing order of how much you
+Four paths to a running Quarry instance, in increasing order of how much you
 already have installed:
 
 0. **Zero-prerequisite bootstrap** — one shell command from a freshly-imaged
    machine. Installs Docker, Node, pnpm, git, and clones the repo; then runs
    Path A automatically. See [One-click install](./installation).
-1. **One-shot demo** — `pnpm aisoc:demo` brings up a slim stack from prebuilt
+1. **One-shot demo** — `pnpm quarry:demo` brings up a slim stack from prebuilt
    GHCR images, seeds canonical demo data, kicks off an investigation, and
    opens your browser at the live case. Roughly 3-4 minutes on a warm Docker
    daemon.
 2. **Full development stack** — every microservice (UEBA, Honeytokens, Purple
    Team, ClickHouse, OpenSearch, Neo4j, Qdrant, MCP, osquery TLS server,
-   Slack bot) for hacking on AiSOC itself.
+   Slack bot) for hacking on Quarry itself.
 3. **Founder-style CLI** — the same dev stack as Path B, but driven entirely
-   through the `aisoc` CLI: `aisoc serve`, `aisoc db upgrade`, `aisoc submit`,
-   `aisoc mcp serve`. Ideal for screen-recording demos and for operators who
+   through the `quarry` CLI: `quarry serve`, `quarry db upgrade`, `quarry submit`,
+   `quarry mcp serve`. Ideal for screen-recording demos and for operators who
    prefer a single binary over `docker compose` + `alembic` + `curl`.
 
 This page covers Paths A, B, and C. If you don't have Docker / Node / pnpm
@@ -43,16 +43,16 @@ with [Path 0 (One-click install)](./installation).
 ## Path A — one-shot demo
 
 ```bash
-git clone https://github.com/beenuar/AiSOC.git
-cd AiSOC
-pnpm aisoc:demo
+git clone https://github.com/Josepassinato/quarry.git
+cd Quarry
+pnpm quarry:demo
 ```
 
 That single command:
 
 1. Pulls prebuilt images from `ghcr.io/beenuar/*` (≈90s on a warm cache).
 2. Brings up the slim demo profile defined in
-   [`docker-compose.demo.yml`](https://github.com/beenuar/AiSOC/blob/main/docker-compose.demo.yml):
+   [`docker-compose.demo.yml`](https://github.com/Josepassinato/quarry/blob/main/docker-compose.demo.yml):
    `postgres`, `redis`, `kafka`, `api`, `agents`, `realtime`, `web`.
 3. Waits for healthchecks to go green.
 4. Seeds canonical demo data (tenants, users, alerts, IOCs, attack paths).
@@ -70,12 +70,12 @@ That single command:
 When you're done:
 
 ```bash
-pnpm aisoc:demo:down    # stops the stack and deletes the demo volumes
-pnpm aisoc:demo:logs    # tails logs while the stack is up
+pnpm quarry:demo:down    # stops the stack and deletes the demo volumes
+pnpm quarry:demo:logs    # tails logs while the stack is up
 ```
 
 The orchestrator script lives at
-[`scripts/aisoc-demo.ts`](https://github.com/beenuar/AiSOC/blob/main/scripts/aisoc-demo.ts).
+[`scripts/quarry-demo.ts`](https://github.com/Josepassinato/quarry/blob/main/scripts/quarry-demo.ts).
 
 ### Acceptance gate
 
@@ -83,27 +83,27 @@ The buyer-value contract for v1.0 is **clone-to-investigation in ≤ 5 minutes o
 a clean Mac**. We measure it with a dedicated harness:
 
 ```bash
-pnpm aisoc:acceptance          # warm start, default 5-minute budget
-pnpm aisoc:acceptance --cold   # prune cached demo images first (true clean clone)
-pnpm aisoc:acceptance --history-only   # print the trend ledger
+pnpm quarry:acceptance          # warm start, default 5-minute budget
+pnpm quarry:acceptance --cold   # prune cached demo images first (true clean clone)
+pnpm quarry:acceptance --history-only   # print the trend ledger
 ```
 
-The harness wraps `aisoc:demo`, enforces the budget, and appends a JSONL entry
-to `.aisoc/acceptance-history.jsonl` per run so regressions are visible across
+The harness wraps `quarry:demo`, enforces the budget, and appends a JSONL entry
+to `.quarry/acceptance-history.jsonl` per run so regressions are visible across
 commits. Exit codes — `0` pass, `3` over budget, `4` showcase case never
 reached — make it easy to wire into CI without parsing logs. Source:
-[`scripts/aisoc-acceptance.ts`](https://github.com/beenuar/AiSOC/blob/main/scripts/aisoc-acceptance.ts).
+[`scripts/quarry-acceptance.ts`](https://github.com/Josepassinato/quarry/blob/main/scripts/quarry-acceptance.ts).
 
 ## Path B — full development stack
 
-Use this when you want to hack on AiSOC itself, run the eval harness, or
+Use this when you want to hack on Quarry itself, run the eval harness, or
 exercise UEBA / Honeytokens / Purple Team / MCP.
 
 ### 1. Clone & configure
 
 ```bash
-git clone https://github.com/beenuar/AiSOC.git
-cd AiSOC
+git clone https://github.com/Josepassinato/quarry.git
+cd Quarry
 cp .env.example .env
 pnpm install
 ```
@@ -149,9 +149,9 @@ docker compose exec purple-team alembic upgrade head
 ```
 
 The `api` migrations include
-[`008_investigation_ledger.sql`](https://github.com/beenuar/AiSOC/blob/main/services/api/migrations/008_investigation_ledger.sql)
+[`008_investigation_ledger.sql`](https://github.com/Josepassinato/quarry/blob/main/services/api/migrations/008_investigation_ledger.sql)
 (replayable agent decision log) and
-[`009_responder_pwa.sql`](https://github.com/beenuar/AiSOC/blob/main/services/api/migrations/009_responder_pwa.sql)
+[`009_responder_pwa.sql`](https://github.com/Josepassinato/quarry/blob/main/services/api/migrations/009_responder_pwa.sql)
 (passkeys, on-call rotation, approvals).
 
 ### 4. Seed demo data
@@ -163,7 +163,7 @@ pnpm seed:demo
 ### 5. Verify
 
 ```bash
-pnpm aisoc:doctor
+pnpm quarry:doctor
 ```
 
 Runs a one-shot health check across ports, containers, demo data, the API,
@@ -186,7 +186,7 @@ pytest services/agents/tests/test_mitre_accuracy.py
 The harness writes `eval_report.json` and `eval_mitre_accuracy_report.json`,
 which the [eval harness page](./benchmark) renders. The same harness runs in
 CI on every PR — see
-[`.github/workflows/ci.yml`](https://github.com/beenuar/AiSOC/blob/main/.github/workflows/ci.yml).
+[`.github/workflows/ci.yml`](https://github.com/Josepassinato/quarry/blob/main/.github/workflows/ci.yml).
 
 > **Important**: the harness runs deterministic substrate code (extractors,
 > fusion, templates, judges) against synthetic data — it does **not** call
@@ -198,7 +198,7 @@ CI on every PR — see
 ### 7. Open the UI
 
 Visit [http://localhost:3000](http://localhost:3000) and log in with the
-default seeded credentials: `admin@aisoc.local` / `changeme`.
+default seeded credentials: `admin@quarry.local` / `changeme`.
 
 The mobile **Responder PWA** lives at
 [http://localhost:3000/responder](http://localhost:3000/responder) — install
@@ -206,12 +206,12 @@ it on your phone via "Add to Home Screen" and sign in with a passkey.
 
 ### 8. Connect your first source in 5 minutes
 
-The seeded demo data is enough to fly the UI through; pointing AiSOC at a
+The seeded demo data is enough to fly the UI through; pointing Quarry at a
 live source takes about five minutes per connector and zero code changes:
 
 1. Generate a vault key and put it in `.env` —
    `python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"`
-   then set `AISOC_CREDENTIAL_KEY=<that-string>`. In dev the API will
+   then set `QUARRY_CREDENTIAL_KEY=<that-string>`. In dev the API will
    bootstrap an ephemeral key if you skip this; in prod the API refuses
    to start without one. Full threat model and rotation procedure:
    [Operations: Credentials](./operations/credentials).
@@ -258,7 +258,7 @@ permissions / scopes / role assignments and a troubleshooting section.
 ## Path C — founder-style CLI
 
 Same backing services as Path B (full dev stack), but every step is one
-`aisoc <verb>` command. This is the path the recorded product demo follows
+`quarry <verb>` command. This is the path the recorded product demo follows
 and the fastest way to go from "fresh clone" to "alert submitted, agent
 investigating" without remembering the `docker compose` / `alembic` /
 `curl` invocations.
@@ -266,22 +266,22 @@ investigating" without remembering the `docker compose` / `alembic` /
 ### 1. Clone & install the CLI
 
 ```bash
-git clone https://github.com/beenuar/AiSOC.git
-cd AiSOC
+git clone https://github.com/Josepassinato/quarry.git
+cd Quarry
 cp .env.example .env
 
 python -m venv .venv && source .venv/bin/activate
-pip install -e packages/aisoc-cli
+pip install -e packages/quarry-cli
 ```
 
 `.env.example` is already wired up with a working `POSTGRES_PASSWORD` and a
-pre-generated dev `AISOC_CREDENTIAL_KEY`. Add at least one AI provider key
+pre-generated dev `QUARRY_CREDENTIAL_KEY`. Add at least one AI provider key
 (`OPENAI_API_KEY` or `ANTHROPIC_API_KEY`) before continuing.
 
 Confirm the CLI is on PATH:
 
 ```bash
-aisoc --help
+quarry --help
 ```
 
 You should see the operator commands: `serve`, `db`, `mcp`, `submit`,
@@ -290,7 +290,7 @@ You should see the operator commands: `serve`, `db`, `mcp`, `submit`,
 ### 2. Start the dev stack
 
 ```bash
-aisoc serve
+quarry serve
 ```
 
 Under the hood this runs `docker compose -f docker-compose.dev.yml up -d`
@@ -298,29 +298,29 @@ against the full dev profile (Postgres, Redis, Kafka, ClickHouse, api,
 agents, fusion, ingest-worker, web, mcp, …). The command resolves the repo
 root automatically, so it works from any subdirectory.
 
-Use `aisoc serve --no-detach` if you want to watch the logs inline, or run
+Use `quarry serve --no-detach` if you want to watch the logs inline, or run
 `docker compose ps` separately to confirm every container is healthy.
 
 ### 3. Run database migrations
 
 ```bash
-aisoc db upgrade
+quarry db upgrade
 ```
 
 This shells into the `api` container and runs the project's migration
 script against Postgres. It is idempotent — safe to re-run after each
-`aisoc serve`.
+`quarry serve`.
 
 ### 4. Submit your first alert
 
 The repo ships a canonical OCSF / Okta System Log fixture under
-[`examples/alerts/lateral-movement.json`](https://github.com/beenuar/AiSOC/blob/main/examples/alerts/lateral-movement.json):
+[`examples/alerts/lateral-movement.json`](https://github.com/Josepassinato/quarry/blob/main/examples/alerts/lateral-movement.json):
 two `user.session.start` events for the same user — first from a New York
 corporate IP, then from Saint Petersburg eight minutes later — designed to
 trip the impossible-travel detector.
 
 ```bash
-aisoc submit examples/alerts/lateral-movement.json
+quarry submit examples/alerts/lateral-movement.json
 ```
 
 What this does:
@@ -329,20 +329,20 @@ What this does:
    `connector_id` / `connector_type` / `source_format` (if present) win
    over the CLI flags, so the same fixture works against any environment.
 2. POSTs to `http://127.0.0.1:8000/api/v1/alerts/submit` (override with
-   `--api-url` or `AISOC_API_URL`) using the canonical envelope:
+   `--api-url` or `QUARRY_API_URL`) using the canonical envelope:
    `connector_id`, `connector_type`, `source_format`, `events`. The API
    service synthesises a single `Alert` row directly from the batch
    (severity normalised across the canonical five-tier ladder, MITRE /
    affected entities derived from the OCSF payload), persists it, and
    returns the new `alert_id`.
 3. Sends the required `X-Tenant-ID` header (override with `--tenant-id`
-   or `AISOC_TENANT_ID`). When no `Authorization` header is supplied and
+   or `QUARRY_TENANT_ID`). When no `Authorization` header is supplied and
    the API is running in dev mode (the default for `docker compose up`),
    the request is authenticated as the demo tenant operator.
 4. Prints the `alert_id` plus `accepted` / `rejected` counts.
 
 A non-zero exit code means the API service rejected the payload or
-isn't reachable; the error message tells you to run `aisoc serve` first
+isn't reachable; the error message tells you to run `quarry serve` first
 if the latter.
 
 Why direct-to-API instead of via the ingest spine? The Kafka-based
@@ -360,10 +360,10 @@ The submit endpoint enforces five guard-rails so it's safe to expose to
 connectors and the CLI in production:
 
 - **Payload caps** (tunable via env vars):
-  - `AISOC_SUBMIT_MAX_EVENTS` (default `1000`) — max events per batch.
-  - `AISOC_SUBMIT_MAX_EVENT_BYTES` (default `262144` — 256 KiB) — max
+  - `QUARRY_SUBMIT_MAX_EVENTS` (default `1000`) — max events per batch.
+  - `QUARRY_SUBMIT_MAX_EVENT_BYTES` (default `262144` — 256 KiB) — max
     serialised size per event.
-  - `AISOC_SUBMIT_MAX_TOTAL_BYTES` (default `8388608` — 8 MiB) — max total
+  - `QUARRY_SUBMIT_MAX_TOTAL_BYTES` (default `8388608` — 8 MiB) — max total
     batch size. Over-cap requests return HTTP 413 with the limit that fired.
 - **Idempotency** — set the `Idempotency-Key` header (1–128 chars,
   `^[A-Za-z0-9._:/-]+$`) and retries with the same key return the original
@@ -376,7 +376,7 @@ connectors and the CLI in production:
   before storage. Stats are emitted to structured logs so SOC operators
   can spot leaky connectors.
 - **Timestamp bounds** — event timestamps are clamped to
-  `[now - AISOC_SUBMIT_MAX_TIMESTAMP_AGE_DAYS, now + AISOC_SUBMIT_MAX_FUTURE_SECONDS]`
+  `[now - QUARRY_SUBMIT_MAX_TIMESTAMP_AGE_DAYS, now + QUARRY_SUBMIT_MAX_FUTURE_SECONDS]`
   (defaults 90 days and 300 s). Clamped events still ingest; the alert's
   `metadata.timestamp_clamped` counter records how many were rewritten.
 
@@ -398,19 +398,19 @@ sessions) on the alerts board.
 ### 6. Hook your IDE in over MCP (optional)
 
 If you use Cursor, Claude Desktop, or Continue, point them at the local
-MCP server so you can talk to your running AiSOC instance from the editor:
+MCP server so you can talk to your running Quarry instance from the editor:
 
 ```bash
 # Stand up the MCP server over stdio (Cursor / Claude / Continue)
-aisoc mcp serve --transport stdio
+quarry mcp serve --transport stdio
 
 # Or auto-wire it into a specific IDE config
-aisoc mcp install --host cursor
-aisoc mcp install --host claude
-aisoc mcp install --host continue
+quarry mcp install --host cursor
+quarry mcp install --host claude
+quarry mcp install --host continue
 ```
 
-`aisoc mcp serve` prefers the local TypeScript build at
+`quarry mcp serve` prefers the local TypeScript build at
 `services/mcp/dist/index.js` when present, and falls back to
 `npx @quarry/mcp` otherwise — so it works on a fresh clone before you've
 run `pnpm build`.
@@ -421,7 +421,7 @@ run `pnpm build`.
 docker compose -f docker-compose.dev.yml down
 ```
 
-Or keep the stack running and re-submit different fixtures — `aisoc
+Or keep the stack running and re-submit different fixtures — `quarry
 submit` accepts any JSON file shaped like a single event, a list of
 events, or `{ "events": [...] }`. Drop in your own Okta / Entra / GitHub
 sample exports to dogfood your detection content end to end.
@@ -430,14 +430,14 @@ sample exports to dogfood your detection content end to end.
 
 | Step | Command |
 |---|---|
-| Start the dev stack | `aisoc serve` |
-| Apply DB migrations | `aisoc db upgrade` |
-| Submit a sample alert | `aisoc submit examples/alerts/lateral-movement.json` |
-| Run the MCP server over stdio | `aisoc mcp serve --transport stdio` |
-| Wire MCP into Cursor / Claude / Continue | `aisoc mcp install --host <host>` |
-| Validate a plugin manifest | `aisoc plugin validate plugins/<id>` |
-| Validate a Sigma rule | `aisoc detection validate detections/<id>.yml` |
-| Generate a vault `AISOC_CREDENTIAL_KEY` | `aisoc keygen` |
+| Start the dev stack | `quarry serve` |
+| Apply DB migrations | `quarry db upgrade` |
+| Submit a sample alert | `quarry submit examples/alerts/lateral-movement.json` |
+| Run the MCP server over stdio | `quarry mcp serve --transport stdio` |
+| Wire MCP into Cursor / Claude / Continue | `quarry mcp install --host <host>` |
+| Validate a plugin manifest | `quarry plugin validate plugins/<id>` |
+| Validate a Sigma rule | `quarry detection validate detections/<id>.yml` |
+| Generate a vault `QUARRY_CREDENTIAL_KEY` | `quarry keygen` |
 
 ## Next Steps
 
@@ -445,7 +445,7 @@ sample exports to dogfood your detection content end to end.
 
 - [Architecture deep-dive](./architecture)
 - [Capabilities](./concepts/capabilities) — full feature inventory by tier
-- [Glossary](./glossary) — security and AiSOC-specific terminology
+- [Glossary](./glossary) — security and Quarry-specific terminology
 - [FAQ](./operations/faq) — common questions about scope, deployment, data, and licensing
 
 ### Connect data and detections
@@ -455,7 +455,7 @@ sample exports to dogfood your detection content end to end.
 - [Build a playbook](./concepts/playbooks)
 - [Concepts: Cases & Investigation Ledger](./concepts/cases)
 
-### Extend AiSOC
+### Extend Quarry
 
 - [Install a community plugin](./plugins/overview)
 - [Connect your IDE via MCP](./integrations/mcp)
@@ -471,6 +471,6 @@ sample exports to dogfood your detection content end to end.
 
 ### Got stuck?
 
-If `pnpm aisoc:demo` failed, healthchecks went red, or migrations didn't run cleanly,
+If `pnpm quarry:demo` failed, healthchecks went red, or migrations didn't run cleanly,
 the [troubleshooting page](./operations/troubleshooting) has runbooks for the most
 common failure modes.

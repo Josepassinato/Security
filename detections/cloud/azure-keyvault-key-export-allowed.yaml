@@ -1,6 +1,6 @@
 id: det-cloud-130
 name: Azure Key Vault Key Export Attribute Set
-description: AiSOC v1 curated detection. Triggers on the cloud signal described by 'Azure Key Vault Key
+description: Quarry v1 curated detection. Triggers on the cloud signal described by 'Azure Key Vault Key
   Export Attribute Set'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: high
@@ -19,6 +19,6 @@ false_positives:
 - Approved cross-region migration
 playbook: tpl-credential-access
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

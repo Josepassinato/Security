@@ -2,10 +2,10 @@
 """Build the Splunk-imports quarantine README index.
 
 The repository ships **1,989 raw Splunk SPL rules** under
-``detections/splunk-imports/_quarantine/`` (Stage 2 #4 in the AiSOC
+``detections/splunk-imports/_quarantine/`` (Stage 2 #4 in the Quarry
 community roadmap). They are checked in so the import lineage is
-auditable, but they cannot be executed by the AiSOC engine until the SPL
-is translated into the AiSOC detection schema. Without an index they
+auditable, but they cannot be executed by the Quarry engine until the SPL
+is translated into the Quarry detection schema. Without an index they
 form a 1,989-line ``ls`` and contributors don't know:
 
   - what categories the quarantine spans (endpoint vs cloud vs network),
@@ -160,7 +160,7 @@ def _issue_link(category: str) -> str:
     issue = QUARANTINE_TRACKING_ISSUES.get(category)
     if issue is None:
         return "**TBD** — umbrella issue not yet filed"
-    return f"[#{issue}](https://github.com/beenuar/AiSOC/issues/{issue})"
+    return f"[#{issue}](https://github.com/beenuar/Quarry/issues/{issue})"
 
 
 def _render_summary_table(by_cat: dict[str, list[QuarantineRule]]) -> list[str]:
@@ -234,7 +234,7 @@ def render_readme(rules: list[QuarantineRule]) -> str:
     lines.append(
         f"This directory holds **{len(rules):,} raw Splunk Enterprise Security rules** "
         "imported from public detection content. They ship **disabled** "
-        "(`enabled: false`) and the AiSOC engine intentionally skips them at "
+        "(`enabled: false`) and the Quarry engine intentionally skips them at "
         "runtime — see [`detections/README.md`](../../README.md#tier-3-quarantined) "
         "for the tier definition."
     )
@@ -243,7 +243,7 @@ def render_readme(rules: list[QuarantineRule]) -> str:
         "**Why they're in the repo at all.** Detection content is the most "
         "valuable artefact a SOC owns, so we'd rather check the upstream "
         "lineage in (with attribution and `quarantine_reason`) than silently "
-        "drop it. Translating these rules into native AiSOC detections is a "
+        "drop it. Translating these rules into native Quarry detections is a "
         "long-running community workstream tracked through this index."
     )
     lines.append("")
@@ -278,9 +278,9 @@ def render_readme(rules: list[QuarantineRule]) -> str:
     )
     lines.append(
         "3. **Re-author the detection** under the right native bucket "
-        "(`detections/<category>/`) using the AiSOC schema documented in "
+        "(`detections/<category>/`) using the Quarry schema documented in "
         "[`apps/docs/docs/detections/`](../../../apps/docs/docs/detections/). "
-        "Map the SPL search to the AiSOC OCSF stream — usually a "
+        "Map the SPL search to the Quarry OCSF stream — usually a "
         "`logsource` + `detection.condition` block. Carry the original "
         "`provenance.upstream_path` over so attribution is preserved."
     )
@@ -333,7 +333,7 @@ def render_readme(rules: list[QuarantineRule]) -> str:
     lines.append(
         "- **Translations remove their quarantine entry.** The happy path is "
         "*delete* a row from this index in the same PR that adds the native "
-        "AiSOC detection. New quarantine entries should be rare and should "
+        "Quarry detection. New quarantine entries should be rare and should "
         "explain in the PR body why translation isn't viable yet."
     )
     lines.append("")

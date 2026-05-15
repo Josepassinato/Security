@@ -1,6 +1,6 @@
 id: det-identity-146
 name: M365 Mailbox Permission Granted To External User
-description: AiSOC v1 curated detection. Triggers on the identity signal described by 'M365 Mailbox Permission
+description: Quarry v1 curated detection. Triggers on the identity signal described by 'M365 Mailbox Permission
   Granted To External User'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: high
@@ -19,6 +19,6 @@ false_positives:
 - Approved partner integration
 playbook: tpl-collection
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

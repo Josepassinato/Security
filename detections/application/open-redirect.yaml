@@ -1,6 +1,6 @@
 id: det-application-013
 name: Open Redirect Pattern in URL Parameter
-description: AiSOC v1 curated detection. Triggers on the application signal described by 'Open Redirect
+description: Quarry v1 curated detection. Triggers on the application signal described by 'Open Redirect
   Pattern in URL Parameter'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: medium
@@ -18,6 +18,6 @@ false_positives:
 - Approved redirect-after-login flows (allowlist destination)
 playbook: tpl-webattack
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

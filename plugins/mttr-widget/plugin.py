@@ -1,7 +1,7 @@
 """
-MTTR Dashboard Widget — AiSOC Reference Plugin
+MTTR Dashboard Widget — Quarry Reference Plugin
 ================================================
-Computes MTTR / MTTD from the AiSOC case database and returns structured
+Computes MTTR / MTTD from the Quarry case database and returns structured
 time-series and summary data for the dashboard widget renderer.
 
 Payload keys (all optional):
@@ -26,7 +26,7 @@ Returns:
   }
 
 Notes:
-  This plugin queries the AiSOC internal REST API via the `api_url` key in
+  This plugin queries the Quarry internal REST API via the `api_url` key in
   context["config"] (defaults to http://api:8000). In a real deployment the
   plugin runner injects a pre-authenticated client; here we use httpx with a
   service-account API key from context["api_key"].
@@ -67,8 +67,8 @@ class Plugin:
         severity_filter = payload.get("severity_filter") or []
         playbook_filter = payload.get("playbook_filter")
 
-        api_url = cfg.get("api_url") or os.getenv("AISOC_API_URL", "http://api:8000")
-        api_key = context.get("api_key") or os.getenv("AISOC_API_KEY", "")
+        api_url = cfg.get("api_url") or os.getenv("QUARRY_API_URL", "http://api:8000")
+        api_key = context.get("api_key") or os.getenv("QUARRY_API_KEY", "")
 
         headers: dict[str, str] = {}
         if api_key:

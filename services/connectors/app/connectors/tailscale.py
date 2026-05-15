@@ -43,7 +43,7 @@ logger = structlog.get_logger()
 _BASE = "https://api.tailscale.com/api/v2"
 
 # Critical-severity actions: irreversible / total-takeover events on
-# the tailnet itself. These map to AiSOC's ``critical`` tier so they
+# the tailnet itself. These map to Quarry's ``critical`` tier so they
 # fire the P1 SLA — losing ownership of a tailnet is functionally
 # equivalent to losing root on the network.
 _CRITICAL_SEVERITY_ACTIONS = frozenset(

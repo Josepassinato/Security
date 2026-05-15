@@ -73,11 +73,11 @@ export function AnimatedGridPattern({
       )}
     >
       <defs>
-        <pattern id="aisoc-grid-pattern" width={width} height={height} patternUnits="userSpaceOnUse">
+        <pattern id="quarry-grid-pattern" width={width} height={height} patternUnits="userSpaceOnUse">
           <path d={`M.5 ${height}V.5H${width}`} fill="none" stroke="currentColor" strokeWidth="1" />
         </pattern>
       </defs>
-      <rect width="100%" height="100%" fill="url(#aisoc-grid-pattern)" />
+      <rect width="100%" height="100%" fill="url(#quarry-grid-pattern)" />
       {!prefersReducedMotion &&
         squares.map(({ id, x, y }) => (
           <motion.rect

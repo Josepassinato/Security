@@ -1,10 +1,10 @@
 # Third-Party Content Licenses
 
-AiSOC ships under [Apache-2.0](LICENSE). Some content under [`detections/`](detections/) is **imported** from upstream open-source detection corpora and is redistributed under each upstream project's own license. Every imported rule carries a `provenance` block documenting its source, upstream id, commit SHA, and license, so you can always trace a rule back to its origin.
+Quarry ships under [Apache-2.0](LICENSE). Some content under [`detections/`](detections/) is **imported** from upstream open-source detection corpora and is redistributed under each upstream project's own license. Every imported rule carries a `provenance` block documenting its source, upstream id, commit SHA, and license, so you can always trace a rule back to its origin.
 
 This file is the canonical attribution registry. It is updated automatically when [`tools/detection-import/import.py`](tools/detection-import/import.py) runs.
 
-> ⚠️ **If you redistribute AiSOC's detection corpus** (e.g. ship it as part of a managed-service offering), you are responsible for honoring every upstream license below in your own attribution notices.
+> ⚠️ **If you redistribute Quarry's detection corpus** (e.g. ship it as part of a managed-service offering), you are responsible for honoring every upstream license below in your own attribution notices.
 
 ---
 
@@ -59,9 +59,9 @@ DRL-1.1 summary: you may use, modify, and redistribute Sigma rules provided you 
 
 ---
 
-## Native AiSOC content
+## Native Quarry content
 
-Everything under `detections/cloud/`, `detections/identity/`, `detections/endpoint/`, `detections/network/`, `detections/application/`, and `detections/data-exfil/` is **native AiSOC content** authored against AiSOC's own normalized event schema. Native rules are licensed under [Apache-2.0](LICENSE) and carry a `provenance.source: native` marker.
+Everything under `detections/cloud/`, `detections/identity/`, `detections/endpoint/`, `detections/network/`, `detections/application/`, and `detections/data-exfil/` is **native Quarry content** authored against Quarry's own normalized event schema. Native rules are licensed under [Apache-2.0](LICENSE) and carry a `provenance.source: native` marker.
 
 `detections/community/` carries community contributions, also under Apache-2.0 with the contributor named in the provenance block.
 
@@ -69,13 +69,13 @@ Everything under `detections/cloud/`, `detections/identity/`, `detections/endpoi
 
 ## Plugins
 
-Each plugin under [`plugins/`](plugins/) declares its own license in `plugin.yaml`. Plugins shipped with AiSOC core are MIT or Apache-2.0; community plugins under `plugins/community/` may declare any OSI-approved license.
+Each plugin under [`plugins/`](plugins/) declares its own license in `plugin.yaml`. Plugins shipped with Quarry core are MIT or Apache-2.0; community plugins under `plugins/community/` may declare any OSI-approved license.
 
 ---
 
 ## How to add a new imported source
 
-1. Add an importer to [`tools/detection-import/`](tools/detection-import/) that emits the AiSOC YAML schema with a populated `provenance` block.
+1. Add an importer to [`tools/detection-import/`](tools/detection-import/) that emits the Quarry YAML schema with a populated `provenance` block.
 2. Add a section to this file describing the upstream license and any redistribution caveats.
 3. Run `python3 scripts/validate_detections.py` and `pnpm marketplace:build` to confirm the new rules parse and surface.
 

@@ -1,5 +1,5 @@
 """
-OpenTelemetry bootstrap for AiSOC API service.
+OpenTelemetry bootstrap for Quarry API service.
 
 Instruments:
   - FastAPI   (HTTP spans — method, route, status)
@@ -40,8 +40,8 @@ _TRACER_PROVIDER: TracerProvider | None = None
 def _make_resource() -> Resource:
     return Resource.create(
         {
-            SERVICE_NAME: os.getenv("OTEL_SERVICE_NAME", "aisoc-api"),
-            SERVICE_VERSION: os.getenv("AISOC_VERSION", "4.0.0"),
+            SERVICE_NAME: os.getenv("OTEL_SERVICE_NAME", "quarry-api"),
+            SERVICE_VERSION: os.getenv("QUARRY_VERSION", "4.0.0"),
             "deployment.environment": os.getenv("ENVIRONMENT", "development"),
         }
     )
@@ -139,7 +139,7 @@ def instrument_app(app) -> None:  # noqa: ANN001
         pass  # Optional — no warning needed
 
 
-def get_tracer(name: str = "aisoc") -> trace.Tracer:
+def get_tracer(name: str = "quarry") -> trace.Tracer:
     """Return a named tracer, initialising telemetry if not yet done."""
     if _TRACER_PROVIDER is None:
         setup_telemetry()

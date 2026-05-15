@@ -1,12 +1,12 @@
 ---
 sidebar_position: 2
 title: Microsoft Entra ID
-description: Pull directory audit logs and risky sign-ins from Microsoft Entra ID (formerly Azure AD) into AiSOC.
+description: Pull directory audit logs and risky sign-ins from Microsoft Entra ID (formerly Azure AD) into Quarry.
 ---
 
 # Microsoft Entra ID
 
-The Entra connector streams **directory audit events** (group changes, role assignments, conditional-access edits) and **risky users / risky sign-ins** from Microsoft Graph into the AiSOC pipeline. It is the foundation of identity-plane coverage in any Microsoft-heavy environment.
+The Entra connector streams **directory audit events** (group changes, role assignments, conditional-access edits) and **risky users / risky sign-ins** from Microsoft Graph into the Quarry pipeline. It is the foundation of identity-plane coverage in any Microsoft-heavy environment.
 
 ## What you get
 
@@ -15,7 +15,7 @@ The Entra connector streams **directory audit events** (group changes, role assi
 | Directory audit events | `/auditLogs/directoryAudits` | 90 days (Microsoft default) |
 | Risky users | `/identityProtection/riskyUsers` | While risk state is non-`none` |
 
-Events are normalized into AiSOC's event schema with `category: identity` so existing identity-plane Sigma rules apply without glue code.
+Events are normalized into Quarry's event schema with `category: identity` so existing identity-plane Sigma rules apply without glue code.
 
 ## Prerequisites
 
@@ -27,7 +27,7 @@ You will need:
   - `Directory.Read.All`
   - `IdentityRiskyUser.Read.All`
 - A **client secret** (Certificates & secrets → New client secret).
-- The tenant ID, application (client) ID, and client secret value to paste into the AiSOC wizard.
+- The tenant ID, application (client) ID, and client secret value to paste into the Quarry wizard.
 
 ## Setup walkthrough
 
@@ -35,7 +35,7 @@ You will need:
 
 1. Sign in to the [Azure portal](https://portal.azure.com) as a Global Admin or Application Administrator.
 2. Navigate to **Microsoft Entra ID → App registrations → New registration**.
-3. Name it something obvious like `AiSOC Entra Connector`. Leave the redirect URI blank — this connector uses client credentials, not user OAuth.
+3. Name it something obvious like `Quarry Entra Connector`. Leave the redirect URI blank — this connector uses client credentials, not user OAuth.
 4. Click **Register**. Copy the **Application (client) ID** and the **Directory (tenant) ID** from the Overview tab.
 
 ### 2. Grant API permissions
@@ -50,9 +50,9 @@ You will need:
 2. Pick a description and an expiry that matches your rotation policy (24 months max, 6-12 months recommended). The connector will start failing on `health_status` once the secret expires.
 3. Copy the **Value** (not the Secret ID). Microsoft only shows it once.
 
-### 4. Add the connector in AiSOC
+### 4. Add the connector in Quarry
 
-1. AiSOC console → **Connectors → Add connector → Microsoft Entra ID**.
+1. Quarry console → **Connectors → Add connector → Microsoft Entra ID**.
 2. Fill in `tenant_id`, `client_id`, `client_secret`. All three are the values you copied above.
 3. Click **Test connection**. A successful test means Microsoft Graph accepted the client credentials and returned at least one page of audit logs.
 4. Click **Save**. The connector starts polling within ~30 seconds.
@@ -66,9 +66,9 @@ You will need:
 
 ## Severity heuristics
 
-`normalize()` maps Entra audit `result` values into AiSOC severity:
+`normalize()` maps Entra audit `result` values into Quarry severity:
 
-| Microsoft signal | AiSOC severity |
+| Microsoft signal | Quarry severity |
 |---|---|
 | `failure` on a high-blast-radius operation (role assignment, app credential add, conditional-access disable) | `high` |
 | Generic `failure` on directory writes | `medium` |

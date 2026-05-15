@@ -1,6 +1,6 @@
 id: det-network-058
 name: GRE Tunnel Initiated By Non-Network Host
-description: AiSOC v1 curated detection. Triggers on the network signal described by 'GRE Tunnel Initiated
+description: Quarry v1 curated detection. Triggers on the network signal described by 'GRE Tunnel Initiated
   By Non-Network Host'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: medium
@@ -20,6 +20,6 @@ false_positives:
 - Approved overlay agent
 playbook: tpl-command-and-control
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

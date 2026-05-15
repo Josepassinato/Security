@@ -3,13 +3,13 @@ name: AWS CloudTrail
 version: 1.0.0
 category: cloud
 vendor: Amazon Web Services
-publisher: AiSOC Community
+publisher: Quarry Community
 description: >
   Polls a curated allow-list of high-signal AWS CloudTrail management
   events (IAM grants, trail tampering, public-S3 changes, KMS key
   destruction, cross-account sharing) so detections fire reliably
   without drowning in read-only describe/list noise. Allow-list is
-  derived directly from the detection content shipped with AiSOC and
+  derived directly from the detection content shipped with Quarry and
   is overridable via the ``event_names`` config field.
 homepage: https://aws.amazon.com/cloudtrail/
 docs_url: /docs/connectors/aws-cloudtrail

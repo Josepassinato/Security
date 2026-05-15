@@ -1,6 +1,6 @@
 """Detection rule service modules.
 
-This package collects the in-process services that manage AiSOC's detection
+This package collects the in-process services that manage Quarry's detection
 content. Today it owns:
 
 * :mod:`app.services.detections.sigma_import` — bulk import of community

@@ -1,7 +1,7 @@
 ---
 sidebar_position: 10
 title: GitHub Audit + Code Scanning
-description: Organization audit log and Code Scanning alerts from GitHub Enterprise / Cloud into AiSOC.
+description: Organization audit log and Code Scanning alerts from GitHub Enterprise / Cloud into Quarry.
 ---
 
 # GitHub Audit + Code Scanning
@@ -34,7 +34,7 @@ Events are normalized with `source: github`, `category: vcs`.
 2. **Resource owner**: select the organization.
 3. **Repository access**: All repositories (or a curated subset).
 4. **Permissions**: as listed above.
-5. **Expiration**: 90 days max recommended; rotate via the AiSOC connector edit screen.
+5. **Expiration**: 90 days max recommended; rotate via the Quarry connector edit screen.
 6. Generate and copy the token (`github_pat_…`).
 
 **GitHub App path** (preferred for prod):
@@ -44,7 +44,7 @@ Events are normalized with `source: github`, `category: vcs`.
 3. Install the app on your org.
 4. Generate an installation access token via the App's private key.
 
-### 2. Add the connector in AiSOC
+### 2. Add the connector in Quarry
 
 1. **Connectors → Add connector → GitHub**.
 2. `organization` = your GitHub org login slug (e.g. `acme-corp`, not the full URL).
@@ -81,7 +81,7 @@ Events are normalized with `source: github`, `category: vcs`.
 
 **`Resource not accessible by personal access token`** — token lacks the `Audit log: Read` permission. Recreate the token; you cannot patch permissions on an existing fine-grained PAT.
 
-**Empty Code Scanning results** — the org may not have any repos with CodeQL or other SARIF uploaders enabled. Confirm via `GET /orgs/{org}/code-scanning/alerts?state=all` outside AiSOC.
+**Empty Code Scanning results** — the org may not have any repos with CodeQL or other SARIF uploaders enabled. Confirm via `GET /orgs/{org}/code-scanning/alerts?state=all` outside Quarry.
 
 **Rate-limit exhaustion** — fine-grained PATs share a 5,000-req/hour budget across all GitHub usage by that token. If you also use the same token in CI, expect contention. GitHub Apps get a higher per-installation limit and are recommended for production.
 

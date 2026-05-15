@@ -144,7 +144,7 @@ class TrellixHelixConnector(BaseConnector):
 
     def normalize(self, raw: dict[str, Any]) -> dict[str, Any]:
         # Trellix Helix alerts expose risk levels {critical, high, medium,
-        # low, info}. Mirror critical directly into AiSOC's five-tier
+        # low, info}. Mirror critical directly into Quarry's five-tier
         # ladder rather than collapsing it into high.
         risk = (raw.get("risk") or "").lower()
         if risk == "critical":

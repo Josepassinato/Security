@@ -1,6 +1,6 @@
 """
-AiSOC API Configuration
-AiSOC — open-source AI Security Operations Center
+Quarry API Configuration
+Quarry — open-source AI Security Operations Center
 MIT License
 """
 
@@ -124,7 +124,7 @@ class Settings(BaseSettings):
     )
 
     # App
-    APP_NAME: str = "AiSOC API"
+    APP_NAME: str = "Quarry API"
     APP_VERSION: str = "0.1.0"
     ENV: str = "development"
     ENVIRONMENT: str = "development"  # alias for ENV
@@ -154,9 +154,9 @@ class Settings(BaseSettings):
     # logs a warning; outside development the API refuses to encrypt or
     # decrypt anything until it's set, so credentials cannot be silently
     # written in plaintext. Rotate by re-encrypting via
-    # ``AISOC_CREDENTIAL_KEY_ROTATION_FROM`` (comma-separated previous keys).
-    AISOC_CREDENTIAL_KEY: str = ""
-    AISOC_CREDENTIAL_KEY_ROTATION_FROM: str = ""
+    # ``QUARRY_CREDENTIAL_KEY_ROTATION_FROM`` (comma-separated previous keys).
+    QUARRY_CREDENTIAL_KEY: str = ""
+    QUARRY_CREDENTIAL_KEY_ROTATION_FROM: str = ""
 
     # Internal URL for the connectors microservice. The API service proxies
     # catalog lookups (``GET /connectors``) and stateless connection tests
@@ -241,13 +241,13 @@ class Settings(BaseSettings):
     # ``HUNT_SCHEDULER_POLL_INTERVAL_SECONDS`` controls the sweep cadence
     # (seconds). 30s gives sub-minute resolution for ``* * * * *`` saved
     # hunts without thrashing the DB.
-    # The ``AISOC_HUNT_SCHEDULER_ENABLED`` env alias matches the operator-
+    # The ``QUARRY_HUNT_SCHEDULER_ENABLED`` env alias matches the operator-
     # facing name documented in the task plan.
     # ------------------------------------------------------------------
     HUNT_SCHEDULER_ENABLED: bool = Field(
         default=False,
         validation_alias=AliasChoices(
-            "HUNT_SCHEDULER_ENABLED", "AISOC_HUNT_SCHEDULER_ENABLED"
+            "HUNT_SCHEDULER_ENABLED", "QUARRY_HUNT_SCHEDULER_ENABLED"
         ),
     )
     HUNT_SCHEDULER_POLL_INTERVAL_SECONDS: int = 30
@@ -256,9 +256,9 @@ class Settings(BaseSettings):
     # The default points at the bundled compose Postgres with its dev password.
     # In docker-compose.yml and .env.example the password is parameterised via
     # ``POSTGRES_PASSWORD`` so a single env var rotates it across the stack;
-    # this default mirrors the compose default so ``aisoc serve`` works on a
+    # this default mirrors the compose default so ``quarry serve`` works on a
     # fresh clone with zero configuration.
-    DATABASE_URL: PostgresDsn = "postgresql+asyncpg://aisoc:aisoc_dev_secret@localhost:5432/aisoc"  # type: ignore[assignment]
+    DATABASE_URL: PostgresDsn = "postgresql+asyncpg://quarry:aisoc_dev_secret@localhost:5432/quarry"  # type: ignore[assignment]
     DATABASE_POOL_SIZE: int = 20
     DATABASE_MAX_OVERFLOW: int = 10
 
@@ -269,7 +269,7 @@ class Settings(BaseSettings):
     # ClickHouse
     CLICKHOUSE_HOST: str = "localhost"
     CLICKHOUSE_PORT: int = 9000
-    CLICKHOUSE_DATABASE: str = "aisoc"
+    CLICKHOUSE_DATABASE: str = "quarry"
     CLICKHOUSE_USER: str = "default"
     CLICKHOUSE_PASSWORD: str = ""
 
@@ -279,8 +279,8 @@ class Settings(BaseSettings):
     # kept as a backward-compatible alias for older deployments.
     KAFKA_BOOTSTRAP_SERVERS: str = "localhost:9092"
     KAFKA_BROKERS: str = "localhost:9092"
-    KAFKA_TOPIC_EVENTS: str = "aisoc.normalized_events"
-    KAFKA_TOPIC_ALERTS: str = "aisoc.alerts"
+    KAFKA_TOPIC_EVENTS: str = "quarry.normalized_events"
+    KAFKA_TOPIC_ALERTS: str = "quarry.alerts"
 
     # OpenSearch
     OPENSEARCH_URL: str = "http://localhost:9200"
@@ -310,10 +310,10 @@ class Settings(BaseSettings):
     DEFAULT_TENANT_PLAN: str = "starter"
 
     # Plugin system
-    AISOC_PLUGINS_DIR: str = "/opt/aisoc/plugins"
+    QUARRY_PLUGINS_DIR: str = "/opt/quarry/plugins"
 
     # Feature flags (Tier 3.5)
-    AISOC_VULN_BOOST: bool = True
+    QUARRY_VULN_BOOST: bool = True
 
     # Plugin signature trust gate.
     #   strict   – signed-and-verified manifests are required; unsigned or
@@ -328,18 +328,18 @@ class Settings(BaseSettings):
     # plugin whose ``manifest.signature`` verifies under one of them is
     # considered trusted.
     PLUGIN_TRUST_MODE: str = "strict"
-    PLUGIN_TRUSTED_KEYS_DIR: str = "/opt/aisoc/plugin-keys"
+    PLUGIN_TRUSTED_KEYS_DIR: str = "/opt/quarry/plugin-keys"
 
     # Mobile responder PWA
     # Web push runs in the realtime service; this base URL is used by the API
     # gateway proxy at /api/v1/push/* so the frontend never has to know the
     # realtime service exists. Internal token must match REALTIME's
-    # AISOC_INTERNAL_TOKEN to authorize internal push fan-out.
+    # QUARRY_INTERNAL_TOKEN to authorize internal push fan-out.
     REALTIME_BASE_URL: str = "http://realtime:8086"
     REALTIME_INTERNAL_TOKEN: str = ""
 
     # SAML/OIDC session token signing secret. Consumed by ``app/auth/saml.py``
-    # and ``app/auth/oidc.py`` to mint AiSOC session JWTs after an external
+    # and ``app/auth/oidc.py`` to mint Quarry session JWTs after an external
     # identity provider returns a successful authn response. We surface this
     # as a real Settings field (not just ``os.getenv``) so that
     # ``warn_if_insecure_defaults`` can be exercised deterministically in
@@ -350,7 +350,7 @@ class Settings(BaseSettings):
     # match the eTLD+1 of the PWA origin (no scheme, no port). RP_NAME is
     # what the OS prompt shows the user.
     PASSKEY_RP_ID: str = "localhost"
-    PASSKEY_RP_NAME: str = "AiSOC"
+    PASSKEY_RP_NAME: str = "Quarry"
     PASSKEY_RP_ORIGINS: list[str] = [
         "http://localhost:3000",
         "http://localhost:3001",
@@ -368,68 +368,68 @@ class Settings(BaseSettings):
     # WS-B4: Detection-as-Code git PR path
     # Author: Beenu - beenu@cyble.com
     #
-    # When AISOC_GITHUB_TOKEN is set the promote-proposal endpoint opens a
-    # Pull Request in AISOC_GITHUB_REPO, committing the Sigma/YARA rule file
-    # under AISOC_GITHUB_DETECTIONS_PATH and stores the PR URL on the proposal
+    # When QUARRY_GITHUB_TOKEN is set the promote-proposal endpoint opens a
+    # Pull Request in QUARRY_GITHUB_REPO, committing the Sigma/YARA rule file
+    # under QUARRY_GITHUB_DETECTIONS_PATH and stores the PR URL on the proposal
     # record. All three settings must be non-empty for PR creation to be
     # attempted; any missing setting silently skips PR creation (github_pr_url
     # remains NULL).
     # ------------------------------------------------------------------
-    AISOC_GITHUB_TOKEN: str = ""
-    AISOC_GITHUB_REPO: str = ""  # format: "org/repo"
-    AISOC_GITHUB_DETECTIONS_PATH: str = "detections"  # path inside repo root
+    QUARRY_GITHUB_TOKEN: str = ""
+    QUARRY_GITHUB_REPO: str = ""  # format: "org/repo"
+    QUARRY_GITHUB_DETECTIONS_PATH: str = "detections"  # path inside repo root
 
     # Demo mode (hosted at tryaisoc.com)
-    # When AISOC_DEMO_MODE=true the API rejects mutating requests outside the
+    # When QUARRY_DEMO_MODE=true the API rejects mutating requests outside the
     # demo tenant with 403, surfaces a banner, and pre-seeds canonical data.
-    AISOC_DEMO_MODE: bool = False
-    AISOC_DEMO_TENANT: str = "demo"
-    AISOC_DEMO_BANNER: str = "Demo data resets daily at 00:00 UTC. All write actions are disabled."
+    QUARRY_DEMO_MODE: bool = False
+    QUARRY_DEMO_TENANT: str = "demo"
+    QUARRY_DEMO_BANNER: str = "Demo data resets daily at 00:00 UTC. All write actions are disabled."
 
     # Optional services (toggle off for the lean Fly.io demo).
     # When true the corresponding subsystem skips connection setup at boot
     # and the API returns 503 for endpoints that require it.
-    AISOC_DISABLE_KAFKA: bool = False
-    AISOC_DISABLE_CLICKHOUSE: bool = False
-    AISOC_DISABLE_OPENSEARCH: bool = False
-    AISOC_DISABLE_NEO4J: bool = False
-    AISOC_DISABLE_QDRANT: bool = False
+    QUARRY_DISABLE_KAFKA: bool = False
+    QUARRY_DISABLE_CLICKHOUSE: bool = False
+    QUARRY_DISABLE_OPENSEARCH: bool = False
+    QUARRY_DISABLE_NEO4J: bool = False
+    QUARRY_DISABLE_QDRANT: bool = False
 
     # ------------------------------------------------------------------
-    # v6 capability flags (AiSOC v6 capability roadmap).
+    # v6 capability flags (Quarry v6 capability roadmap).
     # Every capability ships behind a flag so operators can stage rollout.
     # All default to True in development; production deployments can pin
-    # individual flags via env vars (e.g. ``AISOC_FEATURE_RBA=false``).
+    # individual flags via env vars (e.g. ``QUARRY_FEATURE_RBA=false``).
     # ------------------------------------------------------------------
     # Wave 1 — close 2026 table-stakes
-    AISOC_FEATURE_RBA: bool = True  # Risk-Based Alerting + entity rollup
-    AISOC_FEATURE_CONFIDENCE: bool = True  # Detection confidence + explainability
-    AISOC_FEATURE_CHATOPS_VERIFY: bool = True  # Slack/Teams interactive user verification
-    AISOC_FEATURE_DETECTION_DRIFT: bool = True  # Weekly purple-team drift sweep
-    AISOC_FEATURE_KPI_BAR: bool = True  # 2026 KPI bar in SLA dashboard
+    QUARRY_FEATURE_RBA: bool = True  # Risk-Based Alerting + entity rollup
+    QUARRY_FEATURE_CONFIDENCE: bool = True  # Detection confidence + explainability
+    QUARRY_FEATURE_CHATOPS_VERIFY: bool = True  # Slack/Teams interactive user verification
+    QUARRY_FEATURE_DETECTION_DRIFT: bool = True  # Weekly purple-team drift sweep
+    QUARRY_FEATURE_KPI_BAR: bool = True  # 2026 KPI bar in SLA dashboard
 
     # Wave 2 — eval-graded differentiation
-    AISOC_FEATURE_DAC: bool = True  # Detection-as-code lifecycle
-    AISOC_FEATURE_HUNT_AS_CODE: bool = True  # YAML hunt corpus + scheduler
-    AISOC_FEATURE_BENCHMARK_PUBLIC: bool = True  # Public scoreboard
-    AISOC_FEATURE_AIVAI_EVAL: bool = True  # AI-vs-AI adversary suite
+    QUARRY_FEATURE_DAC: bool = True  # Detection-as-code lifecycle
+    QUARRY_FEATURE_HUNT_AS_CODE: bool = True  # YAML hunt corpus + scheduler
+    QUARRY_FEATURE_BENCHMARK_PUBLIC: bool = True  # Public scoreboard
+    QUARRY_FEATURE_AIVAI_EVAL: bool = True  # AI-vs-AI adversary suite
 
     # Wave 3 — operational maturity
-    AISOC_FEATURE_FED_SEARCH: bool = True  # Federated SIEM search
-    AISOC_FEATURE_MSSP: bool = True  # Parent-tenant console
-    AISOC_FEATURE_ASSET_INVENTORY: bool = True  # Asset table + KEV/EPSS
-    AISOC_FEATURE_INSIDER_THREAT: bool = True  # Insider-threat module
-    AISOC_FEATURE_REMEDIATION_TIERS: bool = True  # L0–L4 maturity tiers
+    QUARRY_FEATURE_FED_SEARCH: bool = True  # Federated SIEM search
+    QUARRY_FEATURE_MSSP: bool = True  # Parent-tenant console
+    QUARRY_FEATURE_ASSET_INVENTORY: bool = True  # Asset table + KEV/EPSS
+    QUARRY_FEATURE_INSIDER_THREAT: bool = True  # Insider-threat module
+    QUARRY_FEATURE_REMEDIATION_TIERS: bool = True  # L0–L4 maturity tiers
 
     # Wave 4 — strategic moat
-    AISOC_FEATURE_INTERNAL_TI: bool = True  # Closed-case IOC extraction
-    AISOC_FEATURE_CSPM: bool = True  # Cloud security posture
-    AISOC_FEATURE_IDENTITY_GRAPH: bool = True  # Identity-first correlation graph
-    AISOC_FEATURE_BOARD_REPORTS: bool = True  # Auto-generated monthly board reports
+    QUARRY_FEATURE_INTERNAL_TI: bool = True  # Closed-case IOC extraction
+    QUARRY_FEATURE_CSPM: bool = True  # Cloud security posture
+    QUARRY_FEATURE_IDENTITY_GRAPH: bool = True  # Identity-first correlation graph
+    QUARRY_FEATURE_BOARD_REPORTS: bool = True  # Auto-generated monthly board reports
 
     # Drift sweep cadence (hours). Used by services/purple-team scheduler when
-    # AISOC_FEATURE_DETECTION_DRIFT is True. Defaults to 168h (weekly).
-    AISOC_DRIFT_SWEEP_INTERVAL_HOURS: int = 168
+    # QUARRY_FEATURE_DETECTION_DRIFT is True. Defaults to 168h (weekly).
+    QUARRY_DRIFT_SWEEP_INTERVAL_HOURS: int = 168
 
     # ------------------------------------------------------------------
     # v1.5 SOC Console parity — funnel + pipeline health (PR-3).
@@ -438,21 +438,21 @@ class Settings(BaseSettings):
     # current size of the MITRE ATT&CK Enterprise technique catalog so the
     # ratio stays interpretable as "% of ATT&CK we're watching for". Operators
     # can pin a smaller universe (e.g. the subset they care about) via the env
-    # var ``AISOC_FUNNEL_MITRE_TOTAL``.
-    AISOC_FUNNEL_MITRE_TOTAL: int = 201
+    # var ``QUARRY_FUNNEL_MITRE_TOTAL``.
+    QUARRY_FUNNEL_MITRE_TOTAL: int = 201
 
     # /health/pipeline staleness thresholds (seconds). A connector is treated
     # as "stale" when its ``last_event_at`` is older than the warn threshold
     # and "down" when it exceeds the down threshold. Defaults match the
     # 5-minute poll cadence documented in services/connectors.
-    AISOC_PIPELINE_STALE_WARN_SECONDS: int = 600  # 10 minutes
-    AISOC_PIPELINE_STALE_DOWN_SECONDS: int = 1800  # 30 minutes
+    QUARRY_PIPELINE_STALE_WARN_SECONDS: int = 600  # 10 minutes
+    QUARRY_PIPELINE_STALE_DOWN_SECONDS: int = 1800  # 30 minutes
 
     # ------------------------------------------------------------------
     # Air-gapped operating mode (Tier 3.1 — air-gapped certification).
-    # When AISOC_AIRGAPPED is True the API:
+    # When QUARRY_AIRGAPPED is True the API:
     #   * refuses to make any LLM / threat-intel / model-phone-home
-    #     HTTP request to a host not in AISOC_AIRGAP_ALLOWLIST (or a
+    #     HTTP request to a host not in QUARRY_AIRGAP_ALLOWLIST (or a
     #     private IP / .local / *.internal hostname),
     #   * surfaces a banner in the UI and a structured warning at boot
     #     when an LLM is configured against a public host,
@@ -465,14 +465,14 @@ class Settings(BaseSettings):
     # ------------------------------------------------------------------
     # EASM (External Attack Surface Management) — Tier 3.6.
     # ------------------------------------------------------------------
-    AISOC_FEATURE_EASM: bool = True
-    AISOC_EASM_SHODAN_API_KEY: str = ""
-    AISOC_EASM_CENSYS_API_ID: str = ""
-    AISOC_EASM_CENSYS_API_SECRET: str = ""
-    AISOC_EASM_ACTIVE_SCAN_ENABLED: bool = False  # lightweight port probe; off by default
-    AISOC_EASM_SCAN_PORTS: list[int] = [22, 80, 443, 8080, 8443, 3389]
+    QUARRY_FEATURE_EASM: bool = True
+    QUARRY_EASM_SHODAN_API_KEY: str = ""
+    QUARRY_EASM_CENSYS_API_ID: str = ""
+    QUARRY_EASM_CENSYS_API_SECRET: str = ""
+    QUARRY_EASM_ACTIVE_SCAN_ENABLED: bool = False  # lightweight port probe; off by default
+    QUARRY_EASM_SCAN_PORTS: list[int] = [22, 80, 443, 8080, 8443, 3389]
 
-    @field_validator("AISOC_EASM_SCAN_PORTS", mode="before")
+    @field_validator("QUARRY_EASM_SCAN_PORTS", mode="before")
     @classmethod
     def parse_scan_ports(cls, v: Any) -> list[int]:
         if isinstance(v, str):
@@ -489,7 +489,7 @@ class Settings(BaseSettings):
     # ``MISP_PUSH_AUTO=true``, in which case every successful publish
     # triggers a push.
     #
-    # The push respects ``AISOC_AIRGAPPED`` — if MISP_URL points at a
+    # The push respects ``QUARRY_AIRGAPPED`` — if MISP_URL points at a
     # public host outside the allowlist, the call is refused at the
     # ``enforce_airgap_for_url`` chokepoint rather than silently leaking.
     #
@@ -512,16 +512,16 @@ class Settings(BaseSettings):
     MISP_PUSH_DEFAULT_ANALYSIS: int = 0
     MISP_PUSH_TIMEOUT_SECONDS: float = 30.0
 
-    AISOC_AIRGAPPED: bool = False
+    QUARRY_AIRGAPPED: bool = False
     # Comma-separated host (or host:port) allowlist that overrides the
-    # blanket egress block when AISOC_AIRGAPPED=True. Use this for an
+    # blanket egress block when QUARRY_AIRGAPPED=True. Use this for an
     # internal LLM gateway (e.g. ``llm.corp.local``) or a private
     # threat-intel mirror. Private IPs (RFC1918, loopback, link-local)
     # and ``.local`` / ``.internal`` / ``.lan`` hostnames are always
     # implicitly allowed.
-    AISOC_AIRGAP_ALLOWLIST: list[str] = []
+    QUARRY_AIRGAP_ALLOWLIST: list[str] = []
 
-    @field_validator("AISOC_AIRGAP_ALLOWLIST", mode="before")
+    @field_validator("QUARRY_AIRGAP_ALLOWLIST", mode="before")
     @classmethod
     def parse_airgap_allowlist(cls, v: Any) -> list[str]:
         if isinstance(v, str):
@@ -633,8 +633,8 @@ def warn_if_insecure_defaults(s: Settings | None = None) -> list[str]:
     # Connector credential vault: refuse to silently boot without an encryption
     # key outside development. Without this, ``Connector.auth_config`` would
     # round-trip in plaintext.
-    if not is_dev_env(s.ENVIRONMENT) and not s.AISOC_CREDENTIAL_KEY:
-        msgs.append("AISOC_CREDENTIAL_KEY is empty in a non-development environment — connector credentials cannot be encrypted at rest.")
+    if not is_dev_env(s.ENVIRONMENT) and not s.QUARRY_CREDENTIAL_KEY:
+        msgs.append("QUARRY_CREDENTIAL_KEY is empty in a non-development environment — connector credentials cannot be encrypted at rest.")
 
     # JWT signing secret used by the SAML/OIDC session-issuance paths in
     # ``app/auth/saml.py`` and ``app/auth/oidc.py``. Those modules now refuse
@@ -653,11 +653,11 @@ def warn_if_insecure_defaults(s: Settings | None = None) -> list[str]:
     if not is_dev_env(s.ENVIRONMENT) and not s.REALTIME_INTERNAL_TOKEN:
         msgs.append("REALTIME_INTERNAL_TOKEN is empty in a non-development environment — agent → realtime events are unauthenticated.")
 
-    # Air-gap sanity check: if an operator flipped on AISOC_AIRGAPPED but
+    # Air-gap sanity check: if an operator flipped on QUARRY_AIRGAPPED but
     # the LLM is still pointed at a public endpoint (api.openai.com, etc.)
     # surface that as an insecure-default rather than silently 503-ing
     # every LLM-backed endpoint at request time.
-    if s.AISOC_AIRGAPPED:
+    if s.QUARRY_AIRGAPPED:
         # Lazy import to avoid a circular reference (airgap.py imports settings).
         try:
             import os as _os
@@ -669,16 +669,16 @@ def warn_if_insecure_defaults(s: Settings | None = None) -> list[str]:
                 from urllib.parse import urlparse as _urlparse
 
                 host = (_urlparse(llm_base).hostname or "").lower()
-                if host and not is_host_allowed_for_airgap(host, s.AISOC_AIRGAP_ALLOWLIST):
+                if host and not is_host_allowed_for_airgap(host, s.QUARRY_AIRGAP_ALLOWLIST):
                     msgs.append(
-                        f"AISOC_AIRGAPPED=true but LLM_BASE_URL host '{host}' is not in the airgap allowlist — "
+                        f"QUARRY_AIRGAPPED=true but LLM_BASE_URL host '{host}' is not in the airgap allowlist — "
                         "LLM calls will be refused. Point LLM_BASE_URL at a local Ollama/vLLM endpoint or add "
-                        "the host to AISOC_AIRGAP_ALLOWLIST."
+                        "the host to QUARRY_AIRGAP_ALLOWLIST."
                     )
         except Exception:  # pragma: no cover - never let the warning helper itself fail boot
             pass
 
-    logger = logging.getLogger("aisoc.config")
+    logger = logging.getLogger("quarry.config")
     for msg in msgs:
         # ``stacklevel=2`` so the warning points at the caller of
         # ``warn_if_insecure_defaults`` rather than this helper.

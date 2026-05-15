@@ -12,7 +12,7 @@ import { EmptyState, EmptyStateIcons } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { SavedViewsBar } from '@/components/saved-views/SavedViewsBar';
 
-// Wave 1 of the AiSOC v6 capability roadmap. The "entities" tab renders the
+// Wave 1 of the Quarry v6 capability roadmap. The "entities" tab renders the
 // rolled-up Risk-Based Alerting queue — alerts contribute time-decayed risk
 // points to the entities they touch, and the queue surfaces those entities
 // (not the raw alerts) to the analyst. The "alerts" tab keeps the legacy

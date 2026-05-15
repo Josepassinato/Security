@@ -49,27 +49,27 @@ attribution_score = Histogram(
 
 
 def _env_threshold() -> float:
-    """Read confidence threshold from ``AISOC_ATTRIBUTION_THRESHOLD`` env var.
+    """Read confidence threshold from ``QUARRY_ATTRIBUTION_THRESHOLD`` env var.
 
     Falls back to ``DEFAULT_CONFIDENCE_THRESHOLD`` for invalid or unset values
     so a typo in the operator's environment can never silently disable
     attribution.
     """
-    raw = os.getenv("AISOC_ATTRIBUTION_THRESHOLD")
+    raw = os.getenv("QUARRY_ATTRIBUTION_THRESHOLD")
     if raw is None:
         return DEFAULT_CONFIDENCE_THRESHOLD
     try:
         value = float(raw)
     except ValueError:
         logger.warning(
-            "Invalid AISOC_ATTRIBUTION_THRESHOLD; using default",
+            "Invalid QUARRY_ATTRIBUTION_THRESHOLD; using default",
             raw=raw,
             default=DEFAULT_CONFIDENCE_THRESHOLD,
         )
         return DEFAULT_CONFIDENCE_THRESHOLD
     if not 0.0 <= value <= 1.0:
         logger.warning(
-            "AISOC_ATTRIBUTION_THRESHOLD out of range [0.0, 1.0]; using default",
+            "QUARRY_ATTRIBUTION_THRESHOLD out of range [0.0, 1.0]; using default",
             value=value,
             default=DEFAULT_CONFIDENCE_THRESHOLD,
         )

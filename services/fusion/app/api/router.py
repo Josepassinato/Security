@@ -19,7 +19,7 @@ def set_worker(worker: FusionWorker) -> None:
 
 @router.get("/health")
 async def health():
-    return {"status": "healthy", "service": "aisoc-fusion"}
+    return {"status": "healthy", "service": "quarry-fusion"}
 
 
 @router.get("/metrics")

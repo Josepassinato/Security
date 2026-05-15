@@ -1,6 +1,6 @@
 id: det-cloud-049
 name: AWS IAM Role Trusts Anonymous Federation
-description: AiSOC v1 curated detection. Triggers on the cloud signal described by 'AWS IAM Role Trusts
+description: Quarry v1 curated detection. Triggers on the cloud signal described by 'AWS IAM Role Trusts
   Anonymous Federation'.
 version: 1.0.0
 severity: critical
@@ -18,6 +18,6 @@ detection:
 false_positives: []
 playbook: tpl-initial-access
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

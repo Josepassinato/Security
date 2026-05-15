@@ -1,6 +1,6 @@
 id: det-identity-076
 name: Privileged Role Removed From Many Users In Burst
-description: AiSOC v1 curated detection. Triggers on the identity signal described by 'Privileged Role
+description: Quarry v1 curated detection. Triggers on the identity signal described by 'Privileged Role
   Removed From Many Users In Burst'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: medium
@@ -20,6 +20,6 @@ false_positives:
 - Approved cleanup project
 playbook: tpl-impact
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

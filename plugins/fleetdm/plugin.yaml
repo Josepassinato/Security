@@ -8,9 +8,9 @@ description: >
   changes (online/offline/missing) and saved-query report rows from the Fleet
   REST API. Severity for query rows is derived from the osquery table queried;
   host posture transitions get their own severity ladder.
-author: AiSOC Core Team
+author: Quarry Core Team
 tags: [edr, fleetdm, osquery, endpoint, open-source]
-homepage: https://github.com/beenuar/AiSOC/tree/main/services/connectors/app/connectors/fleetdm.py
+homepage: https://github.com/beenuar/Quarry/tree/main/services/connectors/app/connectors/fleetdm.py
 license: MIT
 min_aisoc_version: "4.0.0"
 config_schema:

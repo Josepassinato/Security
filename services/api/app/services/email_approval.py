@@ -24,7 +24,7 @@ Design notes
   sent payload — no network. The Mailgun secret is *only* read inside
   the client constructor, never at module scope.
 * **1-hour TTL** by default. Tunable through
-  ``AISOC_EMAIL_APPROVAL_TTL_SECONDS``. The expiry stamp is signed
+  ``QUARRY_EMAIL_APPROVAL_TTL_SECONDS``. The expiry stamp is signed
   alongside the rest of the payload so an attacker can't extend it
   client-side.
 
@@ -245,7 +245,7 @@ class MailgunClient:
         self._api_key = api_key if api_key is not None else os.environ.get("MAILGUN_API_KEY", "")
         self._domain = domain if domain is not None else os.environ.get("MAILGUN_DOMAIN", "")
         self._base_url = base_url.rstrip("/")
-        self._from_addr = from_addr or os.environ.get("AISOC_APPROVAL_FROM_ADDR", "approvals@tryaisoc.com")
+        self._from_addr = from_addr or os.environ.get("QUARRY_APPROVAL_FROM_ADDR", "approvals@tryaisoc.com")
         self._client = client or httpx.AsyncClient(timeout=10.0)
 
     async def send(
@@ -298,22 +298,22 @@ def render_approval_email(
     target = action.get("target") or "unknown"
     rationale = (action.get("rationale") or "(no rationale provided)").strip()
 
-    subject = f"[AiSOC] Approval needed: {action_type} on {target} — case {case_number}"
+    subject = f"[Quarry] Approval needed: {action_type} on {target} — case {case_number}"
 
     text_body = (
-        f"AiSOC approval request\n\n"
+        f"Quarry approval request\n\n"
         f"Case:     {case_number}\n"
         f"Action:   {action_type}\n"
         f"Target:   {target}\n"
         f"Rationale: {rationale}\n\n"
         f"Approve: {approve_url}\n"
         f"Deny:    {reject_url}\n\n"
-        f"Open case in AiSOC: {web_base_url.rstrip('/')}/cases/{case.get('id') or ''}\n\n"
+        f"Open case in Quarry: {web_base_url.rstrip('/')}/cases/{case.get('id') or ''}\n\n"
         f"This link expires in 60 minutes. Replies to this email are not monitored.\n"
     )
 
     html_body = (
-        f"<p><strong>AiSOC approval request</strong></p>"
+        f"<p><strong>Quarry approval request</strong></p>"
         f"<table style='border-collapse:collapse'>"
         f"<tr><td><strong>Case</strong></td><td>{case_number}</td></tr>"
         f"<tr><td><strong>Action</strong></td><td><code>{action_type}</code></td></tr>"

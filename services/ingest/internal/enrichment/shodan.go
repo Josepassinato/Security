@@ -4,7 +4,7 @@
 // caches results in an in-process TTL cache (Redis can be wired later),
 // and augments OCSF events with exposure metadata (open ports, CVEs, ASN).
 //
-// AiSOC — open-source AI Security Operations Center (MIT License)
+// Quarry — open-source AI Security Operations Center (MIT License)
 package enrichment
 
 import (

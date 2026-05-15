@@ -1,6 +1,6 @@
 id: det-cloud-004
 name: AWS S3 Bucket Deletion
-description: AiSOC v1 curated detection. Triggers on the cloud signal described by 'AWS S3 Bucket Deletion'.
+description: Quarry v1 curated detection. Triggers on the cloud signal described by 'AWS S3 Bucket Deletion'.
   Watch the 2 documented false-positive cases before tuning.
 version: 1.0.0
 severity: high
@@ -19,6 +19,6 @@ false_positives:
 - Decommission via change-control ticket
 playbook: tpl-data-destruction
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

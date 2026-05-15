@@ -36,4 +36,4 @@ provenance:
   upstream_path: rules/_deprecated/soc_prime_rules/threat_hunting/windows/10_strike_network_inventory_explorer___unquoted_service_path.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

@@ -51,4 +51,4 @@ provenance:
   upstream_path: rules/_deprecated/soc_prime_rules/threat_hunting/sysmon/north_korean_tunneling_tool___electricfish_detection___ar19_129a.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

@@ -271,7 +271,7 @@ export function InvestigationLedger({
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `aisoc-ledger-${detail.case_id}-${detail.id}.json`;
+      a.download = `quarry-ledger-${detail.case_id}-${detail.id}.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

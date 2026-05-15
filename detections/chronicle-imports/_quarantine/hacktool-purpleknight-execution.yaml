@@ -65,4 +65,4 @@ provenance:
   upstream_path: rules/community/microsoft/windows/hacktool_purpleknight_execution.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

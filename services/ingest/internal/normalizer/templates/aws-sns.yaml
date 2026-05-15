@@ -1,6 +1,6 @@
 # AWS SNS notification template.
 #
-# When SNS fans an alert out to AiSOC, the body is the SNS envelope
+# When SNS fans an alert out to Quarry, the body is the SNS envelope
 # wrapping a Message string that's typically itself JSON. The inbox
 # handler unwraps that Message before applying this template, so paths
 # below address the inner payload (after JSON-decode of Message).

@@ -1,12 +1,12 @@
 name: Benchmark submission
-description: Submit a run of the AiSOC public eval harness for the community scoreboard.
+description: Submit a run of the Quarry public eval harness for the community scoreboard.
 title: "[benchmark] <agent name> @ <commit-sha>"
 labels: ["benchmark-submission", "needs-triage"]
 body:
   - type: markdown
     attributes:
       value: |
-        Use this form to submit a run of the AiSOC public eval harness against the fixed 200-incident dataset.
+        Use this form to submit a run of the Quarry public eval harness against the fixed 200-incident dataset.
         The harness, dataset, and grading code are MIT-licensed and fully reproducible. See the full rules at
         [tryaisoc.com/benchmark](https://tryaisoc.com/benchmark) and the methodology in
         [`apps/docs/docs/benchmark.md`](../blob/main/apps/docs/docs/benchmark.md).
@@ -17,8 +17,8 @@ body:
     id: agent_name
     attributes:
       label: Agent name
-      description: A short, recognizable name (e.g. "AiSOC main", "team-foo-detector-v2").
-      placeholder: e.g. AiSOC main
+      description: A short, recognizable name (e.g. "Quarry main", "team-foo-detector-v2").
+      placeholder: e.g. Quarry main
     validations:
       required: true
   - type: input
@@ -32,8 +32,8 @@ body:
   - type: input
     id: commit_sha
     attributes:
-      label: AiSOC commit SHA
-      description: The commit of the AiSOC repo you ran against (must include `services/agents/tests/eval_data/synthetic_incidents.json` unchanged).
+      label: Quarry commit SHA
+      description: The commit of the Quarry repo you ran against (must include `services/agents/tests/eval_data/synthetic_incidents.json` unchanged).
       placeholder: e.g. abc1234
     validations:
       required: true

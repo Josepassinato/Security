@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Generate the AiSOC v1 production playbook pack.
+Generate the Quarry v1 production playbook pack.
 
 Specs below are the canonical source of truth. Running this script materialises
 50 playbooks under `playbooks/packs/v1/<category>/<slug>.playbook.json`.
@@ -8,7 +8,7 @@ Specs below are the canonical source of truth. Running this script materialises
 The PlaybookStore (services/agents/app/playbook/store.py) loads from this tree
 on startup, so the runtime always sees what's checked in.
 
-Distribution per Phase 3B of the AiSOC 90-day plan:
+Distribution per Phase 3B of the Quarry 90-day plan:
 
     account-takeover     5
     ransomware           5
@@ -29,7 +29,7 @@ block_ip, isolate_host, create_ticket, close_case, http, condition.
 Human-approval gates are modelled as `condition` steps that read a
 context flag (e.g. `context.approved_by_oncall`); the flag is expected
 to be set by an out-of-band approval system (Slack interactive, email,
-or the AiSOC web console) before the gated step runs.
+or the Quarry web console) before the gated step runs.
 
 Rollback is modelled by pairing every containment action with a
 `condition` + matching reverse-action step, gated on
@@ -210,7 +210,7 @@ def make_playbook(
             "severity": severity,
             "tags": trigger_tags or [category],
         },
-        "author": "AiSOC",
+        "author": "Quarry",
         "enabled": True,
         "created_at": NOW,
         "updated_at": NOW,

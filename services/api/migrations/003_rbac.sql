@@ -1,4 +1,4 @@
--- AiSOC Granular RBAC migration
+-- Quarry Granular RBAC migration
 -- Creates roles, role_permissions, and user_roles tables for fine-grained access control.
 
 -- ============================================================

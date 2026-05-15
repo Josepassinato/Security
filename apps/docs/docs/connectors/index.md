@@ -1,12 +1,12 @@
 ---
 sidebar_position: 1
 title: Connectors overview
-description: Click-and-connect data sources for AiSOC — Azure, GCP, Microsoft 365, Google Workspace, Cloudflare, GitHub, and the rest of the catalog.
+description: Click-and-connect data sources for Quarry — Azure, GCP, Microsoft 365, Google Workspace, Cloudflare, GitHub, and the rest of the catalog.
 ---
 
 # Connectors
 
-A **connector** is the bridge between an external data source (an identity provider, a cloud audit log, an EDR, a SaaS platform) and the AiSOC pipeline. Once a connector instance is enabled, the connector microservice polls it on a schedule, pulls new events, normalizes them into AiSOC's event schema, and posts them to the ingest service for detection and triage.
+A **connector** is the bridge between an external data source (an identity provider, a cloud audit log, an EDR, a SaaS platform) and the Quarry pipeline. Once a connector instance is enabled, the connector microservice polls it on a schedule, pulls new events, normalizes them into Quarry's event schema, and posts them to the ingest service for detection and triage.
 
 Everything ships with three guarantees:
 
@@ -18,7 +18,7 @@ If your tool isn't in the catalog, see [Universal capture](/docs/connectors/univ
 
 ## Catalog
 
-The catalog ships with **50 connectors** out of the box, registered in [`services/connectors/app/connectors/__init__.py`](https://github.com/beenuar/AiSOC/blob/main/services/connectors/app/connectors/__init__.py). The list below is grouped by category; only a subset has dedicated walkthrough pages today (linked entries) — the rest follow the same schema-driven wizard described under [Adding a connector](#adding-a-connector).
+The catalog ships with **50 connectors** out of the box, registered in [`services/connectors/app/connectors/__init__.py`](https://github.com/Josepassinato/quarry/blob/main/services/connectors/app/connectors/__init__.py). The list below is grouped by category; only a subset has dedicated walkthrough pages today (linked entries) — the rest follow the same schema-driven wizard described under [Adding a connector](#adding-a-connector).
 
 ### Identity
 
@@ -112,7 +112,7 @@ The catalog ships with **50 connectors** out of the box, registered in [`service
 
 ## Adding a connector
 
-1. Open the AiSOC console → **Connectors** → **Add connector**.
+1. Open the Quarry console → **Connectors** → **Add connector**.
 2. Pick a connector from the catalog grid. The wizard advances to a schema-driven configuration form.
 3. Fill in the required fields. Secret fields (tokens, client secrets, service-account JSON) are obscured.
 4. Click **Test connection**. The pre-save test is stateless — credentials are sent once over TLS, the target API is called, and **nothing is persisted** unless the test passes and you click **Save**.
@@ -137,7 +137,7 @@ These map to the same taxonomy used by detection rules, so a Microsoft Entra ale
 
 ## What "hosted OAuth" means
 
-Several connectors today require you to bring your own credentials (an Azure AD app registration, a GitHub PAT, a service-account JSON). The connector schema includes an `oauth` block that advertises whether a hosted OAuth flow is available — for now, every connector that supports OAuth marks it `supported_in_hosted: false`. Hosted OAuth (where AiSOC owns the app registration and you click "Connect") is on the roadmap; see [Credential vault](/docs/operations/credentials#hosted-oauth-roadmap).
+Several connectors today require you to bring your own credentials (an Azure AD app registration, a GitHub PAT, a service-account JSON). The connector schema includes an `oauth` block that advertises whether a hosted OAuth flow is available — for now, every connector that supports OAuth marks it `supported_in_hosted: false`. Hosted OAuth (where Quarry owns the app registration and you click "Connect") is on the roadmap; see [Credential vault](/docs/operations/credentials#hosted-oauth-roadmap).
 
 ## Writing a new connector
 

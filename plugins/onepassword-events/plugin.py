@@ -1,4 +1,4 @@
-"""1Password Events connector plugin for AiSOC.
+"""1Password Events connector plugin for Quarry.
 
 Pulls events from the 1Password Events API across three feeds:
   - signinattempts

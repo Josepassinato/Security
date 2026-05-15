@@ -1,4 +1,4 @@
-// Package config reads AiSOC extension configuration from environment variables.
+// Package config reads Quarry extension configuration from environment variables.
 package config
 
 import (
@@ -8,14 +8,14 @@ import (
 
 // Config holds runtime configuration for the osquery extension.
 type Config struct {
-	// AISOC_API_URL is the base URL of the AiSOC API service.
+	// QUARRY_API_URL is the base URL of the Quarry API service.
 	// Example: https://api.example.com
 	APIURL string
 
-	// AISOC_API_TOKEN is a host-scoped read-only token issued by the AiSOC API.
+	// QUARRY_API_TOKEN is a host-scoped read-only token issued by the Quarry API.
 	APIToken string
 
-	// HostIdentifier uniquely identifies this host to the AiSOC API.
+	// HostIdentifier uniquely identifies this host to the Quarry API.
 	// Defaults to the machine hostname when not set.
 	HostIdentifier string
 
@@ -29,9 +29,9 @@ func Load() *Config {
 	host, _ := os.Hostname()
 
 	cfg := &Config{
-		APIURL:         getenv("AISOC_API_URL", "http://localhost:8000"),
-		APIToken:       getenv("AISOC_API_TOKEN", ""),
-		HostIdentifier: getenv("AISOC_HOST_ID", host),
+		APIURL:         getenv("QUARRY_API_URL", "http://localhost:8000"),
+		APIToken:       getenv("QUARRY_API_TOKEN", ""),
+		HostIdentifier: getenv("QUARRY_HOST_ID", host),
 		HTTPTimeout:    10 * time.Second,
 	}
 	return cfg

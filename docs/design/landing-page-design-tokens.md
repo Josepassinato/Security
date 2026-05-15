@@ -1,4 +1,4 @@
-# AiSOC landing page — design tokens
+# Quarry landing page — design tokens
 
 > Companion to `landing-page-brief.md` §7. Copy-paste-ready token spec
 > for the frontend engineer implementing

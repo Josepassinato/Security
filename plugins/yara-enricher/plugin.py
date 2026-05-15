@@ -1,5 +1,5 @@
 """
-YARA Enricher — AiSOC Reference Plugin
+YARA Enricher — Quarry Reference Plugin
 ========================================
 Scans a file against YARA rules. Returns matched rules with metadata.
 
@@ -48,7 +48,7 @@ class Plugin:
 
     def _get_rules(self, context: dict) -> Any:
         cfg = context.get("config", {})
-        rules_dir = cfg.get("rules_dir") or os.getenv("YARA_RULES_DIR", "/opt/aisoc/yara-rules")
+        rules_dir = cfg.get("rules_dir") or os.getenv("YARA_RULES_DIR", "/opt/quarry/yara-rules")
 
         if self._compiled and self._rules_dir == rules_dir:
             return self._compiled

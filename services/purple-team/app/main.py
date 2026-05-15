@@ -76,7 +76,7 @@ async def _lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="AiSOC Purple Team Service",
+    title="Quarry Purple Team Service",
     description=("Atomic Red Team execution, Caldera adversary emulation, ATT&CK coverage heatmap, and tabletop exercise simulator."),
     version="0.1.0",
     lifespan=_lifespan,

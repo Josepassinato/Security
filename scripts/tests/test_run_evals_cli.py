@@ -1,6 +1,6 @@
 """CLI surface tests for ``scripts/run_evals.py``.
 
-These tests pin down the contract the AiSOC quickstart video relies on:
+These tests pin down the contract the Quarry quickstart video relies on:
 
 * ``--suite all`` runs every registered suite.
 * ``--suite <name>`` runs only the requested suite.

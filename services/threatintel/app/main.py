@@ -1,11 +1,11 @@
 """
-AiSOC Threat Intelligence Feed Service
+Quarry Threat Intelligence Feed Service
 
 Polls multiple threat intelligence feeds on configurable intervals,
 deduplicates via Redis Bloom filter, and writes normalized IOCs/actors
 into OpenSearch, Qdrant, and Neo4j.
 
-AiSOC — open-source AI Security Operations Center (MIT License)
+Quarry — open-source AI Security Operations Center (MIT License)
 """
 
 from __future__ import annotations
@@ -78,7 +78,7 @@ def _airgap_check_feed_url(feed_name: str, url: str | None) -> bool:
     TAXII server inside the perimeter can keep polling normally.
     """
 
-    if not settings.AISOC_AIRGAPPED:
+    if not settings.QUARRY_AIRGAPPED:
         return True
 
     if not url:
@@ -97,7 +97,7 @@ def _airgap_check_feed_url(feed_name: str, url: str | None) -> bool:
             "airgap.feed_blocked",
             feed=feed_name,
             host=host,
-            reason="public host blocked by AISOC_AIRGAPPED policy",
+            reason="public host blocked by QUARRY_AIRGAPPED policy",
         )
     return allowed
 
@@ -190,7 +190,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     scheduler = FeedScheduler(pipeline)
 
     # Register TAXII feeds (skipped entirely if the configured TAXII server
-    # is on the public Internet and AISOC_AIRGAPPED=1 — this prevents even
+    # is on the public Internet and QUARRY_AIRGAPPED=1 — this prevents even
     # a single boot-time DNS lookup from leaking the deployment).
     if settings.TAXII_URL and settings.TAXII_COLLECTION_IDS and _airgap_check_feed_url("taxii", settings.TAXII_URL):
         for col_id in settings.TAXII_COLLECTION_IDS.split(","):
@@ -262,7 +262,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 # ─── FastAPI app ──────────────────────────────────────────────────────────────
 
 app = FastAPI(
-    title="AiSOC Threat Intelligence Service",
+    title="Quarry Threat Intelligence Service",
     version="0.1.0",
     lifespan=lifespan,
 )

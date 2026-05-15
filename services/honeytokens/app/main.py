@@ -45,14 +45,14 @@ LOG = logging.getLogger(__name__)
 from app.api.routes import router  # noqa: E402
 
 app = FastAPI(
-    title="AiSOC Honeytokens Service",
+    title="Quarry Honeytokens Service",
     description="Generate, deploy, and manage honeytokens with first-touch alerting.",
     version="0.1.0",
 )
 
 # Honeytoken trip pixels/links are intentionally fetched from arbitrary
 # origins (that's the detection), so we keep allow_credentials=False and a
-# permissive default — AISOC_CORS_ORIGINS still lets operators tighten this
+# permissive default — QUARRY_CORS_ORIGINS still lets operators tighten this
 # per-deploy without code changes.
 app.add_middleware(
     CORSMiddleware,

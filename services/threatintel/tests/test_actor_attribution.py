@@ -248,8 +248,8 @@ async def test_tool_match_uses_description_and_tags():
 
 @pytest.mark.asyncio
 async def test_env_threshold_overrides_default(monkeypatch):
-    """``AISOC_ATTRIBUTION_THRESHOLD`` is honoured when valid."""
-    monkeypatch.setenv("AISOC_ATTRIBUTION_THRESHOLD", "0.95")
+    """``QUARRY_ATTRIBUTION_THRESHOLD`` is honoured when valid."""
+    monkeypatch.setenv("QUARRY_ATTRIBUTION_THRESHOLD", "0.95")
     engine = ThreatActorAttributionEngine()
     # A weak signal that would normally pass the default 0.3 threshold
     # should now fall under the 0.95 bar and resolve to "unknown".
@@ -264,7 +264,7 @@ async def test_env_threshold_overrides_default(monkeypatch):
 @pytest.mark.asyncio
 async def test_env_threshold_invalid_falls_back_to_default(monkeypatch, caplog):
     """A garbage env value must not silently disable attribution."""
-    monkeypatch.setenv("AISOC_ATTRIBUTION_THRESHOLD", "not-a-number")
+    monkeypatch.setenv("QUARRY_ATTRIBUTION_THRESHOLD", "not-a-number")
     engine = ThreatActorAttributionEngine()
     # Default 0.3 threshold should still allow APT28 to attribute on a strong
     # multi-component signal.

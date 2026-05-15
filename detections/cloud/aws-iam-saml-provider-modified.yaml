@@ -1,6 +1,6 @@
 id: det-cloud-047
 name: AWS IAM SAML Provider Updated
-description: AiSOC v1 curated detection. Triggers on the cloud signal described by 'AWS IAM SAML Provider
+description: Quarry v1 curated detection. Triggers on the cloud signal described by 'AWS IAM SAML Provider
   Updated'. Watch the 2 documented false-positive cases before tuning.
 version: 1.0.0
 severity: high
@@ -19,6 +19,6 @@ false_positives:
 - Sanctioned automation/IaC pipeline
 playbook: tpl-defense-evasion
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

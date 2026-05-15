@@ -1,6 +1,6 @@
-# AiSOC API Reference
+# Quarry API Reference
 
-This document describes the REST endpoints exposed by AiSOC services. For the auto-generated, exhaustive schema visit `/docs` (Swagger) on each running service.
+This document describes the REST endpoints exposed by Quarry services. For the auto-generated, exhaustive schema visit `/docs` (Swagger) on each running service.
 
 | Service | Base URL (local) |
 |---------|-------------------|
@@ -15,10 +15,10 @@ This document describes the REST endpoints exposed by AiSOC services. For the au
 All examples assume:
 
 ```bash
-export AISOC_TOKEN="$(curl -sX POST http://localhost:8000/v1/auth/login \
+export QUARRY_TOKEN="$(curl -sX POST http://localhost:8000/v1/auth/login \
   -H 'content-type: application/json' \
-  -d '{"email":"admin@aisoc.local","password":"changeme"}' | jq -r .access_token)"
-export AISOC_TENANT="00000000-0000-0000-0000-000000000001"
+  -d '{"email":"admin@quarry.local","password":"changeme"}' | jq -r .access_token)"
+export QUARRY_TENANT="00000000-0000-0000-0000-000000000001"
 ```
 
 ---
@@ -32,7 +32,7 @@ Service: `services/api`.
 Reconstructs the kill-chain for a case by traversing `(:Case)-[:CONTAINS]->(:Alert)-[:USES]->(:Technique)-[:PART_OF]->(:Tactic)`.
 
 ```bash
-curl -H "authorization: Bearer $AISOC_TOKEN" \
+curl -H "authorization: Bearer $QUARRY_TOKEN" \
   http://localhost:8000/v1/graph/attack-path/$CASE_ID
 ```
 
@@ -63,7 +63,7 @@ Returns 1-3 hop neighborhood of a node, used to gate high-impact actions.
 | `max_hops` | no (default `2`) | 1-3 |
 
 ```bash
-curl -H "authorization: Bearer $AISOC_TOKEN" \
+curl -H "authorization: Bearer $QUARRY_TOKEN" \
   "http://localhost:8000/v1/graph/blast-radius?entity_type=host&entity_id=HOST-42&max_hops=2"
 ```
 

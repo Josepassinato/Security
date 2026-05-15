@@ -2,7 +2,7 @@
 
 When we import a Sigma rule we want to record, alongside the rule itself,
 the OCSF event class it most likely fires against. That lets the rest of
-AiSOC reason about coverage in OCSF terms ("how many Authentication
+Quarry reason about coverage in OCSF terms ("how many Authentication
 findings can we generate today?") without re-parsing the rule body.
 
 The mapping is intentionally conservative:

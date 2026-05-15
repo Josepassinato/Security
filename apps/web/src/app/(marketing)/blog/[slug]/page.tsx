@@ -34,10 +34,10 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const post = getPostBySlug(slug);
-  if (!post) return { title: 'Post not found — AiSOC' };
+  if (!post) return { title: 'Post not found — Quarry' };
   const fm = post.frontmatter;
   return {
-    title: `${fm.title} — AiSOC blog`,
+    title: `${fm.title} — Quarry blog`,
     description: fm.description,
     alternates: { canonical: `/blog/${slug}` },
     openGraph: {
@@ -159,7 +159,7 @@ function PostFooter({ post }: { post: BlogPost }) {
           Keep reading
         </h2>
         <p className="mt-3 text-sm leading-relaxed text-gray-400">
-          More long-form writing on the AiSOC architecture and operating
+          More long-form writing on the Quarry architecture and operating
           model. The full archive is on the{' '}
           <Link
             href="/blog"
@@ -177,7 +177,7 @@ function PostFooter({ post }: { post: BlogPost }) {
             All posts
           </Link>
           <a
-            href="mailto:hello@aisoc.dev"
+            href="mailto:hello@quarry.dev"
             className="inline-flex items-center gap-2 rounded-md bg-brand-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-400"
           >
             Talk to {fm.author.split(',')[0]}

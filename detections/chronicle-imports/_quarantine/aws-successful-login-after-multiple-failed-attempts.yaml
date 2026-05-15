@@ -68,4 +68,4 @@ provenance:
   upstream_path: rules/community/aws/cloudtrail/aws_successful_login_after_multiple_failed_attempts.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema

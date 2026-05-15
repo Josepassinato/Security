@@ -55,7 +55,7 @@ If `False`, run:
 Set-AdminAuditLogConfig -UnifiedAuditLogIngestionEnabled $true
 ```
 
-### 3. Add the connector in AiSOC
+### 3. Add the connector in Quarry
 
 1. **Connectors → Add connector → Microsoft 365 Audit**.
 2. `tenant_id`, `client_id`, `client_secret` = same values as the Entra connector (or freshly minted).
@@ -71,7 +71,7 @@ Set-AdminAuditLogConfig -UnifiedAuditLogIngestionEnabled $true
 
 ## Severity heuristics
 
-The Management API does not provide severity, so AiSOC infers from `Operation`:
+The Management API does not provide severity, so Quarry infers from `Operation`:
 
 | Pattern | Severity |
 |---|---|

@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/beenuar/aisoc/enrichment/internal/enricher"
+	"github.com/beenuar/quarry/enrichment/internal/enricher"
 	"github.com/rs/zerolog/log"
 )
 
@@ -111,7 +111,7 @@ func (h *Handler) BulkEnrich(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) Health(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]string{
 		"status":  "healthy",
-		"service": "aisoc-enrichment",
+		"service": "quarry-enrichment",
 	})
 }
 

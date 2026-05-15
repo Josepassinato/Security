@@ -27,7 +27,7 @@ deterministic sanitizer. The behaviour is intentionally simple:
    caller cannot DOS the audit pipeline with a deeply nested or
    million-key payload.
 
-The cap is read lazily from the ``AISOC_AUDIT_MAX_CHANGES_BYTES``
+The cap is read lazily from the ``QUARRY_AUDIT_MAX_CHANGES_BYTES``
 environment variable so operators can dial it without a redeploy.
 """
 
@@ -76,7 +76,7 @@ _DEFAULT_MAX_BYTES = 16 * 1024  # 16 KB
 _MAX_DEPTH = 8
 _MAX_NODES = 2_000
 
-_MAX_BYTES_ENV = "AISOC_AUDIT_MAX_CHANGES_BYTES"
+_MAX_BYTES_ENV = "QUARRY_AUDIT_MAX_CHANGES_BYTES"
 
 
 def _max_bytes() -> int:

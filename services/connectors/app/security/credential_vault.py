@@ -6,7 +6,7 @@ We vendor the **read path** here so the connectors service can decrypt the
 RPC for "please decrypt this secret for me" (which would just push the secret
 across the wire in plaintext anyway and add an extra failure surface).
 
-Both services agree on a single deployment-level secret, ``AISOC_CREDENTIAL_KEY``,
+Both services agree on a single deployment-level secret, ``QUARRY_CREDENTIAL_KEY``,
 mounted via the same secrets store (Fly secrets / k8s secret / vault). As long
 as the two services see the same key material, ciphertexts written by one
 decrypt cleanly in the other.
@@ -34,7 +34,7 @@ from typing import Any, Final
 
 from cryptography.fernet import Fernet, InvalidToken, MultiFernet
 
-logger = logging.getLogger("aisoc.connectors.credential_vault")
+logger = logging.getLogger("quarry.connectors.credential_vault")
 
 # Tag every value we write so we can distinguish ciphertext from legacy
 # plaintext on the decrypt path. Must match the API service's prefix byte-for-byte.
@@ -63,7 +63,7 @@ class CredentialVault:
         try:
             primary = Fernet(primary_key)
         except (TypeError, ValueError) as exc:
-            raise CredentialVaultError(f"AISOC_CREDENTIAL_KEY is not a valid Fernet key: {exc}") from exc
+            raise CredentialVaultError(f"QUARRY_CREDENTIAL_KEY is not a valid Fernet key: {exc}") from exc
 
         keyring: list[Fernet] = [primary]
         for k in historical_keys or []:
@@ -92,7 +92,7 @@ class CredentialVault:
             return self._fernet.decrypt(token).decode("utf-8")
         except InvalidToken as exc:
             raise CredentialVaultError(
-                "ciphertext failed integrity check — likely AISOC_CREDENTIAL_KEY mismatch between API and connectors services"
+                "ciphertext failed integrity check — likely QUARRY_CREDENTIAL_KEY mismatch between API and connectors services"
             ) from exc
 
     def encrypt_dict(self, payload: Mapping[str, Any], *, secret_keys: set[str] | None = None) -> dict[str, Any]:
@@ -133,7 +133,7 @@ def get_vault() -> CredentialVault:
     """Return the process-wide vault, lazily constructed from env vars.
 
     Unlike the API copy this function deliberately raises if
-    ``AISOC_CREDENTIAL_KEY`` is missing — the connectors microservice exists
+    ``QUARRY_CREDENTIAL_KEY`` is missing — the connectors microservice exists
     to *poll* sources using already-stored credentials, so running without a
     key is never the right behaviour, even in dev.
     """
@@ -143,13 +143,13 @@ def get_vault() -> CredentialVault:
     with _vault_lock:
         if _vault_singleton is not None:  # pragma: no cover - racing init
             return _vault_singleton
-        primary = (os.getenv("AISOC_CREDENTIAL_KEY") or "").strip().encode("ascii")
+        primary = (os.getenv("QUARRY_CREDENTIAL_KEY") or "").strip().encode("ascii")
         if not primary:
             raise CredentialVaultError(
-                "AISOC_CREDENTIAL_KEY is required for the connectors service to decrypt stored credentials. "
+                "QUARRY_CREDENTIAL_KEY is required for the connectors service to decrypt stored credentials. "
                 "Mount the same key the API service uses."
             )
-        rotation = _split_keys(os.getenv("AISOC_CREDENTIAL_KEY_ROTATION_FROM") or "")
+        rotation = _split_keys(os.getenv("QUARRY_CREDENTIAL_KEY_ROTATION_FROM") or "")
         _vault_singleton = CredentialVault(primary, historical_keys=rotation)
         return _vault_singleton
 

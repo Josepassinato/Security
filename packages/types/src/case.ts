@@ -1,5 +1,5 @@
 /**
- * AiSOC Case Management types
+ * Quarry Case Management types
  */
 
 export type CaseStatus = "open" | "in_progress" | "pending_closure" | "closed" | "cancelled";

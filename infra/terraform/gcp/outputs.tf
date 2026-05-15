@@ -1,5 +1,5 @@
 /**
- * AiSOC — GCP serverless skeleton
+ * Quarry — GCP serverless skeleton
  *
  * Outputs are scoped to what an operator needs immediately after
  * `terraform apply`: the public service URLs, the connection strings the API
@@ -10,17 +10,17 @@
 # ─── Cloud Run URLs ──────────────────────────────────────────────────────────
 
 output "api_url" {
-  description = "Public Cloud Run URL for the AiSOC API."
+  description = "Public Cloud Run URL for the Quarry API."
   value       = google_cloud_run_v2_service.api.uri
 }
 
 output "web_url" {
-  description = "Public Cloud Run URL for the AiSOC web console."
+  description = "Public Cloud Run URL for the Quarry web console."
   value       = google_cloud_run_v2_service.web.uri
 }
 
 output "ingest_url" {
-  description = "Public Cloud Run URL for the AiSOC ingest endpoint."
+  description = "Public Cloud Run URL for the Quarry ingest endpoint."
   value       = google_cloud_run_v2_service.ingest.uri
 }
 
@@ -43,7 +43,7 @@ output "sql_private_ip" {
 
 output "sql_database" {
   description = "Application database name inside the Cloud SQL instance."
-  value       = google_sql_database.aisoc.name
+  value       = google_sql_database.quarry.name
 }
 
 # ─── Memorystore ─────────────────────────────────────────────────────────────
@@ -93,7 +93,7 @@ output "secret_postgres_password_id" {
 }
 
 output "secret_secret_key_id" {
-  description = "Secret Manager ID for the AiSOC SECRET_KEY."
+  description = "Secret Manager ID for the Quarry SECRET_KEY."
   value       = google_secret_manager_secret.secret_key.secret_id
 }
 

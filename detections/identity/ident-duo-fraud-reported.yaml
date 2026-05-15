@@ -1,6 +1,6 @@
 id: det-identity-126
 name: Duo Push Marked As Fraud By User
-description: AiSOC v1 curated detection. Triggers on the identity signal described by 'Duo Push Marked
+description: Quarry v1 curated detection. Triggers on the identity signal described by 'Duo Push Marked
   As Fraud By User'. Watch the 1 documented false-positive case before tuning.
 version: 1.0.0
 severity: medium
@@ -19,6 +19,6 @@ false_positives:
 - Misclick / training
 playbook: tpl-credential-access
 enabled: true
-author: AiSOC
+author: Quarry
 created: '2026-05-03'
 modified: '2026-05-03'

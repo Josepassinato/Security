@@ -59,4 +59,4 @@ provenance:
   upstream_path: rules/community/workspace/google_workspace_file_shared_from_google_drive_to_free_email_domain.yaral
 notes:
   chronicle_meta: {}
-  quarantine_reason: raw YARA-L — needs translation to AiSOC schema
+  quarantine_reason: raw YARA-L — needs translation to Quarry schema
