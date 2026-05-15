@@ -1,73 +1,63 @@
 version: 2
 
+# Quarry policy: dependabot is SECURITY-ALERTS-ONLY until the rebrand card lands.
+#
+# Version-bump PRs against the inherited AiSOC tree create noise without value
+# while we haven't yet committed any Quarry-specific code into the inherited
+# services/. We re-enable wide version updates only after rebrand + the first
+# Quarry-owned production deploy.
+#
+# `open-pull-requests-limit: 0` is the documented way to disable version-bump
+# PRs while keeping security-vulnerability alerts active.
+# Reference: https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file#open-pull-requests-limit
+#
+# See ADR-002 for rationale.
+
 updates:
-  # ── pnpm (web + root workspace) ──────────────────────────────
   - package-ecosystem: npm
     directory: /
     schedule:
-      interval: weekly
-      day: monday
-      time: "06:00"
-    groups:
-      next-ecosystem:
-        patterns: ["next", "react", "react-dom", "@types/react*"]
-      radix-ui:
-        patterns: ["@radix-ui/*"]
-      dev-tooling:
-        patterns: ["typescript", "eslint*", "@typescript-eslint/*", "tailwindcss*", "postcss*"]
+      interval: monthly
+    open-pull-requests-limit: 0
 
-  # ── pip (api) ────────────────────────────────────────────────
   - package-ecosystem: pip
     directory: /services/api
     schedule:
-      interval: weekly
-      day: monday
-      time: "06:00"
+      interval: monthly
+    open-pull-requests-limit: 0
 
-  # ── pip (actions) ────────────────────────────────────────────
-  - package-ecosystem: pip
-    directory: /services/actions
-    schedule:
-      interval: weekly
-      day: monday
-      time: "06:00"
-
-  # ── pip (agents) ────────────────────────────────────────────
   - package-ecosystem: pip
     directory: /services/agents
     schedule:
-      interval: weekly
-      day: monday
-      time: "06:00"
+      interval: monthly
+    open-pull-requests-limit: 0
 
-  # ── Go (enrichment) ──────────────────────────────────────────
-  - package-ecosystem: gomod
-    directory: /services/enrichment
+  - package-ecosystem: pip
+    directory: /services/actions
     schedule:
-      interval: weekly
-      day: monday
-      time: "06:00"
+      interval: monthly
+    open-pull-requests-limit: 0
 
-  # ── Go (ingest) ──────────────────────────────────────────────
   - package-ecosystem: gomod
     directory: /services/ingest
     schedule:
-      interval: weekly
-      day: monday
-      time: "06:00"
+      interval: monthly
+    open-pull-requests-limit: 0
 
-  # ── Go (demo-producer) ───────────────────────────────────────
+  - package-ecosystem: gomod
+    directory: /services/enrichment
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 0
+
   - package-ecosystem: gomod
     directory: /services/demo-producer
     schedule:
-      interval: weekly
-      day: monday
-      time: "06:00"
+      interval: monthly
+    open-pull-requests-limit: 0
 
-  # ── GitHub Actions ───────────────────────────────────────────
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: weekly
-      day: monday
-      time: "06:00"
+      interval: monthly
+    open-pull-requests-limit: 0
