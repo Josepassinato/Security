@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "aisoc-plugin-sdk"
+name = "quarry-plugin-sdk"
 version = "0.1.0"
 description = "AiSOC Plugin SDK for Python — build custom enrichers, connectors, and response actions"
 readme = "README.md"

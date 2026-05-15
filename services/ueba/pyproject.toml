@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "aisoc-ueba"
+name = "quarry-ueba"
 version = "0.1.0"
 description = "AiSOC UEBA — User & Entity Behaviour Analytics microservice"
 requires-python = ">=3.11"

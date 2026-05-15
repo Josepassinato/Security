@@ -1,0 +1,83 @@
+id: SEN-001
+name: WhatsApp Clonado / Sequestrado para Golpe Familiar PIX
+category: social_engineering
+severity: critical
+description: |
+  Criminosos sequestram a conta WhatsApp da vítima (via SIM swap, phishing
+  do código SMS de 6 dígitos da verificação em duas etapas, ou compra de
+  acesso em mercados clandestinos). Com acesso ao histórico e contatos,
+  enviam mensagens a familiares/amigos pedindo PIX urgente ("troquei de
+  número, manda no novo Pix da minha conta", "preciso pagar conta agora").
+
+  Em 2024 foi o golpe MAIS reportado à FEBRABAN (153 milhões de casos,
+  29% do total). Combina SIM swap, vazamentos de dados (foto de perfil
+  pública + número exposto via leak), engenharia social e PIX.
+
+  BR-específico: WhatsApp é praticamente infraestrutura social no Brasil
+  (>90% de penetração). A combinação WhatsApp + PIX é fator brasileiro
+  único.
+
+mitre_techniques:
+  - id: T1656
+    name: "Impersonation"
+  - id: T1586
+    name: "Compromise Accounts"
+  - id: T1657
+    name: "Financial Theft"
+  - id: T1111
+    name: "Multi-Factor Authentication Interception"
+
+data_sources_required:
+  - pix_transactions
+  - contact_book_changes
+  - device_fingerprint_logs
+  - kyc_verification_logs
+
+indicators:
+  - name: first_pix_to_new_payee_named_familiar
+    threshold: "PIX para chave nunca usada cujo titular tem sobrenome igual ao da vítima"
+  - name: rapid_consecutive_pix_to_distinct_payees
+    threshold: ">=3 PIX para destinatários diferentes em <30min"
+  - name: amount_clustering
+    threshold: "valores típicos R$500-R$3000 (faixa 'pedido familiar')"
+  - name: outbound_to_account_flagged_in_DICT
+    threshold: "chave destino com marcação de fraude no DICT"
+
+sources:
+  - url: https://portal.febraban.org.br/noticia/4279/pt-br/
+    publisher: FEBRABAN
+    date: "2025-04-14"
+    title: "Saiba quais foram os 10 golpes mais aplicados contra clientes bancários em 2024 (golpe do WhatsApp = 1º lugar, 153M casos)"
+  - url: https://www.poder360.com.br/poder-justica/golpes-por-whatsapp-foram-os-mais-aplicados-em-2024-leia-ranking/
+    publisher: Poder360 / FEBRABAN
+    date: "2025-04"
+    title: "Golpes por WhatsApp foram os mais aplicados em 2024; leia ranking"
+  - url: https://idec.org.br/idec-na-imprensa/golpe-do-whatsapp-entra-na-era-pix-e-fica-mais-dificil-recuperar-o-dinheiro
+    publisher: IDEC - Instituto Brasileiro de Defesa do Consumidor
+    date: "2024"
+    title: "Golpe do WhatsApp entra na era Pix e fica mais difícil recuperar o dinheiro"
+  - url: https://tecnoblog.net/noticias/golpe-via-whatsapp-usa-dados-vazados-e-pede-dinheiro-a-parentes-da-vitima/
+    publisher: Tecnoblog
+    date: "2024"
+    title: "Golpe via WhatsApp usa dados vazados e pede dinheiro a parentes da vítima"
+  - url: https://policiacivil.se.gov.br/golpes-envolvendo-pix-acendem-alerta-para-verificacao-de-dados-antes-da-transferencia-de-valores-solicitados-pelo-whatsapp/
+    publisher: Polícia Civil de Sergipe
+    date: "2024"
+    title: "Golpes envolvendo Pix acendem alerta para verificação de dados antes da transferência de valores solicitados pelo WhatsApp"
+
+br_specific: true
+quarry_status: documented
+
+related_patterns:
+  - PIX-001
+  - ATO-001
+  - VSH-001
+
+notes: |
+  Fintechs podem reduzir prejuízo com:
+  - Confirmação extra (foto, biometria) em PIX para chave nova com nome
+    similar ao do titular (heurística "mesmo sobrenome = possível golpe
+    familiar").
+  - Banner explícito "verifique por chamada de voz" quando o destinatário
+    tem o sobrenome do remetente.
+  - Mensagens preventivas no in-app inbox alertando sobre o padrão.

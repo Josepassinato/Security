@@ -1,5 +1,5 @@
 {
-  "name": "@aisoc/web",
+  "name": "@quarry/web",
   "version": "7.3.1",
   "private": true,
   "description": "AiSOC SOC Console - Next.js 14 Frontend",
@@ -14,8 +14,8 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@aisoc/types": "workspace:*",
-    "@aisoc/ui": "workspace:*",
+    "@quarry/types": "workspace:*",
+    "@quarry/ui": "workspace:*",
     "@monaco-editor/react": "^4.6.0",
     "@xyflow/react": "^12.10.2",
     "clsx": "^2.1.0",

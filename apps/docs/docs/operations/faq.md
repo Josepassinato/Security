@@ -208,14 +208,14 @@ Yes. `DELETE /api/v1/identity/{user_id}/data` tombstones every alert, case, and 
 
 ### Does AiSOC have an MCP server?
 
-Yes. `@aisoc/mcp` exposes 11 Investigation Ledger tools to MCP-compatible LLM clients (Claude Desktop, Cursor, Continue, Cody) so analysts can replay agent decisions, query cases, and run detection / playbook actions directly from their IDE. See [MCP integration](../integrations/mcp).
+Yes. `@quarry/mcp` exposes 11 Investigation Ledger tools to MCP-compatible LLM clients (Claude Desktop, Cursor, Continue, Cody) so analysts can replay agent decisions, query cases, and run detection / playbook actions directly from their IDE. See [MCP integration](../integrations/mcp).
 
 ### Are there SDKs?
 
 Three:
 
 - **Python** — `pip install aisoc-sdk`. Async first, typed against the OpenAPI spec.
-- **TypeScript** — `pnpm add @aisoc/sdk-ts`. Also typed against the OpenAPI spec.
+- **TypeScript** — `pnpm add @quarry/sdk-ts`. Also typed against the OpenAPI spec.
 - **Go** — `go get github.com/beenuar/AiSOC/packages/sdk-go`.
 
 All three handle auth, retries, pagination, and backoff. See [Plugin SDK overview](../plugins/overview).

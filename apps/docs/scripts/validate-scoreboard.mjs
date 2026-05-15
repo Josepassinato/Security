@@ -2,7 +2,7 @@
 // Validates apps/docs/static/data/scoreboard.json against scoreboard.schema.json.
 // Hand-rolled validator — no AJV / no zod dep — so the docs build pulls zero
 // extra packages just to gate the scoreboard JSON. Exits 0 on success, 1 on
-// any violation. Run via `pnpm --filter @aisoc/docs scoreboard:check`.
+// any violation. Run via `pnpm --filter @quarry/docs scoreboard:check`.
 
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";

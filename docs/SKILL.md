@@ -161,7 +161,7 @@ Ainda não definido. Quando ADR-XXX de deploy strategy for escrito, este SKILL.m
 2. **NÃO** modifique arquivos sob `services/`, `apps/`, `packages/`, `detections/` (herdados) sem que o commit cite o card que autoriza. Customizações vão em `customizations/`.
 3. **NÃO** remova o sistema de `provenance` de detections — é obrigação legal das licenças DRL/Apache.
 4. **NÃO** commite secrets (`.env`, API keys, tokens). Use GitHub Secrets via Actions. `.gitleaks` está ativo.
-5. **NÃO** publique nada em registry público (`@aisoc/*`, `aisoc-mcp`, `ghcr.io/beenuar/*`) sem mudar para namespace Quarry (`@quarry/*` ou similar).
+5. **NÃO** publique nada em registry público (`@quarry/*` workspaces, `quarry-mcp` bin, `ghcr.io/beenuar/*` imagens) sem confirmar que o registry/namespace de destino é controlado pela Increase Trainer Inc.
 6. **NÃO** rode demo full stack na VPS de produção. Sempre em hardware separado até MVP cortado existir.
 7. **NÃO** comunique com mantenedores do AiSOC em nome do Quarry sem direção do José. Tratamos como concorrentes (ADR-001).
 8. **NÃO** rebrand parcial sem checklist completo. Quando o card de rebrand chegar, será atômico: ou Quarry inteiro, ou nada.

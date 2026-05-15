@@ -6,7 +6,7 @@ description: Connect AiSOC to Claude Desktop, Cursor, Cody, and Continue.dev via
 
 # MCP server
 
-The `@aisoc/mcp` npm package is the official [Model Context Protocol](https://modelcontextprotocol.io) bridge between AiSOC and modern AI assistants. Once installed, your assistant can list alerts, pull cases, run agent investigations, and **replay every step the agent took** — without leaving the chat or the IDE.
+The `@quarry/mcp` npm package is the official [Model Context Protocol](https://modelcontextprotocol.io) bridge between AiSOC and modern AI assistants. Once installed, your assistant can list alerts, pull cases, run agent investigations, and **replay every step the agent took** — without leaving the chat or the IDE.
 
 > **Why this matters.** MCP is becoming the substrate for "AI tools that work everywhere": Claude Desktop, Cursor, Cody, Continue, Zed, and counting. Every analyst who works in those tools gets AiSOC discovery for free.
 
@@ -14,15 +14,15 @@ The `@aisoc/mcp` npm package is the official [Model Context Protocol](https://mo
 
 | Host | One-line install | Config file |
 |---|---|---|
-| **Claude Desktop** | `npx -y @aisoc/mcp install --host claude --aisoc-url … --api-key …` | `~/Library/Application Support/Claude/claude_desktop_config.json` |
-| **Cursor** | `npx -y @aisoc/mcp install --host cursor --aisoc-url … --api-key …` | `~/.cursor/mcp.json` |
-| **Continue.dev** | `npx -y @aisoc/mcp install --host continue --aisoc-url … --api-key …` | `~/.continue/config.json` |
-| **Cody** | `npx -y @aisoc/mcp install --host cody --aisoc-url … --api-key …` (prints snippet) | VS Code User Settings → `cody.mcp.servers` |
+| **Claude Desktop** | `npx -y @quarry/mcp install --host claude --aisoc-url … --api-key …` | `~/Library/Application Support/Claude/claude_desktop_config.json` |
+| **Cursor** | `npx -y @quarry/mcp install --host cursor --aisoc-url … --api-key …` | `~/.cursor/mcp.json` |
+| **Continue.dev** | `npx -y @quarry/mcp install --host continue --aisoc-url … --api-key …` | `~/.continue/config.json` |
+| **Cody** | `npx -y @quarry/mcp install --host cody --aisoc-url … --api-key …` (prints snippet) | VS Code User Settings → `cody.mcp.servers` |
 
 Print the canonical config paths for your machine any time:
 
 ```bash
-npx -y @aisoc/mcp install --list-paths
+npx -y @quarry/mcp install --list-paths
 ```
 
 ## 60-second quickstart
@@ -34,7 +34,7 @@ In the AiSOC console: **Settings → API Keys → New personal access token**. G
 ### 2. Run the installer
 
 ```bash
-npx -y @aisoc/mcp install --host claude \
+npx -y @quarry/mcp install --host claude \
   --aisoc-url https://aisoc.your-company.com \
   --api-key  aisoc_pat_xxxxxxxxxxxx
 ```
@@ -117,7 +117,7 @@ All flags can be set via env vars; the CLI flag wins if both are present.
 If you'd rather edit JSON yourself, `install --dry-run` prints exactly what the installer would write:
 
 ```bash
-npx -y @aisoc/mcp install --host claude --dry-run \
+npx -y @quarry/mcp install --host claude --dry-run \
   --aisoc-url https://aisoc.your-company.com --api-key aisoc_xxx
 ```
 
@@ -128,7 +128,7 @@ Paste the snippet under `mcpServers` in your host's config:
   "mcpServers": {
     "aisoc": {
       "command": "npx",
-      "args": ["-y", "@aisoc/mcp", "serve"],
+      "args": ["-y", "@quarry/mcp", "serve"],
       "env": {
         "AISOC_URL": "https://aisoc.your-company.com",
         "AISOC_API_KEY": "aisoc_pat_xxxxxxxxxxxx"
@@ -145,7 +145,7 @@ Before pointing your assistant at it, smoke-test the connection:
 ```bash
 AISOC_URL=https://aisoc.your-company.com \
 AISOC_API_KEY=aisoc_pat_xxx \
-npx -y @aisoc/mcp doctor
+npx -y @quarry/mcp doctor
 ```
 
 `doctor` checks DNS, TLS, the AiSOC `/health` endpoint, and that your API key is accepted. It exits non-zero on failure, so it's safe to wire into a pre-flight script.
@@ -161,7 +161,7 @@ npx -y @aisoc/mcp doctor
 
 **The server doesn't appear in my assistant.** Restart the host fully (Claude Desktop: `Cmd+Q`, not just close the window). Then re-run `install --list-paths` and confirm the config file at the printed path actually contains an `aisoc` entry under `mcpServers`.
 
-**Tools fail with 401 / 403.** Re-mint the API key with the right scopes and re-run the installer; it will update the entry in place. Confirm with `npx -y @aisoc/mcp doctor`.
+**Tools fail with 401 / 403.** Re-mint the API key with the right scopes and re-run the installer; it will update the entry in place. Confirm with `npx -y @quarry/mcp doctor`.
 
 **Tools fail with "fetch failed" / timeouts.** Your assistant's host can't reach `AISOC_URL`. Check that the URL is reachable from the same machine (`curl $AISOC_URL/health`) and bump `--timeout 60000` if you're on a slow link.
 

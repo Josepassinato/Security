@@ -83,7 +83,7 @@ Run before every commit:
 
 ```bash
 pnpm lint                           # ESLint + Prettier across the workspace
-pnpm --filter @aisoc/web typecheck  # TypeScript on the web app
+pnpm --filter @quarry/web typecheck  # TypeScript on the web app
 ruff check services/                # Python linting
 mypy services/<name>                # type-check the service you touched
 ( cd services/<name> && go vet ./... && gofmt -l . )
@@ -98,7 +98,7 @@ Run the suite for whichever surface you touched:
 
 ```bash
 # Web app
-pnpm --filter @aisoc/web test
+pnpm --filter @quarry/web test
 
 # Python services
 pytest services/api/tests/

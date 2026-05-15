@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "aisoc-connectors"
+name = "quarry-connectors"
 version = "0.1.0"
 description = "AiSOC Security Source Connectors"
 authors = ["Beenu Arora <beenu@cyble.com>"]

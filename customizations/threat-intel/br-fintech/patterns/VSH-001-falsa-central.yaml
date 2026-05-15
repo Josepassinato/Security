@@ -1,0 +1,83 @@
+id: VSH-001
+name: Falsa Central de Atendimento (Vishing com Spoofing)
+category: vishing
+severity: critical
+description: |
+  Criminosos ligam para a vítima usando spoofing de Bina/Caller ID exibindo
+  o número OFICIAL do banco (ex.: 0800 729 0001 do Bradesco). Se apresentam
+  como segurança/antifraude, criam urgência ("movimentação suspeita
+  detectada", "tentativa de invasão"), e induzem a vítima a: (a) transferir
+  saldo para "conta segura"; (b) revelar senhas/tokens; (c) instalar app de
+  acesso remoto (AnyDesk, TeamViewer) para "verificação".
+
+  Em 2024 foi um dos 3 golpes mais reportados à FEBRABAN (105 milhões de
+  registros, 3º lugar). Em 2025, o golpe dobrou no 1º semestre. Cerca de
+  metade dos R$ 3 bi em fraudes digitais de 2024 esteve ligada a vishing.
+
+  BR-específico: facilitado pela disponibilidade de bases vazadas (CPF,
+  dados bancários, nome da agência) que dão verossimilhança ao golpe, e
+  pela alta confiança cultural no 0800 do banco.
+
+mitre_techniques:
+  - id: T1566.004
+    name: "Phishing: Spearphishing Voice"
+  - id: T1656
+    name: "Impersonation"
+  - id: T1219
+    name: "Remote Access Software"
+  - id: T1657
+    name: "Financial Theft"
+
+data_sources_required:
+  - customer_session_logs
+  - pix_transactions
+  - device_attestation_logs
+  - remote_access_app_install_telemetry
+  - call_center_inbound_logs
+
+indicators:
+  - name: remote_access_app_active_during_pix
+    threshold: "presença de AnyDesk/TeamViewer/RustDesk em foreground durante PIX"
+  - name: pix_to_new_payee_high_value
+    threshold: ">R$2000 para chave nunca usada, em <30min após primeiro contato externo"
+  - name: customer_reports_post_event
+    threshold: "ticket no SAC <24h mencionando 'central', 'segurança', 'falso atendente'"
+  - name: session_anomaly_geo_velocity
+    threshold: "login + transferência de IPs geograficamente distintos em <1h"
+
+sources:
+  - url: https://portal.febraban.org.br/noticia/4279/pt-br/
+    publisher: FEBRABAN
+    date: "2025-04-14"
+    title: "Saiba quais foram os 10 golpes mais aplicados contra clientes bancários em 2024"
+  - url: https://agenciabrasil.ebc.com.br/economia/noticia/2025-04/veja-os-10-golpes-mais-aplicados-contra-clientes-bancarios-em-2024
+    publisher: Agência Brasil / FEBRABAN
+    date: "2025-04"
+    title: "Veja os 10 golpes mais aplicados contra clientes bancários em 2024"
+  - url: https://www.cnnbrasil.com.br/economia/negocios/fraudes-bancarias-crescem-220-no-1o-semestre-diz-relatorio/
+    publisher: CNN Brasil
+    date: "2025"
+    title: "Fraudes bancárias crescem 220% no 1º semestre, diz relatório"
+  - url: https://www.mixvale.com.br/2025/09/18/bradesco-lanca-alerta-no-app-para-combater-golpes-de-falsa-central-e-proteger-milhoes-de-clientes/
+    publisher: MixVale (cobrindo Bradesco)
+    date: "2025-09-18"
+    title: "Bradesco lança alerta no app para combater golpes de falsa central"
+  - url: https://canaltech.com.br/seguranca/smishing-e-vishing-o-phishing-que-chega-por-sms-e-ligacao-de-voz/
+    publisher: Canaltech
+    date: "2024"
+    title: "Smishing e Vishing: o phishing que chega por SMS e ligação de voz"
+
+br_specific: true
+quarry_status: documented
+
+related_patterns:
+  - PIX-001
+  - MAL-002
+  - SEN-001
+
+notes: |
+  Mitigação técnica forte: detectar presença de app de acesso remoto em
+  foreground durante operações financeiras (a maioria dos apps bancários
+  já bloqueia). Mitigação UX: nunca pedir senha/token em ligação; fintech
+  pode adicionar "cooldown" obrigatório para PIX a novo beneficiário acima
+  de um valor (BACEN já permite limites de R$ 200/transação noturno).

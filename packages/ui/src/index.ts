@@ -1,5 +1,5 @@
 /**
- * @aisoc/ui - AiSOC React UI Component Library
+ * @quarry/ui - AiSOC React UI Component Library
  * AiSOC — open-source AI Security Operations Center
  * MIT License
  */

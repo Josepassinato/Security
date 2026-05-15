@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "aisoc-purple-team"
+name = "quarry-purple-team"
 version = "0.1.0"
 description = "AiSOC Purple Team — Atomic Red Team execution, Caldera integration, ATT&CK coverage heatmap, tabletop simulator"
 requires-python = ">=3.11"

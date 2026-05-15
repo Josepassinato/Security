@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "aisoc-slack-bot"
+name = "quarry-slack-bot"
 version = "0.1.0"
 description = "AiSOC Slack bot — slash commands and approval flows for ChatOps-driven SOC operations"
 authors = ["Beenu Arora <beenu@cyble.com>"]

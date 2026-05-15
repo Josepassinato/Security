@@ -2,7 +2,7 @@
 
 > Run triage, replay investigation steps, and ask "why did the agent do this?" from inside your editor — without leaving your IDE.
 
-This extension is the analyst-facing companion to [`@aisoc/mcp`](../README.md). It registers four commands that call the AiSOC MCP gateway over HTTP and renders the response in a side-panel webview. It targets any VSCode-compatible IDE (engines `^1.80.0`), so it runs on every editor that supports the VSCode extension API.
+This extension is the analyst-facing companion to [`@quarry/mcp`](../README.md). It registers four commands that call the AiSOC MCP gateway over HTTP and renders the response in a side-panel webview. It targets any VSCode-compatible IDE (engines `^1.80.0`), so it runs on every editor that supports the VSCode extension API.
 
 <!-- TODO: demo video link -->
 
@@ -42,7 +42,7 @@ All output is logged to the **AiSOC** output channel for an audit trail you can 
 
 ```
 ┌──────────────┐   tools/call (HTTP)   ┌──────────────────┐   stdio MCP   ┌──────────────┐
-│ IDE          │ ────────────────────► │ MCP HTTP gateway │ ────────────► │ @aisoc/mcp   │
+│ IDE          │ ────────────────────► │ MCP HTTP gateway │ ────────────► │ @quarry/mcp   │
 │ (extension)  │ ◄──────────────────── │ (your choice)    │ ◄──────────── │ (stdio bin)  │
 └──────────────┘                       └──────────────────┘               └──────────────┘
                                                                                   │
@@ -52,7 +52,7 @@ All output is logged to the **AiSOC** output channel for an audit trail you can 
 ```
 
 - The extension only knows about HTTP JSON-RPC. It sends `{ jsonrpc, id, method: "tools/call", params: { name, arguments } }` and reads the standard MCP `CallToolResult` envelope back.
-- The MCP HTTP gateway is your choice — it can be a thin wrapper that spawns `npx @aisoc/mcp serve` and bridges stdio↔HTTP, the AiSOC API itself once an MCP-over-HTTP endpoint lands, or any reverse proxy you already run.
+- The MCP HTTP gateway is your choice — it can be a thin wrapper that spawns `npx @quarry/mcp serve` and bridges stdio↔HTTP, the AiSOC API itself once an MCP-over-HTTP endpoint lands, or any reverse proxy you already run.
 - The API key never appears on the wire to the underlying AiSOC API directly; it's sent to the gateway as `Authorization: Bearer …` and forwarded from there.
 
 ---

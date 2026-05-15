@@ -26,10 +26,10 @@
       "@/*": [
         "./src/*"
       ],
-      "@aisoc/types": [
+      "@quarry/types": [
         "../../packages/types/src"
       ],
-      "@aisoc/ui": [
+      "@quarry/ui": [
         "../../packages/ui/src"
       ]
     }

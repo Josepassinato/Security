@@ -84,7 +84,7 @@ before/after delta in the PR body.
 
 1. Update your branch: `git fetch upstream && git rebase upstream/main`
 2. Run tests:
-   - `pnpm --filter @aisoc/web test` (web smoke tests)
+   - `pnpm --filter @quarry/web test` (web smoke tests)
    - `pytest services/<name>/tests/` for any Python service you touched
    - `( cd services/<name> && go test ./... )` for any Go service you touched
 3. Push to your fork: `git push origin feature/my-feature`

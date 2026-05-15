@@ -279,5 +279,5 @@ Response includes `"next_cursor"` when more pages exist.
 | Go | [`packages/sdk-go`](https://github.com/beenuar/AiSOC/tree/main/packages/sdk-go) | Typed models + thin client helpers |
 
 In addition, the [Model Context Protocol server](../integrations/mcp)
-(`@aisoc/mcp`) exposes 11 of these endpoints as IDE-side tools for
+(`@quarry/mcp`) exposes 11 of these endpoints as IDE-side tools for
 Claude / Cursor / Continue / Cody.

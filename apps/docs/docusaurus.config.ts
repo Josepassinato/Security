@@ -7,7 +7,7 @@ import type * as Preset from "@docusaurus/preset-classic";
 //   2. Custom domain          : https://docs.tryaisoc.com/  (served behind cloudflared tunnel)
 //
 // Override at build time with:
-//   DOCS_URL=https://docs.tryaisoc.com DOCS_BASE_URL=/ pnpm --filter @aisoc/docs build
+//   DOCS_URL=https://docs.tryaisoc.com DOCS_BASE_URL=/ pnpm --filter @quarry/docs build
 const DOCS_URL = process.env.DOCS_URL || "https://beenuar.github.io";
 const DOCS_BASE_URL = process.env.DOCS_BASE_URL || "/AiSOC/";
 

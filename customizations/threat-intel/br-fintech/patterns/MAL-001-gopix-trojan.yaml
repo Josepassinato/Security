@@ -1,0 +1,92 @@
+id: MAL-001
+name: GoPix - Trojan Bancário Brasileiro com Interceptação de Clipboard PIX
+category: malware_banking
+severity: critical
+description: |
+  Trojan bancário de origem brasileira, documentado pela Kaspersky
+  (Securelist) como o malware bancário mais sofisticado do país. Distribuído
+  por malvertising (Google Ads abusando de marcas WhatsApp, Chrome, Correios)
+  que leva a landing pages maliciosas.
+
+  Características técnicas notáveis:
+  - Monitora clipboard: quando vítima copia chave PIX, código de barras de
+    boleto ou endereço de carteira de cripto, o malware substitui o valor
+    antes do paste, redirecionando dinheiro para conta do criminoso.
+  - Implant memory-only (in-memory).
+  - Arquivo Proxy AutoConfig (PAC) malicioso + servidor HTTP local para
+    ataque man-in-the-middle.
+  - Injeta certificado raiz confiável no navegador (mantém stealth,
+    certificado não visível por ferramentas padrão do SO).
+
+  BR-específico: foco explícito em PIX, boletos e carteiras de cripto
+  populares no Brasil. Família estendida com PixRevolution (variante
+  Android, agente em tempo real, foco em Nubank, Itaú, Banco do Brasil,
+  Caixa, Santander, PicPay, PagSeguro, Sicredi, XP).
+
+mitre_techniques:
+  - id: T1115
+    name: "Clipboard Data"
+  - id: T1090
+    name: "Proxy"
+  - id: T1553.004
+    name: "Subvert Trust Controls: Install Root Certificate"
+  - id: T1583.008
+    name: "Acquire Infrastructure: Malvertising"
+  - id: T1657
+    name: "Financial Theft"
+
+data_sources_required:
+  - endpoint_telemetry
+  - dns_logs
+  - proxy_logs
+  - browser_certificate_store_audit
+  - pix_transactions
+
+indicators:
+  - name: pac_file_unexpected
+    threshold: "PAC URL não-padrão configurada no SO/navegador"
+  - name: root_cert_recently_added
+    threshold: "certificado raiz adicionado <30d sem aprovação corporativa"
+  - name: clipboard_modification_during_paste
+    threshold: "valor colado != valor copiado em fluxo PIX/boleto (em apps que monitoram)"
+  - name: pix_recipient_mismatch_with_user_intent
+    threshold: "destinatário final != destinatário esperado pelo merchant (reconciliação)"
+  - name: malvertising_landing_in_browser_history
+    threshold: "histórico recente com domínios typosquatting de WhatsApp/Chrome/Correios"
+
+sources:
+  - url: https://securelist.com/gopix-banking-trojan/119173/
+    publisher: Kaspersky Securelist
+    date: "2023-2024"
+    title: "GoPix banking Trojan targeting Brazilian financial institutions"
+    access_note: public
+  - url: https://www.kaspersky.com.br/about/press-releases/trojan-bancario-brasileiro-gopix-evolui-e-se-consolida-como-a-ciberameaca-financeira-mais-avancada-do-pais
+    publisher: Kaspersky Brasil
+    date: "2024"
+    title: "Trojan bancário brasileiro GoPix evolui e se consolida como a ciberameaça financeira mais avançada do país"
+  - url: https://www.kaspersky.com/about/press-releases/kaspersky-reveals-gopix-unprecedentedly-complex-techniques-the-trojan-compromises-customers-of-financial-institutions-in-brazil
+    publisher: Kaspersky (global)
+    date: "2024"
+    title: "Kaspersky reveals GoPix unprecedentedly complex techniques"
+  - url: https://www.kaspersky.com.br/blog/golpe-monitora-pagamentos-via-pix/21876/
+    publisher: Kaspersky Brasil (blog)
+    date: "2024"
+    title: "Golpe redireciona pagamentos via PIX"
+  - url: https://exame.com/future-of-money/hackers-criam-virus-para-desviar-transacoes-com-pix-saiba-como-evitar/
+    publisher: Exame
+    date: "2024"
+    title: "Hackers criam vírus para 'desviar' transações com Pix"
+
+br_specific: true
+quarry_status: documented
+
+related_patterns:
+  - MAL-002
+  - BOL-001
+  - PIX-001
+
+notes: |
+  Detecção endpoint-side: monitorar certificate store, PAC config,
+  presença de servidor HTTP local em port estranho. Server-side
+  (fintech): comparar chave PIX inicial digitada (se capturada via
+  app oficial) com chave efetivamente enviada — discrepância é flag forte.

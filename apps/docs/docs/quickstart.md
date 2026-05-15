@@ -412,7 +412,7 @@ aisoc mcp install --host continue
 
 `aisoc mcp serve` prefers the local TypeScript build at
 `services/mcp/dist/index.js` when present, and falls back to
-`npx @aisoc/mcp` otherwise — so it works on a fresh clone before you've
+`npx @quarry/mcp` otherwise — so it works on a fresh clone before you've
 run `pnpm build`.
 
 ### 7. Tear down

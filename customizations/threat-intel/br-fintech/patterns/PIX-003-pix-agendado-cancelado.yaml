@@ -1,0 +1,64 @@
+id: PIX-003
+name: PIX Agendado com Cancelamento Pré-Liquidação
+category: social_engineering
+severity: medium
+description: |
+  Em marketplaces (OLX, Facebook Marketplace, grupos de WhatsApp), o
+  criminoso se apresenta como comprador, agenda um PIX para o vendedor
+  (PIX agendamento, recurso oficial do BACEN), envia o comprovante de
+  agendamento — visualmente parecido com um PIX imediato — e pede entrega
+  imediata do produto. Antes da liquidação (no dia/horário agendado), o
+  golpista CANCELA o agendamento dentro do prazo permitido. A vítima
+  entrega o produto e descobre depois que o dinheiro nunca caiu.
+
+  BR-específico: explora a funcionalidade nativa do PIX Agendado (parte
+  do regulamento BACEN do PIX) e a UX inconsistente de alguns comprovantes
+  de agendamento vs. comprovantes de liquidação.
+
+mitre_techniques:
+  - id: T1656
+    name: "Impersonation"
+  - id: T1657
+    name: "Financial Theft"
+
+data_sources_required:
+  - pix_scheduled_transactions
+  - pix_scheduled_cancellations
+
+indicators:
+  - name: scheduled_pix_cancellation_rate_by_account
+    threshold: ">30% de PIX agendados emitidos são cancelados antes da liquidação"
+  - name: cancellation_within_hours_of_schedule
+    threshold: "cancelamento <2h antes da data prevista (típico após receber produto)"
+  - name: counterpart_in_marketplace_complaint_list
+    threshold: "destinatário aparece em lista de reclamações externas (Reclame Aqui, etc.)"
+
+sources:
+  - url: https://oantagonista.com.br/brasil/como-criminosos-usam-o-pix-agendado-para-cancelar-pagamentos-e-sair-impunes/
+    publisher: O Antagonista
+    date: "2024"
+    title: "Como criminosos usam o Pix agendado para cancelar pagamentos e sair impunes"
+  - url: https://www.advocaciafagundes.com/2024/09/26/golpe-do-pix-agendado-como-identificar-fraudes-e-proteger-suas-transacoes/
+    publisher: Fagundes Advocacia
+    date: "2024-09-26"
+    title: "Golpe do PIX agendado: como identificar fraudes e proteger suas transações"
+  - url: https://blog.nubank.com.br/golpe-do-pix-agendado-entenda/
+    publisher: Nubank (blog oficial)
+    date: "2024"
+    title: "Golpe do Pix Agendado: entenda o alerta que está circulando pelas redes"
+  - url: https://www.letsmoney.com.br/noticias/golpe-pix-agendado-ia-comprovante-falso
+    publisher: Let's Money
+    date: "2024"
+    title: "Golpe do Pix agendado usa IA para enganar vítimas"
+
+br_specific: true
+quarry_status: documented
+
+related_patterns:
+  - PIX-001
+
+notes: |
+  Mitigação UX clara: comprovantes de PIX agendado devem ter banner visual
+  distinto (cor/label) vs. PIX liquidado. Algumas fintechs (Nubank, Mercado
+  Pago) já adotaram. Fintechs podem ainda alertar comerciantes na confirmação
+  de recebimento.

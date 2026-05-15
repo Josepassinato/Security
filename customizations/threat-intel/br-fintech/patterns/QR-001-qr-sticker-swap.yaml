@@ -1,0 +1,71 @@
+id: QR-001
+name: QR Code Sticker Swap (PIX Estático em Estabelecimento)
+category: qr_code_fraud
+severity: medium
+description: |
+  Em estabelecimentos físicos (padarias, estacionamentos, food trucks,
+  feiras, restaurantes) que expõem QR Code estático para pagamento via PIX,
+  criminosos colam um adesivo com QR Code próprio sobre o legítimo. Cliente
+  escaneia, paga ao golpista, e o estabelecimento só descobre a fraude
+  depois — quando o cliente já saiu e o lojista nota que o valor não caiu.
+
+  Variante adicional: quishing — QR malicioso em PDFs/imagens de cobrança
+  falsas enviadas por e-mail/WhatsApp, redirecionando para destinatário
+  errado.
+
+  BR-específico: explora a ubiquidade do PIX QR estático em pequenos
+  comércios e a falta de UX de validação de destinatário (muitos
+  consumidores confirmam sem ler o nome no app).
+
+mitre_techniques:
+  - id: T1656
+    name: "Impersonation"
+  - id: T1657
+    name: "Financial Theft"
+
+data_sources_required:
+  - pix_transactions
+  - merchant_geolocation_data
+  - dispute_logs
+
+indicators:
+  - name: qr_pix_payment_to_pf_at_pj_merchant_location
+    threshold: "PIX para pessoa física quando geofence indica estabelecimento PJ"
+  - name: cluster_of_disputes_same_location_short_window
+    threshold: ">=3 disputas geradas por leituras de QR no mesmo merchant em 7d"
+  - name: payee_unrelated_to_merchant_name
+    threshold: "nome do recebedor não tem similaridade textual com merchant registrado"
+
+sources:
+  - url: https://oantagonista.com.br/brasil/voce-pagou-certo-e-mesmo-assim-caiu-em-golpe-entenda-o-qr-code-colado-no-pix-e-como-identificar-na-hora/
+    publisher: O Antagonista
+    date: "2024"
+    title: "Você pagou certo e mesmo assim caiu em golpe: entenda o QR Code colado no Pix"
+  - url: https://correiodoestado.com.br/mix/alerta-geral-para-todos-os-comerciantes-que-recebem-pix-via-qr-code/
+    publisher: Correio do Estado
+    date: "2024"
+    title: "Alerta geral para todos os comerciantes que recebem Pix via QR Code"
+  - url: https://www.letsmoney.com.br/noticias/golpe-qr-code-colado-pix-brasil
+    publisher: Let's Money
+    date: "2024"
+    title: "Golpe do QR Code colado no Pix cresce no Brasil"
+  - url: https://diariodejustica.com.br/novo-golpe-envolve-qr-code-em-restaurantes-e-especialista-avisa-sempre-desconfie/
+    publisher: Diário de Justiça
+    date: "2024"
+    title: "Novo golpe envolve QR-Code em restaurantes"
+  - url: https://itshow.com.br/golpes-com-pix-qr-code-fraudes-2025/
+    publisher: ITShow
+    date: "2025"
+    title: "Golpes com Pix 2025: R$ 29 bilhões em fraudes"
+
+br_specific: true
+quarry_status: documented
+
+related_patterns:
+  - PIX-001
+
+notes: |
+  Mitigação UX: bancos podem destacar o NOME E TIPO (PF vs PJ) do
+  destinatário ANTES da confirmação, com aviso quando QR estático leva
+  a PF. Comerciantes podem migrar para QR dinâmico (gera novo QR por
+  compra), eliminando o ataque, mas o custo de UX para pequenos é alto.

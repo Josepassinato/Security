@@ -1,5 +1,5 @@
 {
-  "name": "@aisoc/types",
+  "name": "@quarry/types",
   "version": "1.0.0",
   "description": "Shared TypeScript types for AiSOC platform",
   "license": "MIT",

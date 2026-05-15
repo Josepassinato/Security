@@ -34,7 +34,7 @@ alert when matching events are seen. AiSOC ships ~800 native rules plus
 prompt, tool call, evidence citation, and decision the agent emits while
 working a case. See [Concepts → Cases](./concepts/cases).
 
-**MCP (Model Context Protocol)** — Protocol used by `@aisoc/mcp` to expose
+**MCP (Model Context Protocol)** — Protocol used by `@quarry/mcp` to expose
 AiSOC tools to IDE-side LLM clients (Claude Desktop, Cursor, Continue,
 Cody). See [Integrations → MCP](./integrations/mcp).
 

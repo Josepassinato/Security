@@ -35,7 +35,7 @@ Sobre essa fundação, Quarry adiciona uma **camada de customizações** em `cus
 | Rebrand do código herdado (AiSOC → Quarry) | ⏳ Próximo card |
 | Roadmap Quarry independente | ⏳ Próximo card |
 
-> O código herdado do AiSOC **ainda não foi rebrandeado** — referências a `aisoc`, `tryaisoc.com`, `@aisoc/*` permanecem em arquivos legados. Manutenção até remoção completa no próximo card de rebrand.
+> Rebrand do código herdado (AiSOC → Quarry) **em andamento** — workspaces `@aisoc/*` já renomeados para `@quarry/*` no batch 2 do CARD-004. Strings `tryaisoc.com`, env vars `AISOC_*` e service names ainda pendentes em batches subsequentes.
 
 ---
 

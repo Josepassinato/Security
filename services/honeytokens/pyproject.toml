@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "aisoc-honeytokens"
+name = "quarry-honeytokens"
 version = "0.1.0"
 description = "AiSOC Honeytokens — token generation, first-touch alerting, and lifecycle management"
 requires-python = ">=3.11"

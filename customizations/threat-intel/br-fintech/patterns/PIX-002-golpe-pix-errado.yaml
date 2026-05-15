@@ -1,0 +1,73 @@
+id: PIX-002
+name: Golpe do PIX Errado (Falso Estorno)
+category: social_engineering
+severity: high
+description: |
+  O criminoso transfere via PIX um valor REAL para a conta da vítima e em
+  seguida contata via WhatsApp/SMS alegando "PIX enviado por engano",
+  pedindo o estorno. O detalhe-chave é que ele pede o estorno para uma
+  conta de terceiro (conta B), diferente da que originou o PIX (conta A).
+  A vítima, agindo de boa fé, transfere seus próprios recursos para o
+  golpista. Em paralelo, o criminoso aciona o banco de origem reportando
+  fraude e tenta acionar o MED para recuperar o PIX original — tendo
+  potencialmente lucro duplo (valor de A volta + valor enviado a B).
+
+  BR-específico: depende do PIX (transferência instantânea reversível via
+  MED) e da cultura PIX-WhatsApp brasileira. A correção segura é usar a
+  função "devolver" no extrato do próprio app, garantindo retorno à conta
+  de origem.
+
+mitre_techniques:
+  - id: T1656
+    name: "Impersonation"
+  - id: T1657
+    name: "Financial Theft"
+  - id: T1566
+    name: "Phishing"
+
+data_sources_required:
+  - pix_transactions
+  - customer_support_tickets
+  - med_requests_log
+
+indicators:
+  - name: pix_received_then_outbound_different_account
+    threshold: "saída em <2h para conta DIFERENTE da que originou entrada"
+  - name: pix_inbound_amount_match
+    threshold: "valor de saída == valor de entrada (+/- 1%)"
+  - name: med_request_after_outbound
+    threshold: "MED aberto pelo originador em <6h após PIX original"
+  - name: customer_contact_via_external_channel
+    threshold: "ticket SAC mencionando 'pix por engano' ou 'devolução'"
+
+sources:
+  - url: https://www.cnnbrasil.com.br/economia/financas/golpe-do-pix-errado-entenda-como-funciona-e-saiba-como-se-proteger/
+    publisher: CNN Brasil
+    date: "2024"
+    title: "Golpe do 'Pix errado': entenda como funciona e saiba como se proteger"
+  - url: https://www.em.com.br/emfoco/2025/04/08/banco-central-alerta-sobre-novo-golpe-com-devolucao-via-pix-entenda/
+    publisher: Estado de Minas (referenciando alerta BACEN)
+    date: "2025-04-08"
+    title: "Banco Central alerta sobre novo 'Golpe' com devolução via 'PIX'"
+  - url: https://www.folhavitoria.com.br/geral/noticia/07/2024/golpe-fez-pix-errado-e-agora-tem-como-pedir-estorno-policia-da-dicas-viral
+    publisher: Folha Vitória / Polícia Civil-ES
+    date: "2024-07"
+    title: "Golpe: fez Pix errado e agora tem como pedir estorno? Polícia dá dicas"
+  - url: https://www.bcb.gov.br/content/estabilidadefinanceira/pix/Guia_MED.pdf
+    publisher: Banco Central do Brasil
+    date: "2024"
+    title: "Guia MED — descreve fluxo correto de devolução"
+    access_note: public
+
+br_specific: true
+quarry_status: documented
+
+related_patterns:
+  - PIX-001
+  - SEN-001
+
+notes: |
+  Esta detecção é DELICADA: muitos PIX errados são genuínos. Sinal mais forte
+  é a combinação (saída para conta diferente) + (abertura de MED pelo
+  originador). Fintechs devem oferecer botão "devolver para a origem" no
+  extrato e bloquear UX que sugira outras formas de devolução.

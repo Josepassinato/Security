@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * @aisoc/mcp — entry point.
+ * @quarry/mcp — entry point.
  *
  * Subcommands:
  *
@@ -11,7 +11,7 @@
  *   version   Print the package version.
  *
  * Why a hand-rolled parser instead of commander/yargs:
- *   1. We are publishing to npm as `npx @aisoc/mcp`. Every dep we add lengthens
+ *   1. We are publishing to npm as `npx @quarry/mcp`. Every dep we add lengthens
  *      the cold-install path users see when invoking us through Claude/Cursor.
  *      The full parser we need fits in ~80 lines.
  *   2. `config.parseArgs` is shared by `serve` and `doctor`, so the surface
@@ -149,10 +149,10 @@ function isHost(s: string): s is Host {
 function printHelp(): void {
   process.stdout.write(
     [
-      "@aisoc/mcp — connect AiSOC to MCP-aware assistants",
+      "@quarry/mcp — connect AiSOC to MCP-aware assistants",
       "",
       "Usage:",
-      "  npx @aisoc/mcp <command> [options]",
+      "  npx @quarry/mcp <command> [options]",
       "",
       "Commands:",
       "  serve              Run the stdio MCP server (default).",
@@ -169,9 +169,9 @@ function printHelp(): void {
       "  --verbose              Log lifecycle events to stderr.",
       "",
       "Examples:",
-      "  npx @aisoc/mcp install --host claude --aisoc-url https://aisoc.acme.corp --api-key aisoc_xxxx",
-      "  AISOC_URL=https://aisoc.acme.corp AISOC_API_KEY=aisoc_xxxx npx @aisoc/mcp doctor",
-      "  npx @aisoc/mcp serve   # invoked by the host, not by you",
+      "  npx @quarry/mcp install --host claude --aisoc-url https://aisoc.acme.corp --api-key aisoc_xxxx",
+      "  AISOC_URL=https://aisoc.acme.corp AISOC_API_KEY=aisoc_xxxx npx @quarry/mcp doctor",
+      "  npx @quarry/mcp serve   # invoked by the host, not by you",
       "",
     ].join("\n"),
   );

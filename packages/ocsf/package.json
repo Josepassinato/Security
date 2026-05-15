@@ -1,5 +1,5 @@
 {
-  "name": "@aisoc/ocsf",
+  "name": "@quarry/ocsf",
   "version": "0.1.0",
   "description": "OCSF (Open Cybersecurity Schema Framework) types and normalization utilities",
   "license": "MIT",

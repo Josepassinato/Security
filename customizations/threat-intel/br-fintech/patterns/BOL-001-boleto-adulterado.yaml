@@ -1,0 +1,83 @@
+id: BOL-001
+name: Boleto Adulterado (Bolware / Reboleto)
+category: boleto_fraud
+severity: high
+description: |
+  Categoria histórica BR. Existem duas variantes principais:
+
+  1) Malware "Bolware" (família clássica) — vírus no PC/smartphone que
+     intercepta o ato de copiar/colar de código de barras ou linha digitável
+     de boleto e troca o destinatário para conta do golpista antes do
+     pagamento. A vítima vê o valor correto mas paga em conta errada.
+
+  2) Ferramenta "Reboleto" / boletos forjados sem malware — emissores
+     fraudulentos geram boletos com cara de empresa legítima (concessionárias,
+     prefeituras, escolas), enviam por e-mail/WhatsApp com pretexto plausível,
+     e a vítima paga sem desconfiar.
+
+  Em 2024, boletos falsos e PIX juntos representaram 32,8% dos golpes
+  financeiros segundo FEBRABAN. Permanece relevante mesmo com o crescimento
+  do PIX.
+
+  BR-específico: boleto é instrumento de pagamento brasileiro (CIP/Sicoob),
+  com formato e fluxo únicos. Variante de TTPs internacionais de invoice
+  fraud, mas com técnica e ecossistema próprios.
+
+mitre_techniques:
+  - id: T1565.002
+    name: "Data Manipulation: Transmitted Data Manipulation"
+  - id: T1056.001
+    name: "Input Capture: Keylogging"
+  - id: T1657
+    name: "Financial Theft"
+
+data_sources_required:
+  - boleto_payment_events
+  - device_telemetry
+  - clipboard_monitoring_events
+  - merchant_account_provenance
+
+indicators:
+  - name: boleto_recipient_mismatch_with_qr_or_barcode
+    threshold: "linha digitável aponta para banco/agência diferente do informado no PDF"
+  - name: high_volume_boletos_to_new_payee_account
+    threshold: ">10 boletos pagos para conta com <30d em <7d"
+  - name: clipboard_anomaly_app
+    threshold: "presença de app com permissão de acessibilidade não-padrão durante pagamento"
+  - name: known_malware_signature
+    threshold: "device tem hash/signature de família Bolware/Brookial em telemetria"
+
+sources:
+  - url: https://idec.org.br/idec-na-imprensa/nova-versao-do-golpe-do-boleto-faz-mais-vitimas
+    publisher: IDEC
+    date: "2024"
+    title: "Nova versão do golpe do boleto faz mais vítimas"
+  - url: https://blog.bb.com.br/golpe-do-boleto-falso-saiba-como-se-proteger/
+    publisher: Banco do Brasil (blog oficial)
+    date: "2024"
+    title: "Golpe do boleto falso: saiba como se proteger"
+  - url: https://www.fortes.adv.br/2024/03/08/golpe-do-boleto-adulterado-saiba-como-identificar-e-se-prevenir-dessa-fraude/
+    publisher: Teixeira Fortes Advogados Associados
+    date: "2024-03-08"
+    title: "Golpe do boleto adulterado: saiba como identificar e se prevenir dessa fraude"
+  - url: https://www.jusbrasil.com.br/noticias/nova-fraude-pix-usa-qr-code-e-codigo-de-barras-de-boletos-adulterados-para-roubar-vitimas/2242368929
+    publisher: JusBrasil
+    date: "2024"
+    title: "Nova fraude PIX usa QR Code e código de barras de boletos adulterados para roubar vítimas"
+  - url: https://flypay.com.br/2024/11/20/nao-tem-cara-de-fraude-mas-e-fraude-cuidado-com-boletos-falsos/
+    publisher: FlyPay
+    date: "2024-11-20"
+    title: "Não tem cara de Fraude, mas é Fraude: Cuidado com Boletos Falsos!"
+
+br_specific: true
+quarry_status: documented
+
+related_patterns:
+  - MAL-001
+  - PIX-001
+
+notes: |
+  Detecção forte vem do lado emissor (a fintech que aceita o pagamento):
+  marcar contas-destino novas que recebem alta concentração de boletos
+  como suspeitas e monitorar reclamações. Lado pagador: alertar quando o
+  cedente do boleto não bate com o vendedor esperado.

@@ -1,6 +1,6 @@
-# @aisoc/sdk
+# @quarry/sdk
 
-[![npm version](https://img.shields.io/npm/v/@aisoc/sdk)](https://www.npmjs.com/package/@aisoc/sdk)
+[![npm version](https://img.shields.io/npm/v/@quarry/sdk)](https://www.npmjs.com/package/@quarry/sdk)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](../../LICENSE)
 
 TypeScript client SDK for [AiSOC](https://github.com/beenuar/AiSOC) — auto-generated types from `docs/openapi.yaml`, hand-crafted ergonomic API.
@@ -8,15 +8,15 @@ TypeScript client SDK for [AiSOC](https://github.com/beenuar/AiSOC) — auto-gen
 ## Installation
 
 ```bash
-npm install @aisoc/sdk
+npm install @quarry/sdk
 # or
-pnpm add @aisoc/sdk
+pnpm add @quarry/sdk
 ```
 
 ## Quick start
 
 ```ts
-import { AiSOCClient } from "@aisoc/sdk";
+import { AiSOCClient } from "@quarry/sdk";
 
 const client = new AiSOCClient({
   baseUrl: "https://your-aisoc.example.com",

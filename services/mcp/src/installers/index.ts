@@ -108,7 +108,7 @@ export function install(opts: InstallOptions): InstallResult {
 // ---------------------------------------------------------------------------
 
 /**
- * Produce the per-server JSON entry. We launch via `npx @aisoc/mcp serve`
+ * Produce the per-server JSON entry. We launch via `npx @quarry/mcp serve`
  * so the user never has to install us globally — they update by `npx`
  * picking up the latest. URL/key/timeout/verbose flow in via env to keep
  * the command line short and the secret out of `ps`.
@@ -122,7 +122,7 @@ function buildServerSnippet(cfg: ServerConfig): Record<string, unknown> {
   if (cfg.verbose) env.AISOC_VERBOSE = "1";
   return {
     command: "npx",
-    args: ["-y", "@aisoc/mcp", "serve"],
+    args: ["-y", "@quarry/mcp", "serve"],
     env,
   };
 }

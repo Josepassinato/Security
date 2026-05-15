@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "aisoc-cli"
+name = "quarry-cli"
 version = "0.1.0"
 description = "AiSOC Developer CLI — scaffold, validate, and publish plugins and detections"
 readme = "README.md"

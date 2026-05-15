@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "aisoc-sdk"
+name = "quarry-sdk"
 version = "4.0.0"
 description = "Python client SDK for AiSOC — typed httpx client"
 readme = "README.md"

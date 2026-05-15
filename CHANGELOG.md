@@ -49,7 +49,7 @@ One row per published eval run — date, agent version, commit SHA, MITRE
 accuracy, MTC p50/p95, total USD, total tokens — sourced from a
 checked-in JSON file at `apps/docs/static/data/scoreboard.json` and
 validated against `scoreboard.schema.json` on every docs build via the new
-`pnpm --filter @aisoc/docs scoreboard:check` script. Substrate rows
+`pnpm --filter @quarry/docs scoreboard:check` script. Substrate rows
 (deterministic CI gate, no LLM) are visually separated from wet-eval rows
 (real LangGraph agent, real LLM, real cost), so substrate numbers can
 never be quoted as live agent performance. Includes an inline SSR-rendered
@@ -1844,7 +1844,7 @@ demo profile. Details below.
 
 #### MCP server — first-class IDE / chat integration
 
-- **`@aisoc/mcp`** (`services/mcp/`) — Model Context Protocol server
+- **`@quarry/mcp`** (`services/mcp/`) — Model Context Protocol server
   exposing 11 AiSOC tools to Claude Desktop, Cursor, Cody, and Continue.
 - **Discovery tools** — `aisoc_list_alerts`, `aisoc_list_cases`,
   `aisoc_query_detections`.
@@ -1854,7 +1854,7 @@ demo profile. Details below.
   `aisoc_replay_decision`, `aisoc_explain_step`, `aisoc_create_case`,
   `aisoc_assign_alert`. The replay set walks the Investigation Ledger
   step-by-step inside the IDE / chat.
-- **Install command** — `npx -y @aisoc/mcp install --host claude --aisoc-url … --api-key …`.
+- **Install command** — `npx -y @quarry/mcp install --host claude --aisoc-url … --api-key …`.
 - **Documentation** — `apps/docs/docs/integrations/mcp.md`,
   `services/mcp/README.md`.
 
@@ -1930,7 +1930,7 @@ demo profile. Details below.
   `packages/plugin-sdk-py/tests/`.
 - **`packages/sdk-py`** (PyPI: `aisoc-sdk`) — async Python client SDK
   for the AiSOC API.
-- **`packages/sdk-ts`** (npm: `@aisoc/sdk`) — TypeScript client SDK
+- **`packages/sdk-ts`** (npm: `@quarry/sdk`) — TypeScript client SDK
   with auto-generated types.
 - **`packages/sdk-go`** — Go client SDK with OpenAPI-generated models.
 

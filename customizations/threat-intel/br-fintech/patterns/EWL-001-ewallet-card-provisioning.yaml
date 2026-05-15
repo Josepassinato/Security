@@ -1,0 +1,77 @@
+id: EWL-001
+name: Cartão Provisionado Fraudulentamente em E-Wallet (Apple Pay / Google Wallet)
+category: ewallet_fraud
+severity: high
+description: |
+  Após obter dados de cartão (PAN + CVV + validade) via phishing ou
+  vazamento, o atacante inicia a provisão do cartão em uma carteira
+  digital (Apple Pay, Google Wallet, Samsung Pay) num device do criminoso.
+  A etapa crítica é a verificação "yellow path" do EMV (OTP/ligação ao
+  emissor), em que atacantes usam engenharia social (vishing) para obter
+  o OTP da vítima, ou exploram emissores com verificação fraca.
+
+  Uma vez provisionado, o cartão tokenizado vira pagamentos contactless
+  em qualquer lugar do mundo, sem precisar do cartão físico. Técnicas
+  avançadas: "Ghost Tap" — retransmissão NFC entre celular do criminoso
+  no Brasil e mula com terminal em outro país.
+
+  BR-específico parcial: o TTP é global, mas o Brasil aparece em casos
+  com Itaú, Bradesco e outros emissores. Reclamações públicas no
+  Reclame Aqui e fóruns apontam para verificação fraca de provisionamento.
+
+mitre_techniques:
+  - id: T1111
+    name: "Multi-Factor Authentication Interception"
+  - id: T1556
+    name: "Modify Authentication Process"
+  - id: T1657
+    name: "Financial Theft"
+
+data_sources_required:
+  - card_tokenization_events
+  - contactless_transaction_logs
+  - issuer_otp_logs
+  - device_fingerprint_logs
+
+indicators:
+  - name: card_provisioning_followed_by_high_geo_velocity
+    threshold: "provisão em wallet + uso contactless em país diferente <24h"
+  - name: provisioning_attempt_after_failed_login
+    threshold: ">=3 falhas de login no app emissor seguidas de provisão em wallet"
+  - name: contactless_to_high_risk_mcc
+    threshold: "primeira transação contactless em MCC de alto risco (jogo, cripto, transferência)"
+  - name: rapid_burst_low_amount
+    threshold: ">=5 transações <R$200 em <1h (teste de cartão tokenizado)"
+
+sources:
+  - url: https://portaln10.com.br/tec/golpes-digitais-nfc-apple-pay-google-wallet-roubo-dados-bancarios-282681/
+    publisher: Portal N10
+    date: "2024"
+    title: "Golpes digitais: nova técnica de clonagem de cartões com NFC e pagamentos sem contato"
+  - url: https://macmagazine.com.br/post/2024/12/12/golpistas-usam-apple-card-para-enganar-consumidores-no-brasil/
+    publisher: MacMagazine
+    date: "2024-12-12"
+    title: "Golpistas usam Apple Card para enganar consumidores no Brasil"
+  - url: https://www.tudocelular.com/seguranca/noticias/n189066/apple-pay-carteira-golpistas-roubam-cartao-credito.html
+    publisher: TudoCelular
+    date: "2024"
+    title: "Apple Pay é a carteira 'favorita' de golpistas que roubam cartões de crédito"
+  - url: https://www.reclameaqui.com.br/cartoesitau/cartao-clonado-via-apple-pay_ayC3szNOurKpoSV8/
+    publisher: Reclame Aqui (caso público Itaú)
+    date: "2023-2024"
+    title: "Cartão Clonado via Apple Pay - Cartões Itaú"
+    access_note: "público (reclamação de consumidor)"
+
+br_specific: false
+quarry_status: documented
+
+related_patterns:
+  - VSH-001
+  - ATO-001
+
+notes: |
+  Mitigações principais ficam no emissor: fortalecer o "yellow path"
+  (chamar o cliente em vez de SMS-OTP; confirmação no app oficial; cooldown
+  para uso contactless em país novo após provisão). Detecção comportamental
+  do cartão tokenizado é essencial — token reusa "BIN", então abordagens
+  baseadas em PAN não pegam.

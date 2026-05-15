@@ -1,0 +1,77 @@
+id: PIX-001
+name: Money Mule via Conta Digital Nova
+category: mule_network
+severity: high
+description: |
+  Padrão onde atacantes recrutam pessoas (frequentemente em situação de
+  vulnerabilidade financeira, via Telegram/WhatsApp) para abrir contas em
+  fintechs digitais ("contas-laranja"), receber transferências PIX de vítimas
+  de outros golpes (falsa central, WhatsApp clonado, PIX errado) e rapidamente
+  redirecionar os valores em cadeia para outras contas, dólar paralelo ou
+  cripto, antes que o MED (Mecanismo Especial de Devolução) consiga rastrear.
+
+  Variante BR-específica porque depende da estrutura do PIX (24/7, instantâneo,
+  KYC mais leve em fintechs vs. bancos tradicionais) e do tempo de janela do
+  MED 1.0 (~72h). A nova Resolução BCB 493/2025 (MED 2.0) estende o
+  rastreamento, mas as mulas continuam sendo o gargalo operacional.
+
+mitre_techniques:
+  - id: T1078.003
+    name: "Valid Accounts: Local Accounts"
+  - id: T1657
+    name: "Financial Theft"
+
+data_sources_required:
+  - pix_transactions
+  - account_creation_logs
+  - kyc_verification_logs
+  - device_fingerprint_logs
+
+indicators:
+  - name: new_account_age
+    threshold: "<7d"
+    description: "Conta com menos de 7 dias recebendo PIX de valor relevante."
+  - name: first_pix_received_amount
+    threshold: ">R$1000"
+    description: "Primeira entrada PIX significativa logo após KYC."
+  - name: immediate_outbound_pct
+    threshold: ">80%"
+    description: "% do valor recebido que sai em <60min para outras contas."
+  - name: outbound_fanout
+    threshold: ">=3 destinatários distintos em 24h"
+  - name: device_reuse
+    threshold: "mesmo device_id em >=2 contas abertas em 30d"
+
+sources:
+  - url: https://www.bcb.gov.br/content/estabilidadefinanceira/pix/Guia_MED.pdf
+    publisher: Banco Central do Brasil
+    date: "2024"
+    title: "Guia de implementação dos procedimentos de devolução (MED)"
+    access_note: public
+  - url: https://www.bcb.gov.br/content/estabilidadefinanceira/pix/MED/MED_2-0_Circuito_Pix-Dia_1.pdf
+    publisher: Banco Central do Brasil
+    date: "2025-08"
+    title: "Mecanismo Especial de Devolução (MED 2.0) - Circuito Pix"
+    access_note: public
+  - url: https://spbancarios.com.br/07/2025/apos-fraudes-pix-sindicato-reforca-alerta-sobre-falta-de-regulamentacao-das-fintechs-e
+    publisher: Sindicato dos Bancários de SP
+    date: "2025-07"
+    title: "Após fraudes via Pix, Sindicato reforça alerta sobre falta de regulamentação das fintechs e riscos ao sistema financeiro"
+  - url: https://finsidersbrasil.com.br/eventos/golpes-com-pix-dao-prejuizos-de-quase-r-3-bi-em-dois-anos-diz-febraban/
+    publisher: Finsiders Brasil / FEBRABAN
+    date: "2025"
+    title: "Golpes com Pix dão prejuízos de quase R$ 3 bi em dois anos, diz Febraban"
+
+br_specific: true
+quarry_status: documented
+
+related_patterns:
+  - PIX-002
+  - VSH-001
+  - SEN-001
+
+notes: |
+  A integração com o DICT (Diretório de Identificadores) e a Marcação de
+  Fraude introduzida pela Resolução BCB 403/2024 ajuda a parar a chave mula,
+  mas atacantes rotacionam rapidamente. Detecção precisa olhar comportamento
+  de fluxo, não só chave.

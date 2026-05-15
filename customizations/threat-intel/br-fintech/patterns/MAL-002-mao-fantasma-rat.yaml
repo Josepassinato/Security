@@ -1,0 +1,89 @@
+id: MAL-002
+name: Golpe da Mão Fantasma (RATs Bancários Brasileiros)
+category: malware_banking
+severity: critical
+description: |
+  Família de ataques baseada em Remote Access Trojans (RATs) instalados
+  em smartphones Android, em que o criminoso opera o aparelho da vítima
+  remotamente, executando PIX e empréstimos pelos próprios apps bancários
+  da vítima — bypassando autenticação porque o ataque acontece dentro da
+  sessão já autenticada. Três famílias documentadas pela Kaspersky:
+  Ghimob, BRata e TwMobo.
+
+  Modalidade 2024-2025 (variante moderna):
+  - Não infecção direta: criminoso liga ("falsa central"), induz vítima a
+    instalar app de acesso remoto legítimo (AnyDesk, RustDesk, TeamViewer,
+    apps de "diagnóstico do banco").
+  - Vítima entrega controle total durante a chamada.
+  - Atacante navega o app bancário e executa transferências.
+
+  Volume: >10.000 registros desde 2024 segundo dados públicos
+  (6.667 em 2024 + 3.495 nos primeiros meses de 2025). Família Ghimob foi
+  documentada se exportando para Europa e EUA.
+
+  BR-específico (origem): famílias Ghimob/BRata/TwMobo são desenvolvidas
+  no Brasil. TTPs são reutilizáveis globalmente, mas a "doutrina" e
+  operação são brasileiras.
+
+mitre_techniques:
+  - id: T1219
+    name: "Remote Access Software"
+  - id: T1056.001
+    name: "Input Capture: Keylogging"
+  - id: T1417.002
+    name: "Input Capture: GUI Input Capture (Mobile)"
+  - id: T1657
+    name: "Financial Theft"
+
+data_sources_required:
+  - mobile_app_install_telemetry
+  - accessibility_service_usage_logs
+  - app_foreground_logs_during_session
+  - pix_transactions
+  - device_attestation_logs
+
+indicators:
+  - name: remote_access_app_active_during_session
+    threshold: "AnyDesk/TeamViewer/RustDesk/Ghimob signature em foreground"
+  - name: accessibility_service_granted_recent
+    threshold: "permissão de acessibilidade concedida <24h antes de evento financeiro"
+  - name: interaction_pattern_robotic
+    threshold: "tempo entre toques muito uniforme (heurística de bot/RAT control)"
+  - name: screen_overlay_detected
+    threshold: "overlay/sobreposição detectada pelo app bancário"
+
+sources:
+  - url: https://olhardigital.com.br/2021/08/31/seguranca/ataque-da-mao-fantasma/
+    publisher: Olhar Digital
+    date: "2021-08-31"
+    title: "Ataque da Mão Fantasma: novo golpe brasileiro rouba a vítima diante dos próprios olhos"
+  - url: https://www.kaspersky.com.br/blog/hackers-brasileiros-exportam-virus-mobile-banking-twmobo/18026/
+    publisher: Kaspersky Brasil
+    date: "2024"
+    title: "Novo vírus brasileiro permite controle total do smartphone"
+  - url: https://www.kaspersky.com.br/about/press-releases/malware-brasileiro-se-internacionaliza-com-foco-em-ataques-ao-mobile-banking
+    publisher: Kaspersky Brasil
+    date: "2024"
+    title: "Malware brasileiro se internacionaliza com foco em ataques ao mobile banking"
+  - url: https://www.cisoadvisor.com.br/rat-brasileiro-ja-ataca-mobile-banking-no-exterior/
+    publisher: CISO Advisor
+    date: "2024"
+    title: "RAT brasileiro já ataca mobile banking no exterior"
+  - url: https://br.cointelegraph.com/news/ghost-hand-haunts-pix-through-new-scam-modality-warns-kaspersky
+    publisher: Cointelegraph Brasil (citando Kaspersky)
+    date: "2024-2025"
+    title: "'Mão fantasma' assombra o Pix através de nova modalidade de golpe"
+
+br_specific: true
+quarry_status: documented
+
+related_patterns:
+  - VSH-001
+  - MAL-001
+
+notes: |
+  Detecção forte está no client (app bancário): SafetyNet/Play Integrity,
+  detecção de accessibility services maliciosos, detecção de overlay,
+  bloqueio de operações sensíveis quando app de acesso remoto está
+  rodando. Server-side: comportamento "robótico" de toques + horários
+  atípicos (madrugada, padrão do criminoso).

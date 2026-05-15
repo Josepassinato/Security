@@ -48,7 +48,7 @@ step against a case and replayable in the UI), the **Ambient Copilot**
 playbooks), the **Responder PWA** (passkey-only mobile route at
 `/responder/*` with VAPID Web Push), the **public eval harness** (one
 real measurement plus three substrate self-consistency gates, run in CI),
-the **MCP server** (`@aisoc/mcp`, exposes 11 tools to Claude / Cursor /
+the **MCP server** (`@quarry/mcp`, exposes 11 tools to Claude / Cursor /
 Continue / Cody), and the **click-and-connect connector platform** (next
 section).
 

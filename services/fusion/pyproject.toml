@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "aisoc-fusion"
+name = "quarry-fusion"
 version = "0.1.0"
 description = "AiSOC Alert Fusion Service - deduplication, correlation and incident grouping"
 authors = ["Beenu Arora <beenu@cyble.com>"]

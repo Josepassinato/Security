@@ -1,11 +1,11 @@
 /**
- * @aisoc/sdk — TypeScript client for AiSOC
+ * @quarry/sdk — TypeScript client for AiSOC
  *
  * Auto-generated types from docs/openapi.yaml; hand-written client wrapper.
  *
  * @example
  * ```ts
- * import { AiSOCClient } from "@aisoc/sdk";
+ * import { AiSOCClient } from "@quarry/sdk";
  *
  * const client = new AiSOCClient({
  *   baseUrl: "https://your-aisoc.example.com",

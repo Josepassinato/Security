@@ -1,5 +1,5 @@
 {
-  "name": "@aisoc/sdk",
+  "name": "@quarry/sdk",
   "version": "4.0.0",
   "description": "TypeScript client SDK for AiSOC — auto-generated from the OpenAPI schema",
   "keywords": ["aisoc", "soc", "security", "client", "sdk"],

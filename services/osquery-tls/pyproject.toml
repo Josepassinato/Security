@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "aisoc-osquery-tls"
+name = "quarry-osquery-tls"
 version = "0.1.0"
 description = "AiSOC osquery TLS plugin service — direct osqueryd TLS endpoint without a separate fleet manager"
 authors = ["AiSOC Community"]

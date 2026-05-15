@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "aisoc-teams-bot"
+name = "quarry-teams-bot"
 version = "0.1.0"
 description = "AiSOC Teams bot — Adaptive Card approval flows for ChatOps-driven SOC operations"
 authors = ["AiSOC Contributors <hello@tryaisoc.com>"]

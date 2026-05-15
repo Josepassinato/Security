@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "aisoc-api"
+name = "quarry-api"
 version = "0.1.0"
 description = "AiSOC Core API Service — Open-source AI Security Operations Center"
 authors = ["Beenu Arora <beenu@cyble.com>"]

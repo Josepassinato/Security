@@ -1,9 +1,9 @@
-# @aisoc/mcp
+# @quarry/mcp
 
 > The official [Model Context Protocol](https://modelcontextprotocol.io) server for **AiSOC** — connect Claude Desktop, Cursor, Cody, Continue, and any MCP-aware assistant to your alerts, cases, detections, and the agent decision ledger.
 
-[![npm](https://img.shields.io/npm/v/@aisoc/mcp.svg)](https://www.npmjs.com/package/@aisoc/mcp)
-[![license](https://img.shields.io/npm/l/@aisoc/mcp.svg)](https://github.com/beenuar/AiSOC/blob/main/LICENSE)
+[![npm](https://img.shields.io/npm/v/@quarry/mcp.svg)](https://www.npmjs.com/package/@quarry/mcp)
+[![license](https://img.shields.io/npm/l/@quarry/mcp.svg)](https://github.com/beenuar/AiSOC/blob/main/LICENSE)
 [![tests](https://img.shields.io/badge/tests-50%20passing-brightgreen)](#development)
 
 AiSOC is the open-source AI SOC where every agent decision is auditable. This package is the bridge that lets your assistant ask AiSOC questions like "show me the open P0 cases" or "replay the agent's reasoning on INC-0421" without leaving the chat.
@@ -16,18 +16,18 @@ The recommended path is the one-liner installer. It writes the right snippet int
 
 ```bash
 # Claude Desktop
-npx -y @aisoc/mcp install --host claude \
+npx -y @quarry/mcp install --host claude \
   --aisoc-url https://aisoc.your-company.com \
   --api-key  aisoc_pat_xxxxxxxxxxxx
 
 # Cursor
-npx -y @aisoc/mcp install --host cursor --aisoc-url ... --api-key ...
+npx -y @quarry/mcp install --host cursor --aisoc-url ... --api-key ...
 
 # Continue.dev
-npx -y @aisoc/mcp install --host continue --aisoc-url ... --api-key ...
+npx -y @quarry/mcp install --host continue --aisoc-url ... --api-key ...
 
 # Cody (prints a snippet to paste — the extension reads VS Code settings)
-npx -y @aisoc/mcp install --host cody --aisoc-url ... --api-key ...
+npx -y @quarry/mcp install --host cody --aisoc-url ... --api-key ...
 ```
 
 Restart your assistant and the `aisoc` server will appear in its tool picker.
@@ -39,7 +39,7 @@ Restart your assistant and the `aisoc` server will appear in its tool picker.
 If you'd rather edit the JSON yourself, `install --dry-run` prints exactly what the installer would write:
 
 ```bash
-npx -y @aisoc/mcp install --host claude --dry-run \
+npx -y @quarry/mcp install --host claude --dry-run \
   --aisoc-url https://aisoc.your-company.com --api-key aisoc_xxx
 ```
 
@@ -50,7 +50,7 @@ The snippet looks like this — paste it under `mcpServers` in your host's confi
   "mcpServers": {
     "aisoc": {
       "command": "npx",
-      "args": ["-y", "@aisoc/mcp", "serve"],
+      "args": ["-y", "@quarry/mcp", "serve"],
       "env": {
         "AISOC_URL": "https://aisoc.your-company.com",
         "AISOC_API_KEY": "aisoc_pat_xxxxxxxxxxxx"
@@ -70,7 +70,7 @@ Per-host config locations:
 | Continue.dev | `~/.continue/config.json` |
 | Cody | VS Code User Settings (JSON) → `cody.mcp.servers` |
 
-Print these as JSON any time with `npx @aisoc/mcp install --list-paths`.
+Print these as JSON any time with `npx @quarry/mcp install --list-paths`.
 
 ---
 
@@ -116,7 +116,7 @@ Before pointing your assistant at it, smoke-test the connection:
 ```bash
 AISOC_URL=https://aisoc.your-company.com \
 AISOC_API_KEY=aisoc_pat_xxx \
-npx -y @aisoc/mcp doctor
+npx -y @quarry/mcp doctor
 ```
 
 `doctor` checks DNS, TLS, the AiSOC `/health` endpoint, and that your API key is accepted. It exits non-zero on failure so you can wire it into a pre-flight script.
@@ -127,7 +127,7 @@ npx -y @aisoc/mcp doctor
 
 ```
 ┌──────────────┐        stdio JSON-RPC        ┌──────────────┐    HTTPS     ┌──────────────┐
-│ Claude /     │ ───────────────────────────► │ @aisoc/mcp   │ ───────────► │ AiSOC API    │
+│ Claude /     │ ───────────────────────────► │ @quarry/mcp   │ ───────────► │ AiSOC API    │
 │ Cursor / IDE │ ◄─────────────────────────── │ (this pkg)   │ ◄─────────── │ + agents     │
 └──────────────┘                              └──────────────┘              └──────────────┘
                                                                                    │

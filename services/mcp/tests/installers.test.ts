@@ -55,7 +55,7 @@ describe("install (real write)", () => {
       mcpServers: {
         aisoc: {
           command: "npx",
-          args: ["-y", "@aisoc/mcp", "serve"],
+          args: ["-y", "@quarry/mcp", "serve"],
           env: {
             AISOC_URL: "https://aisoc.example.com",
             AISOC_API_KEY: "aisoc_test_key",
@@ -207,7 +207,7 @@ describe("buildServerSnippet shape", () => {
       dryRun: true,
     });
     expect(result.snippet.command).toBe("npx");
-    expect(result.snippet.args).toEqual(["-y", "@aisoc/mcp", "serve"]);
+    expect(result.snippet.args).toEqual(["-y", "@quarry/mcp", "serve"]);
   });
 
   it("propagates the verbose flag into AISOC_VERBOSE", () => {

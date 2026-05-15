@@ -1,5 +1,5 @@
 {
-  "name": "@aisoc/realtime",
+  "name": "@quarry/realtime",
   "version": "0.1.0",
   "description": "AiSOC Real-time WebSocket/SSE service",
   "main": "dist/index.js",

@@ -361,7 +361,7 @@ The one-command demo seeder exists. Polish it: deterministic 4 cases (phishing /
 
 ### T7.1 — Cursor extension  (P0, M, depends on: —)
 
-Ship a Cursor extension wrapping `@aisoc/mcp` so analysts can run triage, replay decisions, and explain steps from inside Cursor.
+Ship a Cursor extension wrapping `@quarry/mcp` so analysts can run triage, replay decisions, and explain steps from inside Cursor.
 
 **New repo (or path):** `aisoc-cursor-extension/` or `services/mcp/cursor-extension/`.
 

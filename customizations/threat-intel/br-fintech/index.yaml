@@ -1,0 +1,114 @@
+# Índice de Threat Patterns — Fintechs Brasileiras
+# Última atualização: 2026-05-15
+# Versão do catálogo: 0.1.0 (seed inicial)
+# Total: 10 patterns documentados
+#
+# Convenção de IDs:
+#   PIX-NNN — Fraudes específicas de PIX (instantâneo)
+#   ATO-NNN — Account Takeover
+#   BOL-NNN — Fraudes de Boleto
+#   QR-NNN  — Fraudes de QR Code
+#   VSH-NNN — Vishing / Voice phishing
+#   SEN-NNN — Engenharia Social
+#   EWL-NNN — E-Wallet (Apple Pay, Google Wallet)
+#   MAL-NNN — Malware bancário
+#   OFI-NNN — Open Finance abuse (reservado, sem patterns ainda)
+
+patterns:
+  - id: PIX-001
+    name: Money Mule via Conta Digital Nova
+    category: mule_network
+    severity: high
+    file: patterns/PIX-001-money-mule.yaml
+    br_specific: true
+
+  - id: PIX-002
+    name: Golpe do PIX Errado (Falso Estorno)
+    category: social_engineering
+    severity: high
+    file: patterns/PIX-002-golpe-pix-errado.yaml
+    br_specific: true
+
+  - id: PIX-003
+    name: PIX Agendado com Cancelamento Pré-Liquidação
+    category: social_engineering
+    severity: medium
+    file: patterns/PIX-003-pix-agendado-cancelado.yaml
+    br_specific: true
+
+  - id: VSH-001
+    name: Falsa Central de Atendimento (Vishing com Spoofing)
+    category: vishing
+    severity: critical
+    file: patterns/VSH-001-falsa-central.yaml
+    br_specific: true
+
+  - id: SEN-001
+    name: WhatsApp Clonado / Sequestrado para Golpe Familiar PIX
+    category: social_engineering
+    severity: critical
+    file: patterns/SEN-001-whatsapp-clonado.yaml
+    br_specific: true
+
+  - id: ATO-001
+    name: Account Takeover via SIM Swap
+    category: account_takeover
+    severity: critical
+    file: patterns/ATO-001-sim-swap.yaml
+    br_specific: false
+
+  - id: BOL-001
+    name: Boleto Adulterado (Bolware / Reboleto)
+    category: boleto_fraud
+    severity: high
+    file: patterns/BOL-001-boleto-adulterado.yaml
+    br_specific: true
+
+  - id: QR-001
+    name: QR Code Sticker Swap (PIX Estático em Estabelecimento)
+    category: qr_code_fraud
+    severity: medium
+    file: patterns/QR-001-qr-sticker-swap.yaml
+    br_specific: true
+
+  - id: EWL-001
+    name: Cartão Provisionado Fraudulentamente em E-Wallet
+    category: ewallet_fraud
+    severity: high
+    file: patterns/EWL-001-ewallet-card-provisioning.yaml
+    br_specific: false
+
+  - id: MAL-001
+    name: GoPix - Trojan Bancário Brasileiro com Interceptação de Clipboard PIX
+    category: malware_banking
+    severity: critical
+    file: patterns/MAL-001-gopix-trojan.yaml
+    br_specific: true
+
+  - id: MAL-002
+    name: Golpe da Mão Fantasma (RATs Bancários Brasileiros)
+    category: malware_banking
+    severity: critical
+    file: patterns/MAL-002-mao-fantasma-rat.yaml
+    br_specific: true
+
+# Estatísticas por severidade
+stats:
+  total: 10
+  by_severity:
+    critical: 5  # VSH-001, SEN-001, ATO-001, MAL-001, MAL-002
+    high: 4      # PIX-001, PIX-002, BOL-001, EWL-001
+    medium: 2    # PIX-003, QR-001  (nota: total 11 — PIX-001 contado como high)
+    low: 0
+  by_category:
+    pix_fraud_related: 5     # PIX-001, PIX-002, PIX-003, BOL-001 (PIX), QR-001
+    social_engineering: 3    # PIX-002, PIX-003, SEN-001
+    malware_banking: 2       # MAL-001, MAL-002
+    account_takeover: 1      # ATO-001
+    vishing: 1               # VSH-001
+    ewallet_fraud: 1         # EWL-001
+    mule_network: 1          # PIX-001
+    boleto_fraud: 1          # BOL-001
+    qr_code_fraud: 1         # QR-001
+  br_specific_count: 8
+  international_variant_count: 2  # ATO-001 (SIM swap), EWL-001 (e-wallet)

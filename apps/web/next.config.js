@@ -8,7 +8,7 @@ const path = require('path');
 // `/api/v1/*`, `/api/v1/contextual/*`, `/ws/*` and `/sse` to downstream
 // services. They never reach the browser — only the Node.js process.
 //
-// Defaults are localhost for `pnpm --filter @aisoc/web dev` outside Docker.
+// Defaults are localhost for `pnpm --filter @quarry/web dev` outside Docker.
 // In the demo Compose stack the `web` service overrides these via env to
 // Docker DNS names (`http://api:8000`, `http://agents:8084`,
 // `http://realtime:4000`).
@@ -29,7 +29,7 @@ const OSQUERY_TLS_HOST = process.env.OSQUERY_TLS_URL || 'http://localhost:8090';
 
 const nextConfig = {
   reactStrictMode: true,
-  transpilePackages: ['@aisoc/ui', '@aisoc/types'],
+  transpilePackages: ['@quarry/ui', '@quarry/types'],
   // pnpm monorepo: anchor Turbopack at the repository root so it can resolve
   // the hoisted `next` package via apps/web/node_modules/next (symlink into
   // the root .pnpm store). Setting this to __dirname caused Turbopack to

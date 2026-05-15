@@ -122,7 +122,7 @@ applicable):
 
 ```bash
 # Frontend (Next.js console + Responder PWA route group)
-pnpm --filter @aisoc/web dev                 # http://localhost:3000
+pnpm --filter @quarry/web dev                 # http://localhost:3000
 
 # API gateway
 cd services/api
@@ -145,7 +145,7 @@ cd services/enrichment
 go run ./cmd/server                          # http://localhost:8080
 
 # MCP server (TypeScript, stdio)
-pnpm --filter @aisoc/mcp dev
+pnpm --filter @quarry/mcp dev
 ```
 
 The other Python services (`fusion`, `actions`, `threatintel`, `ueba`,
@@ -169,8 +169,8 @@ pytest services/agents/tests/
 ( cd packages/sdk-go && go test ./... )
 
 # Frontend (Next.js + Responder PWA)
-pnpm --filter @aisoc/web lint
-pnpm --filter @aisoc/web test
+pnpm --filter @quarry/web lint
+pnpm --filter @quarry/web test
 
 # Public eval harness (substrate self-consistency + one real measurement)
 pnpm eval:run

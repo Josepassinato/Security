@@ -66,7 +66,7 @@ Every agent decision in AiSOC is logged to a persistent ledger; \
 export function buildServer(cfg: ServerConfig, log: Logger): Server {
   const client = new AisocClient(cfg, log);
   const server = new Server(
-    { name: "@aisoc/mcp", version: packageVersion() },
+    { name: "@quarry/mcp", version: packageVersion() },
     {
       capabilities: { tools: {} },
       instructions: SERVER_INSTRUCTIONS,

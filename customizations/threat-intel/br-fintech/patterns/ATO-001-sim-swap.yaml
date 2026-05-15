@@ -1,0 +1,83 @@
+id: ATO-001
+name: Account Takeover via SIM Swap
+category: account_takeover
+severity: critical
+description: |
+  Atacante obtém dados pessoais da vítima (CPF, RG, nome da mãe — via leaks
+  e engenharia social) e convence a operadora móvel a portar/transferir o
+  número da vítima para um novo chip controlado pelo criminoso. Com o número
+  controlado, recebe SMS-OTP de bancos/fintechs, intercepta verificação em
+  duas etapas do WhatsApp, faz reset de senhas baseado em SMS, e executa
+  PIX, abre empréstimos, compra com limite de crédito.
+
+  Caso BR explodiu de 289 incidentes em 2023 para ~3.000 em 2024 (+1.055%
+  segundo dados citados pela imprensa). Lei 14.155/2021 prevê pena de até
+  8 anos para fraude eletrônica relacionada.
+
+  BR-específico parcial: SIM swap é TTP global, mas no Brasil é potencializado
+  por: (a) processo de portabilidade ágil e centralizado na Anatel,
+  (b) dependência forte de SMS-OTP em apps bancários, (c) cultura de
+  validar por "código que chegou no SMS".
+
+mitre_techniques:
+  - id: T1451
+    name: "SIM Card Swap"
+  - id: T1111
+    name: "Multi-Factor Authentication Interception"
+  - id: T1078
+    name: "Valid Accounts"
+  - id: T1657
+    name: "Financial Theft"
+
+data_sources_required:
+  - mobile_device_change_events
+  - sms_otp_delivery_logs
+  - device_attestation_logs
+  - pix_transactions
+  - credit_application_logs
+
+indicators:
+  - name: device_change_followed_by_password_reset
+    threshold: "novo device_id + reset de senha em <2h"
+  - name: simless_or_new_iccid_within_24h
+    threshold: "mudança de ICCID/IMSI detectada em <24h antes de evento crítico"
+  - name: high_value_pix_first_24h_after_login
+    threshold: ">R$5000 para chave nova em <24h após login de novo device"
+  - name: credit_or_loan_application_post_login
+    threshold: "solicitação de empréstimo/aumento de limite imediatamente após login"
+
+sources:
+  - url: https://ish.com.br/blog/sim-swap-o-que-e-e-como-se-proteger/
+    publisher: ISH Tecnologia
+    date: "2024"
+    title: "SIM Swap: entenda como funciona o golpe e como se proteger"
+  - url: https://www.correiobraziliense.com.br/aqui/2025/11/16/golpe-do-sim-swap-sinais-de-que-seu-chip-foi-clonado-e-como-agir-rapidamente/
+    publisher: Correio Braziliense
+    date: "2025-11-16"
+    title: "Golpe do SIM Swap: sinais de que seu chip foi clonado e como agir rapidamente"
+  - url: https://www.opovo.com.br/noticias/tecnologia/2024/12/10/sim-swap-entenda-como-funciona-o-golpe-e-como-se-proteger.html
+    publisher: O Povo
+    date: "2024-12-10"
+    title: "SIM Swap: entenda como funciona o golpe e como se proteger"
+  - url: https://istoe.com.br/sim-swap-como-se-proteger-do-golpe-que-rouba-numero-de-celular-da-vitima
+    publisher: IstoÉ
+    date: "2024"
+    title: "SIM SWAP: Como se proteger do golpe que 'rouba' número de celular"
+  - url: https://clavis.com.br/en/blog/what-is-a-swap-/
+    publisher: Clavis Segurança da Informação
+    date: "2024"
+    title: "SIM Swap: entenda o golpe e saiba como se proteger"
+
+br_specific: false
+quarry_status: documented
+
+related_patterns:
+  - SEN-001
+  - VSH-001
+
+notes: |
+  Mitigações sugeridas: substituir SMS-OTP por TOTP/push autenticador,
+  bind de device com attestation (Play Integrity/DeviceCheck), exigir
+  re-KYC quando device muda + reset de senha. Operadoras já são obrigadas
+  a bloquear portabilidade quando cliente solicita, mas a opção ainda é
+  pouco usada.

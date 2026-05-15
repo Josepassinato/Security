@@ -1,5 +1,5 @@
 /**
- * Unit tests for @aisoc/sdk AiSOCClient.
+ * Unit tests for @quarry/sdk AiSOCClient.
  *
  * All HTTP calls are intercepted via fetch mocking — no real server needed.
  */
