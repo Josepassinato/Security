@@ -73,7 +73,7 @@ Wave-2 commits (most recent first, all SSH-signed, attributed Prince Sinha):
 ### Track 3 — UI
 - [x] T3.1 SOC Insights dashboard (P1, M) → T2.4
 - [~] T3.2 Effective Permissions (P0, L) → T1.1 — partial / wip — `4ff1b7f4` (graph schema edge) + `a6ce3342` (resolver — AWS done, Azure / GCP / Okta / Google Workspace scaffolded; Cytoscape UI pending)
-- [~] T3.3 Attack Chains (P0, L) → T1.1 — partial / wip — `8df637b9` (timeline ranking service + `041_attack_chains.sql` migration + `/v1/cases/{id}/attack-chain` endpoint; UI pending)
+- [~] T3.3 Attack Chains (P0, L) → T1.1 — partial / wip — `8df637b9` (timeline ranking service + `041_attack_chains.sql` migration + `/v1/cases/{id}/attack-chain` endpoint); **UI shipped** — `AttackChainPanel` added to `CaseWorkspace.tsx` with window selector (1h/6h/24h/72h/7d/30d), per-link timeline cards (alert title, severity chip, confidence %, MITRE techniques, narrative reason), entity-graph summary (nodes + edges), SWR fetch keyed on `(case_id, window)`, deep-link via `?window=…`, skeleton / error / empty states; `casesApi.getAttackChain` + new TS types in `apps/web/src/lib/api.ts`; 5 vitest cases in `CaseWorkspace.test.tsx` (key-aware SWR mock for chain vs path, stateful `useSearchParams`).
 - [~] T3.4 /hunt NL surface (P0, S-M) — endpoints/UI/redirect shipped; scheduler is feature-flagged off by default (`AISOC_HUNT_SCHEDULER_ENABLED=0`) with execution stub pending real ES|QL runner wiring
 - [~] T3.5 Business Context Rules (P1, M) — partial / wip — `0efe3da5` (rule engine + Monaco editor scaffold; eval engine + persistence pending)
 - [~] T3.6 Slack/Teams Block Kit approvals (P1, M) — partial / wip — `57f93a98` (Block Kit + Adaptive Cards + email fallback + HMAC verify + audit/timeout services)
