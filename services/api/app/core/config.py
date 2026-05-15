@@ -10,14 +10,7 @@ import warnings
 from functools import lru_cache
 from typing import Any, Final
 
-from pydantic import (
-    AliasChoices,
-    Field,
-    PostgresDsn,
-    RedisDsn,
-    field_validator,
-    model_validator,
-)
+from pydantic import AliasChoices, Field, PostgresDsn, RedisDsn, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # Default placeholders shipped in source. Anything matching these in a
@@ -253,7 +246,9 @@ class Settings(BaseSettings):
     # ------------------------------------------------------------------
     HUNT_SCHEDULER_ENABLED: bool = Field(
         default=False,
-        validation_alias=AliasChoices("HUNT_SCHEDULER_ENABLED", "AISOC_HUNT_SCHEDULER_ENABLED"),
+        validation_alias=AliasChoices(
+            "HUNT_SCHEDULER_ENABLED", "AISOC_HUNT_SCHEDULER_ENABLED"
+        ),
     )
     HUNT_SCHEDULER_POLL_INTERVAL_SECONDS: int = 30
 

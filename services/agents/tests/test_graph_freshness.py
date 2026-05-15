@@ -44,7 +44,9 @@ pytestmark = pytest.mark.integration
 
 # Test config — env-overridable so CI can point at the dockerised stack.
 INGEST_BASE_URL = os.environ.get("AISOC_INGEST_URL", "http://localhost:8080")
-KAFKA_BOOTSTRAP = os.environ.get("KAFKA_BOOTSTRAP_SERVERS", os.environ.get("KAFKA_BROKERS", "localhost:9092"))
+KAFKA_BOOTSTRAP = os.environ.get(
+    "KAFKA_BOOTSTRAP_SERVERS", os.environ.get("KAFKA_BROKERS", "localhost:9092")
+)
 NEO4J_URI = os.environ.get("AISOC_NEO4J_URI", "bolt://localhost:7687")
 NEO4J_USER = os.environ.get("AISOC_NEO4J_USER", "neo4j")
 NEO4J_PASSWORD = os.environ.get("AISOC_NEO4J_PASSWORD", "neo4j")
@@ -59,17 +61,13 @@ def _import_or_skip(mod_name: str, hint: str) -> Any:
 
     The integration test should be invisible on a developer laptop that
     hasn't installed the stack yet — skip beats fail.
-
-    ``pytest.skip()`` raises ``Skipped`` and never returns, but CodeQL
-    (``py/mixed-returns``) does not model it as ``NoReturn``, so we add
-    an explicit ``return None`` after it to make every control-flow path
-    end in an explicit ``return``.
     """
     try:
         return __import__(mod_name)
     except ImportError:
-        pytest.skip(f"{mod_name} not installed locally — install {hint} to run this integration test")
-        return None
+        pytest.skip(
+            f"{mod_name} not installed locally — install {hint} to run this integration test"
+        )
 
 
 def _build_event(idx: int) -> dict:
@@ -125,7 +123,6 @@ def _ingest_event(httpx: Any, event: dict, tenant: str) -> None:
         )
     except Exception as exc:  # noqa: BLE001
         pytest.skip(f"ingest service unreachable at {INGEST_BASE_URL}: {exc}")
-        return  # pytest.skip raises; this satisfies static analysers that ``resp`` is always bound below
     if resp.status_code >= 500:
         pytest.skip(f"ingest service unhealthy: {resp.status_code} {resp.text}")
     assert resp.status_code < 400, resp.text
@@ -145,7 +142,9 @@ def test_graph_freshness_p95_under_2s() -> None:
     tenant = f"test-{uuid.uuid4().hex[:8]}"
 
     try:
-        driver = neo4j_pkg.GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
+        driver = neo4j_pkg.GraphDatabase.driver(
+            NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD)
+        )
         driver.verify_connectivity()
     except Exception as exc:  # noqa: BLE001
         pytest.skip(f"Neo4j unreachable at {NEO4J_URI}: {exc}")
@@ -158,9 +157,9 @@ def test_graph_freshness_p95_under_2s() -> None:
             start = time.monotonic()
             _ingest_event(httpx, event, tenant)
             deadline = start + P95_LATENCY_BUDGET_S * 2
-            assert _query_neo4j_for_resource(driver, arn, deadline), (
-                f"Resource {arn} never appeared in graph within {deadline - start:.2f}s"
-            )
+            assert _query_neo4j_for_resource(
+                driver, arn, deadline
+            ), f"Resource {arn} never appeared in graph within {deadline - start:.2f}s"
             latencies.append(time.monotonic() - start)
     finally:
         driver.close()
@@ -177,7 +176,9 @@ def test_graph_freshness_p95_under_2s() -> None:
             }
         )
     )
-    assert p95 < P95_LATENCY_BUDGET_S, f"graph freshness p95={p95:.3f}s exceeds budget {P95_LATENCY_BUDGET_S}s"
+    assert p95 < P95_LATENCY_BUDGET_S, (
+        f"graph freshness p95={p95:.3f}s exceeds budget {P95_LATENCY_BUDGET_S}s"
+    )
 
 
 def test_graph_writer_does_not_block_fusion_on_failure() -> None:
@@ -210,9 +211,10 @@ def test_graph_writer_does_not_block_fusion_on_failure() -> None:
         )
     except Exception as exc:  # noqa: BLE001
         pytest.skip(f"ingest service unreachable at {INGEST_BASE_URL}: {exc}")
-        return  # pytest.skip raises; satisfies static analysers that ``resp`` is bound below
 
-    assert resp.status_code < 400, f"ingest returned {resp.status_code} — fusion should never block on graph: {resp.text}"
+    assert resp.status_code < 400, (
+        f"ingest returned {resp.status_code} — fusion should never block on graph: {resp.text}"
+    )
 
 
 # TODO(T1.1+): expand to the 360-event synthetic corpus referenced in the

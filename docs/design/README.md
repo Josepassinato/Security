@@ -1,7 +1,7 @@
 # `docs/design/` — landing page kickoff bundle
 
 This folder is the design-team handoff for the AiSOC marketing landing
-page on `aisoc.dev`. Three documents, in order of importance:
+page on `aisoc.dev`. Six documents, in order of importance:
 
 1. **`landing-page-brief.md`** — the product brief. Seventeen sections,
    from positioning and personas through information architecture,
@@ -17,6 +17,19 @@ page on `aisoc.dev`. Three documents, in order of importance:
    infrastructure, observability), each tagged with "what to steal"
    and "what to avoid." Per project rule, no SOC-competitor product is
    named.
+4. **`landing-page-design-tokens.md`** — copy-paste-ready token spec.
+   Surfaces, foregrounds, brand, gradients, type scale, spacing, radius,
+   elevation, motion durations / easings, iconography, imagery, banned
+   tokens. Resolves every magic number to a Tailwind class or CSS
+   variable.
+5. **`landing-page-component-recipes.md`** — one recipe per IA section
+   (`nav` → `footer`). Names the Aceternity / MagicUI primitives to
+   use, the React anatomy to build, the prop tweaks needed, the failure
+   modes to handle, and the responsive states.
+6. **`landing-page-motion-spec.md`** — the choreography table. Twelve
+   distinct micro-animations with trigger, duration, easing, stagger,
+   and `prefers-reduced-motion` fallback per row. The single source of
+   truth for any motion landing on the page.
 
 ## Owner
 

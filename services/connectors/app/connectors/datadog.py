@@ -43,13 +43,7 @@ _REGION_HOSTS: dict[str, str] = {
 }
 
 _LOGS_PER_PAGE = 100
-# Note: the Datadog Events v1 API (``GET /api/v1/events``) is windowed by
-# ``start``/``end`` epoch seconds, not by an explicit page-size knob, so we
-# do not pass a ``limit`` here. Previously this module also declared an
-# ``_EVENTS_PER_PAGE`` constant that was never read — CodeQL flagged it as
-# ``py/unused-global-variable`` and it has been removed. If pagination is
-# added later, wire it into ``_fetch_events`` rather than reintroducing an
-# unused global.
+_EVENTS_PER_PAGE = 500
 _MAX_PAGES = 25
 
 
@@ -102,7 +96,10 @@ class DatadogConnector(BaseConnector):
                     "Filter query",
                     required=False,
                     default="status:error OR status:critical",
-                    help_text=("Logs Search query (logs mode) or tag filter (events mode, e.g. 'priority:all')."),
+                    help_text=(
+                        "Logs Search query (logs mode) or tag filter "
+                        "(events mode, e.g. 'priority:all')."
+                    ),
                 ),
                 Field("api_key", "secret", "API Key"),
                 Field("application_key", "secret", "Application Key"),

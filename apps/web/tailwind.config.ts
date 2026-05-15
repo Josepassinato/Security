@@ -78,6 +78,30 @@ const config: Config = {
           dead: '#ef4444',
           idle: '#64748b',
         },
+        // Marketing-landing accents (T6.5). Strictly additive — these live in
+        // a `landing.*` namespace so they cannot collide with the console
+        // palette and only appear on `apps/web/src/components/landing/`
+        // surfaces. Mirrors `docs/design/landing-page-design-tokens.md` §2.3.
+        landing: {
+          accent: {
+            ember: '#f97316',
+            violet: '#8b5cf6',
+          },
+        },
+      },
+      backgroundImage: {
+        // Three brand-tinted gradients used by the landing page only. Resolve
+        // to CSS variables defined in `globals.css` so a future light-mode
+        // landing variant can flip the stops without touching components.
+        'landing-grad-hero': 'var(--landing-grad-hero)',
+        'landing-grad-pillars': 'var(--landing-grad-pillars)',
+        'landing-grad-cta': 'var(--landing-grad-cta)',
+      },
+      transitionTimingFunction: {
+        // Easing tokens from `docs/design/landing-page-design-tokens.md` §7.1.
+        'landing-out-expo': 'cubic-bezier(0.16, 1, 0.3, 1)',
+        'landing-out-quart': 'cubic-bezier(0.25, 1, 0.5, 1)',
+        'landing-in-out-quad': 'cubic-bezier(0.45, 0, 0.55, 1)',
       },
       fontFamily: {
         sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],

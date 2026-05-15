@@ -34,6 +34,14 @@
   --surface-hover: #1a2030;
   --surface-subtle: #0d1119;
 
+  /* Landing-only gradient stops (T6.5). Mirrors
+     `docs/design/landing-page-design-tokens.md` §2.4. Hex stops match the
+     existing `brand.*` palette so a buyer-to-product transition keeps the
+     same hue family across the marketing site and the console. */
+  --landing-grad-hero: linear-gradient(to bottom right, #1d4ed8 0%, #0a0d14 80%);
+  --landing-grad-pillars: linear-gradient(to right, #3b82f6 0%, #8b5cf6 100%);
+  --landing-grad-cta: linear-gradient(to bottom right, #3b82f6 0%, #1d4ed8 100%);
+
   /* Borders / dividers — slate-400 with low alpha so they tint the surface
      instead of cutting hard lines. */
   --surface-border: rgba(148, 163, 184, 0.12);
@@ -196,4 +204,139 @@ code {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* ─────────────────────── Landing page (T6.5) ────────────────────────
+ *
+ * Keyframes + utilities used by the marketing landing components under
+ * `apps/web/src/components/landing/` and the Aceternity/MagicUI primitives
+ * vendored at `apps/web/src/components/{aceternity,magicui}/`. Defined as
+ * raw CSS rather than via a Tailwind v4 plugin so we don't depend on
+ * `tailwindcss-animate` (which still targets the v3 config schema and
+ * doesn't compose cleanly with the `@import "tailwindcss"` + `@config`
+ * hybrid we run here). Every loop respects `prefers-reduced-motion` via
+ * the global rule above.
+ */
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-100% - var(--gap, 1rem)));
+  }
+}
+
+@keyframes marquee-vertical {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(calc(-100% - var(--gap, 1rem)));
+  }
+}
+
+@keyframes meteor {
+  0% {
+    transform: rotate(var(--angle, 215deg)) translateX(0);
+    opacity: 1;
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(var(--angle, 215deg)) translateX(-500px);
+    opacity: 0;
+  }
+}
+
+@keyframes border-beam {
+  100% {
+    offset-distance: 100%;
+  }
+}
+
+@keyframes shimmer-slide {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@keyframes aurora-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes graph-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.75;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes graph-flow {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-marquee {
+  animation: marquee var(--duration, 40s) linear infinite;
+}
+
+.animate-marquee-vertical {
+  animation: marquee-vertical var(--duration, 40s) linear infinite;
+}
+
+.animate-meteor {
+  animation: meteor var(--duration, 5s) linear infinite;
+}
+
+.animate-graph-pulse {
+  animation: graph-pulse 4s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+.animate-graph-flow {
+  stroke-dasharray: 4 8;
+  animation: graph-flow 2.4s linear infinite;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 480ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-aurora-shift {
+  animation: aurora-shift var(--aurora-duration, 12s) ease-in-out infinite;
+}
+
+/* Pause infinite marquees on hover or focus so users can read the strip. */
+.marquee-pausable:hover [class*="animate-marquee"],
+.marquee-pausable:focus-within [class*="animate-marquee"] {
+  animation-play-state: paused;
 }

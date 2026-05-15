@@ -66,6 +66,7 @@ _AGENTS_ROOT = _REPO_ROOT / "services" / "agents"
 # `from tests.test_adversary_eval import ...` resolves to the substrate tests.
 sys.path.insert(0, str(_REPO_ROOT / "scripts"))
 sys.path.insert(0, str(_AGENTS_ROOT))
+sys.path.insert(0, str(_REPO_ROOT / "scripts"))
 
 # The per-investigation token/USD/latency telemetry block (T2.4) is stdlib-only
 # and lives in ``scripts/eval_telemetry.py`` so it can run on hosts that
@@ -75,32 +76,6 @@ from eval_telemetry import (  # type: ignore  # noqa: E402
     DEFAULT_MODEL as _TELEMETRY_DEFAULT_MODEL,
     compute_per_investigation_telemetry,
 )
-
-
-def _print_import_error_hint(exc: BaseException) -> None:
-    """Friendly message when ``services/agents`` deps aren't installed.
-
-    The quickstart video walks new contributors through a fresh clone, so
-    when ``run_evals.py`` fails on import we owe them the exact two-command
-    fix rather than a raw ``ModuleNotFoundError`` traceback.
-
-    H-7: When the substrate is required (i.e. ``--telemetry-only`` is not
-    set), the caller invokes ``sys.exit(3)`` after printing this hint so
-    CI surfaces the missing-deps state as a distinct exit code.
-    """
-    print(
-        "ERROR: run_evals.py could not import the AiSOC eval substrate.\n"
-        f"       Underlying cause: {exc.__class__.__name__}: {exc}\n"
-        "\n"
-        "       This usually means services/agents Python deps aren't\n"
-        "       installed in your current venv. Install them with:\n"
-        "\n"
-        "           python -m venv .venv && source .venv/bin/activate\n"
-        "           pip install -e services/agents\n"
-        "\n"
-        "       Then re-run `python scripts/run_evals.py --suite all`.",
-        file=sys.stderr,
-    )
 
 # Wet-eval shim (T5.5). Dry-run path is stdlib-only; live path imports the
 # agent stack lazily and degrades cleanly if it isn't available. Lives in
@@ -762,24 +737,6 @@ def _build_per_investigation_block(model: str, *, keep_records: bool) -> dict:
     return block
 
 
-# Ordered suite registry — keeps CLI --suite choices, the report layout,
-# and the human-readable summary in lockstep.
-_SUITE_RUNNERS: dict[str, callable] = {
-    "mitre_accuracy": _run_mitre,
-    "alert_reduction": _run_alert_reduction,
-    "investigation_completeness": _run_completeness,
-    "response_quality": _run_response_quality,
-    "hunt_corpus": _run_hunt_corpus,
-    "adversary_eval": _run_adversary,
-    "confidence_calibration": _run_confidence_calibration,
-    "memory_recall": _run_memory_recall,
-    "override_accuracy": _run_override_accuracy,
-    "playbook_completion_rate": _run_playbook_completion,
-    "detection_fp_rate": _run_detection_fp_rate,
-}
-_SUITE_NAMES = tuple(_SUITE_RUNNERS.keys())
-
-
 def main() -> None:
     parser = argparse.ArgumentParser(description="AiSOC Pillar-1 unified evaluation runner.")
     parser.add_argument(
@@ -949,19 +906,16 @@ def main() -> None:
         sys.exit(0)
 
     if not args.telemetry_only and not _SUBSTRATE_AVAILABLE:
-        # H-7: Substrate suites need pydantic / langchain etc. If they're not
-        # installed we can still emit the telemetry block — print the friendly
-        # hint and surface a distinct exit code (3) so CI / scripts can tell
-        # "missing deps" apart from "substrate failed".
-        if _SUBSTRATE_IMPORT_ERROR is not None:
-            _print_import_error_hint(_SUBSTRATE_IMPORT_ERROR)
-        else:
-            print(
-                "Substrate-suite imports failed. "
-                "Pass --telemetry-only to emit just the T2.4 token/USD/latency block.",
-                file=sys.stderr,
-            )
-        sys.exit(3)
+        # Substrate suites need pydantic / langchain etc. If they're not
+        # installed we can still emit the telemetry block — surface the
+        # original ImportError so operators know what to fix.
+        msg = (
+            "Substrate-suite imports failed (likely missing agent dev deps "
+            f"such as pydantic): {_SUBSTRATE_IMPORT_ERROR!r}. "
+            "Pass --telemetry-only to emit just the T2.4 token/USD/latency block."
+        )
+        print(msg, file=sys.stderr)
+        sys.exit(2)
 
     keep_records = not args.no_telemetry_records
     per_investigation = _build_per_investigation_block(
@@ -978,14 +932,22 @@ def main() -> None:
         }
         summary["all_passed"] = True  # telemetry-only never gates substrate
     else:
-        # Use the suite registry so ``--suite <name>`` can run a single suite.
-        selected = _SUITE_NAMES if args.suite == "all" else (args.suite,)
-        suites = {name: _SUITE_RUNNERS[name]() for name in selected}
         summary = {
             "generated_at": datetime.now(UTC).isoformat(),
             "dataset": "synthetic_incidents.json (200 cases, deterministic)",
-            "suite_filter": args.suite,
-            "suites": suites,
+            "suites": {
+                "mitre_accuracy": _run_mitre(),
+                "alert_reduction": _run_alert_reduction(),
+                "investigation_completeness": _run_completeness(),
+                "response_quality": _run_response_quality(),
+                "hunt_corpus": _run_hunt_corpus(),
+                "adversary_eval": _run_adversary(),
+                "confidence_calibration": _run_confidence_calibration(),
+                "memory_recall": _run_memory_recall(),
+                "override_accuracy": _run_override_accuracy(),
+                "playbook_completion_rate": _run_playbook_completion(),
+                "detection_fp_rate": _run_detection_fp_rate(),
+            },
             "telemetry": _summarise_telemetry(),
             "per_investigation": per_investigation,
         }

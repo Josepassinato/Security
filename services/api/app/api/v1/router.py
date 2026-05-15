@@ -31,6 +31,7 @@ from app.api.v1.endpoints import (
     feedback,
     fusion,
     graph,
+    graph_ws,
     health,
     hunts,
     identity_graph,
@@ -60,15 +61,16 @@ from app.api.v1.endpoints import (
     rbac,
     remediation,
     reports,
-    rule_tuning,
     saved_hunts,
     saved_views,
     shifts,
     sla,
     stix_taxii,
+    tenant_provision,
     tenants,
     threat_intel,
     translation,
+    waitlist,
 )
 
 api_router = APIRouter(prefix="/api/v1")
@@ -118,11 +120,6 @@ api_router.include_router(metrics.router)
 # single deterministic payload (7 tiles + sparklines + delta vs the
 # preceding window) so the dashboard can render in one round trip.
 api_router.include_router(insights.router)
-# v1.5 SOC Console parity — per-stage health strip for the operator
-# dashboard. Lives at /api/v1/health/pipeline and returns the
-# ingest → normalize → fuse → correlate → alert snapshot defined in
-# endpoints/health.py.
-api_router.include_router(health.router)
 api_router.include_router(sla.router)
 api_router.include_router(investigations.router)
 # Effective permissions resolver (T3.2 — v8.0 parallel team plan).
@@ -265,3 +262,19 @@ api_router.include_router(inbox_itsm.router)
 # allowlisted table catalog so operators (and LLM agents) can author
 # queries without column-name guesswork.
 api_router.include_router(lake.router)
+
+# Managed-instance onboarding — T6.1 (`app.aisoc.dev` beta).
+# /waitlist exposes the public signup + admin entries CRUD that feeds
+# the sales funnel; /admin/tenants promotes approved entries into live
+# tenants. Admin endpoints gate on `admin:waitlist` / `admin:tenants`
+# (falling back to `settings:write` for tenants whose RBAC rows have
+# not been migrated to the granular admin scope yet).
+api_router.include_router(waitlist.router)
+api_router.include_router(tenant_provision.router)
+
+# Public-facing graph-update WebSocket proxy — T1.4 (v8.0 parallel team plan).
+# /graph_ws/stream authenticates the browser's session token, rebinds the
+# tenant_id from the resolved user, and proxies to the internal ingest
+# broadcaster (AISOC_INGEST_GRAPH_WS_URL). Backs the RealtimeGraph
+# Cytoscape view; gates on graph:read.
+api_router.include_router(graph_ws.router)

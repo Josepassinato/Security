@@ -77,10 +77,7 @@ def test_normalize_creation_date_ms_to_iso(fixture):
 
 @pytest.mark.asyncio
 @respx.mock
-async def test_fetch_alerts_uses_pagination(
-    fixture: dict,
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
+async def test_fetch_alerts_uses_pagination(fixture):
     calls = 0
 
     def handler(request: httpx.Request) -> httpx.Response:
@@ -96,12 +93,15 @@ async def test_fetch_alerts_uses_pagination(
     respx.get(f"{_SITE}/wiki/rest/api/audit").mock(side_effect=handler)
 
     connector = ConfluenceAuditConnector(_SITE, _EMAIL, _TOKEN)
-    # Lower the page size to match the fixture. ``monkeypatch`` rewrites the
-    # module attribute and restores it automatically at teardown, so we keep
-    # a single import style for the connector module (CodeQL
-    # ``py/import-and-import-from``).
-    monkeypatch.setattr("app.connectors.confluence_audit._PAGE_SIZE", 4)
-    events = await connector.fetch_alerts(since_seconds=10**9)
+    # Lower the page size to match the fixture.
+    import app.connectors.confluence_audit as mod
+
+    monkey_orig = mod._PAGE_SIZE  # noqa: SLF001
+    try:
+        mod._PAGE_SIZE = 4  # type: ignore[assignment]
+        events = await connector.fetch_alerts(since_seconds=10**9)
+    finally:
+        mod._PAGE_SIZE = monkey_orig  # type: ignore[assignment]
 
     # First page returned 4 items, second page returned []; pagination
     # terminated cleanly.

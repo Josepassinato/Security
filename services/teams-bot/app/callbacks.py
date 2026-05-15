@@ -35,13 +35,8 @@ log = structlog.get_logger(__name__)
 
 
 class _ActionsClient(Protocol):
-    # Protocol bodies are documentation-only. Using docstrings instead of
-    # ``...`` avoids CodeQL ``py/ineffectual-statement`` warnings on stub bodies.
-    async def approve_action(self, action_id: str) -> dict[str, Any]:
-        """Approve the action identified by ``action_id``."""
-
-    async def reject_action(self, action_id: str) -> dict[str, Any]:
-        """Reject the action identified by ``action_id``."""
+    async def approve_action(self, action_id: str) -> dict[str, Any]: ...
+    async def reject_action(self, action_id: str) -> dict[str, Any]: ...
 
 
 @dataclass(slots=True, frozen=True)
@@ -57,8 +52,7 @@ class _AuditEvent:
 
 
 class _AuditSink(Protocol):
-    async def record(self, event: _AuditEvent) -> None:
-        """Persist an approval-audit event."""
+    async def record(self, event: _AuditEvent) -> None: ...
 
 
 class CallbackResult(dict):
@@ -111,7 +105,9 @@ async def handle_card_action(
         return CallbackResult(
             decision="rejected_unknown_verb",
             ok=False,
-            card=decision_card(decision="rejected", action_id=action_id, decided_by=approver_id),
+            card=decision_card(
+                decision="rejected", action_id=action_id, decided_by=approver_id
+            ),
             error=f"unknown verb {verb!r}",
         )
 
@@ -161,7 +157,9 @@ async def handle_card_action(
             decision=decision_label,
             ok=False,
             error=str(exc),
-            card=decision_card(decision=decision_label, action_id=action_id, decided_by=approver_id),
+            card=decision_card(
+                decision=decision_label, action_id=action_id, decided_by=approver_id
+            ),
         )
 
     if audit_sink is not None:
@@ -178,7 +176,9 @@ async def handle_card_action(
     return CallbackResult(
         decision=decision_label,
         ok=True,
-        card=decision_card(decision=decision_label, action_id=action_id, decided_by=approver_id),
+        card=decision_card(
+            decision=decision_label, action_id=action_id, decided_by=approver_id
+        ),
     )
 
 

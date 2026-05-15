@@ -14,8 +14,8 @@ import (
 
 	"github.com/beenuar/aisoc/services/ingest/internal/config"
 	configsnap "github.com/beenuar/aisoc/services/ingest/internal/config_snapshot"
-	"github.com/beenuar/aisoc/services/ingest/internal/envmode"
 	"github.com/beenuar/aisoc/services/ingest/internal/graph"
+	"github.com/beenuar/aisoc/services/ingest/internal/graph_ws"
 	"github.com/beenuar/aisoc/services/ingest/internal/handler"
 	"github.com/beenuar/aisoc/services/ingest/internal/inbox"
 	"github.com/beenuar/aisoc/services/ingest/internal/normalizer"
@@ -170,11 +170,44 @@ func main() {
 		log.Info().Msg("inbox: skipped (no DATABASE_DSN)")
 	}
 
-	srv := server.New(cfg, h, inboxHandler)
+	// T1.4 (v8.0) — graph-update WebSocket fan-out. Opt-in via
+	// AISOC_GRAPH_WS_ENABLED=true. The broadcaster owns a single
+	// Kafka consumer against GraphUpdatesTopic and fans envelopes
+	// out to subscribed WebSocket clients with per-tenant filtering.
+	// Failures NEVER block the ingest path — the Kafka publish side
+	// (T1.1) is independent and the broadcaster is consumer-only.
+	var graphWSServer *graph_ws.Server
+	var graphWSBroker *graph_ws.Broadcaster
+	if cfg.GraphWSEnabled {
+		src, err := graph_ws.NewKafkaSource(graph_ws.KafkaSourceConfig{
+			Brokers: cfg.KafkaBrokers,
+			Topic:   cfg.GraphUpdatesTopic,
+			GroupID: cfg.GraphWSGroupID,
+		})
+		if err != nil {
+			log.Warn().Err(err).Msg("graph_ws: disabled (Kafka source init failed)")
+		} else {
+			graphWSBroker = graph_ws.New(src, graph_ws.Options{BufferSize: cfg.GraphWSSubscriberBuffer})
+			graphWSServer = graph_ws.NewServer(graphWSBroker)
+			log.Info().
+				Str("topic", cfg.GraphUpdatesTopic).
+				Int("buffer", cfg.GraphWSSubscriberBuffer).
+				Msg("graph_ws: T1.4 WebSocket broadcaster enabled")
+		}
+	} else {
+		log.Info().Msg("graph_ws: disabled (AISOC_GRAPH_WS_ENABLED!=true)")
+	}
+
+	srv := server.New(cfg, h, inboxHandler, graphWSServer)
 
 	// Graceful shutdown
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+
+	if graphWSBroker != nil {
+		graphWSBroker.Start(ctx)
+		defer graphWSBroker.Stop()
+	}
 
 	// Drain VulnMatches → Kafka in a background goroutine
 	if norm.VulnMatches != nil {

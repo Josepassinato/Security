@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/beenuar/aisoc/services/ingest/internal/config"
+	"github.com/beenuar/aisoc/services/ingest/internal/graph_ws"
 	"github.com/beenuar/aisoc/services/ingest/internal/handler"
 	"github.com/beenuar/aisoc/services/ingest/internal/inbox"
 	"github.com/go-chi/chi/v5"
@@ -62,7 +63,12 @@ type Server struct {
 // inbox handler and just doesn't mount the universal-capture routes.
 // In production both handlers are wired; in dev without DATABASE_DSN
 // only the connector path is up.
-func New(cfg *config.Config, h *handler.Handler, inboxHandler *inbox.Handler) *Server {
+//
+// graphWSServer is the optional T1.4 WebSocket broadcaster (graph
+// update fan-out). Nil disables the /v1/graph_ws/stream route, which
+// is the expected default until an operator opts in via
+// AISOC_GRAPH_WS_ENABLED=true.
+func New(cfg *config.Config, h *handler.Handler, inboxHandler *inbox.Handler, graphWSServer *graph_ws.Server) *Server {
 	r := chi.NewRouter()
 
 	// Middleware
@@ -115,6 +121,17 @@ func New(cfg *config.Config, h *handler.Handler, inboxHandler *inbox.Handler) *S
 			})
 		} else {
 			log.Warn().Msg("inbox routes disabled (no Postgres pool wired)")
+		}
+
+		// T1.4 — graph-update WebSocket fan-out. The Python API
+		// proxy at services/api/app/api/v1/endpoints/graph_ws.py is
+		// the public-facing entry point (auth + tenant binding); the
+		// ingest route is internal and trusts that the proxy has
+		// validated the connecting tenant. We still require
+		// ?tenant_id=<id> as a defence-in-depth filter so a misrouted
+		// internal client can't subscribe to every tenant by accident.
+		if graphWSServer != nil {
+			r.Handle("/graph_ws/stream", graphWSServer.Handler())
 		}
 	})
 

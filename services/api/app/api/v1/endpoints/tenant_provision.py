@@ -1,7 +1,5 @@
 """Admin tenant-provisioning endpoints — T6.1 (`app.aisoc.dev` managed beta).
 
-# TODO(T6.1): wire into v1 router after Subagent A's stabilization push lands.
-
 Exposes the bridge between the waitlist (built in commit 1 of this
 work) and the live ``tenants`` table:
 
@@ -43,8 +41,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.v1.deps import AuthUser, DBSession
 from app.models.tenant import Tenant
 from app.services.tenant_provision import (
-    ProvisioningError,
     ProvisionResult,
+    ProvisioningError,
     SlugCollisionError,
     WaitlistEntryNotFoundError,
     WaitlistEntryNotPromotableError,
@@ -187,7 +185,9 @@ def _tenant_to_wire(row: Tenant) -> TenantListEntry:
         plan=row.plan or "starter",
         is_active=bool(row.is_active),
         is_managed=bool(settings_blob.get("managed", False)),
-        provisioned_from_waitlist_id=settings_blob.get("provisioned_from_waitlist_id"),
+        provisioned_from_waitlist_id=settings_blob.get(
+            "provisioned_from_waitlist_id"
+        ),
         provisioned_at=settings_blob.get("provisioned_at"),
         created_at=row.created_at.isoformat() if row.created_at else "",
     )

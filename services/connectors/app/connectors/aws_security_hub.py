@@ -182,7 +182,9 @@ class AWSSecurityHubConnector(BaseConnector):
                 return {"error": "trail not found"}
             trail = trails[0]
             try:
-                selectors = ct.get_event_selectors(TrailName=trail_arn).get("EventSelectors", [])
+                selectors = ct.get_event_selectors(TrailName=trail_arn).get(
+                    "EventSelectors", []
+                )
             except Exception:  # noqa: BLE001
                 selectors = []
             return {
@@ -236,7 +238,9 @@ class AWSSecurityHubConnector(BaseConnector):
                         break
             if not chosen:
                 return {"error": "no policy versions"}
-            doc = iam.get_policy_version(PolicyArn=policy_arn, VersionId=chosen["VersionId"]).get("PolicyVersion", {}).get("Document", {})
+            doc = iam.get_policy_version(
+                PolicyArn=policy_arn, VersionId=chosen["VersionId"]
+            ).get("PolicyVersion", {}).get("Document", {})
             return {
                 "resource_type": "AWS::IAM::ManagedPolicy",
                 "policy_arn": policy_arn,
@@ -253,9 +257,8 @@ class AWSSecurityHubConnector(BaseConnector):
         # and let it parse. If Config isn't recording the resource we get
         # an empty configurationItems list and surface that cleanly.
         try:
-            from datetime import datetime as _dt
-
             import boto3
+            from datetime import datetime as _dt
 
             kwargs: dict[str, Any] = {"region_name": self._region}
             if self._access_key and self._secret_key:
@@ -279,7 +282,9 @@ class AWSSecurityHubConnector(BaseConnector):
                 params["resourceType"] = "AWS::" + arn_parts[2].capitalize() + "::Resource"
             if target:
                 params["laterTime"] = target
-            items = cfgc.get_resource_config_history(**params).get("configurationItems", [])
+            items = cfgc.get_resource_config_history(**params).get(
+                "configurationItems", []
+            )
             if not items:
                 return {"error": "not recorded"}
             return {

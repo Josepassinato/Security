@@ -32,6 +32,7 @@ from collections.abc import Iterable
 from datetime import datetime, timedelta
 
 import pytest
+
 from app.services.attack_chain import (
     DEFAULT_WINDOW,
     CandidateAlert,
@@ -42,6 +43,7 @@ from app.services.attack_chain import (
     compute_attack_chain,
     score_candidate,
 )
+
 
 # ---------------------------------------------------------------------------
 # Fixture: the 5-alert LockBit chain
@@ -140,7 +142,9 @@ class _InMemoryLoader:
         self._by_id = {a.id: a for a in alerts}
         self._all = alerts
 
-    async def load_seed(self, alert_id: uuid.UUID, tenant_id: uuid.UUID) -> CandidateAlert | None:
+    async def load_seed(
+        self, alert_id: uuid.UUID, tenant_id: uuid.UUID
+    ) -> CandidateAlert | None:
         row = self._by_id.get(alert_id)
         if row is None or row.tenant_id != tenant_id:
             return None

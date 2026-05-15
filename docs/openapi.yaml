@@ -5899,51 +5899,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/metrics/funnel:
-    get:
-      tags:
-      - metrics
-      summary: Get Funnel Metrics
-      description: 'Return the live tenant funnel for the SOC Console (v1.5).
-
-
-        Funnel: events_of_interest → correlation_instances → alerts_generated →
-
-        analyst_queue_depth, plus efficiency ratios and MITRE coverage.
-
-
-        ``deltas`` compares the current window to the immediately preceding window
-
-        of the same length (e.g. for ``period=24h`` we compare to the 24h ending
-
-        24h ago). Values are percentage changes rounded to two decimals; a delta
-
-        of ``0.0`` means "no meaningful baseline" (the previous window was empty).'
-      operationId: get_funnel_metrics_api_v1_metrics_funnel_get
-      security:
-      - HTTPBearer: []
-      parameters:
-      - name: period
-        in: query
-        required: false
-        schema:
-          type: string
-          pattern: ^(1h|24h|7d|30d)$
-          default: 24h
-          title: Period
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/FunnelMetrics'
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
   /api/v1/insights/soc:
     get:
       tags:
@@ -5987,38 +5942,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/health/pipeline:
-    get:
-      tags:
-      - health
-      summary: Get Pipeline Health
-      description: 'Return a 5-stage health snapshot of the SOC pipeline for the tenant.
-
-
-        Stages: ``ingest → normalize → fuse → correlate → alert``. See the
-
-        module docstring for what each cell measures and why some columns
-
-        are intentionally ``0`` until deeper instrumentation lands.
-
-
-        The window for latency / backlog computations is the last hour.
-
-        The ``status`` ladder is ``unknown | green | yellow | red`` and
-
-        follows the same convention as
-
-        ``app.services.connector_freshness``.'
-      operationId: get_pipeline_health_api_v1_health_pipeline_get
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PipelineHealth'
-      security:
-      - HTTPBearer: []
   /api/v1/sla/metrics:
     get:
       tags:
@@ -25496,11 +25419,6 @@ components:
         type:
           type: string
           title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
       type: object
       required:
       - loc

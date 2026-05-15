@@ -25,22 +25,13 @@ log = structlog.get_logger(__name__)
 
 
 class _ActionsClient(Protocol):
-    # Protocol method bodies are documentation-only. We use docstrings (rather
-    # than ``...``) so static analysers don't flag the bodies as ineffectual
-    # statements (CodeQL ``py/ineffectual-statement``).
-    async def approve_action(self, action_id: str) -> dict[str, Any]:
-        """Approve the action identified by ``action_id``."""
-
-    async def reject_action(self, action_id: str) -> dict[str, Any]:
-        """Reject the action identified by ``action_id``."""
-
-    async def aclose(self) -> None:
-        """Release underlying network resources."""
+    async def approve_action(self, action_id: str) -> dict[str, Any]: ...
+    async def reject_action(self, action_id: str) -> dict[str, Any]: ...
+    async def aclose(self) -> None: ...
 
 
 class _AuditSink(Protocol):
-    async def record(self, event: Any) -> None:
-        """Persist an approval-audit event."""
+    async def record(self, event: Any) -> None: ...
 
 
 class _FallbackActionsClient:
@@ -75,7 +66,13 @@ class _FallbackActionsClient:
 
 def _try_import_slack_bot_client():
     """Best-effort import of the Slack bot's actions client."""
-    candidate = Path(__file__).resolve().parents[3] / "slack-bot" / "app" / "services" / "aisoc_clients.py"
+    candidate = (
+        Path(__file__).resolve().parents[3]
+        / "slack-bot"
+        / "app"
+        / "services"
+        / "aisoc_clients.py"
+    )
     if not candidate.exists():
         return None
     spec = importlib.util.spec_from_file_location("_aisoc_slack_bot_clients", candidate)
@@ -108,7 +105,13 @@ class _NullAuditSink:
 
 def build_audit_sink() -> _AuditSink:
     """Construct the shared audit sink if available; null sink otherwise."""
-    candidate = Path(__file__).resolve().parents[3] / "slack-bot" / "app" / "services" / "approval_audit.py"
+    candidate = (
+        Path(__file__).resolve().parents[3]
+        / "slack-bot"
+        / "app"
+        / "services"
+        / "approval_audit.py"
+    )
     if not candidate.exists():
         return _NullAuditSink()
     spec = importlib.util.spec_from_file_location("_aisoc_audit", candidate)

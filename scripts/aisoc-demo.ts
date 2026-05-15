@@ -41,7 +41,7 @@
  */
 import { execSync, spawnSync } from "node:child_process";
 import { writeFileSync } from "node:fs";
-import { createConnection } from "node:net";
+import { createConnection, createServer } from "node:net";
 import { join } from "node:path";
 import { platform } from "node:os";
 
@@ -238,6 +238,94 @@ async function probePort(host: string, port: number, timeoutMs = 1500): Promise<
   });
 }
 
+// ---------- Port allocation ----------
+//
+// Why this exists: every prior failed `pnpm aisoc:demo` run can leave
+// behind a half-spawned container (or a stale com.docker proxy) that
+// still holds the canonical host port — the symptom the user sees is
+// `failed to bind port 127.0.0.1:3000/tcp: bind: address already in
+// use` deep in a docker-compose error wall. A unrelated `next dev` on
+// 3000, a local Postgres on 5432, or a Kafka broker on 9092 produce the
+// same opaque failure. We solve that by checking each host-published
+// port up front and falling forward to the next free port in a small
+// window if the canonical one is taken. The compose file uses these
+// values via AISOC_*_PORT env vars (with defaults), so manual `docker
+// compose up` outside this script still binds the canonical ports.
+
+interface PortMap {
+  web: number;
+  api: number;
+  realtime: number;
+  postgres: number;
+  redis: number;
+  kafka: number;
+}
+
+const DEFAULT_PORTS: PortMap = {
+  web: 3000,
+  api: 8000,
+  realtime: 8086,
+  postgres: 5432,
+  redis: 6379,
+  kafka: 9092,
+};
+
+// `allocatedPorts` is module-level because half a dozen call sites
+// (waitForHealth, findSeededCase, kickoffInvestigation, openInBrowser,
+// the final banner) need the resolved values. Threading them through
+// every signature would be more code than the values are worth.
+let allocatedPorts: PortMap = { ...DEFAULT_PORTS };
+
+// Tests an actual bind on 127.0.0.1. Connect-based probes give false
+// negatives for ports whose owner doesn't accept() fast enough; binding
+// is the same test Docker is going to run, so the answer is authoritative.
+function isPortFree(port: number): Promise<boolean> {
+  return new Promise((resolve) => {
+    const tester = createServer();
+    tester.once("error", () => resolve(false));
+    tester.once("listening", () => {
+      tester.close(() => resolve(true));
+    });
+    try {
+      tester.listen(port, "127.0.0.1");
+    } catch {
+      resolve(false);
+    }
+  });
+}
+
+// Scan upward from `start` for a free port. The window is intentionally
+// small (50) because a host that has 50 consecutive ports in this range
+// busy is almost certainly misconfigured and silently rerouting the user
+// would create more confusion than failing fast.
+async function pickFreePort(start: number, max = 50): Promise<number> {
+  for (let p = start; p < start + max; p++) {
+    if (await isPortFree(p)) return p;
+  }
+  throw new Error(
+    `no free TCP port near ${start} (checked ${start}..${start + max - 1}). ` +
+      `Free one of them or stop the conflicting process and retry.`,
+  );
+}
+
+async function allocatePorts(): Promise<{
+  ports: PortMap;
+  reassigned: Array<{ service: keyof PortMap; from: number; to: number }>;
+}> {
+  // Allocate sequentially so each service can drift independently — a
+  // taken 3000 doesn't push api off 8000. Each starts from its canonical
+  // default and only moves if forced.
+  const ports = { ...DEFAULT_PORTS };
+  const reassigned: Array<{ service: keyof PortMap; from: number; to: number }> = [];
+  for (const service of Object.keys(DEFAULT_PORTS) as Array<keyof PortMap>) {
+    const def = DEFAULT_PORTS[service];
+    const free = await pickFreePort(def);
+    ports[service] = free;
+    if (free !== def) reassigned.push({ service, from: def, to: free });
+  }
+  return { ports, reassigned };
+}
+
 async function fetchJson(url: string, timeoutMs = 5000): Promise<any | null> {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), timeoutMs);
@@ -410,11 +498,51 @@ function pullImages(flags: Flags): boolean {
   return true;
 }
 
-function startStack(flags: Flags): boolean {
+function portEnv(ports: PortMap): NodeJS.ProcessEnv {
+  return {
+    AISOC_WEB_PORT: String(ports.web),
+    AISOC_API_PORT: String(ports.api),
+    AISOC_REALTIME_PORT: String(ports.realtime),
+    AISOC_POSTGRES_PORT: String(ports.postgres),
+    AISOC_REDIS_PORT: String(ports.redis),
+    AISOC_KAFKA_PORT: String(ports.kafka),
+  };
+}
+
+async function startStack(flags: Flags): Promise<boolean> {
   step(3, 7, "Starting AiSOC demo stack");
+
+  // Pick host ports BEFORE compose up so any conflict (lingering
+  // aisoc-demo-* container, unrelated dev server, local Postgres) is
+  // surfaced in the script's own output instead of buried in a docker
+  // compose error wall. Module-level so the rest of the script can read
+  // the resolved values without threading them through every signature.
+  let reassigned: Array<{ service: keyof PortMap; from: number; to: number }> = [];
+  try {
+    const alloc = await allocatePorts();
+    allocatedPorts = alloc.ports;
+    reassigned = alloc.reassigned;
+  } catch (e: any) {
+    console.error(c.red(`port allocation failed: ${e?.message ?? e}`));
+    return false;
+  }
+  if (reassigned.length > 0) {
+    for (const r of reassigned) {
+      log(
+        c.yellow("port") +
+          ` ${r.service} ${c.dim(String(r.from))} in use → using ${c.bold(String(r.to))}`,
+      );
+    }
+  } else {
+    log(c.green("ok") + " all canonical ports free");
+  }
+
   const args = ["compose", "-f", COMPOSE_FILE, "up", "-d"];
   if (flags.rebuild) args.push("--build");
-  const code = runStream("docker", args, { AISOC_TAG: flags.tag });
+  const code = runStream("docker", args, {
+    AISOC_TAG: flags.tag,
+    ...portEnv(allocatedPorts),
+  });
   if (code !== 0) {
     console.error(c.red("docker compose up failed. See output above."));
     return false;
@@ -427,7 +555,7 @@ async function waitForHealth(): Promise<boolean> {
 
   const postgresUp = await waitFor(
     "postgres",
-    async () => probePort("127.0.0.1", 5432),
+    async () => probePort("127.0.0.1", allocatedPorts.postgres),
     60_000,
     1000,
   );
@@ -436,7 +564,10 @@ async function waitForHealth(): Promise<boolean> {
   const apiUp = await waitFor(
     "api /health",
     async () => {
-      const j = await fetchJson("http://localhost:8000/health", 1500);
+      const j = await fetchJson(
+        `http://localhost:${allocatedPorts.api}/health`,
+        1500,
+      );
       return j !== null;
     },
     120_000,
@@ -448,7 +579,7 @@ async function waitForHealth(): Promise<boolean> {
     "web",
     async () => {
       try {
-        const res = await fetch("http://localhost:3000", {
+        const res = await fetch(`http://localhost:${allocatedPorts.web}`, {
           signal: AbortSignal.timeout(1500),
         });
         return res.status > 0;
@@ -550,7 +681,10 @@ async function findSeededCase(
     // larger than the seed's ~16 cases). Filtering server-side by
     // case_number would be cleaner but the cases list endpoint doesn't
     // currently expose that filter, and the volume is trivially small.
-    const res = await fetchJson("http://localhost:8000/v1/cases?page_size=50", 4000);
+    const res = await fetchJson(
+      `http://localhost:${allocatedPorts.api}/v1/cases?page_size=50`,
+      4000,
+    );
     if (res && Array.isArray(res.items) && res.items.length > 0) {
       const found = res.items.find(
         (item: any) => item.case_number === showcase,
@@ -586,7 +720,7 @@ async function kickoffInvestigation(caseId: string): Promise<boolean> {
   // a heuristic plan, which is still demo-worthy.
   log(c.dim("kicking off agent investigation…"));
   const result = await postJson(
-    `http://localhost:8000/v1/cases/${caseId}/investigate`,
+    `http://localhost:${allocatedPorts.api}/v1/cases/${caseId}/investigate`,
     {},
     10000,
   );
@@ -617,12 +751,13 @@ async function openInBrowser(
   // all land in the same place. The Next.js [id] route resolves both
   // case_number and UUID via the API's case_number_or_id lookup
   // (services/api/app/api/v1/endpoints/cases.py).
+  const webBase = `http://localhost:${allocatedPorts.web}`;
   const safeNumber = seeded ? sanitizeCaseNumber(seeded.case_number) : null;
   const url = seeded
     ? safeNumber
-      ? `http://localhost:3000/cases/${safeNumber}?tab=ledger`
-      : `http://localhost:3000/cases/${seeded.id}?tab=ledger`
-    : "http://localhost:3000/cases";
+      ? `${webBase}/cases/${safeNumber}?tab=ledger`
+      : `${webBase}/cases/${seeded.id}?tab=ledger`
+    : `${webBase}/cases`;
   step(7, 7, `Opening browser at ${url}`);
   if (flags.noOpen) {
     log(c.dim("--no-open: not launching browser"));
@@ -637,8 +772,8 @@ async function openInBrowser(
   console.log(`
 ${c.bold(c.green("AiSOC demo is up."))}
   ${c.bold("Web:")}        ${url}
-  ${c.bold("API:")}        http://localhost:8000/docs
-  ${c.bold("Realtime:")}   ws://localhost:8086
+  ${c.bold("API:")}        http://localhost:${allocatedPorts.api}/docs
+  ${c.bold("Realtime:")}   ws://localhost:${allocatedPorts.realtime}
 
 ${c.dim("Useful commands:")}
   pnpm aisoc:doctor                           ${c.dim("# health check")}
@@ -776,7 +911,7 @@ async function main() {
 
   if (!checkDocker()) process.exit(1);
   if (!pullImages(flags)) process.exit(1);
-  if (!startStack(flags)) process.exit(1);
+  if (!(await startStack(flags))) process.exit(1);
   if (!(await waitForHealth())) {
     console.error(c.red("\nstack failed to come up healthy. Run `pnpm aisoc:doctor` for details."));
     process.exit(1);

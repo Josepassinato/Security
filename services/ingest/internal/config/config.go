@@ -85,6 +85,23 @@ type Config struct {
 	// (T1.4) for live graph-update streaming. Empty means "don't publish".
 	GraphUpdatesTopic string
 
+	// GraphWSEnabled toggles the in-process T1.4 graph-update
+	// WebSocket broadcaster. When on, the ingest binary spins up a
+	// Kafka consumer against GraphUpdatesTopic and exposes
+	// /v1/graph_ws/stream for tenant-scoped fan-out. The Python API
+	// proxy at services/api/app/api/v1/endpoints/graph_ws.py is the
+	// public-facing entry point and is what end users connect to —
+	// the ingest endpoint is internal.
+	GraphWSEnabled bool
+	// GraphWSGroupID overrides the Kafka consumer group used by the
+	// broadcaster. Defaults to "graph-ws-<hostname>" so every pod
+	// sees every envelope (live-tail semantics, no partitioning).
+	GraphWSGroupID string
+	// GraphWSSubscriberBuffer is the per-client buffer size in
+	// envelopes. Healthy clients see every event; a slow client
+	// drops on full buffer.
+	GraphWSSubscriberBuffer int
+
 	// Config snapshots (T1.2 — v8.0).
 	//
 	// SnapshotEnabled toggles the per-event resource config snapshotter.
@@ -160,6 +177,14 @@ func Load() (*Config, error) {
 		GraphFlushIntervalMs: mustGetEnvInt("AISOC_GRAPH_FLUSH_INTERVAL_MS", 100),
 		GraphQueueSize:       mustGetEnvInt("AISOC_GRAPH_QUEUE_SIZE", 2048),
 		GraphUpdatesTopic:    getEnv("AISOC_GRAPH_UPDATES_TOPIC", "security.graph_updates"),
+
+		// Graph-update WebSocket fan-out (T1.4, v8.0). Disabled by
+		// default — operators flip AISOC_GRAPH_WS_ENABLED=true once
+		// the consumer side (Python API proxy + web hook) is
+		// rolled out.
+		GraphWSEnabled:          getEnv("AISOC_GRAPH_WS_ENABLED", "false") == "true",
+		GraphWSGroupID:          getEnv("AISOC_GRAPH_WS_GROUP_ID", ""),
+		GraphWSSubscriberBuffer: mustGetEnvInt("AISOC_GRAPH_WS_BUFFER", 256),
 
 		// Config snapshots (T1.2, v8.0). Disabled by default — operators
 		// flip AISOC_SNAPSHOT_ENABLED=true once the connectors service

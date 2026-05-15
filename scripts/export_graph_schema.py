@@ -42,7 +42,6 @@ Exit codes
 from __future__ import annotations
 
 import argparse
-import contextlib
 import json
 import os
 import re
@@ -221,8 +220,10 @@ def parse_live_neo4j() -> tuple[set[str], set[str]] | None:
     except Exception:
         return None
     finally:
-        with contextlib.suppress(Exception):
+        try:
             driver.close()
+        except Exception:
+            pass
 
     return labels, rels
 

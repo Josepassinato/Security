@@ -116,6 +116,7 @@ const sidebars: SidebarsConfig = {
         "operations/troubleshooting",
         "operations/faq",
         "operations/adoption-questions",
+        "operations/managed-instance",
       ],
     },
     {

@@ -47,8 +47,11 @@ services:
       POSTGRES_DB: aisoc
       POSTGRES_USER: aisoc
       POSTGRES_PASSWORD: aisoc_dev_secret
+    # Host port is overridable so `pnpm aisoc:demo` can fall forward to the
+    # next free port when a local Postgres is already bound to 5432. The
+    # container port stays at 5432; only the publish side changes.
     ports:
-      - "127.0.0.1:5432:5432"
+      - "127.0.0.1:${AISOC_POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_demo_data:/var/lib/postgresql/data
     networks:
@@ -64,7 +67,7 @@ services:
     container_name: aisoc-demo-redis
     command: redis-server --appendonly yes --requirepass redis_dev_secret
     ports:
-      - "127.0.0.1:6379:6379"
+      - "127.0.0.1:${AISOC_REDIS_PORT:-6379}:6379"
     volumes:
       - redis_demo_data:/data
     networks:
@@ -96,7 +99,7 @@ services:
       zookeeper:
         condition: service_healthy
     ports:
-      - "127.0.0.1:9092:9092"
+      - "127.0.0.1:${AISOC_KAFKA_PORT:-9092}:9092"
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
@@ -139,7 +142,7 @@ services:
       kafka:
         condition: service_healthy
     ports:
-      - "127.0.0.1:8000:8000"
+      - "127.0.0.1:${AISOC_API_PORT:-8000}:8000"
     environment:
       DATABASE_URL: postgresql+asyncpg://aisoc:aisoc_dev_secret@postgres:5432/aisoc
       REDIS_URL: redis://:redis_dev_secret@redis:6379/0
@@ -148,7 +151,10 @@ services:
       ENV: development
       ENVIRONMENT: development
       LOG_LEVEL: info
-      CORS_ORIGINS: http://localhost:3000
+      # Browser → api CORS origin tracks the web host port so a fallback
+      # publish (e.g. 3001) still passes the api's CORS preflight when a
+      # caller hits the api directly.
+      CORS_ORIGINS: http://localhost:${AISOC_WEB_PORT:-3000}
       # The agents service listens on port 8084 inside the Docker network
       # (see its Dockerfile + the agents service block below). Without this
       # the api defaults to `http://agents:8000` and every playbook / case
@@ -176,7 +182,7 @@ services:
       redis:
         condition: service_healthy
     ports:
-      - "127.0.0.1:8001:8084"
+      - "127.0.0.1:${AISOC_AGENTS_PORT:-8001}:8084"
     environment:
       DATABASE_URL: postgresql+asyncpg://aisoc:aisoc_dev_secret@postgres:5432/aisoc
       REDIS_URL: redis://:redis_dev_secret@redis:6379/4
@@ -201,7 +207,7 @@ services:
       kafka:
         condition: service_healthy
     ports:
-      - "127.0.0.1:8086:4000"
+      - "127.0.0.1:${AISOC_REALTIME_PORT:-8086}:4000"
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       REDIS_URL: redis://:redis_dev_secret@redis:6379
@@ -281,7 +287,7 @@ services:
       - agents
       - realtime
     ports:
-      - "127.0.0.1:3000:3000"
+      - "127.0.0.1:${AISOC_WEB_PORT:-3000}:3000"
     environment:
       # Server-side rewrite targets (used by the Next.js Node process).
       # These never reach the browser — only the proxy layer in next.config.js.

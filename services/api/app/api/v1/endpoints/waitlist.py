@@ -1,7 +1,5 @@
 """Managed-instance waitlist endpoints — T6.1.
 
-# TODO(T6.1): wire into v1 router after Subagent A's stabilization push lands.
-
 Three endpoints, one public + two admin-only:
 
 * ``POST  /v1/waitlist/signup``           — public, rate-limited per IP.
@@ -191,7 +189,9 @@ class WaitlistPatchRequest(BaseModel):
     def _validate_status(cls, value: str) -> str:
         v = value.strip().lower()
         if v not in ALLOWED_WAITLIST_STATUSES:
-            raise ValueError(f"status must be one of: {sorted(ALLOWED_WAITLIST_STATUSES)}")
+            raise ValueError(
+                f"status must be one of: {sorted(ALLOWED_WAITLIST_STATUSES)}"
+            )
         return v
 
 
@@ -229,7 +229,9 @@ def _to_wire(row: WaitlistEntry) -> WaitlistEntryWire:
         soc_stack=list(row.soc_stack or []),
         motivation=row.motivation,
         status=row.status,
-        provisioned_tenant_id=(str(row.provisioned_tenant_id) if row.provisioned_tenant_id else None),
+        provisioned_tenant_id=(
+            str(row.provisioned_tenant_id) if row.provisioned_tenant_id else None
+        ),
         created_at=row.created_at.isoformat(),
         contacted_at=row.contacted_at.isoformat() if row.contacted_at else None,
         onboarded_at=row.onboarded_at.isoformat() if row.onboarded_at else None,
@@ -291,7 +293,9 @@ async def signup(
     # path — only the admin PATCH endpoint moves an entry off ``new``.
     entry: WaitlistEntry | None = None
     try:
-        existing = (await db.execute(select(WaitlistEntry).where(WaitlistEntry.email == payload.email))).scalar_one_or_none()
+        existing = (
+            await db.execute(select(WaitlistEntry).where(WaitlistEntry.email == payload.email))
+        ).scalar_one_or_none()
         if existing is not None:
             return WaitlistSignupResponse(entry_id=str(existing.id))
 
@@ -310,7 +314,9 @@ async def signup(
         # Race: another request inserted between SELECT and commit.
         # Treat as idempotent success and look the row back up.
         await db.rollback()
-        existing = (await db.execute(select(WaitlistEntry).where(WaitlistEntry.email == payload.email))).scalar_one_or_none()
+        existing = (
+            await db.execute(select(WaitlistEntry).where(WaitlistEntry.email == payload.email))
+        ).scalar_one_or_none()
         if existing is not None:
             return WaitlistSignupResponse(entry_id=str(existing.id))
         # If we still can't find it, fall through to a generic success
@@ -391,9 +397,13 @@ async def patch_entry(
     user: AuthUser,
 ) -> WaitlistEntryWire:
     await _require_admin(user, db)
-    row = (await db.execute(select(WaitlistEntry).where(WaitlistEntry.id == entry_id))).scalar_one_or_none()
+    row = (
+        await db.execute(select(WaitlistEntry).where(WaitlistEntry.id == entry_id))
+    ).scalar_one_or_none()
     if row is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="waitlist_entry_not_found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="waitlist_entry_not_found"
+        )
 
     now = datetime.now(UTC)
     previous = row.status
@@ -420,29 +430,13 @@ async def patch_entry(
             detail="Could not update waitlist entry.",
         ) from exc
 
-    # CodeQL py/log-injection: sanitise every value inline so the taint
-    # tracker sees the .replace() chain directly at the call site.
-    #
-    # - ``previous`` / ``payload.status`` are Pydantic-validated against
-    #   ``ALLOWED_WAITLIST_STATUSES`` (short identifiers, no CR/LF), and
-    # - ``entry_id`` / ``user.user_id`` are typed as ``uuid.UUID`` so the
-    #   string form is always ``[0-9a-f-]{36}``,
-    #
-    # but CodeQL's taint tracker treats path params and DB-derived
-    # strings as user-controlled regardless. Making the cleansing
-    # explicit at the call site silences the alert without weakening
-    # any existing guarantee.
-    safe_previous = (previous or "").replace("\r", "").replace("\n", " ")[:32]
-    safe_next = (payload.status or "").replace("\r", "").replace("\n", " ")[:32]
-    safe_entry_id = str(entry_id).replace("\r", "").replace("\n", " ")[:36]
-    safe_actor = str(user.user_id).replace("\r", "").replace("\n", " ")[:36]
     logger.info(
         "waitlist_status_transition",
         extra={
-            "entry_id": safe_entry_id,
-            "previous": safe_previous,
-            "next": safe_next,
-            "actor": safe_actor,
+            "entry_id": str(entry_id),
+            "previous": previous,
+            "next": payload.status,
+            "actor": str(user.user_id),
         },
     )
     return _to_wire(row)

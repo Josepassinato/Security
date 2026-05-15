@@ -48,7 +48,11 @@ class DropboxConnector(BaseConnector):
             connector_id=cls.connector_id,
             connector_name=cls.connector_name,
             category=cls.connector_category,
-            description=("Dropbox Business team event log: sharing, sign-in, member role changes, OAuth-app authorisations, policy edits."),
+            description=(
+                "Dropbox Business team event log: sharing, sign-in, "
+                "member role changes, OAuth-app authorisations, "
+                "policy edits."
+            ),
             docs_url="/docs/connectors/dropbox",
             fields=[
                 Field(
@@ -56,7 +60,9 @@ class DropboxConnector(BaseConnector):
                     "secret",
                     "Team admin token",
                     help_text=(
-                        "OAuth 2.0 token for a Dropbox Business app with the ``team_data.governance.read`` and ``events.read`` scopes."
+                        "OAuth 2.0 token for a Dropbox Business app "
+                        "with the ``team_data.governance.read`` and "
+                        "``events.read`` scopes."
                     ),
                 ),
             ],
@@ -104,8 +110,7 @@ class DropboxConnector(BaseConnector):
             return {"success": False, "connector": self.connector_id, "error": str(exc)}
 
     async def fetch_alerts(self, since_seconds: int = 300) -> list[dict[str, Any]]:
-        from datetime import UTC, datetime, timedelta
-
+        from datetime import datetime, timedelta, UTC
         since = (datetime.now(UTC) - timedelta(seconds=since_seconds)).strftime("%Y-%m-%dT%H:%M:%SZ")
         out: list[dict[str, Any]] = []
         cursor: str | None = None
@@ -167,9 +172,7 @@ class DropboxConnector(BaseConnector):
         event_type = (raw.get("event_type") or {}).get(".tag") or raw.get("event_type", "")
         if isinstance(event_type, dict):
             event_type = event_type.get(".tag", "")
-        category = (
-            (raw.get("event_category") or {}).get(".tag") if isinstance(raw.get("event_category"), dict) else raw.get("event_category", "")
-        )
+        category = (raw.get("event_category") or {}).get(".tag") if isinstance(raw.get("event_category"), dict) else raw.get("event_category", "")
         actor = raw.get("actor") or {}
         # actor is a tagged-union; flatten
         actor_user = (actor.get("user") or {}) if isinstance(actor, dict) else {}
@@ -188,7 +191,10 @@ class DropboxConnector(BaseConnector):
             "source": self.connector_id,
             "external_id": raw.get("event_id") or "",
             "title": event_type or "Dropbox event",
-            "description": (f"event={event_type}; category={category}; actor={actor_email}"),
+            "description": (
+                f"event={event_type}; category={category}; "
+                f"actor={actor_email}"
+            ),
             "severity": severity,
             "actor": actor_email or actor_user.get("display_name"),
             "actor_email": actor_email,

@@ -168,7 +168,9 @@ class LaceworkConnector(BaseConnector):
                             "startTime": start.strftime("%Y-%m-%dT%H:%M:%SZ"),
                             "endTime": end.strftime("%Y-%m-%dT%H:%M:%SZ"),
                         },
-                        "filters": [{"field": "status", "expression": "eq", "value": "NonCompliant"}],
+                        "filters": [
+                            {"field": "status", "expression": "eq", "value": "NonCompliant"}
+                        ],
                     },
                 )
                 if ce_resp.status_code == 200:
@@ -197,9 +199,6 @@ class LaceworkConnector(BaseConnector):
         kind = raw.get("_kind", "alert")
         if kind == "policy":
             return self._normalize_policy(raw)
-        # Lacework alerts expose info/low/medium/high/critical. Mirror
-        # all five tiers (including ``critical``) into AiSOC's ladder
-        # rather than collapsing critical to high.
         sev_raw = (raw.get("severity") or "").lower()
         if sev_raw in ("info", "low", "medium", "high", "critical"):
             sev = sev_raw

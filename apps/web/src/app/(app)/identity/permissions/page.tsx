@@ -11,7 +11,7 @@
 import EffectivePermissionsClient from './EffectivePermissionsClient';
 
 export const metadata = {
-  title: 'Effective Permissions',
+  title: 'Effective Permissions | AiSOC',
 };
 
 export default function EffectivePermissionsPage() {

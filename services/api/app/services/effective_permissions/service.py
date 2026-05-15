@@ -63,14 +63,9 @@ def _default_snapshot_loader(provider: str) -> dict[str, Any]:
     surfaces a 412 Precondition Failed ("no policy snapshot ingested yet").
     """
 
-    # ``provider`` is validated against ``SUPPORTED_PROVIDERS`` upstream, but
-    # CodeQL's ``py/log-injection`` taint analysis does not recognise the
-    # membership check as a sanitiser. Strip CR/LF explicitly so the value
-    # entering the log record cannot forge log lines.
-    safe_provider = provider.replace("\r", "").replace("\n", " ")
     logger.warning(
         "no production snapshot loader wired for provider=%s — returning {}",
-        safe_provider,
+        provider,
     )
     return {}
 
@@ -97,7 +92,10 @@ def resolve_effective_permissions(
 
     resolver_cls = SUPPORTED_PROVIDERS.get(provider)
     if resolver_cls is None:
-        raise ValueError(f"unknown provider {provider!r}; supported: {sorted(SUPPORTED_PROVIDERS)}")
+        raise ValueError(
+            f"unknown provider {provider!r}; supported: "
+            f"{sorted(SUPPORTED_PROVIDERS)}"
+        )
 
     resolver = resolver_cls()
     if snapshot is None:
