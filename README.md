@@ -101,6 +101,8 @@ Por enquanto Quarry é privado e desenvolvido por Increase Trainer Inc. Contribu
 
 - 📘 [ADR-001 — Decisão de fork](docs/adrs/ADR-001-fork-aisoc.md) — análise da decisão GO condicional
 - 📘 [ADR-002 — Estratégia de fork e upstream](docs/adrs/ADR-002-fork-strategy.md) — como tratamos merges de cima
+- 🧭 [Fronteira GitHub/VPS/artefatos](docs/operations/storage-and-review-boundary.md) — o que fica versionado e o que fica operacional
+- 🔎 [REVIEW_GUIDE.md](REVIEW_GUIDE.md) — guia para revisão externa do código
 - 🤖 [SKILL.md](docs/SKILL.md) — instruções para Claude Code trabalhar neste repo
 - 📜 [README.AISOC.md](README.AISOC.md) — README original do AiSOC (referência técnica preservada)
 - 📜 [LICENSE](LICENSE) — MIT

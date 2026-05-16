@@ -85,6 +85,11 @@ customizations/datasets/br-fintech-generator/output/*.csv
 customizations/datasets/br-fintech-generator/output/*.jsonl
 !customizations/datasets/br-fintech-generator/output/manifest.json
 
+# Optional dataset/object-storage versioning cache. DVC metadata can be tracked
+# later, but the local cache and temp files must remain machine-local.
+.dvc/cache/
+.dvc/tmp/
+
 # Vendored skill library content is tracked, but its nested clone metadata is not.
 customizations/skills/anthropic-cybersec/.git/
 
