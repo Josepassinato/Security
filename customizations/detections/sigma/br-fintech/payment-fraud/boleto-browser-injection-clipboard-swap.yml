@@ -1,0 +1,49 @@
+title: Boleto Browser Injection - Clipboard Swap During Payment Flow
+id: b1775058-5a94-40e1-a8a8-0a2fbc6b2be8
+status: experimental
+description: |
+  Detects suspicious browser telemetry during boleto payment flow indicating
+  clipboard/DOM manipulation by malicious extension or accessibility-enabled
+  Android app. Bolware variants intercept the copy event for the digitable
+  line and silently replace it with attacker-controlled barcode. Signal
+  combines clipboard write event from unknown extension with mismatch
+  between user-typed and submitted barcode.
+  Link to threat pattern: customizations/threat-intel/br-fintech/patterns/BOL-001-boleto-adulterado.yaml
+references:
+  - https://blog.bb.com.br/golpe-do-boleto-falso-saiba-como-se-proteger/
+  - https://www.fortes.adv.br/2024/03/08/golpe-do-boleto-adulterado-saiba-como-identificar-e-se-prevenir-dessa-fraude/
+author: Quarry - Increase Trainer Inc.
+date: 2026/05/15
+modified: 2026/05/15
+tags:
+  - attack.t1056.001
+  - attack.t1565.002
+  - attack.t1657
+  - vertical.fintech_br
+  - quarry.pattern.BOL-001
+  - quarry.severity.high
+logsource:
+  product: client_browser
+  category: telemetry
+detection:
+  selection:
+    event_type: 'boleto.input.submit'
+    clipboard_write_by_non_allowlisted_origin: true
+    barcode_changed_between_paste_and_submit: true
+  filter_legit:
+    user_action: 'manual_correction'
+    correction_dwell_time_ms: '>3000'
+  condition: selection and not filter_legit
+fields:
+  - session_id
+  - account_id
+  - browser_extension_ids
+  - clipboard_origin
+  - barcode_pasted
+  - barcode_submitted
+  - device_id
+falsepositives:
+  - Extensões legítimas de password manager preenchendo campos via API de clipboard
+  - Usuário corrigindo manualmente um dígito errado no campo após colar
+  - Apps de acessibilidade reais (TalkBack, leitor de tela) acionando eventos similares
+level: high

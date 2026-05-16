@@ -41,6 +41,7 @@
     "quarry:demo:logs": "docker compose -f docker-compose.demo.yml logs -f",
     "quarry:acceptance": "tsx scripts/quarry-acceptance.ts",
     "quarry:acceptance:cold": "tsx scripts/quarry-acceptance.ts --cold",
+    "demo:cinematic:record": "tsx scripts/record-cinematic-demo.ts",
     "demo:public": "bash scripts/demo-public.sh",
     "demo:public:tunnel-only": "bash scripts/demo-public.sh --skip-stack",
     "demo:public:setup": "bash infra/cloudflare/tunnel.sh"

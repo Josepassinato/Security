@@ -1,0 +1,46 @@
+title: Boleto Beneficiary Mismatch Between Barcode and Displayed PDF
+id: 7bdffb15-a2d0-4f10-91ba-1a1d6761dc3f
+status: experimental
+description: |
+  Detects boleto payments where the beneficiary bank/agency encoded in the
+  digitable line (linha digitável / barcode) does not match the beneficiary
+  name displayed in the PDF or copy/paste flow. Classic Bolware signature
+  where malware swaps the destination at copy-paste time while the victim
+  still sees the original beneficiary on screen.
+  Link to threat pattern: customizations/threat-intel/br-fintech/patterns/BOL-001-boleto-adulterado.yaml
+references:
+  - https://idec.org.br/idec-na-imprensa/nova-versao-do-golpe-do-boleto-faz-mais-vitimas
+  - https://www.fortes.adv.br/2024/03/08/golpe-do-boleto-adulterado-saiba-como-identificar-e-se-prevenir-dessa-fraude/
+author: Quarry - Increase Trainer Inc.
+date: 2026/05/15
+modified: 2026/05/15
+tags:
+  - attack.t1565.002
+  - attack.t1657
+  - vertical.fintech_br
+  - quarry.pattern.BOL-001
+  - quarry.severity.high
+logsource:
+  product: boleto_gateway
+  category: transaction
+detection:
+  selection:
+    event_type: 'boleto.pay'
+    barcode_bank_code_matches_displayed_beneficiary: false
+  filter_legit:
+    payment_channel: 'internet_banking_manual_typing'
+    user_confirmed_mismatch: true
+  condition: selection and not filter_legit
+fields:
+  - payment_id
+  - account_id
+  - barcode_bank_code
+  - displayed_beneficiary_name
+  - actual_beneficiary_bank
+  - amount_brl
+  - device_id
+falsepositives:
+  - Boletos de cessão de crédito legítimos onde cedente difere do sacado original
+  - Erro de exibição em PDF antigo gerado por sistema legado do emissor
+  - Boletos de cobrança intermediada (e.g. marketplaces) com beneficiário registrado distinto
+level: high

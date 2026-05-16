@@ -1,0 +1,41 @@
+id: HUNT-BOTS-WAYNE-001
+name: "Wayne Enterprises - ransomware deployment com exfiltração prévia"
+description: |
+  Hunt de demonstração para investigar o cenário enterprise BOTS v3 com
+  persistência, exposição de chave, exfiltração pública/extorsão e sinais de
+  ransomware em ambiente Wayne Enterprises.
+version: "1.0.0"
+severity: high
+category: enterprise-demo
+tags:
+  - bots-v3
+  - wayne-enterprises
+  - ransomware
+  - exfiltration
+  - mitre.attack.t1041
+  - mitre.attack.t1486
+  - mitre.attack.t1546.008
+  - mitre.attack.t1552
+  - mitre.attack.t1657
+log_sources:
+  - osquery:results
+  - code42:security
+  - stream:smtp
+  - aws:cloudwatchlogs:vpcflow
+schedule:
+  enabled: false
+  interval_minutes: 1440
+  jitter_seconds: 0
+hypothesis:
+  question: "Investigar possível ransomware deployment com exfiltração prévia"
+  indicators:
+    - field: dataset
+      equals: bots-v3
+    - field: attack_campaign
+      equals: wayne_ransomware_exfiltration
+expected:
+  positive_template_id: HUNT-BOTS-WAYNE-001
+  min_match_score: 1.0
+references:
+  - https://github.com/splunk/botsv3
+author: Quarry demo

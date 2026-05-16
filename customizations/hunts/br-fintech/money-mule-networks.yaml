@@ -1,0 +1,48 @@
+id: HUNT-MULE-001
+name: "Mapear money mule networks"
+language: pt-BR
+vertical: fintech_br
+description: |
+  Mapeia redes de contas mulas conectando origens vitimas, contas intermediarias, destinos finais e infraestrutura compartilhada.
+hypotheses:
+  - "H1: Multiplas contas novas recebem valores de varias vitimas e enviam para poucos destinos comuns."
+  - "H2: Contas mulas compartilham IP, device, endereco, telefone ou padrao de KYC."
+  - "H3: O cluster opera em janelas curtas com dispersao automatizada."
+  - "H4: Destinos finais tambem aparecem em golpes de WhatsApp ou falso suporte."
+  - "H5: Ha padrao de fracionamento para evitar revisao manual."
+data_sources_required:
+  - pix_transactions
+  - kyc_records
+  - device_fingerprint_logs
+  - case_history
+  - sanctions_or_blocklist
+mitre_techniques_expected:
+  - T1078.003
+  - T1657
+related_patterns:
+  - PIX-001
+  - SEN-001
+  - VSH-001
+related_sigma_rules:
+  - pix-money-mule-outbound-fanout-24h
+  - pix-money-mule-kyc-device-reuse
+  - whatsapp-clone-multi-victim-pix-burst
+workflow_steps:
+  - step: 1
+    action: "Criar grafo origem -> conta recebedora -> destino final para ultimos 7 dias"
+    expected_output: "grafo financeiro com valores e timestamps"
+  - step: 2
+    action: "Adicionar atributos KYC e device como arestas auxiliares"
+    expected_output: "clusters enriquecidos por infraestrutura comum"
+  - step: 3
+    action: "Calcular centralidade dos destinos finais e volume por cluster"
+    expected_output: "ranking de operadores provaveis"
+  - step: 4
+    action: "Marcar contas que devem ser congeladas ou revisadas"
+    expected_output: "lista de acoes recomendadas"
+output_format:
+  type: graph_network
+  primary_entity: destination_account_id
+expected_runtime_minutes: "20-45"
+analyst_skill_level: senior
+demo_safe: true

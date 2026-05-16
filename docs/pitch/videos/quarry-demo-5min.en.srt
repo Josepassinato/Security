@@ -1,0 +1,103 @@
+1
+00:00:00,000 --> 00:00:07,500
+On April seventh, twenty twenty six, Anthropic disclosed Claude Mythos Preview and Project Glasswing.
+
+2
+00:00:07,500 --> 00:00:15,000
+The important signal is not one model name.
+
+3
+00:00:15,000 --> 00:00:22,500
+It is that autonomous cyber capability is now credible enough to compress vulnerability discovery, exploitation, and defensive response cycles.
+
+4
+00:00:22,500 --> 00:00:30,000
+Quarry is built for this new clock: machine-speed investigation with human governance.
+
+5
+00:00:30,000 --> 00:00:40,000
+The analyst starts with a natural-language brief.
+
+6
+00:00:40,000 --> 00:00:50,000
+In this demo, the case is organized Pix fraud at a fictitious Brazilian fintech called FinPlay Pagamentos.
+
+7
+00:00:50,000 --> 00:01:00,000
+The brief describes five hundred suspicious transactions in thirty days, with newly created accounts receiving fragmented values and redistributing them to potential mule accounts.
+
+8
+00:01:00,000 --> 00:01:15,000
+Quarry decomposes the brief into testable hypotheses.
+
+9
+00:01:15,000 --> 00:01:30,000
+It does not jump directly to an answer.
+
+10
+00:01:30,000 --> 00:01:45,000
+It proposes a mule-account ring, a possible SIM-swap origin for a high-value account, anomalous Open Finance access, and a boleto fraud campaign.
+
+11
+00:01:45,000 --> 00:02:00,000
+Each hypothesis has a confidence score, expected evidence, and the data sources that should be queried.
+
+12
+00:02:00,000 --> 00:02:12,000
+The agent now runs controlled queries.
+
+13
+00:02:12,000 --> 00:02:24,000
+The important product decision is governance. Query execution is visible.
+
+14
+00:02:24,000 --> 00:02:36,000
+Cost and token usage are visible.
+
+15
+00:02:36,000 --> 00:02:48,000
+Read-only evaluation paths are enforced for benchmark work.
+
+16
+00:02:48,000 --> 00:03:00,000
+The Investigation Ledger records the questions, the evidence, and the reasoning path so the analyst can challenge or reproduce the result.
+
+17
+00:03:00,000 --> 00:03:20,000
+The system correlates events into findings.
+
+18
+00:03:20,000 --> 00:03:40,000
+Here, the suspicious flow crosses twenty newly created accounts, ninety-six thousand Pix events, and more than two hundred fifty thousand reais in correlated value.
+
+19
+00:03:40,000 --> 00:04:00,000
+Instead of a black-box answer, the analyst receives prioritized findings, related entities, and a graph that explains why the case deserves attention.
+
+20
+00:04:00,000 --> 00:04:10,000
+Quarry then generates an analyst-ready report. The report is not just prose.
+
+21
+00:04:10,000 --> 00:04:20,000
+It is backed by the ledger: hypotheses, queries, findings, timeline, MITRE context where relevant, and a defensible conclusion.
+
+22
+00:04:20,000 --> 00:04:30,000
+This is the output a security leader can review, improve, and send forward.
+
+23
+00:04:30,000 --> 00:04:37,500
+The final reveal is cost and time.
+
+24
+00:04:37,500 --> 00:04:45,000
+In the demo, Quarry shows machine cost next to an estimated human analyst cost and hours saved.
+
+25
+00:04:45,000 --> 00:04:52,500
+The claim is not that humans disappear.
+
+26
+00:04:52,500 --> 00:05:00,000
+The claim is that senior investigation capacity becomes measurable, repeatable, and dramatically faster under human control.

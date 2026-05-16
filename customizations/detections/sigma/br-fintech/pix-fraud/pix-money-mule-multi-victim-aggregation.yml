@@ -1,0 +1,45 @@
+title: Money Mule - Multi-Victim Inbound Aggregation
+id: 8c1f4a7d-3e5b-4d9a-b6c2-5f8a1d2e3c94
+status: experimental
+description: |
+  Detects an account receiving PIX from 3 or more distinct originator chaves
+  within a 24h window where at least one originator subsequently opens an
+  MED request. Indicates the account is aggregating funds from multiple
+  fraud victims, classic terminal mule node in BR PIX fraud topology.
+  Link to threat pattern: customizations/threat-intel/br-fintech/patterns/PIX-001-money-mule.yaml
+references:
+  - https://www.bcb.gov.br/content/estabilidadefinanceira/pix/Guia_MED.pdf
+  - https://www.bcb.gov.br/content/estabilidadefinanceira/pix/MED/MED_2-0_Circuito_Pix-Dia_1.pdf
+  - https://finsidersbrasil.com.br/eventos/golpes-com-pix-dao-prejuizos-de-quase-r-3-bi-em-dois-anos-diz-febraban/
+author: Quarry - Increase Trainer Inc.
+date: 2026/05/15
+modified: 2026/05/15
+tags:
+  - attack.t1078.003
+  - attack.t1657
+  - vertical.fintech_br
+  - quarry.pattern.PIX-001
+  - quarry.severity.critical
+logsource:
+  product: fintech_core
+  category: transaction
+detection:
+  selection:
+    event_type: 'pix.inbound_aggregate'
+    distinct_origin_chaves_24h: '>=3'
+    med_requests_against_account_72h: '>=1'
+  filter_legit:
+    account_type: 'business'
+    pix_merchant_registered: true
+  condition: selection and not filter_legit
+fields:
+  - account_id
+  - distinct_origin_chaves_24h
+  - total_inbound_amount_24h
+  - med_requests_count_72h
+  - account_age_days
+falsepositives:
+  - Vaquinha legitima (rifa, doacao familiar) com MED indevido
+  - Vendedor online com 1 MED de comprador insatisfeito
+  - Profissional liberal (medico, advogado) recebendo de pacientes/clientes
+level: critical

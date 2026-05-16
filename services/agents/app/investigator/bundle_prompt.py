@@ -10,6 +10,7 @@ import structlog
 
 from app.context.bundle import ContextBundle, ContextBundleBuilder
 from app.investigator.prompt_sanitizer import sanitize_text
+from app.tools.security_skills import format_security_skills_for_prompt
 
 logger = structlog.get_logger()
 
@@ -74,16 +75,32 @@ def format_bundle_prompt_append(bundle_dict: dict[str, Any] | None) -> str:
     """Return sanitized text to append to an LLM prompt, or empty string."""
     if not bundle_dict:
         return ""
+
+    parts: list[str] = []
+
+    # CARD-010: security skill references are carried alongside the normal
+    # ContextBundle. They are third-party content and are rendered explicitly as
+    # untrusted reference material for the agents.
+    skill_append = format_security_skills_for_prompt(
+        bundle_dict.get("security_skills_library") if isinstance(bundle_dict, dict) else []
+    )
+    if skill_append:
+        parts.append(sanitize_text(skill_append, max_len=6000))
+
+    # Only validate as ContextBundle when the core required fields are present.
+    # This keeps security_skills_library usable even when the broader context
+    # prefetcher is disabled or unavailable.
+    if not isinstance(bundle_dict, dict) or "incident_id" not in bundle_dict:
+        return "\n\n".join(parts)
+
     try:
         bundle = ContextBundle.model_validate(bundle_dict)
         lines = bundle.prompt_context_lines()
-        if not lines:
-            return ""
-        text = "\n".join(lines)
-        return sanitize_text(text, max_len=_BUNDLE_APPEND_MAX_LEN)
+        if lines:
+            parts.append(sanitize_text("\n".join(lines), max_len=_BUNDLE_APPEND_MAX_LEN))
     except Exception as exc:  # noqa: BLE001
         logger.warning(
             "context_bundle.format_failed",
             error=str(exc).replace("\r", " ").replace("\n", " ")[:500],
         )
-        return ""
+    return "\n\n".join(part for part in parts if part)

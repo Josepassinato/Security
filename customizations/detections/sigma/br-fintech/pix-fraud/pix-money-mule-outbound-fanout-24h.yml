@@ -1,0 +1,48 @@
+title: Money Mule - Outbound Fanout to 3+ Distinct Recipients in 24h
+id: 4e6d8a1c-9f3b-4c7e-a5d2-1b8e9c4f6a23
+status: experimental
+description: |
+  Detects an account sending PIX to 3 or more distinct destination chaves
+  in a 24h window after receiving inbound PIX from a different originator.
+  Fanout pattern typical of money mule stage where mule splits funds across
+  multiple downstream mules or off-ramps (cripto, dolar paralelo).
+  Link to threat pattern: customizations/threat-intel/br-fintech/patterns/PIX-001-money-mule.yaml
+references:
+  - https://www.bcb.gov.br/content/estabilidadefinanceira/pix/Guia_MED.pdf
+  - https://spbancarios.com.br/07/2025/apos-fraudes-pix-sindicato-reforca-alerta-sobre-falta-de-regulamentacao-das-fintechs-e
+author: Quarry - Increase Trainer Inc.
+date: 2026/05/15
+modified: 2026/05/15
+tags:
+  - attack.t1078.003
+  - attack.t1657
+  - vertical.fintech_br
+  - quarry.pattern.PIX-001
+  - quarry.severity.high
+logsource:
+  product: pix_gateway
+  category: transaction
+detection:
+  selection:
+    event_type: 'pix.send'
+    distinct_destination_chaves_24h: '>=3'
+    inbound_pix_received_24h: '>=1'
+    account_age_days: '<30'
+  filter_legit:
+    account_type: 'business'
+    business_segment:
+      - 'payroll'
+      - 'gateway'
+      - 'marketplace_seller'
+  condition: selection and not filter_legit
+fields:
+  - account_id
+  - distinct_destination_chaves_24h
+  - total_outbound_amount_24h
+  - inbound_origin_chaves
+  - account_age_days
+falsepositives:
+  - Cliente pagando multiplos beneficiarios pessoais (familia, prestadores)
+  - Pequeno empreendedor pagando fornecedores no fim do mes
+  - Lider de grupo de viagem rateando custos
+level: high

@@ -6,9 +6,9 @@
  *
  *   - `isDemoMode()`            → true when the deployment is the hosted demo
  *   - `demoBannerMessage()`     → the banner copy to render at the top of every page
- *   - `demoDeeplink()`          → the `/cases/INC-RT-001?tab=ledger` deeplink the
+ *   - `demoDeeplink()`          → the `/demo-cinematografica` deeplink the
  *                                 README "Live Demo" button targets, so we land
- *                                 visitors on a hot, mid-investigation view
+ *                                 visitors on the scripted hero scenario
  *
  * The component side of this lives at `components/demo/DemoBanner.tsx`.
  *
@@ -47,14 +47,12 @@ export function demoBannerMessage(): string {
 /**
  * Deeplink to land visitors directly on a live, mid-investigation view.
  *
- * Default targets `/cases/INC-RT-001?tab=ledger` — the in-flight LockBit 3.0
- * ransomware investigation seeded by `services/api/app/scripts/seed_demo.py`.
- * `INC-RT-001` is the showcase scenario: detector fired moments ago, encryption
- * is in progress, and the ledger streams the agent's live decisions. Operators
- * can override with `NEXT_PUBLIC_DEMO_DEEPLINK` to feature a different incident.
+ * Default targets `/demo-cinematografica` — the scripted Pix fraud showcase
+ * for a 3-5 minute pitch. Operators can override with
+ * `NEXT_PUBLIC_DEMO_DEEPLINK` to feature a different incident.
  */
 export function demoDeeplink(): string {
-  return process.env.NEXT_PUBLIC_DEMO_DEEPLINK?.trim() || '/cases/INC-RT-001?tab=ledger';
+  return process.env.NEXT_PUBLIC_DEMO_DEEPLINK?.trim() || '/demo-cinematografica';
 }
 
 /**

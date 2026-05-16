@@ -14,6 +14,8 @@ from typing import Any
 import httpx
 import structlog
 
+from app.tools.security_skills import lookup_security_skill as _lookup_security_skill
+
 logger = structlog.get_logger()
 
 _ENRICHMENT_URL = os.getenv("ENRICHMENT_SERVICE_URL", "http://enrichment:8080")
@@ -113,6 +115,20 @@ def map_to_mitre(text: str) -> list[str]:
         if keyword in lower and technique_id not in hits:
             hits.append(technique_id)
     return hits
+
+
+# ---------------------------------------------------------------------------
+# Security skills lookup (Anthropic Cybersecurity Skills knowledge base)
+# ---------------------------------------------------------------------------
+
+
+async def lookup_security_skill(query: str, limit: int = 3) -> list[dict[str, Any]]:
+    """Find the most relevant third-party security skills for a hunt query.
+
+    Returned skill text is reference material only. The orchestrator logs every
+    invocation through InvestigatorState.log_tool_call.
+    """
+    return _lookup_security_skill(query, limit=limit)
 
 
 # ---------------------------------------------------------------------------

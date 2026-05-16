@@ -1,0 +1,49 @@
+title: PIX Falso Estorno - Repeated MED Filings by Same Originator
+id: 7c3a4b1d-5e8f-4a9c-b1d5-3f7e8a2b6c95
+status: experimental
+description: |
+  Detects MED reversal abuse: same originator chave opens 3+ MED requests
+  against different destinatarios over 30 days, all citing fraud/pix
+  enviado por engano. Suggests the originator is running serial PIX-002
+  scams - sending PIX to victims, getting refunds to third accounts, and
+  then claiming MED to also recover the seed money.
+  Link to threat pattern: customizations/threat-intel/br-fintech/patterns/PIX-002-golpe-pix-errado.yaml
+references:
+  - https://www.bcb.gov.br/content/estabilidadefinanceira/pix/Guia_MED.pdf
+  - https://www.bcb.gov.br/content/estabilidadefinanceira/pix/MED/MED_2-0_Circuito_Pix-Dia_1.pdf
+  - https://www.cnnbrasil.com.br/economia/financas/golpe-do-pix-errado-entenda-como-funciona-e-saiba-como-se-proteger/
+author: Quarry - Increase Trainer Inc.
+date: 2026/05/15
+modified: 2026/05/15
+tags:
+  - attack.t1656
+  - attack.t1657
+  - vertical.fintech_br
+  - quarry.pattern.PIX-002
+  - quarry.severity.high
+logsource:
+  product: fintech_core
+  category: med_event
+detection:
+  selection:
+    event_type: 'med.opened_by_origin'
+    distinct_med_targets_30d: '>=3'
+    med_reason|contains:
+      - 'pix_enviado_por_engano'
+      - 'fraude'
+      - 'erro_no_destinatario'
+  filter_legit:
+    originator_kyc_level: 'enhanced'
+    originator_account_type: 'business_acquirer'
+  condition: selection and not filter_legit
+fields:
+  - originator_chave
+  - distinct_med_targets_30d
+  - med_request_ids
+  - total_amount_disputed_brl
+  - first_med_filed_at
+  - last_med_filed_at
+falsepositives:
+  - Pessoa atrapalhada que erra PIX recorrentemente (raro mas existe)
+  - Conta corporativa que processa muitos pagamentos e legitimamente erra
+level: high

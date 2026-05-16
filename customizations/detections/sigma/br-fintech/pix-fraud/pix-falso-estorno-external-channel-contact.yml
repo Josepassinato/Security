@@ -1,0 +1,45 @@
+title: PIX Falso Estorno - External Channel Contact Around Inbound PIX
+id: 1d2e5f8b-6a4c-4b7e-9f23-5a8c1d3e2b46
+status: experimental
+description: |
+  Detects clipboard paste of PIX chave or QR-code scan in the app within
+  15 minutes of an inbound PIX, where the chave pasted/scanned does NOT
+  match the inbound origin chave. Combined with absence of click on the
+  in-app "devolver" button. PIX-002 victim-side signal: scammer contacted
+  via WhatsApp/SMS and pushed a different chave for refund.
+  Link to threat pattern: customizations/threat-intel/br-fintech/patterns/PIX-002-golpe-pix-errado.yaml
+references:
+  - https://www.cnnbrasil.com.br/economia/financas/golpe-do-pix-errado-entenda-como-funciona-e-saiba-como-se-proteger/
+  - https://www.em.com.br/emfoco/2025/04/08/banco-central-alerta-sobre-novo-golpe-com-devolucao-via-pix-entenda/
+author: Quarry - Increase Trainer Inc.
+date: 2026/05/15
+modified: 2026/05/15
+tags:
+  - attack.t1656
+  - attack.t1566
+  - vertical.fintech_br
+  - quarry.pattern.PIX-002
+  - quarry.severity.medium
+logsource:
+  product: fintech_core
+  category: app_telemetry
+detection:
+  selection:
+    event_type: 'app.pix_compose'
+    inbound_pix_within_minutes: '<=15'
+    pasted_or_scanned_chave_equals_inbound_origin: false
+    devolver_button_clicked: false
+  filter_legit:
+    user_typed_chave_manually: false
+  condition: selection and not filter_legit
+fields:
+  - account_id
+  - inbound_pix_id
+  - inbound_origin_chave
+  - composed_destination_chave
+  - paste_or_scan_event
+  - minutes_since_inbound
+falsepositives:
+  - Cliente legitimamente colando chave de outra pessoa (pagamento programado)
+  - Pagamentos rotineiros copiados de planilha pessoal
+level: medium

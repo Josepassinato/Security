@@ -1,0 +1,49 @@
+id: HUNT-VSH-001
+name: "Investigar suspeita de phishing direcionado e falsa central"
+language: pt-BR
+vertical: fintech_br
+description: |
+  Correlaciona contatos de falsa central, alteracoes cadastrais, validacao social e movimentacao Pix posterior para identificar campanhas direcionadas.
+hypotheses:
+  - "H1: Cliente recebeu contato externo antes de alterar senha, telefone ou limite."
+  - "H2: Ticket ou chat menciona falsa central, suporte, estorno, contestacao ou MED."
+  - "H3: O pagamento foi para favorecido novo com urgencia incomum."
+  - "H4: Ha multiplas vitimas com textos de atendimento semelhantes."
+  - "H5: O mesmo destino recebeu valores de clientes que reportaram falsa central."
+data_sources_required:
+  - support_tickets
+  - chat_transcripts
+  - auth_events
+  - pix_transactions
+  - fraud_case_notes
+mitre_techniques_expected:
+  - T1566
+  - T1656
+  - T1657
+related_patterns:
+  - VSH-001
+  - PIX-002
+  - SEN-001
+related_sigma_rules:
+  - pix-falso-estorno-support-ticket-keywords
+  - pix-falso-estorno-external-channel-contact
+  - whatsapp-clone-dict-flagged-payee
+workflow_steps:
+  - step: 1
+    action: "Buscar tickets e chats com palavras-chave de falsa central e urgencia financeira"
+    expected_output: "lista de clientes e textos relevantes"
+  - step: 2
+    action: "Cruzar com eventos de login, MFA e mudancas cadastrais proximas"
+    expected_output: "sequencias suspeitas por cliente"
+  - step: 3
+    action: "Cruzar com Pix para favorecidos novos apos o contato"
+    expected_output: "impacto financeiro e destino"
+  - step: 4
+    action: "Agrupar destinos e narrativas por similaridade"
+    expected_output: "campanhas provaveis"
+output_format:
+  type: timeline
+  primary_entity: fraud_campaign_id
+expected_runtime_minutes: "15-35"
+analyst_skill_level: intermediate
+demo_safe: true

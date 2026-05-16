@@ -1,0 +1,45 @@
+title: SIM Swap - Telco Webhook ICCID or IMSI Change for Active Account
+id: debd8499-265c-4bfb-ba40-b7614f1ba3d0
+status: experimental
+description: |
+  Detecta evento de webhook da operadora indicando troca de ICCID/IMSI
+  vinculado ao MSISDN registrado para conta ativa. Sinal mais forte e
+  precoce de SIM swap; deve disparar congelamento preventivo de operações
+  sensíveis (PIX alto, empréstimo, troca de senha) por 24h.
+  Link to threat pattern: customizations/threat-intel/br-fintech/patterns/ATO-001-sim-swap.yaml
+references:
+  - https://istoe.com.br/sim-swap-como-se-proteger-do-golpe-que-rouba-numero-de-celular-da-vitima
+  - https://clavis.com.br/en/blog/what-is-a-swap-/
+author: Quarry - Increase Trainer Inc.
+date: 2026/05/15
+modified: 2026/05/15
+tags:
+  - attack.t1451
+  - attack.t1111
+  - vertical.fintech_br
+  - quarry.pattern.ATO-001
+  - quarry.severity.critical
+logsource:
+  product: telco_webhook
+  category: subscriber_change
+detection:
+  selection_iccid:
+    event_type:
+      - 'sim.iccid_change'
+      - 'sim.imsi_change'
+      - 'sim.portability_completed'
+    msisdn_status: 'linked_to_active_customer'
+  filter_carrier_maintenance:
+    reason_code: 'scheduled_maintenance'
+  condition: selection_iccid and not filter_carrier_maintenance
+fields:
+  - msisdn
+  - user_id
+  - old_iccid
+  - new_iccid
+  - carrier
+  - event_timestamp
+falsepositives:
+  - Cliente trocou de aparelho ou operadora avisando previamente o suporte
+  - Manutenção programada da operadora (raro, geralmente carrega reason_code)
+level: critical

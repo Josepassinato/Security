@@ -1,0 +1,50 @@
+title: Money Mule - Geo Mismatch Between Onboarding and First PIX
+id: 6d4a8b2e-1c5f-4e9b-a3d7-2c4b5e8a1f37
+status: experimental
+description: |
+  Detects when an account is onboarded from one Brazilian state and the
+  first significant PIX outbound (>R$500) occurs from a different state
+  within 7 days of account opening, with no travel context (no airline/
+  hotel PIX in between). Suggests the account holder is not the operator,
+  typical of mule recruitment where the recruiter operates the account
+  remotely after onboarding.
+  Link to threat pattern: customizations/threat-intel/br-fintech/patterns/PIX-001-money-mule.yaml
+references:
+  - https://spbancarios.com.br/07/2025/apos-fraudes-pix-sindicato-reforca-alerta-sobre-falta-de-regulamentacao-das-fintechs-e
+  - https://finsidersbrasil.com.br/eventos/golpes-com-pix-dao-prejuizos-de-quase-r-3-bi-em-dois-anos-diz-febraban/
+author: Quarry - Increase Trainer Inc.
+date: 2026/05/15
+modified: 2026/05/15
+tags:
+  - attack.t1078.003
+  - attack.t1657
+  - vertical.fintech_br
+  - quarry.pattern.PIX-001
+  - quarry.severity.medium
+logsource:
+  product: auth_service
+  category: auth_event
+detection:
+  selection:
+    event_type: 'pix.send'
+    geo_state_pix: '!=onboarding_geo_state'
+    distance_km_onboarding_to_pix: '>=200'
+    account_age_days: '<7'
+    amount_brl: '>=500'
+  filter_travel_context:
+    travel_indicators_present: true
+  filter_legit:
+    user_declared_residence_change: true
+  condition: selection and not filter_travel_context and not filter_legit
+fields:
+  - account_id
+  - onboarding_geo_state
+  - pix_geo_state
+  - distance_km_onboarding_to_pix
+  - account_age_days
+  - amount_brl
+falsepositives:
+  - Cliente em viagem legitima (sem reservas via PIX rastreaveis)
+  - Estudante recem-mudado para outra cidade
+  - Trabalhador sazonal/temporario com mudanca de base
+level: medium

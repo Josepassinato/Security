@@ -1,0 +1,45 @@
+title: SIM Swap - Impossible Travel Login Following Recent SIM Change
+id: 82cbc856-c626-4661-9346-40cf33731e82
+status: experimental
+description: |
+  Detecta login bem-sucedido a partir de geolocalização incompatível com o
+  último login conhecido (velocidade implícita >800 km/h) ocorrendo até
+  48h depois de evento de mudança de ICCID/IMSI ou de número. Indica
+  tomada de conta remota após SIM swap.
+  Link to threat pattern: customizations/threat-intel/br-fintech/patterns/ATO-001-sim-swap.yaml
+references:
+  - https://ish.com.br/blog/sim-swap-o-que-e-e-como-se-proteger/
+  - https://attack.mitre.org/techniques/T1078/
+author: Quarry - Increase Trainer Inc.
+date: 2026/05/15
+modified: 2026/05/15
+tags:
+  - attack.t1078
+  - attack.t1451
+  - vertical.fintech_br
+  - quarry.pattern.ATO-001
+  - quarry.severity.high
+logsource:
+  product: auth_service
+  category: auth_event
+detection:
+  selection_login:
+    event_type: 'auth.login_success'
+    geo_velocity_kmh_vs_last_login: '>800'
+    hours_since_sim_or_phone_change: '<48'
+  filter_vpn:
+    network_provider_type: 'corporate_vpn_trusted'
+  condition: selection_login and not filter_vpn
+fields:
+  - user_id
+  - login_ip
+  - login_geo_country
+  - login_geo_city
+  - previous_login_geo_city
+  - device_id
+  - hours_since_sim_or_phone_change
+  - timestamp
+falsepositives:
+  - Cliente viajando que trocou de operadora no mesmo dia
+  - VPN corporativa não classificada no filter_vpn
+level: high

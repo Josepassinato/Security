@@ -1,0 +1,107 @@
+1
+00:00:00,000 --> 00:00:07,500
+Em sete de abril de dois mil e vinte e seis, a Anthropic apresentou Claude Mythos Preview e Project Glasswing.
+
+2
+00:00:07,500 --> 00:00:15,000
+O ponto importante não é o nome de um modelo.
+
+3
+00:00:15,000 --> 00:00:22,500
+É o sinal de que capacidades cibernéticas autônomas já conseguem comprimir descoberta, exploração e resposta defensiva.
+
+4
+00:00:22,500 --> 00:00:30,000
+O Quarry foi construído para esse novo ritmo: investigação em velocidade de máquina com governança humana.
+
+5
+00:00:30,000 --> 00:00:40,000
+O analista começa com um briefing em linguagem natural.
+
+6
+00:00:40,000 --> 00:00:50,000
+Nesta demonstração, o caso é uma fraude Pix organizada em uma fintech brasileira fictícia chamada FinPlay Pagamentos.
+
+7
+00:00:50,000 --> 00:01:00,000
+O briefing descreve quinhentas transações suspeitas em trinta dias, com contas recém-criadas recebendo valores fracionados e redistribuindo para possíveis contas-laranja.
+
+8
+00:01:00,000 --> 00:01:15,000
+O Quarry decompõe o briefing em hipóteses testáveis.
+
+9
+00:01:15,000 --> 00:01:30,000
+Ele não pula direto para uma resposta.
+
+10
+00:01:30,000 --> 00:01:45,000
+Ele propõe um anel de contas-laranja, uma possível origem de SIM swap para uma conta de alto valor, acesso anômalo via Open Finance e uma campanha de boletos fraudulentos.
+
+11
+00:01:45,000 --> 00:02:00,000
+Cada hipótese tem score de confiança, evidência esperada e fontes de dados a consultar.
+
+12
+00:02:00,000 --> 00:02:12,000
+O agente agora executa consultas controladas.
+
+13
+00:02:12,000 --> 00:02:24,000
+A decisão importante do produto é governança.
+
+14
+00:02:24,000 --> 00:02:36,000
+A execução das consultas fica visível. Custo e uso de tokens ficam visíveis.
+
+15
+00:02:36,000 --> 00:02:48,000
+Caminhos somente leitura são aplicados em avaliação.
+
+16
+00:02:48,000 --> 00:03:00,000
+O Investigation Ledger registra perguntas, evidências e raciocínio para que o analista possa contestar ou reproduzir o resultado.
+
+17
+00:03:00,000 --> 00:03:20,000
+O sistema correlaciona eventos em achados.
+
+18
+00:03:20,000 --> 00:03:40,000
+Aqui, o fluxo suspeito atravessa vinte contas recém-criadas, noventa e seis mil eventos Pix e mais de duzentos e cinquenta mil reais em valor correlacionado.
+
+19
+00:03:40,000 --> 00:04:00,000
+Em vez de uma resposta caixa-preta, o analista recebe achados priorizados, entidades relacionadas e um grafo que explica por que o caso merece atenção.
+
+20
+00:04:00,000 --> 00:04:07,500
+Depois, o Quarry gera um relatório pronto para o analista.
+
+21
+00:04:07,500 --> 00:04:15,000
+O relatório não é apenas texto.
+
+22
+00:04:15,000 --> 00:04:22,500
+Ele é sustentado pelo ledger: hipóteses, consultas, achados, linha do tempo, contexto MITRE quando aplicável e uma conclusão defensável.
+
+23
+00:04:22,500 --> 00:04:30,000
+É o tipo de saída que uma liderança de segurança consegue revisar, melhorar e encaminhar.
+
+24
+00:04:30,000 --> 00:04:37,500
+A revelação final é custo e tempo.
+
+25
+00:04:37,500 --> 00:04:45,000
+Na demonstração, o Quarry mostra o custo da máquina ao lado de uma estimativa de custo de analista humano e horas economizadas.
+
+26
+00:04:45,000 --> 00:04:52,500
+A tese não é que humanos desaparecem.
+
+27
+00:04:52,500 --> 00:05:00,000
+A tese é que a capacidade de investigação sênior se torna mensurável, repetível e muito mais rápida sob controle humano.

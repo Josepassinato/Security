@@ -1,0 +1,45 @@
+title: Cluster of PIX QR Disputes at Same Merchant Location Within 7 Days
+id: 853f2351-b433-41f3-ae79-7f5907867d0b
+status: experimental
+description: |
+  Detects three or more PIX QR-originated chargebacks/disputes opened in
+  a rolling 7-day window where payments were initiated from inside the
+  geofence of the same merchant. Direct signal of a sticker swap event
+  in progress: multiple distinct victims paying via the same physical QR
+  and reporting the funds did not arrive at the merchant.
+  Link to threat pattern: customizations/threat-intel/br-fintech/patterns/QR-001-qr-sticker-swap.yaml
+references:
+  - https://diariodejustica.com.br/novo-golpe-envolve-qr-code-em-restaurantes-e-especialista-avisa-sempre-desconfie/
+  - https://itshow.com.br/golpes-com-pix-qr-code-fraudes-2025/
+author: Quarry - Increase Trainer Inc.
+date: 2026/05/15
+modified: 2026/05/15
+tags:
+  - attack.t1656
+  - attack.t1657
+  - vertical.fintech_br
+  - quarry.pattern.QR-001
+  - quarry.severity.high
+logsource:
+  product: qr_processor
+  category: aggregate
+detection:
+  selection:
+    event_type: 'pix.qr.dispute_aggregate'
+    distinct_disputes_7d_same_merchant_geofence: '>=3'
+    disputes_payee_account_distinct_from_merchant: true
+  filter_legit:
+    merchant_under_acquirer_test_mode: true
+  condition: selection and not filter_legit
+fields:
+  - merchant_id_geofenced
+  - merchant_cnpj
+  - distinct_disputes_7d
+  - distinct_payers_7d
+  - common_payee_account_id
+  - total_disputed_amount_brl
+falsepositives:
+  - Estabelecimento com problema de reconciliação real (PSP atrasado, falha técnica)
+  - Estorno em massa após cobrança duplicada legítima do PDV
+  - Cliente confuso pedindo estorno por preço acima do esperado
+level: high

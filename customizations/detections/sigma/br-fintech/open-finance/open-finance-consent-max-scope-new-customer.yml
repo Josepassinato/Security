@@ -1,0 +1,51 @@
+title: Open Finance - Max Scope Consent Granted by First-Time Customer
+id: 471d157e-b0ae-4623-9b44-1a672a17fe22
+status: experimental
+description: |
+  Detecta consentimento Open Finance com escopo maximo em cliente sem historico previo de Open Finance.
+  Link to threat pattern: customizations/threat-intel/br-fintech/patterns/ofi-001-open-finance-abuse.yaml
+references:
+  - https://openfinancebrasil.org.br/
+  - https://www.bcb.gov.br/estabilidadefinanceira/openfinance
+author: Quarry - Increase Trainer Inc.
+date: 2026/05/15
+modified: 2026/05/15
+tags:
+  - attack.t1199
+  - attack.t1078.004
+  - attack.t1528
+  - vertical.fintech_br
+  - quarry.pattern.OFI-001
+  - quarry.severity.critical
+logsource:
+  product: open_finance
+  category: open_finance_consent
+detection:
+  selection:
+    vertical: fintech_br
+    event_type|contains:
+      - consent
+      - api_call
+      - payment
+  selection_anomaly:
+    risk_signal:
+      - max_scope_first_time_customer
+      - tpp_volume_burst
+      - asn_mismatch
+      - revoked_consent_used
+      - fast_high_value_payment
+      - revoked_certificate_active_call
+  condition: selection and selection_anomaly
+fields:
+  - customer_id
+  - consent_id
+  - tpp_id
+  - scopes
+  - source_asn
+  - certificate_status
+  - amount_brl
+  - risk_signal
+falsepositives:
+  - Campanha legitima de migracao Open Finance com volume previamente comunicado
+  - Mudanca planejada de infraestrutura do TPP ainda nao atualizada no diretorio
+level: critical

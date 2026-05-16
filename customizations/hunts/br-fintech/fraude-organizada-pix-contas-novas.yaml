@@ -1,0 +1,45 @@
+id: HUNT-PIX-001
+name: "Investigar fraude organizada Pix em contas novas"
+language: pt-BR
+vertical: fintech_br
+description: |
+  Identifica contas digitais recem-criadas usadas como mulas financeiras para receber Pix de multiplas vitimas e redistribuir rapidamente os valores.
+hypotheses:
+  - "H1: Contas criadas ha menos de 7 dias receberam Pix de 3 ou mais origens sem relacao previa."
+  - "H2: Mais de 80% do valor recebido saiu em ate 2 horas para contas externas."
+  - "H3: Contas suspeitas compartilham device_fingerprint, IP, endereco ou documento de KYC adjacente."
+  - "H4: A primeira transacao relevante ja foi de alto valor, sem historico gradual de uso."
+  - "H5: Beneficiarios finais aparecem em outros clusters de fraude Pix."
+data_sources_required:
+  - pix_transactions
+  - account_creation_logs
+  - kyc_verification_logs
+  - device_fingerprint_logs
+mitre_techniques_expected:
+  - T1078.003
+  - T1657
+related_patterns:
+  - PIX-001
+related_sigma_rules:
+  - pix-money-mule-new-account-large-first-send
+  - pix-money-mule-immediate-outbound-80pct
+  - pix-money-mule-multi-victim-aggregation
+workflow_steps:
+  - step: 1
+    action: "Listar contas criadas nos ultimos 7 dias com entrada Pix acima do baseline de onboarding"
+    expected_output: "contas candidatas com volume recebido e numero de pagadores"
+  - step: 2
+    action: "Calcular percentual de saida em 2h, 12h e 24h"
+    expected_output: "ranking por velocidade de dispersao"
+  - step: 3
+    action: "Agrupar contas por device, IP, endereco, telefone, beneficiario final e chave Pix recorrente"
+    expected_output: "clusters de possivel rede de mulas"
+  - step: 4
+    action: "Montar timeline de cada cluster com origem, conta mula e destino final"
+    expected_output: "attack_chain por cluster_id"
+output_format:
+  type: attack_chain
+  primary_entity: cluster_id
+expected_runtime_minutes: "15-35"
+analyst_skill_level: intermediate
+demo_safe: true

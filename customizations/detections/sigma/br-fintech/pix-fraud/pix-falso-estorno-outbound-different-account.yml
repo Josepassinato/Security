@@ -1,0 +1,49 @@
+title: PIX Falso Estorno - Outbound Refund to Account Different From Origin
+id: 3f7a2b8c-4d6e-4a1b-9c52-7e8f3a5b2d61
+status: experimental
+description: |
+  Detects when a customer receives a PIX inbound and then issues a PIX
+  outbound for the same amount (+/-1%) within 2 hours, but to a destination
+  chave that DIFFERS from the original sender's chave. Signature of "golpe
+  do PIX errado" (PIX-002): victim is tricked into refunding to a third
+  account instead of using the safe "devolver" function.
+  Link to threat pattern: customizations/threat-intel/br-fintech/patterns/PIX-002-golpe-pix-errado.yaml
+references:
+  - https://www.cnnbrasil.com.br/economia/financas/golpe-do-pix-errado-entenda-como-funciona-e-saiba-como-se-proteger/
+  - https://www.em.com.br/emfoco/2025/04/08/banco-central-alerta-sobre-novo-golpe-com-devolucao-via-pix-entenda/
+  - https://www.bcb.gov.br/content/estabilidadefinanceira/pix/Guia_MED.pdf
+author: Quarry - Increase Trainer Inc.
+date: 2026/05/15
+modified: 2026/05/15
+tags:
+  - attack.t1656
+  - attack.t1657
+  - attack.t1566
+  - vertical.fintech_br
+  - quarry.pattern.PIX-002
+  - quarry.severity.high
+logsource:
+  product: pix_gateway
+  category: transaction
+detection:
+  selection:
+    event_type: 'pix.send'
+    is_refund_like: true
+    amount_match_pct_recent_inbound: '>=99'
+    elapsed_minutes_inbound_to_outbound: '<=120'
+    destination_chave_equals_inbound_origin: false
+  filter_official_devolution:
+    used_devolver_function: true
+  condition: selection and not filter_official_devolution
+fields:
+  - account_id
+  - inbound_amount_brl
+  - outbound_amount_brl
+  - inbound_origin_chave
+  - outbound_destination_chave
+  - elapsed_minutes_inbound_to_outbound
+falsepositives:
+  - Familiar pediu PIX devolvido em outra chave por mudanca de banco
+  - Conta empresarial recebe PIX errado e devolve via TED ao ordenante
+  - Cliente confunde chave do remetente legitimo
+level: high

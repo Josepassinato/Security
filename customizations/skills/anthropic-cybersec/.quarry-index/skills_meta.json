@@ -1,0 +1,11 @@
+{
+  "generated_at": "2026-05-16T01:33:51.202569+00:00",
+  "total_skills": 754,
+  "source_repo": "https://github.com/mukul975/Anthropic-Cybersecurity-Skills",
+  "source_license": "Apache-2.0",
+  "source_commit": "0f429d0",
+  "index_file": "/root/projetos/quarry/customizations/skills/anthropic-cybersec/.quarry-index/skills_index.jsonl",
+  "strategy": "hybrid: local lexical fallback + Qdrant vector RAG + PostgreSQL metadata lookup",
+  "embedding_model": "text-embedding-3-large",
+  "qdrant_collection": "quarry_security_skills"
+}

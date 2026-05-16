@@ -1,0 +1,45 @@
+title: WhatsApp Clone - Rapid Consecutive PIX to Distinct New Payees
+id: b532dc0f-7123-4459-a7d2-dbeb2d19eb44
+status: experimental
+description: |
+  Detecta um único cliente disparando >=3 PIX para destinatários distintos
+  nunca usados, em menos de 30 minutos, com valores no clustering típico
+  do golpe (R$500-R$3000). Sugere que o atacante já está cobrando vários
+  contatos via WhatsApp clonado a partir da conta da vítima.
+  Link to threat pattern: customizations/threat-intel/br-fintech/patterns/SEN-001-whatsapp-clonado.yaml
+references:
+  - https://portal.febraban.org.br/noticia/4279/pt-br/
+  - https://tecnoblog.net/noticias/golpe-via-whatsapp-usa-dados-vazados-e-pede-dinheiro-a-parentes-da-vitima/
+author: Quarry - Increase Trainer Inc.
+date: 2026/05/15
+modified: 2026/05/15
+tags:
+  - attack.t1656
+  - attack.t1657
+  - vertical.fintech_br
+  - quarry.pattern.SEN-001
+  - quarry.severity.high
+logsource:
+  product: pix_gateway
+  category: behavior_correlation
+detection:
+  selection_burst:
+    event_type: 'pix.send'
+    distinct_first_use_payees_30min: '>=3'
+    amount_brl_per_tx: 'between(500,3000)'
+    customer_historical_distinct_payees_30day: '<5'
+  filter_payroll:
+    origin_account_segment:
+      - 'pj_payroll'
+      - 'pj_marketplace_seller'
+  condition: selection_burst and not filter_payroll
+fields:
+  - origin_account_id
+  - distinct_payees_count
+  - total_amount_brl
+  - window_start
+  - window_end
+falsepositives:
+  - Microempreendedor pagando fornecedores informais em rajada
+  - Influenciador pagando colaboradores no fim do mês
+level: high

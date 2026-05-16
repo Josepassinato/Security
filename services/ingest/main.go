@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/beenuar/quarry/services/ingest/internal/config"
+	"github.com/beenuar/quarry/services/ingest/internal/envmode"
 	configsnap "github.com/beenuar/quarry/services/ingest/internal/config_snapshot"
 	"github.com/beenuar/quarry/services/ingest/internal/graph"
 	"github.com/beenuar/quarry/services/ingest/internal/graph_ws"

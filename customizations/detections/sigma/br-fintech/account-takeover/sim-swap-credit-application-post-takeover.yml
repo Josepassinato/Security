@@ -1,0 +1,48 @@
+title: SIM Swap - Credit or Loan Application Immediately After Login on New Device
+id: e0afab9e-c1b7-4e53-89cd-3739d7e5e575
+status: experimental
+description: |
+  Detecta solicitação de empréstimo, aumento de limite de cartão ou
+  antecipação de saque em até 60 minutos após login em device recém-cadastrado.
+  Atacantes pós-SIM swap monetizam tomando crédito em nome da vítima além
+  do saldo disponível.
+  Link to threat pattern: customizations/threat-intel/br-fintech/patterns/ATO-001-sim-swap.yaml
+references:
+  - https://ish.com.br/blog/sim-swap-o-que-e-e-como-se-proteger/
+  - https://istoe.com.br/sim-swap-como-se-proteger-do-golpe-que-rouba-numero-de-celular-da-vitima
+author: Quarry - Increase Trainer Inc.
+date: 2026/05/15
+modified: 2026/05/15
+tags:
+  - attack.t1657
+  - attack.t1078
+  - vertical.fintech_br
+  - quarry.pattern.ATO-001
+  - quarry.severity.high
+logsource:
+  product: auth_service
+  category: business_event_correlation
+detection:
+  selection_credit:
+    event_type:
+      - 'credit.loan_application'
+      - 'credit.limit_increase_request'
+      - 'credit.salary_advance_request'
+    minutes_since_login_on_new_device: '<60'
+    device_age_days: '<1'
+  filter_pre_approved:
+    pre_approved_offer_active: true
+    offer_acceptance_via_known_device: true
+  condition: selection_credit and not filter_pre_approved
+fields:
+  - user_id
+  - product_requested
+  - amount_brl
+  - device_id
+  - device_age_days
+  - minutes_since_login_on_new_device
+  - timestamp
+falsepositives:
+  - Cliente legítimo aceitando oferta pré-aprovada em novo aparelho
+  - Reativação de conta após perda do device, com KYC reforçado
+level: high

@@ -1,0 +1,47 @@
+title: Boleto Paid To Beneficiary Outside Issuer Allowlist
+id: b69f40c5-fd5c-402b-8548-aca988d46947
+status: experimental
+description: |
+  Detects boleto payments where the cedente/beneficiário extracted from the
+  barcode bank+agency code does not appear in the issuer's allowlist of
+  registered billers for the alleged biller name (e.g. payment to "ENEL"
+  routed to a non-Enel CNPJ). Forged boletos commonly impersonate
+  concessionárias and prefeituras but route to attacker-controlled accounts
+  at smaller banks/fintechs.
+  Link to threat pattern: customizations/threat-intel/br-fintech/patterns/BOL-001-boleto-adulterado.yaml
+references:
+  - https://blog.bb.com.br/golpe-do-boleto-falso-saiba-como-se-proteger/
+  - https://www.fortes.adv.br/2024/03/08/golpe-do-boleto-adulterado-saiba-como-identificar-e-se-prevenir-dessa-fraude/
+author: Quarry - Increase Trainer Inc.
+date: 2026/05/15
+modified: 2026/05/15
+tags:
+  - attack.t1656
+  - attack.t1657
+  - vertical.fintech_br
+  - quarry.pattern.BOL-001
+  - quarry.severity.high
+logsource:
+  product: boleto_gateway
+  category: transaction
+detection:
+  selection:
+    event_type: 'boleto.pay'
+    biller_name_matches_known_brand: true
+    beneficiary_cnpj_in_allowlist_for_brand: false
+  filter_legit:
+    biller_uses_payment_aggregator: true
+    aggregator_cnpj_in_allowlist: true
+  condition: selection and not filter_legit
+fields:
+  - payment_id
+  - biller_displayed_name
+  - barcode_beneficiary_cnpj
+  - barcode_beneficiary_bank
+  - allowlist_expected_cnpjs
+  - amount_brl
+falsepositives:
+  - Concessionárias terceirizando cobrança para fintech intermediária ainda não cadastrada
+  - Mudança societária recente (CNPJ atualizado) não refletida no allowlist
+  - Cobrança terceirizada por escritório de advocacia para inadimplentes
+level: high

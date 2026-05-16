@@ -1,0 +1,44 @@
+title: WhatsApp Clone - Multiple Victims Sending PIX to Same New Payee in Short Window
+id: 89a75880-b44c-424f-9f00-a02b9da6b7ae
+status: experimental
+description: |
+  Detecta convergência de >=3 remetentes distintos da fintech enviando PIX
+  para a MESMA chave destino nunca usada anteriormente, em janela de 30
+  minutos, com valores tipicamente entre R$500 e R$3.000. Assinatura típica
+  do golpe do WhatsApp clonado: criminoso dispara pedido em massa para
+  contatos da vítima.
+  Link to threat pattern: customizations/threat-intel/br-fintech/patterns/SEN-001-whatsapp-clonado.yaml
+references:
+  - https://portal.febraban.org.br/noticia/4279/pt-br/
+  - https://idec.org.br/idec-na-imprensa/golpe-do-whatsapp-entra-na-era-pix-e-fica-mais-dificil-recuperar-o-dinheiro
+author: Quarry - Increase Trainer Inc.
+date: 2026/05/15
+modified: 2026/05/15
+tags:
+  - attack.t1656
+  - attack.t1657
+  - vertical.fintech_br
+  - quarry.pattern.SEN-001
+  - quarry.severity.critical
+logsource:
+  product: pix_gateway
+  category: graph_correlation
+detection:
+  selection_convergence:
+    event_type: 'pix.send'
+    destination_chave_first_seen_minutes_ago: '<30'
+    distinct_origin_accounts_to_same_chave_30min: '>=3'
+    amount_brl_in_range: 'between(500,3000)'
+  filter_merchant:
+    destination_chave_kyc_segment: 'merchant_verified'
+  condition: selection_convergence and not filter_merchant
+fields:
+  - destination_chave
+  - origin_account_ids
+  - amount_brl_list
+  - window_start
+  - window_end
+falsepositives:
+  - Vaquinha legítima viralizada (rara, normalmente vinculada a chave de merchant)
+  - Pagamento coletivo a prestador de serviço informal
+level: critical

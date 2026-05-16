@@ -1,0 +1,45 @@
+title: WhatsApp Clone - PIX to New Payee Sharing Surname With Sender Account Holder
+id: 84f15b88-1875-4789-b2cb-c1796637df0a
+status: experimental
+description: |
+  Detecta PIX para chave nunca usada cujo titular cadastrado no DICT
+  compartilha sobrenome com o titular da conta de origem, e cuja relação
+  não estava no histórico de transações. Heurística "mesmo sobrenome =
+  possível golpe familiar" descrita no pattern SEN-001.
+  Link to threat pattern: customizations/threat-intel/br-fintech/patterns/SEN-001-whatsapp-clonado.yaml
+references:
+  - https://idec.org.br/idec-na-imprensa/golpe-do-whatsapp-entra-na-era-pix-e-fica-mais-dificil-recuperar-o-dinheiro
+  - https://policiacivil.se.gov.br/golpes-envolvendo-pix-acendem-alerta-para-verificacao-de-dados-antes-da-transferencia-de-valores-solicitados-pelo-whatsapp/
+author: Quarry - Increase Trainer Inc.
+date: 2026/05/15
+modified: 2026/05/15
+tags:
+  - attack.t1656
+  - attack.t1657
+  - vertical.fintech_br
+  - quarry.pattern.SEN-001
+  - quarry.severity.high
+logsource:
+  product: pix_gateway
+  category: transaction
+detection:
+  selection_surname_match:
+    event_type: 'pix.send'
+    payee_chave_first_use: true
+    surname_match_with_origin_holder: true
+    payee_in_origin_address_book: false
+    amount_brl: '>=500'
+  filter_known_relative:
+    payee_previously_received_from_origin_outside_pix: true
+  condition: selection_surname_match and not filter_known_relative
+fields:
+  - origin_account_id
+  - origin_holder_full_name
+  - destination_chave
+  - destination_holder_full_name
+  - amount_brl
+  - timestamp
+falsepositives:
+  - Transferência genuína para familiar com mesmo sobrenome enviando pela primeira vez
+  - Cônjuge ou filho recém-aberto em outra fintech
+level: high

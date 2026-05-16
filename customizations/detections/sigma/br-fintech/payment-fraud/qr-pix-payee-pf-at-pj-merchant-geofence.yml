@@ -1,0 +1,49 @@
+title: PIX QR Payment to Pessoa Fisica at Registered Pessoa Juridica Merchant Location
+id: bdcc3706-d474-41ee-b287-6261ca45124e
+status: experimental
+description: |
+  Detects PIX QR scans performed inside the geofence of a registered PJ
+  merchant where the resulting recipient is a pessoa física (PF) unrelated
+  to the merchant's CNPJ. Hallmark of "QR sticker swap": criminal pastes
+  a personal-account QR over the merchant's legitimate static QR, and the
+  scan resolves to PF instead of the expected PJ.
+  Link to threat pattern: customizations/threat-intel/br-fintech/patterns/QR-001-qr-sticker-swap.yaml
+references:
+  - https://oantagonista.com.br/brasil/voce-pagou-certo-e-mesmo-assim-caiu-em-golpe-entenda-o-qr-code-colado-no-pix-e-como-identificar-na-hora/
+  - https://correiodoestado.com.br/mix/alerta-geral-para-todos-os-comerciantes-que-recebem-pix-via-qr-code/
+author: Quarry - Increase Trainer Inc.
+date: 2026/05/15
+modified: 2026/05/15
+tags:
+  - attack.t1656
+  - attack.t1657
+  - vertical.fintech_br
+  - quarry.pattern.QR-001
+  - quarry.severity.high
+logsource:
+  product: qr_processor
+  category: transaction
+detection:
+  selection:
+    event_type: 'pix.qr.scan_pay'
+    payer_geofence_matches_pj_merchant: true
+    payee_type: 'PF'
+    payee_cnpj_relation_to_merchant: 'none'
+  filter_legit:
+    merchant_registered_qr_uses_pf_cpf: true
+    payee_cpf_matches_merchant_owner: true
+  condition: selection and not filter_legit
+fields:
+  - payment_id
+  - payer_lat
+  - payer_lng
+  - merchant_id_geofenced
+  - merchant_cnpj
+  - payee_cpf
+  - payee_name
+  - amount_brl
+falsepositives:
+  - Micro-empreendedor que registrou CNPJ recente mas ainda usa chave PIX no CPF
+  - Funcionário recebendo gorjeta via PIX pessoal dentro do estabelecimento
+  - Estabelecimento sublocado onde recebimento real é via PF do proprietário
+level: high

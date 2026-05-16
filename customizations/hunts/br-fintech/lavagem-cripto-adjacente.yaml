@@ -1,0 +1,77 @@
+id: HUNT-AML-001
+name: "Detectar lavagem via cripto adjacente"
+language: pt-BR
+vertical: fintech_br
+description: |
+  Fintechs BR que oferecem produtos cripto (ou que têm clientes-corretora)
+  enfrentam uso da plataforma como camada de layering em esquemas de
+  lavagem. Esta hunt busca padrões clássicos: structuring (smurfing) em
+  valores abaixo do limite COAF, cash-in via PIX seguido de off-ramp
+  rápido para wallet externa, deposit-and-withdraw circular, e contas
+  recém-criadas com first-transaction direto para exchanges com baixo
+  KYC. Foco em sinais correlacionados, não em transações isoladas.
+hypotheses:
+  - "H1: Conta criada nos últimos 30d teve ≥10 entradas PIX abaixo de R$10.000 (limite COAF) somando ≥R$80.000 e ≥80% saída off-chain em <72h."
+  - "H2: Cliente fez X depósitos via cash-in em locais físicos distintos no mesmo dia, com soma >R$30.000."
+  - "H3: Volume entrada exchange cripto / volume conta brasileira está fora do baseline (>5x histórico do cliente)."
+  - "H4: Padrão deposit-withdraw-deposit-withdraw circular em <24h sem motivo trading aparente (não há price-action correspondente)."
+  - "H5: Múltiplas contas (≥5) operando coordenadamente — sinais: mesmo dispositivo, IP, contato com mesma chave-pix beneficiária externa."
+  - "H6: Cliente PEP (Politicamente Exposto) ou em watchlist OFAC/COAF não foi sinalizado por revisão manual no consentimento de cripto."
+  - "H7: First-time deposit cripto ≥R$50k, conta com idade <60d, sem renda compatível declarada no KYC."
+data_sources_required:
+  - pix_transactions
+  - crypto_onramp_logs
+  - crypto_offramp_logs
+  - kyc_records
+  - coaf_pep_watchlist
+  - cash_in_physical_logs
+  - exchange_partner_api_logs
+mitre_techniques_expected:
+  - T1657    # Financial Theft
+  - T1583.001
+related_patterns:
+  - PIX-001    # money mule overlap
+related_sigma_rules:
+  - structuring-multi-pix-below-coaf-threshold
+  - rapid-onramp-offramp-circular
+  - new-account-large-first-crypto-deposit
+  - coordinated-multi-account-shared-fingerprint
+related_compliance:
+  - COAF_Resolucao_BACEN_119_2021
+  - LavDin_Lei_9613
+  - BACEN_Circular_3978         # comunicação de operações suspeitas
+workflow_steps:
+  - step: 1
+    action: "Identificar contas que receberam ≥5 PIX entre R$5k e R$10k em janela 7d (structuring candidate)"
+    expected_output: "lista candidatos com somatório recebido"
+  - step: 2
+    action: "Para cada candidato, calcular % saída para exchanges cripto em 72h vs entrada"
+    expected_output: "ratio offramp_72h / pix_in_7d"
+  - step: 3
+    action: "Cruzar candidatos com idade da conta + renda declarada no KYC"
+    expected_output: "flag: kyc_inconsistent"
+  - step: 4
+    action: "Buscar coordenação: top candidatos compartilham device_fingerprint, IP, ou chave-pix beneficiária comum?"
+    expected_output: "graph: cluster_id agrupando candidatos correlacionados"
+  - step: 5
+    action: "Para cada cluster, agregar volume total + número de contas + janela temporal"
+    expected_output: "ranking de clusters por valor e velocidade"
+  - step: 6
+    action: "Verificar PEP/watchlist em todos os participantes do cluster (atual e em retrospecto: era PEP no momento do consent?)"
+    expected_output: "violações de PEP review"
+  - step: 7
+    action: "Para clusters top-tier, gerar pacote COAF — campos: SISCOAF/SIMBA-COAF compliance"
+    expected_output: "minutes de comunicação COAF prontas para review humano antes de submissão"
+output_format:
+  type: attack_chain
+  primary_entity: cluster_id
+  enrichment_fields:
+    - total_volume_brl
+    - num_accounts
+    - num_jurisdictions_touched
+    - pep_flag
+    - kyc_consistency_score
+    - coaf_review_eligibility
+expected_runtime_minutes: "30-60"
+analyst_skill_level: senior
+demo_safe: true

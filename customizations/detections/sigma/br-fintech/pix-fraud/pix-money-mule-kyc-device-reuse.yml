@@ -1,0 +1,48 @@
+title: Money Mule - KYC Device or Selfie Reuse Across Accounts
+id: 2b5e9c3a-7d1f-4a8e-9c64-3b7d2e5a1f48
+status: experimental
+description: |
+  Detects when the same device fingerprint or selfie biometric hash is used
+  to onboard 2 or more accounts within 30 days. PIX-001 device_reuse indicator:
+  recruiters of conta-laranja frequently complete KYC on victim's own phone,
+  leaving device fingerprint traces across mule accounts.
+  Link to threat pattern: customizations/threat-intel/br-fintech/patterns/PIX-001-money-mule.yaml
+references:
+  - https://www.bcb.gov.br/content/estabilidadefinanceira/pix/Guia_MED.pdf
+  - https://spbancarios.com.br/07/2025/apos-fraudes-pix-sindicato-reforca-alerta-sobre-falta-de-regulamentacao-das-fintechs-e
+author: Quarry - Increase Trainer Inc.
+date: 2026/05/15
+modified: 2026/05/15
+tags:
+  - attack.t1078.003
+  - attack.t1657
+  - vertical.fintech_br
+  - quarry.pattern.PIX-001
+  - quarry.severity.high
+logsource:
+  product: kyc_service
+  category: account_event
+detection:
+  selection_device:
+    event_type: 'kyc.completed'
+    distinct_accounts_same_device_30d: '>=2'
+  selection_biometric:
+    event_type: 'kyc.completed'
+    distinct_accounts_same_selfie_hash_30d: '>=2'
+  filter_legit:
+    relationship_declared:
+      - 'spouse'
+      - 'parent_child'
+      - 'business_partner_registered'
+  condition: (selection_device or selection_biometric) and not filter_legit
+fields:
+  - account_id
+  - device_id
+  - selfie_hash
+  - distinct_accounts_same_device_30d
+  - kyc_completed_at
+falsepositives:
+  - Familiares compartilhando dispositivo (pais ajudando filhos a abrir conta)
+  - Assistente social ajudando idosos com onboarding
+  - Suporte tecnico interno conduzindo onboarding presencial
+level: high

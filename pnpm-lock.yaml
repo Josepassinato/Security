@@ -57,15 +57,15 @@ importers:
 
   apps/web:
     dependencies:
-      '@aisoc/types':
-        specifier: workspace:*
-        version: link:../../packages/types
-      '@aisoc/ui':
-        specifier: workspace:*
-        version: link:../../packages/ui
       '@monaco-editor/react':
         specifier: ^4.6.0
         version: 4.7.0(monaco-editor@0.55.1)(react-dom@19.2.6)(react@19.2.6)
+      '@quarry/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      '@quarry/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       '@xyflow/react':
         specifier: ^12.10.2
         version: 12.10.2(@types/react@19.2.14)(react-dom@19.2.6)(react@19.2.6)

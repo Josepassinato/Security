@@ -1,0 +1,47 @@
+id: HUNT-SIM-001
+name: "Identificar evidencias de SIM swap correlacionadas"
+language: pt-BR
+vertical: fintech_br
+description: |
+  Busca evidencia combinada de troca de SIM, degradacao de MFA, login suspeito e movimentacao financeira posterior.
+hypotheses:
+  - "H1: O cliente teve mudanca de ICCID ou IMSI ate 48h antes do login suspeito."
+  - "H2: MFA por SMS foi usado como fator principal apos a troca."
+  - "H3: O login apresentou impossible travel, ASN novo ou dispositivo desconhecido."
+  - "H4: Houve Pix ou credito solicitado apos a tomada de conta."
+  - "H5: O mesmo telefone ou device aparece em mais de uma vitima."
+data_sources_required:
+  - telco_webhooks
+  - auth_events
+  - mfa_events
+  - pix_transactions
+  - credit_application_logs
+mitre_techniques_expected:
+  - T1451
+  - T1078
+  - T1110
+related_patterns:
+  - ATO-001
+related_sigma_rules:
+  - sim-swap-telco-iccid-change-webhook
+  - sim-swap-mfa-bypass-sms-only-channel
+  - sim-swap-credit-application-post-takeover
+workflow_steps:
+  - step: 1
+    action: "Listar trocas de ICCID, IMSI ou telefone nas ultimas 72h"
+    expected_output: "clientes com alteracao telco recente"
+  - step: 2
+    action: "Cruzar com logins e MFA por SMS posteriores"
+    expected_output: "sequencias telco -> auth -> MFA"
+  - step: 3
+    action: "Adicionar transacoes Pix, credito e mudancas cadastrais posteriores"
+    expected_output: "impacto financeiro por customer_id"
+  - step: 4
+    action: "Gerar pacote de evidencia com timestamps e origem de cada evento"
+    expected_output: "dossie de SIM swap para revisao humana"
+output_format:
+  type: evidence_bundle
+  primary_entity: customer_id
+expected_runtime_minutes: "10-30"
+analyst_skill_level: intermediate
+demo_safe: true

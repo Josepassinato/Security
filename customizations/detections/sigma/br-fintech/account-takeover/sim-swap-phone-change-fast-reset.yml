@@ -1,0 +1,43 @@
+title: SIM Swap - Phone Number Change Followed by Fast Password Reset
+id: 526856e6-fd0d-46e3-ae9e-d1e1068a6c18
+status: experimental
+description: |
+  Detecta troca de número de telefone associada à conta seguida em menos de
+  30 minutos por reset de senha. Padrão clássico pós-SIM swap: atacante já
+  controla o número e dispara reset baseado em SMS-OTP para tomar a conta.
+  Link to threat pattern: customizations/threat-intel/br-fintech/patterns/ATO-001-sim-swap.yaml
+references:
+  - https://ish.com.br/blog/sim-swap-o-que-e-e-como-se-proteger/
+  - https://www.correiobraziliense.com.br/aqui/2025/11/16/golpe-do-sim-swap-sinais-de-que-seu-chip-foi-clonado-e-como-agir-rapidamente/
+author: Quarry - Increase Trainer Inc.
+date: 2026/05/15
+modified: 2026/05/15
+tags:
+  - attack.t1451
+  - attack.t1111
+  - attack.t1556.005
+  - vertical.fintech_br
+  - quarry.pattern.ATO-001
+  - quarry.severity.critical
+logsource:
+  product: auth_service
+  category: auth_event
+detection:
+  selection_phone_change:
+    event_type: 'profile.phone_number_change'
+  selection_reset:
+    event_type: 'auth.password_reset_requested'
+    delivery_channel: 'sms'
+    seconds_since_phone_change: '<1800'
+  condition: selection_phone_change and selection_reset
+fields:
+  - user_id
+  - old_phone_e164
+  - new_phone_e164
+  - reset_request_ip
+  - reset_request_device_id
+  - timestamp
+falsepositives:
+  - Usuário legitimamente trocando operadora e em seguida solicitando reset por confusão
+  - Cliente assistido por suporte oficial após perda do aparelho
+level: critical

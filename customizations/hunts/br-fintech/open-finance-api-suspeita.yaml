@@ -1,0 +1,71 @@
+id: HUNT-OFI-001
+name: "Investigar uso suspeito de Open Finance APIs"
+language: pt-BR
+vertical: fintech_br
+description: |
+  Open Finance no Brasil permite que ITPs (Iniciadores de Pagamento) e
+  AISPs (Agregadores de Informação) consumam dados/iniciem transações em
+  nome do cliente, mediante consentimento. Vetor crescente: consentimentos
+  manipulados, escopo inflado, ITPs com baixo padrão de segurança, e
+  reuso indevido de tokens. Esta hunt caça padrões anômalos no consumo
+  de APIs Open Finance — picos, escopos amplos suspeitos, e correlações
+  entre consentimento e fraude posterior.
+hypotheses:
+  - "H1: Há consentimentos criados nas últimas 24h com escopo `all_accounts + transactions + initiate_payment` (escopo máximo) e cliente nunca havia usado Open Finance antes."
+  - "H2: Um único ITP/AISP registrado consome dados de ≥500 clientes diferentes em janela <1h — fora do baseline declarado."
+  - "H3: Janela curta (<5 min) entre consentimento concedido e primeira initiate_payment de alto valor (>R$5k)."
+  - "H4: Token Open Finance está sendo usado de IP/ASN diferente do declarado pelo ITP no diretório oficial Open Finance Brasil."
+  - "H5: Cliente revogou consentimento mas ainda há tentativas de API call do mesmo ITP."
+  - "H6: Padrão de consent farming — mesma instituição receptora aparece em consentimentos de 100+ clientes não-relacionados em curto período."
+  - "H7: TPP (Third Party Provider) com certificado eIDAS-BR vencido ou revogado ainda recebendo dados."
+data_sources_required:
+  - open_finance_consent_logs
+  - open_finance_api_calls
+  - tpp_directory_snapshot     # diretório oficial Open Finance Brasil
+  - certificate_validation_logs
+  - pix_transactions
+mitre_techniques_expected:
+  - T1199    # Trusted Relationship
+  - T1078.004
+  - T1528    # Steal Application Access Token
+related_patterns: []
+related_sigma_rules:
+  - open-finance-consent-max-scope-new-customer
+  - open-finance-tpp-high-volume-anomaly
+  - open-finance-token-asn-mismatch
+  - open-finance-revoked-consent-still-used
+related_compliance:
+  - BACEN_Resolucao_Conjunta_1_2020
+  - BACEN_Resolucao_BCB_32_2020
+  - LGPD_art7_consent_basis
+workflow_steps:
+  - step: 1
+    action: "Listar consentimentos criados nas últimas 24h com escopo amplo (>2 categorias)"
+    expected_output: "tabela: consent_id, customer_id, tpp_id, scopes, created_at"
+  - step: 2
+    action: "Para cada consent_id, verificar histórico Open Finance do customer (primeiro consent? recurring?)"
+    expected_output: "flag: first_time_consent / experienced"
+  - step: 3
+    action: "Por TPP, calcular volume de API calls nas últimas 24h e comparar com baseline declarado pelo TPP"
+    expected_output: "ranking TPPs com volume anômalo"
+  - step: 4
+    action: "Cruzar TPPs anômalos com diretório oficial Open Finance Brasil (status: ativo, suspenso, certificado válido)"
+    expected_output: "TPPs operando com status comprometido"
+  - step: 5
+    action: "Para top 10 customers com consentimento amplo recém-criado, verificar atividade pós-consent (PIX, transferências)"
+    expected_output: "timeline de ações pós-consentimento por customer"
+  - step: 6
+    action: "Detectar revogações + chamadas posteriores do mesmo TPP nas últimas 7d"
+    expected_output: "violações de revogação"
+output_format:
+  type: graph_network
+  primary_entity: consent_id
+  enrichment_fields:
+    - tpp_registered_name
+    - tpp_certificate_status
+    - tpp_asn_match
+    - customer_open_finance_history
+    - post_consent_action_summary
+expected_runtime_minutes: "10-30"
+analyst_skill_level: senior
+demo_safe: true

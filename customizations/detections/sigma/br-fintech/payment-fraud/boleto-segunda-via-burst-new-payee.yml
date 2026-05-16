@@ -1,0 +1,49 @@
+title: Segunda Via Boleto Burst to Fresh Payee Account
+id: 5f8fb9d2-78aa-411d-b7f3-ec768dbe2468
+status: experimental
+description: |
+  Detects multiple "segunda via" (reissued) boleto payments converging to a
+  single payee account opened within the last 30 days. Reboleto operators
+  spray forged second-copy boletos imitating utilities, schools, and
+  condominiums; the fake beneficiary account collects from many unrelated
+  victims in a short window. Threshold mirrors BOL-001 indicator:
+  >10 boletos to <30d account in <7d.
+  Link to threat pattern: customizations/threat-intel/br-fintech/patterns/BOL-001-boleto-adulterado.yaml
+references:
+  - https://idec.org.br/idec-na-imprensa/nova-versao-do-golpe-do-boleto-faz-mais-vitimas
+  - https://flypay.com.br/2024/11/20/nao-tem-cara-de-fraude-mas-e-fraude-cuidado-com-boletos-falsos/
+author: Quarry - Increase Trainer Inc.
+date: 2026/05/15
+modified: 2026/05/15
+tags:
+  - attack.t1657
+  - attack.t1656
+  - vertical.fintech_br
+  - quarry.pattern.BOL-001
+  - quarry.severity.high
+logsource:
+  product: boleto_gateway
+  category: aggregate
+detection:
+  selection:
+    event_type: 'boleto.payee_inflow_aggregate'
+    boleto_payments_received_7d: '>=10'
+    payee_account_age_days: '<30'
+    distinct_payers_7d: '>=8'
+    payee_has_no_segunda_via_history: true
+  filter_legit:
+    payee_kyc_level: 'enhanced'
+    payee_is_registered_billing_agent: true
+  condition: selection and not filter_legit
+fields:
+  - payee_account_id
+  - payee_account_age_days
+  - boleto_payments_received_7d
+  - distinct_payers_7d
+  - total_amount_brl_7d
+  - issuer_cnpj
+falsepositives:
+  - Startup recém-aberta com cobrança via boleto e onboarding rápido de clientes
+  - Conta de prestador de serviço lançado em campanha sazonal (matrículas, IPTU)
+  - Marketplace migrando carteira de cobrança para nova subconta
+level: high

@@ -1,0 +1,42 @@
+title: WhatsApp Clone - Outbound PIX to DICT-Flagged Destination Key
+id: b915ce47-fd90-4b37-9c84-b39b932a2aef
+status: experimental
+description: |
+  Detecta PIX para chave que está marcada com sinal de fraude no DICT
+  (lista interna + feed FEBRABAN/BACEN). Em conjunto com indicadores
+  comportamentais do SEN-001 (ex.: PIX em rajada, sobrenome familiar)
+  eleva criticidade. Quando isolado, ainda assim é high.
+  Link to threat pattern: customizations/threat-intel/br-fintech/patterns/SEN-001-whatsapp-clonado.yaml
+references:
+  - https://www.bcb.gov.br/estabilidadefinanceira/pix
+  - https://portal.febraban.org.br/noticia/4279/pt-br/
+author: Quarry - Increase Trainer Inc.
+date: 2026/05/15
+modified: 2026/05/15
+tags:
+  - attack.t1657
+  - attack.t1656
+  - vertical.fintech_br
+  - quarry.pattern.SEN-001
+  - quarry.severity.high
+logsource:
+  product: pix_gateway
+  category: transaction
+detection:
+  selection_dict_flag:
+    event_type: 'pix.send'
+    destination_chave_dict_flag:
+      - 'fraud_suspected'
+      - 'fraud_confirmed'
+      - 'med_history_count_gt_3'
+  condition: selection_dict_flag
+fields:
+  - origin_account_id
+  - destination_chave
+  - dict_flag_value
+  - amount_brl
+  - timestamp
+falsepositives:
+  - Falsos positivos do feed FEBRABAN sobre chaves de comerciantes legítimos
+  - Cliente pagando para mesmo destinatário antes de o flag ser revisado
+level: high

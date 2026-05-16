@@ -1,0 +1,76 @@
+id: HUNT-EXFIL-001
+name: "Detectar exfiltração de dados de clientes"
+language: pt-BR
+vertical: fintech_br
+description: |
+  Caça sinais de exfiltração de dados de clientes — vazamento de PII (CPF,
+  CNPJ, endereço, chave Pix), dados financeiros (saldo, extrato, cartão) e
+  metadados sensíveis (KYC, scoring). Cobre vetores típicos em fintech BR:
+  exportação massiva via dashboard interno, abuse de API com paginação
+  agressiva, queries SQL "ad-hoc" anormais, e dumps de relatório fora do
+  fluxo padrão de auditoria.
+hypotheses:
+  - "H1: Operador rodou query SELECT com LIMIT > 10.000 contra tabela `customers` em <1h."
+  - "H2: API token cliente fez ≥1.000 chamadas /customers em janela curta com paginação agressiva."
+  - "H3: Endpoint de export PDF/CSV foi acionado ≥50 vezes pelo mesmo operador em sessão."
+  - "H4: Bucket S3 com label `customer_data` recebeu egress >1GB para destino não-allowlisted."
+  - "H5: Backup do banco foi baixado fora do storage de backup designado (acesso direto pg_dump)."
+  - "H6: Email/messaging interno enviou anexo > 5MB contendo padrão regex CPF (\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2})."
+  - "H7: Volume de logs HTTP /api/customers/* aumentou >300% vs baseline 7d."
+data_sources_required:
+  - api_access_logs
+  - sql_query_logs
+  - s3_access_logs
+  - email_dlp_events
+  - database_audit_logs
+  - export_endpoint_logs
+mitre_techniques_expected:
+  - T1530    # Data from Cloud Storage Object
+  - T1567    # Exfiltration Over Web Service
+  - T1041    # Exfiltration Over C2 Channel
+  - T1213    # Data from Information Repositories
+  - T1005    # Data from Local System
+related_patterns: []
+related_sigma_rules:
+  - customers-table-large-select
+  - api-customers-aggressive-pagination
+  - export-endpoint-burst
+  - s3-customer-data-egress-non-allowlist
+  - email-attachment-cpf-pattern
+related_compliance:
+  - LGPD_art48      # comunicação de incidente
+  - LGPD_art46      # medidas de segurança
+  - BACEN_Res_4658_art12
+workflow_steps:
+  - step: 1
+    action: "Listar queries SQL ad-hoc nas últimas 24h em tabelas com PII (customers, addresses, payment_methods, kyc_documents)"
+    expected_output: "tabela: timestamp, user_id, query_hash, rows_returned, duration_ms"
+  - step: 2
+    action: "Filtrar queries com rows_returned > threshold (10k para customers, 5k para kyc_documents)"
+    expected_output: "queries suspeitas de scraping"
+  - step: 3
+    action: "Para cada query suspeita, identificar via SSO o operador (não apenas DB user)"
+    expected_output: "operador real responsável"
+  - step: 4
+    action: "Em paralelo: listar API tokens com count chamadas /customers/* > 1.000 em janela 1h"
+    expected_output: "tokens anômalos com client_id/app_id"
+  - step: 5
+    action: "Cruzar API tokens anômalos com produto/integração registrada"
+    expected_output: "tokens órfãos (sem registro) ou em uso fora do escopo declarado"
+  - step: 6
+    action: "Listar egress de buckets S3 com label customer_data nas últimas 24h"
+    expected_output: "tabela: bucket, object_key, destination_ip, bytes_out"
+  - step: 7
+    action: "Construir attack chain consolidado correlacionando operadores, queries, APIs e egress"
+    expected_output: "graph_network com nodes operator/query/api/egress e edges temporais"
+output_format:
+  type: attack_chain
+  primary_entity: data_artifact
+  enrichment_fields:
+    - operator_real_identity
+    - pii_record_count_estimated
+    - destination_classification
+    - lgpd_severity
+expected_runtime_minutes: "15-45"
+analyst_skill_level: senior
+demo_safe: true

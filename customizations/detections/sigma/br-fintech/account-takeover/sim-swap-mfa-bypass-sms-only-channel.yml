@@ -1,0 +1,48 @@
+title: SIM Swap - MFA Approval via SMS Only on Sensitive Action After Phone Change
+id: 538acf15-7965-4612-812c-87a9f614e432
+status: experimental
+description: |
+  Detecta aprovação de MFA exclusivamente pelo canal SMS-OTP em ação
+  sensível (PIX alto, troca de senha, abertura de crédito) quando o número
+  de telefone foi alterado nas últimas 72h. SMS-OTP é o vetor explorado
+  por SIM swap; após mudança recente, exigir canal alternativo (push/TOTP)
+  ou bloquear.
+  Link to threat pattern: customizations/threat-intel/br-fintech/patterns/ATO-001-sim-swap.yaml
+references:
+  - https://attack.mitre.org/techniques/T1111/
+  - https://www.correiobraziliense.com.br/aqui/2025/11/16/golpe-do-sim-swap-sinais-de-que-seu-chip-foi-clonado-e-como-agir-rapidamente/
+author: Quarry - Increase Trainer Inc.
+date: 2026/05/15
+modified: 2026/05/15
+tags:
+  - attack.t1111
+  - attack.t1556.005
+  - vertical.fintech_br
+  - quarry.pattern.ATO-001
+  - quarry.severity.high
+logsource:
+  product: mfa_service
+  category: mfa_challenge
+detection:
+  selection_mfa:
+    challenge_result: 'success'
+    channel_used: 'sms_otp'
+    other_channels_attempted: 'none'
+    sensitive_action:
+      - 'pix.send_high_value'
+      - 'auth.password_change'
+      - 'credit.application'
+      - 'limit.increase_request'
+    hours_since_phone_change: '<72'
+  condition: selection_mfa
+fields:
+  - user_id
+  - sensitive_action
+  - challenge_id
+  - channel_used
+  - hours_since_phone_change
+  - timestamp
+falsepositives:
+  - Cliente que recentemente trocou de operadora e não cadastrou outro fator MFA
+  - Senior user sem app autenticador instalado
+level: high

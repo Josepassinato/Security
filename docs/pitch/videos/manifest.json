@@ -1,0 +1,15 @@
+{
+  "outputs": [
+    "/root/projetos/quarry/docs/pitch/videos/quarry-demo-5min.mp4",
+    "/root/projetos/quarry/docs/pitch/videos/quarry-demo-2min-teaser.mp4",
+    "/root/projetos/quarry/docs/pitch/videos/quarry-demo-30s-social.mp4"
+  ],
+  "captions": [
+    "/root/projetos/quarry/docs/pitch/videos/quarry-demo-5min.en.srt",
+    "/root/projetos/quarry/docs/pitch/videos/quarry-demo-5min.pt-br.srt"
+  ],
+  "script": "/root/projetos/quarry/docs/pitch/videos/quarry-demo-5min-script-en.md",
+  "duration_seconds": 300,
+  "music": "Original ffmpeg sine-synthesis ambient bed; no third-party samples.",
+  "vimeo": "pending_credentials"
+}

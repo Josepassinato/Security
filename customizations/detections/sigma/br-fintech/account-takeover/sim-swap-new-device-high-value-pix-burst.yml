@@ -1,0 +1,49 @@
+title: SIM Swap - New Device Followed by High Value PIX to Unknown Payee
+id: 58ccba5f-c45b-4130-8309-d53d79f85f39
+status: experimental
+description: |
+  Detecta sequência crítica pós-tomada de conta: registro de novo device_id
+  + login bem-sucedido + PIX acima de R$5.000 para chave nunca usada pelo
+  cliente, tudo em menos de 24h. É o "shape" típico de cashout pós-SIM swap.
+  Link to threat pattern: customizations/threat-intel/br-fintech/patterns/ATO-001-sim-swap.yaml
+references:
+  - https://www.opovo.com.br/noticias/tecnologia/2024/12/10/sim-swap-entenda-como-funciona-o-golpe-e-como-se-proteger.html
+  - https://www.bcb.gov.br/estabilidadefinanceira/pix
+author: Quarry - Increase Trainer Inc.
+date: 2026/05/15
+modified: 2026/05/15
+tags:
+  - attack.t1657
+  - attack.t1078
+  - attack.t1451
+  - vertical.fintech_br
+  - quarry.pattern.ATO-001
+  - quarry.severity.critical
+logsource:
+  product: device_service
+  category: transaction_correlation
+detection:
+  selection_chain:
+    event_type: 'pix.send'
+    amount_brl: '>=5000'
+    payee_chave_first_use: true
+    hours_since_new_device_registered: '<24'
+    device_attestation_status:
+      - 'unknown'
+      - 'failed'
+      - 'rooted'
+  filter_corporate:
+    account_segment: 'pj_enterprise'
+  condition: selection_chain and not filter_corporate
+fields:
+  - user_id
+  - device_id
+  - device_attestation_status
+  - destination_chave
+  - amount_brl
+  - hours_since_new_device_registered
+  - timestamp
+falsepositives:
+  - Cliente que perdeu aparelho, refez KYC e legitimamente fez transferência alta
+  - Migração de saldo entre fintechs com reentrada de dispositivo
+level: critical

@@ -1,0 +1,140 @@
+{
+  "seed": 20260515,
+  "start": "2026-04-01T00:00:00Z",
+  "days": 30,
+  "files": {
+    "pix_legitimate": {
+      "path": "customizations/datasets/br-fintech-generator/output/pix_legitimate.jsonl",
+      "records": 100000,
+      "sha256": "a6c1c0a58c8dae3e985550a5b6a603a6fb3b7e4173c927e70744d1fc7768eb0a",
+      "bytes": 123906427
+    },
+    "pix_fraudulent": {
+      "path": "customizations/datasets/br-fintech-generator/output/pix_fraudulent.jsonl",
+      "records": 500,
+      "sha256": "a27d2f07607d97a23d90d842591e49dfaeb9ec0cb63f9f150ef45be76a067374",
+      "bytes": 674846
+    },
+    "auth_logins": {
+      "path": "customizations/datasets/br-fintech-generator/output/auth_logins.jsonl",
+      "records": 50000,
+      "sha256": "ae2925ee65d44da2a5fda3519cb9edcab7082500640f1aa7b19e34d66ac70acf",
+      "bytes": 52744796
+    },
+    "account_takeover_attempts": {
+      "path": "customizations/datasets/br-fintech-generator/output/account_takeover_attempts.jsonl",
+      "records": 200,
+      "sha256": "3122ba1102f1ddf747886241b0d12d5a2d177cfa0180b0269d83cb7a3f5e7f9e",
+      "bytes": 233338
+    },
+    "open_finance_accesses": {
+      "path": "customizations/datasets/br-fintech-generator/output/open_finance_accesses.jsonl",
+      "records": 10000,
+      "sha256": "d7dde9758023c4ad563e7a1d65ac6bc84c8dc3da7f6a910c869ffd95d97792d8",
+      "bytes": 9996265
+    },
+    "open_finance_anomalies": {
+      "path": "customizations/datasets/br-fintech-generator/output/open_finance_anomalies.jsonl",
+      "records": 30,
+      "sha256": "3da5cce76c3cd0cb4b7b75d11586e8937b45e743546f711b2e84222232ae40e4",
+      "bytes": 34056
+    },
+    "boleto_creations": {
+      "path": "customizations/datasets/br-fintech-generator/output/boleto_creations.jsonl",
+      "records": 5000,
+      "sha256": "4fc69ab5b8cc61e087f5fef62a3d360bece4fce00fc41654514139eafeddb4bd",
+      "bytes": 4770228
+    },
+    "boleto_fraudulent": {
+      "path": "customizations/datasets/br-fintech-generator/output/boleto_fraudulent.jsonl",
+      "records": 50,
+      "sha256": "f4081f3309daf5da53fd3dec5826edccd5c78d597824f51dadbd077d28e3f0c0",
+      "bytes": 52880
+    },
+    "supporting_hunt_evidence": {
+      "path": "customizations/datasets/br-fintech-generator/output/supporting_hunt_evidence.jsonl",
+      "records": 120,
+      "sha256": "549894959c2d8ec451a40ed2a2b00a82841d46c0ef9d5d7a070212e52b4e1c2e",
+      "bytes": 116576
+    },
+    "customers": {
+      "path": "customizations/datasets/br-fintech-generator/output/customers.csv",
+      "records": 50000,
+      "bytes": 5750322,
+      "sha256": "561a9f9dcf38bb0c55ec2a73667b93e174b65ec46bb3e10106d9550e02b70f1c"
+    }
+  },
+  "scenarios": {
+    "SCN-001-money-mule-ring": {
+      "name": "Money mule ring com 20 contas",
+      "related_hunts": [
+        "HUNT-PIX-001",
+        "HUNT-MULE-001"
+      ],
+      "related_patterns": [
+        "PIX-001",
+        "SEN-001",
+        "VSH-001"
+      ],
+      "events": 360
+    },
+    "SCN-002-sim-swap-high-value": {
+      "name": "SIM swap em conta high-value",
+      "related_hunts": [
+        "HUNT-SIM-001",
+        "HUNT-ATO-001"
+      ],
+      "related_patterns": [
+        "ATO-001"
+      ],
+      "events": 280
+    },
+    "SCN-003-open-finance-scraping": {
+      "name": "Open Finance scraping anomalo",
+      "related_hunts": [
+        "HUNT-OFI-001"
+      ],
+      "related_patterns": [
+        "OFI-001"
+      ],
+      "events": 30
+    },
+    "SCN-004-boleto-fraud-campaign": {
+      "name": "Boleto fraud campaign",
+      "related_hunts": [
+        "HUNT-BOL-001"
+      ],
+      "related_patterns": [
+        "BOL-001",
+        "MAL-001"
+      ],
+      "events": 110
+    }
+  },
+  "expected_counts": {
+    "pix_legitimate": 100000,
+    "pix_fraudulent": 500,
+    "auth_logins": 50000,
+    "account_takeover_attempts": 200,
+    "open_finance_accesses": 10000,
+    "open_finance_anomalies": 30,
+    "boleto_creations": 5000,
+    "boleto_fraudulent": 50,
+    "supporting_hunt_evidence": 120
+  },
+  "fintech": {
+    "name": "FinPlay Pagamentos",
+    "legal_name": "FinPlay Pagamentos S.A. (ficticia)",
+    "city": "Sao Paulo",
+    "state": "SP",
+    "country": "BR",
+    "products": [
+      "conta_digital",
+      "cartao",
+      "pix"
+    ],
+    "active_customers": 50000,
+    "synthetic": true
+  },
+  "total_events": 165900
+}

@@ -1,0 +1,46 @@
+title: Money Mule - Immediate Outbound Above 80 Percent of Inbound
+id: 9b3c7d2f-5e1a-4f8b-9c14-7d2a3b5c6e87
+status: experimental
+description: |
+  Detects accounts where more than 80% of an incoming PIX value is sent
+  outbound within 60 minutes of receipt. Money mule "pass-through" signature
+  documented in PIX-001: mule receives funds and rapidly forwards to next
+  hop before MED 1.0 72h window can act.
+  Link to threat pattern: customizations/threat-intel/br-fintech/patterns/PIX-001-money-mule.yaml
+references:
+  - https://www.bcb.gov.br/content/estabilidadefinanceira/pix/Guia_MED.pdf
+  - https://www.bcb.gov.br/content/estabilidadefinanceira/pix/MED/MED_2-0_Circuito_Pix-Dia_1.pdf
+author: Quarry - Increase Trainer Inc.
+date: 2026/05/15
+modified: 2026/05/15
+tags:
+  - attack.t1078.003
+  - attack.t1657
+  - vertical.fintech_br
+  - quarry.pattern.PIX-001
+  - quarry.severity.high
+logsource:
+  product: fintech_core
+  category: transaction
+detection:
+  selection:
+    event_type: 'pix.flow_aggregate'
+    inbound_amount_brl: '>=500'
+    outbound_pct_of_inbound: '>=80'
+    elapsed_minutes_inbound_to_outbound: '<=60'
+  filter_legit:
+    account_type: 'business'
+    kyc_level: 'enhanced'
+  condition: selection and not filter_legit
+fields:
+  - account_id
+  - inbound_amount_brl
+  - outbound_amount_brl
+  - outbound_pct_of_inbound
+  - elapsed_minutes_inbound_to_outbound
+  - destination_chaves
+falsepositives:
+  - Contas corporativas operando como gateway de pagamento legítimo
+  - Pessoa física recebendo restituição e transferindo para investimento imediatamente
+  - Pagamento de aluguel/condomínio repassado no mesmo dia
+level: high

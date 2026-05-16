@@ -1,0 +1,51 @@
+title: PIX Falso Estorno - Customer Support Ticket Mentions PIX Errado
+id: 9e3c5b7a-8f1d-4d2c-a5e9-1b6f8c3a4d27
+status: experimental
+description: |
+  Detects customer support tickets where the content mentions PIX errado,
+  devolucao por engano, pix recebido por engano, estorno or transferi sem
+  querer. When combined with a recent PIX outbound to a non-origin chave,
+  this is strong PIX-002 social-engineering signal coming from the victim
+  side asking for help after the fact.
+  Link to threat pattern: customizations/threat-intel/br-fintech/patterns/PIX-002-golpe-pix-errado.yaml
+references:
+  - https://www.cnnbrasil.com.br/economia/financas/golpe-do-pix-errado-entenda-como-funciona-e-saiba-como-se-proteger/
+  - https://www.folhavitoria.com.br/geral/noticia/07/2024/golpe-fez-pix-errado-e-agora-tem-como-pedir-estorno-policia-da-dicas-viral
+  - https://www.em.com.br/emfoco/2025/04/08/banco-central-alerta-sobre-novo-golpe-com-devolucao-via-pix-entenda/
+author: Quarry - Increase Trainer Inc.
+date: 2026/05/15
+modified: 2026/05/15
+tags:
+  - attack.t1656
+  - attack.t1566
+  - vertical.fintech_br
+  - quarry.pattern.PIX-002
+  - quarry.severity.medium
+logsource:
+  product: customer_support
+  category: ticket_event
+detection:
+  selection_keywords:
+    event_type: 'ticket.opened'
+    ticket_body_normalized|contains:
+      - 'pix errado'
+      - 'pix por engano'
+      - 'devolucao por engano'
+      - 'transferi sem querer'
+      - 'me pediram estorno'
+      - 'recebi pix errado'
+  selection_correlated_outbound:
+    pix_outbound_to_non_origin_chave_24h: true
+  filter_legit:
+    ticket_resolved_official_devolver: true
+  condition: selection_keywords and selection_correlated_outbound and not filter_legit
+fields:
+  - ticket_id
+  - account_id
+  - ticket_opened_at
+  - related_pix_inbound_id
+  - related_pix_outbound_id
+falsepositives:
+  - Cliente legitimamente vitima de PIX errado pedindo orientacao
+  - Empresa que recebe muitos PIX errados em chave publica (suporte de marca)
+level: medium

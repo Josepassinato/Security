@@ -47,22 +47,46 @@ O diretório [`detections/`](detections/) contém regras importadas de quatro co
 
 ---
 
-## 3. Dependências Python notáveis
+## 3. Biblioteca de skills de cibersegurança
 
-### 3.1 pysigma — LGPL-2.1
+### 3.1 Anthropic Cybersecurity Skills
+
+- **Repositório:** [mukul975/Anthropic-Cybersecurity-Skills](https://github.com/mukul975/Anthropic-Cybersecurity-Skills)
+- **Licença:** Apache-2.0
+- **Localização:** `customizations/skills/anthropic-cybersec/`
+- **Uso:** base de conhecimento operacional para lookup/RAG dos agentes Quarry
+- **Atribuição:** mantida no clone original, no índice local `customizations/skills/anthropic-cybersec/.quarry-index/skills_index.jsonl` e na documentação `docs/pt-br/usando-skills-library.md`.
+
+---
+
+## 4. Datasets de demonstração
+
+### 4.1 Splunk BOTS v3
+
+- **Repositório:** [splunk/botsv3](https://github.com/splunk/botsv3)
+- **Licença:** CC0-1.0, conforme `datasets/bots-v3/source/LICENSE`
+- **Dataset:** `botsv3_data_set.tgz`, MD5 `d7ccca99a01cff070dff3c139cdc10eb`
+- **Localização local:** `datasets/bots-v3/` fica fora do Git por tamanho; parser e importador ficam em `customizations/datasets/bots-v3/`.
+- **Uso:** demo Wayne Enterprises para investigação de ransomware com exfiltração prévia.
+
+---
+
+## 5. Dependências Python notáveis
+
+### 5.1 pysigma — LGPL-2.1
 
 - **Pacote:** [`pysigma`](https://pypi.org/project/pysigma/) (e `pysigma-backend-opensearch`)
 - **Licença:** GNU Lesser General Public License v2 (LGPL-2.1)
 - **Uso:** linkagem dinâmica via `import` em Python (compatível com SaaS hosted closed-source)
 - **Obrigação:** se Quarry for distribuído como binário/imagem que o cliente executa, o cliente deve poder substituir a versão de pysigma. Para SaaS cloud-hosted onde o cliente nunca recebe o binário, LGPL não gera obrigação de distribuição.
 
-### 3.2 Demais dependências
+### 5.2 Demais dependências
 
 Todas as outras dependências Python e Node são MIT, Apache-2.0 ou BSD. SBOM completo será gerado e versionado em card próximo.
 
 ---
 
-## 4. Dependências Node notáveis
+## 6. Dependências Node notáveis
 
 - Next.js (MIT), React (MIT), Tailwind CSS (MIT), framer-motion (MIT), Cytoscape (MIT), Zustand (MIT), recharts (MIT), Monaco Editor (MIT), `@modelcontextprotocol/sdk` (MIT)
 
@@ -70,7 +94,7 @@ Nenhuma incompatibilidade comercial detectada.
 
 ---
 
-## 5. Marcas
+## 7. Marcas
 
 - "AiSOC" é marca dos contribuidores do projeto AiSOC. Quarry usa "AiSOC" apenas em contexto de atribuição histórica ou referência técnica, não como identificação do produto.
 - "MITRE", "MITRE ATT&CK", "ATT&CK" são marcas registradas de The MITRE Corporation.
@@ -79,10 +103,10 @@ Nenhuma incompatibilidade comercial detectada.
 
 ---
 
-## 6. Como atualizar este arquivo
+## 8. Como atualizar este arquivo
 
 Sempre que um novo corpus de detecções ou uma dependência com licença não-permissiva for adicionada, este arquivo deve ser atualizado **antes** do merge. CI futuro vai validar atribuições automaticamente a partir dos blocos `provenance` em `detections/` e do SBOM.
 
 ---
 
-_Última atualização: 2026-05-15._
+_Última atualização: 2026-05-16._

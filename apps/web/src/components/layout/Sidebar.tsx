@@ -155,6 +155,11 @@ const navSections: NavSection[] = [
         href: '/dashboards/soc-insights',
         icon: <ChartBarIcon />,
       },
+      {
+        label: 'Demo Pix',
+        href: '/demo-cinematografica',
+        icon: <SparklesIcon />,
+      },
     ],
   },
   {

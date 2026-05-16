@@ -1,0 +1,48 @@
+id: HUNT-ATO-001
+name: "Detectar account takeover patterns nas ultimas 24h"
+language: pt-BR
+vertical: fintech_br
+description: |
+  Consolida sinais de tomada de conta em mobile banking: novo dispositivo, troca de senha, MFA degradado, troca de telefone e Pix de alto valor em sequencia curta.
+hypotheses:
+  - "H1: Login em novo dispositivo foi seguido por alteracao de senha ou telefone em menos de 30 minutos."
+  - "H2: Cliente teve MFA por SMS usado depois de troca recente de SIM ou ICCID."
+  - "H3: Ha impossible travel ou ASN novo antes da transacao financeira."
+  - "H4: Conta high-value iniciou Pix para novo favorecido apos recuperacao de senha."
+  - "H5: Varios clientes foram afetados pelo mesmo IP, device ou user-agent."
+data_sources_required:
+  - auth_events
+  - mfa_events
+  - device_fingerprint_logs
+  - pix_transactions
+  - customer_profile_changes
+mitre_techniques_expected:
+  - T1078
+  - T1110
+  - T1451
+related_patterns:
+  - ATO-001
+  - SEN-001
+related_sigma_rules:
+  - sim-swap-new-device-high-value-pix-burst
+  - sim-swap-phone-change-fast-reset
+  - whatsapp-clone-rapid-distinct-payees
+workflow_steps:
+  - step: 1
+    action: "Buscar eventos de novo dispositivo, reset de senha, troca de telefone e MFA nas ultimas 24h"
+    expected_output: "eventos sensiveis por customer_id"
+  - step: 2
+    action: "Correlacionar eventos sensiveis com Pix para novo favorecido"
+    expected_output: "contas com sequencia ATO completa"
+  - step: 3
+    action: "Agrupar por IP, ASN, device_fingerprint e user_agent"
+    expected_output: "infraestrutura comum entre vitimas"
+  - step: 4
+    action: "Priorizar por valor financeiro, cliente high-value e recorrencia do destino"
+    expected_output: "fila de casos priorizada"
+output_format:
+  type: timeline
+  primary_entity: customer_id
+expected_runtime_minutes: "10-25"
+analyst_skill_level: intermediate
+demo_safe: true

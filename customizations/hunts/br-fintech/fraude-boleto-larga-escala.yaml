@@ -1,0 +1,49 @@
+id: HUNT-BOL-001
+name: "Cacar fraude de boleto em larga escala"
+language: pt-BR
+vertical: fintech_br
+description: |
+  Detecta campanhas de boleto adulterado, segunda via falsa e divergencia entre beneficiario esperado e beneficiario efetivamente pago.
+hypotheses:
+  - "H1: Beneficiario do boleto nao pertence a allowlist do convenio ou fornecedor esperado."
+  - "H2: Houve burst de emissao ou consulta de segunda via para novos favorecidos."
+  - "H3: Linha digitavel ou codigo de barras mudou entre exibicao e pagamento."
+  - "H4: Valores divergem pouco do boleto esperado para reduzir suspeita."
+  - "H5: Mesmo beneficiario recebeu pagamentos de clientes sem relacao entre si."
+data_sources_required:
+  - boleto_generation_logs
+  - payment_confirmation_logs
+  - beneficiary_allowlist
+  - support_tickets
+  - browser_or_app_telemetry
+mitre_techniques_expected:
+  - T1565.002
+  - T1115
+  - T1657
+related_patterns:
+  - BOL-001
+  - MAL-001
+related_sigma_rules:
+  - boleto-beneficiary-mismatch
+  - boleto-beneficiary-not-in-allowlist
+  - boleto-browser-injection-clipboard-swap
+  - boleto-segunda-via-burst-new-payee
+workflow_steps:
+  - step: 1
+    action: "Listar pagamentos de boleto com beneficiario fora da allowlist ou primeira ocorrencia"
+    expected_output: "boletos suspeitos por beneficiario"
+  - step: 2
+    action: "Comparar beneficiario esperado no momento da emissao com beneficiario pago"
+    expected_output: "divergencias confirmadas"
+  - step: 3
+    action: "Agrupar por linha digitavel, convenio, IP, device e destino final"
+    expected_output: "campanhas e clusters"
+  - step: 4
+    action: "Cruzar com tickets de segunda via e reclamacoes de boleto falso"
+    expected_output: "evidencias textuais da campanha"
+output_format:
+  type: graph_network
+  primary_entity: beneficiary_document
+expected_runtime_minutes: "15-40"
+analyst_skill_level: intermediate
+demo_safe: true

@@ -1,0 +1,70 @@
+id: HUNT-PRIV-001
+name: "Auditar acessos privilegiados anômalos"
+language: pt-BR
+vertical: fintech_br
+description: |
+  Busca uso de credenciais privilegiadas (admin, operador, suporte interno)
+  fora do padrão esperado: horário atípico, geolocalização incomum, sessões
+  simultâneas, ou ações em massa sobre contas de clientes. Cobre tanto
+  comprometimento externo quanto insider abuse, com peso especial em
+  ações sensíveis para fintech BR: refunds, ajustes manuais, congelamentos
+  e desbloqueios de conta.
+hypotheses:
+  - "H1: Há sessão admin ativa fora do horário comercial brasileiro (BRT/BRST) sem ticket de manutenção correspondente."
+  - "H2: Uma única credencial privilegiada agiu sobre ≥20 contas de clientes distintas em <15 minutos — fora do volume baseline."
+  - "H3: Operador acessou uma conta cliente sem ticket aberto correspondente no sistema de atendimento."
+  - "H4: Conta de serviço CI/CD foi usada via console interativo (login + clique) em vez de API/automação."
+  - "H5: Privilégio recém-elevado (últimas 4h) foi imediatamente usado para ação irreversível (ajuste de saldo, transfer pix manual)."
+  - "H6: Mesmo user_id privilegiado aparece logado de 2+ países/IPs distintos em <30 minutos."
+  - "H7: Padrão de read-heavy massive antes de exfiltration típico — operador queriou ≥500 contas em 1h sem write."
+data_sources_required:
+  - admin_audit_logs
+  - ticket_system_correlation
+  - hr_org_chart
+  - vpn_logs
+  - sso_logs
+  - elevation_events
+mitre_techniques_expected:
+  - T1078.004    # Valid Accounts: Cloud Accounts
+  - T1078.003    # Valid Accounts: Local Accounts
+  - T1098        # Account Manipulation
+  - T1530        # Data from Cloud Storage Object
+related_patterns: []
+related_sigma_rules:
+  - admin-session-off-hours-no-ticket
+  - bulk-customer-account-access-by-single-operator
+  - service-account-interactive-login
+related_compliance:
+  - BACEN_Res_4658_art10        # gestão de identidade e privilégios
+  - LGPD_art46                  # adoção de medidas de segurança
+workflow_steps:
+  - step: 1
+    action: "Listar todas as sessões com role admin/operator/support nos últimos 24h"
+    expected_output: "tabela com user_id, role, login_at, logout_at, ip, geo"
+  - step: 2
+    action: "Cruzar com tickets abertos no sistema de atendimento no mesmo período"
+    expected_output: "para cada sessão, ticket_id correspondente OU 'sem ticket'"
+  - step: 3
+    action: "Agrupar por user_id e calcular contas-cliente-distintas-acessadas no período"
+    expected_output: "ranking de operadores por accounts_touched_count"
+  - step: 4
+    action: "Para top 5 operadores, listar ações de write (ajuste, refund, congelamento) no mesmo período"
+    expected_output: "lista de ações write por operador"
+  - step: 5
+    action: "Cruzar com geolocalização e horário comercial declarado do operador (HR)"
+    expected_output: "flag de anomalia: off_hours, off_location, sin_ticket"
+  - step: 6
+    action: "Para sessões flagadas, extrair sequência completa de ações no Investigation Ledger"
+    expected_output: "timeline cronológica por sessão flagada"
+output_format:
+  type: timeline
+  primary_entity: user_id
+  enrichment_fields:
+    - role
+    - geo
+    - ticket_correlation
+    - accounts_touched_count
+    - write_actions_count
+expected_runtime_minutes: "10-25"
+analyst_skill_level: intermediate
+demo_safe: true

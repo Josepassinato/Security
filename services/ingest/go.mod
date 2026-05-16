@@ -1,4 +1,4 @@
-module github.com/beenuar/aisoc/services/ingest
+module github.com/beenuar/quarry/services/ingest
 
 go 1.25.0
 
