@@ -71,6 +71,14 @@ export interface DemoReportPage {
   bullets: string[];
 }
 
+export interface DemoRegulatoryArtifact {
+  id: string;
+  norma: string;
+  titulo: string;
+  detalhe: string;
+  appearsAt: number;
+}
+
 export interface DemoState {
   elapsedSeconds: number;
   totalSeconds: number;
@@ -84,6 +92,8 @@ export interface DemoState {
   visibleMitreCells: DemoMitreCell[];
   reportPages: DemoReportPage[];
   reportReady: boolean;
+  visibleRegulatoryArtifacts: DemoRegulatoryArtifact[];
+  activeRegulatoryArtifact: DemoRegulatoryArtifact | null;
   metrics: {
     elapsedLabel: string;
     costUsd: number;
@@ -282,6 +292,49 @@ export const MITRE_CELLS: DemoMitreCell[] = [
   { tactic: 'Impact', technique: 'T1499', label: 'Financial impact', appearsAt: 186, intensity: 3 },
 ];
 
+export const REGULATORY_ARTIFACTS: DemoRegulatoryArtifact[] = [
+  {
+    id: 'psc',
+    norma: 'Res. BCB 85/2021 · Art. 3 e 4',
+    titulo: 'Política de Segurança Cibernética em execução',
+    detalhe:
+      'A investigação roda dentro do escopo previsto na PSC vigente da fintech — agentes, fontes consultadas e ações de contenção já mapeados no documento aprovado pela diretoria.',
+    appearsAt: 11,
+  },
+  {
+    id: 'registro',
+    norma: 'Res. BCB 85/2021 · Art. 8',
+    titulo: 'Registro de incidente relevante aberto',
+    detalhe:
+      'Limiar de relevância cruzado: valor financeiro envolvido + dado pessoal de cliente alto valor. Incidente classificado e datado no momento do achado.',
+    appearsAt: 50,
+  },
+  {
+    id: 'cadeia',
+    norma: 'LGPD · Art. 48 e 50',
+    titulo: 'Cadeia probatória sendo arquivada',
+    detalhe:
+      'Cada query, cada prompt, cada decisão dos agentes fica em ledger imutável. Auditor externo refaz a investigação do zero com os mesmos dados e a mesma sequência.',
+    appearsAt: 105,
+  },
+  {
+    id: 'comunicacao',
+    norma: 'Res. BCB 85/2021 · Art. 9',
+    titulo: 'Relógio de comunicação ao Bacen ligado',
+    detalhe:
+      'Contagem regressiva de 24 horas começa no momento da detecção. Modelo de comunicação imediata já populado com classificação, vetores e medidas tomadas até agora.',
+    appearsAt: 190,
+  },
+  {
+    id: 'continuidade',
+    norma: 'IN BCB 314',
+    titulo: 'Evidência arquivada como teste periódico',
+    detalhe:
+      'Investigação completa fica disponível como artefato de teste do plano de continuidade — vale como execução de drill anual exigido para fintechs reguladas.',
+    appearsAt: 250,
+  },
+];
+
 export const REPORT_PAGES: DemoReportPage[] = [
   { page: 1, title: 'Resumo executivo', bullets: ['Fraude organizada confirmada', 'R$ 1,84 mi sob risco', '20 contas-laranja priorizadas'] },
   { page: 2, title: 'Linha do tempo', bullets: ['SIM swap', 'login em aparelho novo', 'pico Pix', 'cash-out via boleto'] },
@@ -327,6 +380,13 @@ export function getDemoState(elapsedSecondsInput: number): DemoState {
   const visibleGraphNodes = GRAPH_NODES.filter((node) => elapsedSeconds >= node.appearsAt);
   const visibleGraphEdges = GRAPH_EDGES.filter((edge) => elapsedSeconds >= edge.appearsAt);
   const visibleMitreCells = MITRE_CELLS.filter((cell) => elapsedSeconds >= cell.appearsAt);
+  const visibleRegulatoryArtifacts = REGULATORY_ARTIFACTS.filter(
+    (artifact) => elapsedSeconds >= artifact.appearsAt,
+  );
+  const activeRegulatoryArtifact =
+    visibleRegulatoryArtifacts.length > 0
+      ? visibleRegulatoryArtifacts[visibleRegulatoryArtifacts.length - 1]
+      : null;
   const reportReady = elapsedSeconds >= 235;
   const costUsd = 0.35 + elapsedSeconds * 0.1;
   const humanHours = 18;
@@ -347,6 +407,8 @@ export function getDemoState(elapsedSecondsInput: number): DemoState {
     visibleMitreCells,
     reportPages: reportReady ? REPORT_PAGES : REPORT_PAGES.slice(0, Math.max(1, Math.floor((elapsedSeconds - 190) / 6))),
     reportReady,
+    visibleRegulatoryArtifacts,
+    activeRegulatoryArtifact,
     metrics: {
       elapsedLabel: formatElapsed(elapsedSeconds),
       costUsd,

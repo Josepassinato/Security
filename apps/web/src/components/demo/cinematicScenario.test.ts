@@ -7,6 +7,7 @@ import {
   HYPOTHESES,
   MITRE_CELLS,
   QUERIES,
+  REGULATORY_ARTIFACTS,
   REPORT_PAGES,
   TOTAL_SECONDS,
   getDemoState,
@@ -45,5 +46,25 @@ describe('cinematic Pix demo scenario', () => {
     expect(finalState.reportPages).toHaveLength(REPORT_PAGES.length);
     expect(finalState.reportPages.length).toBeGreaterThanOrEqual(8);
     expect(finalState.reportPages.length).toBeLessThanOrEqual(12);
+  });
+
+  it('reveals every regulatory artifact and stays in pt-BR', () => {
+    expect(REGULATORY_ARTIFACTS.length).toBeGreaterThanOrEqual(5);
+
+    const startState = getDemoState(0);
+    expect(startState.visibleRegulatoryArtifacts).toHaveLength(0);
+    expect(startState.activeRegulatoryArtifact).toBeNull();
+
+    const finalState = getDemoState(TOTAL_SECONDS);
+    expect(finalState.visibleRegulatoryArtifacts).toHaveLength(REGULATORY_ARTIFACTS.length);
+    expect(finalState.activeRegulatoryArtifact?.id).toBe(
+      REGULATORY_ARTIFACTS[REGULATORY_ARTIFACTS.length - 1].id,
+    );
+
+    for (const artifact of REGULATORY_ARTIFACTS) {
+      expect(artifact.appearsAt).toBeGreaterThanOrEqual(0);
+      expect(artifact.appearsAt).toBeLessThanOrEqual(TOTAL_SECONDS);
+      expect(artifact.norma).toMatch(/Res\.|IN BCB|LGPD/);
+    }
   });
 });

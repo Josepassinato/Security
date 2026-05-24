@@ -28,6 +28,7 @@ const NAV_LINKS: ReadonlyArray<{ label: string; href: string }> = [
   { label: 'Benchmark', href: '#benchmark' },
   { label: 'Pricing', href: '#pricing' },
   { label: 'Docs', href: 'https://docs.quarry.dev' },
+  { label: 'Para fintechs BR', href: '/br' },
 ];
 
 export function StickyNav() {

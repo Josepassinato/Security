@@ -1,200 +1,72 @@
 import type { Metadata } from 'next';
-import dynamic from 'next/dynamic';
 import { getPublicSiteUrl } from '@/lib/site';
-import { StickyNav } from '@/components/landing/sections/StickyNav';
-import { Hero } from '@/components/landing/sections/Hero';
-import { ProofStrip } from '@/components/landing/sections/ProofStrip';
-import { Problem } from '@/components/landing/sections/Problem';
-
-/**
- * Quarry root (`/`) — marketing landing page (T6.5).
- *
- * 16-section narrative for the v8.0 GTM push. Above-the-fold sections
- * (StickyNav, Hero, ProofStrip, Problem) are eagerly imported because
- * they sit inside the LCP window. Everything below the fold is loaded
- * via `next/dynamic` so the initial JS chunk shipped to the browser
- * stays well under the 180 kB gzipped budget in §12 of the brief.
- *
- * SSR is preserved for every section (`ssr: true` is the default of
- * `next/dynamic`); we only code-split the client-side bundle. That
- * keeps the SEO crawl path intact and lets the JSON-LD payload below
- * render the same copy a human visitor sees.
- *
- * The page is dark-locked via a nested `data-theme="dark"` boundary,
- * same pattern the previous root used — every gradient, glow, and
- * tinted overlay in the section components was tuned against the dark
- * palette and migrating each to themable tokens would balloon T6.5 for
- * no buyer-visible win. The console chrome (TopBar / Sidebar / etc.)
- * still honours the toggle, which is what AGENTS.md WS-F1 promised.
- */
-
-const SolutionAgents = dynamic(
-  () => import('@/components/landing/sections/SolutionAgents').then((m) => m.SolutionAgents),
-);
-const DemoEmbed = dynamic(
-  () => import('@/components/landing/sections/DemoEmbed').then((m) => m.DemoEmbed),
-);
-const Pillars = dynamic(
-  () => import('@/components/landing/sections/Pillars').then((m) => m.Pillars),
-);
-const FeatureGrid = dynamic(
-  () => import('@/components/landing/sections/FeatureGrid').then((m) => m.FeatureGrid),
-);
-const ConnectorsMarquee = dynamic(
-  () => import('@/components/landing/sections/ConnectorsMarquee').then((m) => m.ConnectorsMarquee),
-);
-const BenchmarkBand = dynamic(
-  () => import('@/components/landing/sections/BenchmarkBand').then((m) => m.BenchmarkBand),
-);
-const DeployOptions = dynamic(
-  () => import('@/components/landing/sections/DeployOptions').then((m) => m.DeployOptions),
-);
-const OpenSourceMoment = dynamic(
-  () => import('@/components/landing/sections/OpenSourceMoment').then((m) => m.OpenSourceMoment),
-);
-const Testimonials = dynamic(
-  () => import('@/components/landing/sections/Testimonials').then((m) => m.Testimonials),
-);
-const PricingTeaser = dynamic(
-  () => import('@/components/landing/sections/PricingTeaser').then((m) => m.PricingTeaser),
-);
-const Faq = dynamic(
-  () => import('@/components/landing/sections/Faq').then((m) => m.Faq),
-);
-const FinalCta = dynamic(
-  () => import('@/components/landing/sections/FinalCta').then((m) => m.FinalCta),
-);
-const Footer = dynamic(
-  () => import('@/components/landing/sections/Footer').then((m) => m.Footer),
-);
+import {
+  HomeNav,
+  HeroEmpresa,
+  QuemSomos,
+  ProdutoQuarry,
+  ParaQuemE,
+  StatGigante,
+  CaminhoDuplo,
+  DemoBanner,
+  FaqHome,
+  FooterHome,
+} from '@/components/landing/home-pt/sections';
 
 const siteUrl = getPublicSiteUrl();
 
 export const metadata: Metadata = {
-  // Use `absolute` so the root layout's `template: '%s | Quarry'` does not
-  // append a redundant " | Quarry" to a title that already leads with the
-  // brand.
-  title: { absolute: 'Quarry — open-source AI Security Operations Center' },
+  title: { absolute: '12Brain — Infraestrutura de segurança econômica para fintechs BR' },
   description:
-    'Quarry is an MIT-licensed, agentic SOC: four specialised agents (Detect, Triage, Hunt, Respond), 69 first-party connectors, a 200-incident benchmark harness, and air-gap deploy on a single flag. Self-host in five minutes or join the managed waitlist.',
+    'A 12Brain Solutions constrói o Quarry — um SOC agêntico open-source que faz BACEN não tirar o sono de fintechs Seed e Série A no Brasil. Sem MSSP de R$ 30 mil/mês.',
   alternates: { canonical: '/' },
   openGraph: {
-    title: 'Quarry — open-source AI Security Operations Center',
+    title: '12Brain — Casa do Quarry',
     description:
-      'Four agents, 69 connectors, a public benchmark, and air-gap on a flag. Self-host the full stack under MIT, or join the managed waitlist at app.quarry.dev.',
+      'SOC agêntico MIT-licensed para fintechs BR. 4 agentes, 69 conectores, air-gap num único flag, custo R$ 27,40/alerta auditado.',
     url: siteUrl,
-    siteName: 'Quarry',
+    siteName: '12Brain',
     type: 'website',
-    locale: 'en_US',
+    locale: 'pt_BR',
     images: [
       {
         url: '/og-image.svg',
         width: 1200,
         height: 630,
-        alt: 'Quarry — open-source AI SOC with four specialised agents and 69 connectors',
+        alt: '12Brain Solutions — casa do Quarry',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Quarry — open-source AI Security Operations Center',
+    title: '12Brain — Casa do Quarry',
     description:
-      'Four agents. 69 connectors. A public benchmark. Air-gap on a flag. MIT-licensed.',
+      'SOC agêntico MIT-licensed para fintechs BR. BACEN-compliant, sem MSSP caro.',
     images: ['/og-image.svg'],
   },
 };
 
-const productJsonLd = {
+const orgJsonLd = {
   '@context': 'https://schema.org',
-  '@type': 'SoftwareApplication',
-  name: 'Quarry',
-  alternateName: ['AI SOC', 'Quarry Platform', 'Agentic SOC'],
-  applicationCategory: 'SecurityApplication',
-  applicationSubCategory: 'Security Operations Center',
-  operatingSystem: 'Linux, macOS, Docker',
-  license: 'https://opensource.org/licenses/MIT',
+  '@type': 'Organization',
+  name: '12Brain Solutions LLC',
+  alternateName: '12Brain',
   url: siteUrl,
-  downloadUrl: 'https://github.com/beenuar/Quarry',
-  installUrl: 'https://github.com/beenuar/Quarry#quick-start',
-  releaseNotes: 'https://github.com/beenuar/Quarry/releases',
+  logo: `${siteUrl}/favicon.svg`,
   description:
-    'Quarry is an MIT-licensed agentic Security Operations Center: four specialised agents (Detect, Triage, Hunt, Respond), 69 first-party connectors, a public 200-incident benchmark, and air-gap deploy on a single environment flag.',
-  featureList: [
-    'Four specialised agents: Detect, Triage, Hunt, Respond',
-    '69 first-party connectors across EDR, SIEM, cloud, IAM, SaaS, VCS, network',
-    'Public 200-incident benchmark harness with substrate self-consistency gates',
-    'Air-gap mode (QUARRY_AIRGAPPED=true) with local Ollama sidecar',
-    'L0–L4 automation maturity ladder for human-in-the-loop guardrails',
-    'Encrypted connector vault (Fernet AES-128-CBC + HMAC-SHA256)',
-    'Self-host on Render, Docker Compose, Fly.io, Helm, or AWS Terraform',
-  ],
-  offers: {
-    '@type': 'Offer',
-    price: '0',
-    priceCurrency: 'USD',
-    description: 'Free, MIT-licensed, self-hostable. Paid managed tier on waitlist.',
+    '12Brain Solutions é a empresa por trás do Quarry, um SOC agêntico MIT-licensed focado em fintechs brasileiras em estágio Seed e Série A.',
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Coconut Creek',
+    addressRegion: 'FL',
+    addressCountry: 'US',
   },
-};
-
-const faqJsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'FAQPage',
-  mainEntity: [
-    {
-      '@type': 'Question',
-      name: 'Is Quarry really open source?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text:
-          'Yes — the agent, the connectors, the detection rules, the benchmark dataset, and every piece of infrastructure code are MIT-licensed. There is no private fork.',
-      },
-    },
-    {
-      '@type': 'Question',
-      name: 'What does the agent need to call out to?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text:
-          'By default the Triage and Hunt agents call an LLM provider you configure (OpenAI, Anthropic, Azure, Bedrock, or a private LiteLLM gateway). Set QUARRY_AIRGAPPED=true and the platform refuses every outbound call; an Ollama sidecar runs a local model in-cluster.',
-      },
-    },
-    {
-      '@type': 'Question',
-      name: 'Where does my data live?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text:
-          'Self-host: wherever you point Postgres, ClickHouse, and Redis. Managed: EU, US, or India region you pick at signup. Sovereign: a single-tenant VPC you control. The connector vault encrypts secrets with Fernet AES-128-CBC + HMAC-SHA256.',
-      },
-    },
-    {
-      '@type': 'Question',
-      name: 'Can the agent take real-world action without a human?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text:
-          'Only inside the maturity tier you configure. L0 keeps the agent advisory only; L2 (the production default) lets it run reversible containment actions; L4 allows whitelisted closed-loop actions. Every action class is gated against blast radius.',
-      },
-    },
-    {
-      '@type': 'Question',
-      name: 'How is this benchmarked?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text:
-          'Five pytest suites in services/agents/tests/ run on every PR. Three are substrate self-consistency gates; the fourth is a real measurement against a fixed 1,000-alert noisy stream; the fifth is a coverage gate on the synthetic telemetry corpus. The methodology page documents what each suite measures and what it does not.',
-      },
-    },
-    {
-      '@type': 'Question',
-      name: 'How do connectors work?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text:
-          'Each connector is a Python class that declares a schema, tests its credentials, polls on a schedule, and normalises events into OCSF. 69 ship in the box. The plugin SDKs (Python, TypeScript, Go) let you author your own in roughly 50 lines.',
-      },
-    },
-  ],
+  contactPoint: {
+    '@type': 'ContactPoint',
+    contactType: 'sales',
+    email: 'contato@12brain.org',
+  },
+  sameAs: ['https://github.com/beenuar/Quarry'],
 };
 
 export default function HomePage() {
@@ -203,34 +75,22 @@ export default function HomePage() {
       <script
         type="application/ld+json"
         // eslint-disable-next-line react/no-danger -- JSON-LD payload for crawlers
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
-      />
-      <script
-        type="application/ld+json"
-        // eslint-disable-next-line react/no-danger -- JSON-LD FAQ payload for crawlers
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
       />
       <main
         data-theme="dark"
         className="relative min-h-screen overflow-x-hidden bg-surface-base text-fg-primary"
       >
-        <StickyNav />
-        <Hero />
-        <ProofStrip />
-        <Problem />
-        <SolutionAgents />
-        <DemoEmbed />
-        <Pillars />
-        <FeatureGrid />
-        <ConnectorsMarquee />
-        <BenchmarkBand />
-        <DeployOptions />
-        <OpenSourceMoment />
-        <Testimonials />
-        <PricingTeaser />
-        <Faq />
-        <FinalCta />
-        <Footer />
+        <HomeNav />
+        <HeroEmpresa />
+        <QuemSomos />
+        <ProdutoQuarry />
+        <ParaQuemE />
+        <StatGigante />
+        <CaminhoDuplo />
+        <DemoBanner />
+        <FaqHome />
+        <FooterHome />
       </main>
     </>
   );
