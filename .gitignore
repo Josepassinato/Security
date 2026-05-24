@@ -120,8 +120,9 @@ artifacts/demo-videos/
 
 # Dated local evidence directories (smoke tests, sandbox runs, deploy
 # screenshots, usability sessions). The /tmp/ counterparts are authoritative;
-# anything dated under artifacts/ is local-only.
-artifacts/202[0-9]*/
+# anything dated under artifacts/ is local-only. Pattern catches
+# {smoke-test,deploy,sandbox,usability,…}-YYYY-MM-DD/ dirs.
+artifacts/*-202[0-9]-*/
 
 # Local file backups created during edits (e.g. page.tsx.bak-2026-05-23).
 *.bak-*
