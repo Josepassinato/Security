@@ -1,5 +1,21 @@
 # Quarry Roadmap
 
+> **🔥 Active sprint (fintech BR vertical) — 2026-06**
+>
+> Sprint dedicado ao posicionamento fintech BR regulada, encerrando gaps
+> identificados em auditoria do pitch técnico (2026-05-24). **Trabalho
+> vertical Quarry, não AiSOC upstream.**
+>
+> - [`docs/pt-br/SPRINT-FINTECH-BR-2026-06.md`](docs/pt-br/SPRINT-FINTECH-BR-2026-06.md) — narrativa, ordem, gates
+> - [`docs/pt-br/CARD-013-benchmark-fp-reduction.md`](docs/pt-br/CARD-013-benchmark-fp-reduction.md) — benchmark de redução de FP do auto-triage
+> - [`docs/pt-br/CARD-014-auto-bacen-24h-real.md`](docs/pt-br/CARD-014-auto-bacen-24h-real.md) — auto-comunicação Bacen 24h real (além do rascunho `.md`)
+> - [`docs/pt-br/CARD-015-mac-mini-sovereign-appliance.md`](docs/pt-br/CARD-015-mac-mini-sovereign-appliance.md) — Sovereign LLM (Mac Mini OU VPS Llama — modalidades **opcionais**)
+>
+> **CARD-012 — comunicação Bacen 24h (rascunho `.md`)** entregue 2026-05-23 em
+> produção; é a base do CARD-014.
+
+---
+
 > **📌 Active planning has moved (2026-05-12)**
 >
 > This file is the **historical record** of major-version deliverables (v4 →
