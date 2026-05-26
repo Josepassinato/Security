@@ -42,6 +42,19 @@ Closes #<!-- issue number -->
 
 <!-- Before / after screenshots or screen recording. -->
 
+## Positioning gate (required for PRs that change public surface)
+
+> **Required if this PR touches:** landing pages (`apps/web/src/app/`), README,
+> marketing copy, blog, taglines, meta descriptions, pricing, or any narrative
+> the customer sees. Reference: [`docs/pt-br/POSITIONING.md`](../../docs/pt-br/POSITIONING.md).
+>
+> Skip this section for mechanical changes (refactors, tests, infra, deps).
+
+- **ICP served:** <!-- which Section-1 ICP segment does this serve? -->
+- **Moat pillar reinforced:** [ ] Sovereign deployment  [ ] Citation reasoning  [ ] Bacen-native
+- **BaaS-tomorrow test:** if Stark Infra / Idwall / Dock shipped this tomorrow, do we still have a moat? <!-- yes/no + 1 sentence why -->
+- [ ] Not applicable — internal/mechanical change
+
 ## Checklist
 
 - [ ] My code follows the style guidelines of this project (`ruff`, `eslint`, `gofmt`)

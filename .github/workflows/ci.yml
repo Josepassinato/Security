@@ -12,6 +12,22 @@ concurrency:
 
 jobs:
   # ──────────────────────────────────────────────
+  # Positioning lint — enforces docs/pt-br/POSITIONING.md §8 anti-tagline rules
+  # across all customer-facing public copy. Lightweight; runs in <5s.
+  # See: scripts/lint_positioning.py
+  # ──────────────────────────────────────────────
+  positioning-lint:
+    name: Positioning — anti-tagline check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run positioning lint
+        run: python3 scripts/lint_positioning.py
+
+  # ──────────────────────────────────────────────
   # Lint & type-check the Next.js web app
   # ──────────────────────────────────────────────
   web-lint:

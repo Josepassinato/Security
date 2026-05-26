@@ -45,6 +45,7 @@ from app.api.v1.endpoints import (
     lake,
     llm_credentials,
     llm_status,
+    sovereign_llm,
     marketplace,
     metrics,
     mssp,
@@ -223,6 +224,9 @@ api_router.include_router(llm_status.router)
 # Resolution order at request time is per-tenant row > env-var fallback
 # (see llm_status.py + agents/explain.py).
 api_router.include_router(llm_credentials.router)
+
+# Sovereign LLM deployment status — CARD-015 (Modalidade A Mac Mini / B VPS).
+api_router.include_router(sovereign_llm.router)
 
 # STIX/TAXII threat intelligence publishing (Tier 4)
 api_router.include_router(stix_taxii.router)

@@ -1,8 +1,11 @@
 # Quarry
 
-> Plataforma de SOC alimentada por IA — investigação assistida, hunts customizadas para o contexto brasileiro, e auditoria nativa de cada decisão do agente.
+> **O SOC soberano para fintech brasileira regulada pelo Bacen.**
+> Detecção e resposta com LLM rodando dentro do seu perímetro físico, raciocínio forense citável, mapeamento direto com Res. BCB 85/2021 e LGPD.
 
 **Status:** em validação técnica · **Versão:** 0.0.0-dev · **Domínio (planejado):** `quarry.12brain.org` · **Owner:** [Increase Trainer Inc.](https://increasetrainer.com)
+
+> Para quem é, contra quem somos e como medimos: [`docs/pt-br/POSITIONING.md`](docs/pt-br/POSITIONING.md).
 
 ---
 

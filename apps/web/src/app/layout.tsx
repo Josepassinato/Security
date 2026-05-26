@@ -28,11 +28,11 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   applicationName: 'Quarry',
   title: {
-    default: 'Quarry — Open-Source AI Security Operations Center',
+    default: 'Quarry — Sovereign Detection & Response for Bacen-Regulated Brazilian Fintechs',
     template: '%s | Quarry',
   },
   description:
-    'Quarry is a free, self-hostable AI-powered Security Operations Center (SOC). Real-time threat detection, alert fusion, purple-team exercises, MITRE ATT&CK-aware autonomous investigation, and detection-as-code — MIT-licensed and community-driven.',
+    'Quarry is a sovereign SOC for Brazilian fintechs licensed by Bacen. Self-hostable, MIT-licensed. LLM runs inside your physical perimeter (Mac Mini or dedicated VPS), every alert carries a citable forensic trace, and detection logic maps directly to Res. BCB 85/2021, Open Finance, and LGPD.',
   keywords: [...DISCOVERY_KEYWORDS],
   authors: [{ name: 'Quarry Community', url: 'https://github.com/beenuar/Quarry' }],
   creator: 'Quarry Community',
@@ -59,9 +59,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Quarry — Free Open-Source AI SOC Platform',
+    title: 'Quarry — Sovereign SOC for Bacen-regulated BR fintechs',
     description:
-      'AI-powered SOC: threat detection, alert fusion, purple team, MITRE ATT&CK mapping, detection-as-code, and eval harness in CI. Self-host for free — tryaisoc.com.',
+      'LLM inside your physical perimeter, citable forensic reasoning, Bacen-native compliance (Res. BCB 85/2021, LGPD). Self-host MIT-licensed.',
     site: '@aisoc_dev',
     creator: '@aisoc_dev',
   },
@@ -152,7 +152,7 @@ const jsonLd = {
       '@type': 'WebSite',
       name: 'Quarry',
       url: siteUrl,
-      description: 'Open-source AI-powered Security Operations Center — tryaisoc.com',
+      description: 'Sovereign SOC for Bacen-regulated Brazilian fintechs — open-source, MIT.',
       potentialAction: {
         '@type': 'SearchAction',
         target: `${siteUrl}/search?q={search_term_string}`,

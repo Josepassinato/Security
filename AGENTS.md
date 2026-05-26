@@ -1,3 +1,15 @@
+## Positioning Anchor (READ FIRST)
+
+Quarry's market positioning is locked at [`docs/pt-br/POSITIONING.md`](docs/pt-br/POSITIONING.md). Before proposing or building anything customer-facing, AI agents must verify:
+
+1. **ICP fit** — does this serve a Bacen-licensed BR fintech, 50–300 staff, no senior internal CISO?
+2. **Moat pillar reinforced** — one of: Sovereign deployment · Citation-validated reasoning · Bacen-native compliance.
+3. **BaaS-tomorrow test** — if Stark Infra / Idwall / Dock shipped this tomorrow, would we still have a moat?
+
+If none apply, flag the misfit in the response and ask for explicit override before proceeding. Refuse the 8 anti-deals listed in `POSITIONING.md` Section 6 (Tier-1 banks, big-tech fintechs, non-financial companies, generic SIEM asks, compliance-doc AI asks, managed-SOC asks, foreign-only ICP, TAM-vanity investor framings).
+
+The anti-tagline rules (no "AI-powered", no "revolutionize", no "modern SIEM") apply to every copy you generate.
+
 ## Learned User Preferences
 
 - Always track progress locally (e.g. in a TODO/PROGRESS file) so work can be resumed after IDE crashes or restarts.

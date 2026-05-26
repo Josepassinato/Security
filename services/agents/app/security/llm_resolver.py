@@ -107,6 +107,63 @@ logger = structlog.get_logger()
 _DEFAULT_OPENAI_BASE = "https://api.openai.com"
 _DEFAULT_OPENAI_MODEL = "gpt-4o-mini"
 
+# Sovereign deployment defaults (CARD-015 Modalidade A/B).
+_DEFAULT_SOVEREIGN_VPS_BASE = "http://127.0.0.1:11434/v1"
+_DEFAULT_SOVEREIGN_VPS_MODEL = "qwen2.5:14b-instruct-q4_K_M"
+_DEFAULT_SOVEREIGN_MAC_BASE = "http://127.0.0.1:11434/v1"
+_DEFAULT_SOVEREIGN_MAC_MODEL = "qwen2.5:14b-instruct-q4_K_M"
+
+_LLM_MODE_CLOUD = "cloud-byok"
+_LLM_MODE_SOVEREIGN_VPS = "sovereign-vps"
+_LLM_MODE_SOVEREIGN_MAC = "sovereign-mac"
+_VALID_LLM_MODES = frozenset(
+    {_LLM_MODE_CLOUD, _LLM_MODE_SOVEREIGN_VPS, _LLM_MODE_SOVEREIGN_MAC}
+)
+
+
+def _current_llm_mode() -> str:
+    raw = (os.getenv("QUARRY_LLM_MODE") or "").strip().lower()
+    if not raw:
+        return _LLM_MODE_CLOUD
+    if raw in _VALID_LLM_MODES:
+        return raw
+    logger.warning(
+        "explain.llm_mode_invalid",
+        configured=raw,
+        valid=sorted(_VALID_LLM_MODES),
+        fallback=_LLM_MODE_CLOUD,
+    )
+    return _LLM_MODE_CLOUD
+
+
+def _resolve_sovereign_config(mode: str) -> "LlmConfig":
+    """Resolve LLM config for a sovereign deployment (CARD-015 A/B)."""
+    if mode == _LLM_MODE_SOVEREIGN_VPS:
+        prefix = "SOVEREIGN_VPS"
+        default_base = _DEFAULT_SOVEREIGN_VPS_BASE
+        default_model = _DEFAULT_SOVEREIGN_VPS_MODEL
+        source = _LLM_MODE_SOVEREIGN_VPS
+    elif mode == _LLM_MODE_SOVEREIGN_MAC:
+        prefix = "SOVEREIGN_MAC"
+        default_base = _DEFAULT_SOVEREIGN_MAC_BASE
+        default_model = _DEFAULT_SOVEREIGN_MAC_MODEL
+        source = _LLM_MODE_SOVEREIGN_MAC
+    else:  # pragma: no cover
+        raise ValueError(f"unsupported sovereign mode: {mode!r}")
+
+    base_url = (os.getenv(f"{prefix}_BASE_URL") or "").strip() or default_base
+    model = (os.getenv(f"{prefix}_MODEL") or "").strip() or default_model
+    api_key = (os.getenv(f"{prefix}_API_KEY") or "").strip() or "sovereign"
+
+    return LlmConfig(
+        allowed=True,
+        base_url=base_url,
+        model=model,
+        api_key=api_key,
+        source=source,
+        reason="",
+    )
+
 
 @dataclass(frozen=True)
 class LlmConfig:
@@ -312,6 +369,11 @@ async def resolve_llm_config(tenant_ref: str | None) -> LlmConfig:
         missing) are logged at ``warning`` with the tenant ref so an
         operator can find the offending row.
     """
+    # CARD-015 sovereign deployments bypass DB lookup + air-gap policy.
+    mode = _current_llm_mode()
+    if mode in (_LLM_MODE_SOVEREIGN_VPS, _LLM_MODE_SOVEREIGN_MAC):
+        return _resolve_sovereign_config(mode)
+
     env_base_url, env_model, env_key = _env_baseline()
 
     base_url = env_base_url

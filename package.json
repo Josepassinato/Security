@@ -2,7 +2,7 @@
   "name": "quarry",
   "version": "1.0.0",
   "private": true,
-  "description": "Quarry — Open-source AI-powered Security Operations Center",
+  "description": "Quarry — Sovereign detection & response for Bacen-regulated Brazilian fintechs. Open-source, MIT.",
   "license": "MIT",
   "author": "Quarry contributors",
   "workspaces": [
