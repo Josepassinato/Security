@@ -174,6 +174,8 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       SECRET_KEY: ${SECRET_KEY:-dev_secret_key_change_in_production}
       QUARRY_CREDENTIAL_KEY: ${QUARRY_CREDENTIAL_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       NEO4J_URI: bolt://neo4j:7687
       NEO4J_USER: neo4j
       NEO4J_PASSWORD: ${NEO4J_PASSWORD:-neo4j_demo_secret}
