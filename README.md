@@ -1,15 +1,42 @@
 # Quarry
 
-> Plataforma técnica de SOC para fintech brasileira regulada pelo Bacen.
-> Detecção, raciocínio assistido e cadeia probatória citável.
+> **Open-source Security Operations Center for Brazilian fintechs.**
+> SOC com detecção, raciocínio assistido e cadeia probatória citável —
+> auditável, self-hostable, MIT-licensed.
 
-**Status:** em validação técnica · **Versão:** 0.0.0-dev · **Owner:** [Increase Trainer Inc.](https://increasetrainer.com)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Status](https://img.shields.io/badge/Status-pre--alpha-orange.svg)](#status-atual)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+
+**Status:** pre-alpha · **Versão:** 0.0.0-dev · **Licença:** MIT (herdada do upstream AiSOC) · **Maintainer:** [Increase Trainer Inc.](https://increasetrainer.com)
+
+---
+
+## Open source, primeiro
+
+Quarry é **MIT-licensed** e **community-driven**. Forkar, rodar local, modificar,
+contribuir de volta — tudo encorajado. A licença do upstream
+[AiSOC](https://github.com/beenuar/AiSOC) (commit `28ce9f6b`) é preservada
+integralmente em [`LICENSE`](LICENSE), [`NOTICE.md`](NOTICE.md) e
+[`README.AISOC.md`](README.AISOC.md).
+
+- **Issues abertas:** bugs, dúvidas, ideias — [github.com/Josepassinato/Security/issues](https://github.com/Josepassinato/Security/issues)
+- **PRs:** veja [CONTRIBUTING.md](CONTRIBUTING.md) para guidelines + setup
+- **Discussões:** aberta a qualquer um — pull request com proposta de
+  detection rule, hunt template ou playbook é o caminho mais rápido pra
+  influenciar o roadmap.
+
+Há também uma camada comercial em desenvolvimento (serviços gerenciados,
+suporte SLA, hardening Bacen-específico) operada pela [Increase Trainer
+Inc.](https://increasetrainer.com), mas **o produto open-source funciona
+de forma independente** — você pode rodar a stack inteira no seu cluster
+sem nenhum vínculo comercial.
 
 ---
 
 ## O que é Quarry
 
-Quarry é uma plataforma técnica de SOC (Security Operations Center) em desenvolvimento, baseada em fork independente do projeto open-source [AiSOC](https://github.com/beenuar/AiSOC) (commit `28ce9f6b`, MIT). A base técnica entrega:
+A base técnica, herdada do [AiSOC](https://github.com/beenuar/AiSOC), entrega:
 
 - **Orquestrador LangGraph** com router paralelo (phishing, identity, cloud, insider)
 - **Investigation Ledger** — cada prompt LLM + resposta + ferramentas chamadas, persistido e auditável
