@@ -5,6 +5,7 @@ import {
   HeroEmpresa,
   QuemSomos,
   ProdutoQuarry,
+  BarreirasDeCopia,
   ParaQuemE,
   StatGigante,
   CaminhoDuplo,
@@ -16,14 +17,14 @@ import {
 const siteUrl = getPublicSiteUrl();
 
 export const metadata: Metadata = {
-  title: { absolute: '12Brain — Infraestrutura de segurança econômica para fintechs BR' },
+  title: { absolute: '12Brain — Quarry, SOC de IA auditável para fintechs BR' },
   description:
-    'A 12Brain Solutions constrói o Quarry — um SOC agêntico open-source que faz BACEN não tirar o sono de fintechs Seed e Série A no Brasil. Sem MSSP de R$ 30 mil/mês.',
+    'Quarry é o SOC agêntico auditável da 12Brain: investigação, Threat Ledger, AuditChain e camada BACEN/PIX/LGPD para fintechs brasileiras.',
   alternates: { canonical: '/' },
   openGraph: {
     title: '12Brain — Casa do Quarry',
     description:
-      'SOC agêntico MIT-licensed para fintechs BR. 4 agentes, 69 conectores, air-gap num único flag, custo R$ 27,40/alerta auditado.',
+      'SOC agêntico auditável para fintechs BR. Agentic SOC Engine, Threat Ledger, AuditChain, Brazil RegSec Pack e evidência defensável.',
     url: siteUrl,
     siteName: '12Brain',
     type: 'website',
@@ -41,7 +42,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: '12Brain — Casa do Quarry',
     description:
-      'SOC agêntico MIT-licensed para fintechs BR. BACEN-compliant, sem MSSP caro.',
+      'SOC agêntico auditável para fintechs BR. BACEN, PIX, LGPD e evidência defensável.',
     images: ['/og-image.svg'],
   },
 };
@@ -85,6 +86,7 @@ export default function HomePage() {
         <HeroEmpresa />
         <QuemSomos />
         <ProdutoQuarry />
+        <BarreirasDeCopia />
         <ParaQuemE />
         <StatGigante />
         <CaminhoDuplo />

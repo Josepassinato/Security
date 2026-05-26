@@ -2,12 +2,26 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { ArrowRight, Menu, X, Shield, Cpu, FileCheck2, Mail, Building2 } from 'lucide-react';
+import {
+  ArrowRight,
+  Menu,
+  X,
+  Shield,
+  Cpu,
+  FileCheck2,
+  Mail,
+  Building2,
+  Database,
+  Fingerprint,
+  GitBranch,
+  LockKeyhole,
+} from 'lucide-react';
 import { GithubMark } from '@/components/landing/sections/icons';
 import { cn } from '@/lib/utils';
 
 const NAV = [
   { label: 'Produto', href: '#produto' },
+  { label: 'Blindagem', href: '#blindagem' },
   { label: 'Para quem é', href: '#para-quem' },
   { label: 'Fintechs BR', href: '/br' },
   { label: 'Open-source', href: '/opensource' },
@@ -185,9 +199,9 @@ export function QuemSomos() {
 
 export function ProdutoQuarry() {
   const features = [
-    { icon: Cpu, title: '4 agentes especializados', body: 'Detect, Triage, Hunt, Respond — cada um com gates de auto-consistência testados a cada PR.' },
-    { icon: Shield, title: '69 conectores nativos', body: 'EDR, SIEM, cloud, IAM, SaaS, VCS, network. Schema OCSF normalizado. Cofre Fernet AES-128.' },
-    { icon: FileCheck2, title: 'Air-gap num único flag', body: 'QUARRY_AIRGAPPED=true desliga toda chamada externa. Ollama local roda no cluster.' },
+    { icon: Cpu, title: 'Quarry Agentic SOC Engine', body: 'Detect, Triage, Hunt, Respond — quatro agentes com gates, limiares de autonomia e testes de regressão a cada PR.' },
+    { icon: Shield, title: 'Quarry Threat Ledger', body: 'Cada alerta vira um dossiê: evidência, ferramenta chamada, racional, decisão, revisor e cadeia cronológica auditável.' },
+    { icon: FileCheck2, title: 'Quarry Brazil RegSec Pack', body: 'Hunts, relatórios e evidências calibrados para PIX, BACEN, LGPD e auditoria de fintech brasileira.' },
   ];
 
   return (
@@ -200,7 +214,7 @@ export function ProdutoQuarry() {
             Quarry. Um SOC agêntico que <em className="font-medium text-brand-300 not-italic">cabe no caixa</em> de uma fintech Seed.
           </h2>
           <p className="text-base leading-relaxed text-fg-secondary sm:text-lg">
-            Quatro agentes de IA cuidam de detecção, triagem, hunt e resposta. Sessenta e nove conectores ligam suas fontes em minutos. Um benchmark público de 200 incidentes mostra o que ele acerta e o que ele erra. Tudo MIT, hospedável em qualquer Docker.
+            Quatro agentes de IA cuidam de detecção, triagem, hunt e resposta, mas o produto não para na conversa com um modelo. O valor está no motor de investigação, no ledger auditável, nos conectores, no benchmark e na camada regulatória brasileira que transformam alerta em evidência defensável.
           </p>
         </div>
 
@@ -219,6 +233,65 @@ export function ProdutoQuarry() {
             Documentação técnica completa, license MIT, GitHub
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
           </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export function BarreirasDeCopia() {
+  const barriers = [
+    {
+      icon: GitBranch,
+      title: 'Orquestração, não prompt solto',
+      body: 'O fluxo é uma linha de produção: normaliza evento, correlaciona entidade, monta hipótese, consulta evidência, aplica playbook e só então chama IA para interpretação controlada.',
+    },
+    {
+      icon: Database,
+      title: 'Conhecimento que acumula',
+      body: 'Falsos positivos, playbooks, padrões de ataque, decisões humanas e evidências ficam estruturados. Quanto mais opera, mais difícil fica copiar a inteligência operacional.',
+    },
+    {
+      icon: Fingerprint,
+      title: 'AuditChain por decisão',
+      body: 'Toda decisão do agente precisa deixar rastro: input, ferramenta, fonte, confiança, racional, ação sugerida e responsável. Isso diferencia segurança real de demo bonita.',
+    },
+    {
+      icon: LockKeyhole,
+      title: 'Camada regulatória brasileira',
+      body: 'BACEN, PIX e LGPD não são textos no rodapé. Eles viram checks, evidências, relatórios e linguagem operacional para fintech que precisa responder auditoria.',
+    },
+  ];
+
+  return (
+    <section id="blindagem" className="relative border-t border-surface-border py-20 sm:py-28">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <p className="text-xs font-medium uppercase tracking-[0.22em] text-brand-300">03 — Por que não é fácil copiar</p>
+        <div className="mt-6 grid gap-10 lg:grid-cols-12">
+          <div className="lg:col-span-5">
+            <h2 className="text-3xl font-semibold leading-tight text-fg-primary sm:text-4xl">
+              Copiar uma tela é fácil. Copiar uma operação auditável de SOC é outra história.
+            </h2>
+            <p className="mt-5 text-base leading-relaxed text-fg-secondary sm:text-lg">
+              O Quarry precisa ser entendido como metodologia proprietária aplicada em software: agentes, dados, compliance, playbooks e evidências trabalhando juntos. Essa é a barreira defensável.
+            </p>
+            <div className="mt-8 rounded-xl border border-brand-500/30 bg-brand-500/5 p-5">
+              <p className="text-xs font-medium uppercase tracking-[0.18em] text-brand-300">Metodologia 12Brain</p>
+              <p className="mt-2 text-sm leading-relaxed text-fg-secondary">
+                Quarry Agentic SOC Engine + Quarry Threat Ledger + Quarry AuditChain + Brazil RegSec Pack. A marca pode ser vista; a engenharia por trás precisa ser construída, validada e operada.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid gap-px overflow-hidden rounded-xl border border-surface-border bg-surface-border sm:grid-cols-2 lg:col-span-7">
+            {barriers.map((item) => (
+              <article key={item.title} className="bg-surface-base p-6 sm:p-7">
+                <item.icon className="h-6 w-6 text-brand-300" aria-hidden="true" />
+                <h3 className="mt-4 text-base font-semibold text-fg-primary">{item.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-fg-secondary">{item.body}</p>
+              </article>
+            ))}
+          </div>
         </div>
       </div>
     </section>
@@ -247,7 +320,7 @@ export function ParaQuemE() {
   return (
     <section id="para-quem" className="relative border-t border-surface-border py-20 sm:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <p className="text-xs font-medium uppercase tracking-[0.22em] text-brand-300">03 — Para quem é</p>
+        <p className="text-xs font-medium uppercase tracking-[0.22em] text-brand-300">04 — Para quem é</p>
         <h2 className="mt-6 max-w-3xl text-3xl font-semibold leading-tight text-fg-primary sm:text-4xl">
           Três perfis. O mesmo problema: <em className="font-medium text-brand-300 not-italic">segurança regulada custa caro demais</em>.
         </h2>
@@ -283,7 +356,7 @@ export function StatGigante() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid items-center gap-12 lg:grid-cols-12">
           <div className="lg:col-span-7">
-            <p className="text-xs font-medium uppercase tracking-[0.22em] text-brand-300">04 — Em números</p>
+            <p className="text-xs font-medium uppercase tracking-[0.22em] text-brand-300">05 — Em números</p>
             <p className="mt-6 text-[88px] font-semibold leading-none tracking-tight text-fg-primary sm:text-[120px] lg:text-[160px]">
               R$&nbsp;27,40
             </p>
@@ -318,7 +391,7 @@ export function CaminhoDuplo() {
   return (
     <section className="relative border-t border-surface-border py-20 sm:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <p className="text-xs font-medium uppercase tracking-[0.22em] text-brand-300">05 — Por onde começar</p>
+        <p className="text-xs font-medium uppercase tracking-[0.22em] text-brand-300">06 — Por onde começar</p>
         <h2 className="mt-6 max-w-3xl text-3xl font-semibold leading-tight text-fg-primary sm:text-4xl">
           Dois caminhos. Sem fricção, sem reunião comercial.
         </h2>
@@ -363,7 +436,7 @@ export function DemoBanner() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="relative overflow-hidden rounded-2xl border border-surface-border bg-gradient-to-br from-surface-raised/60 via-surface-raised/30 to-brand-500/5 p-8 sm:p-12">
           <div aria-hidden="true" className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-brand-500/10 blur-3xl" />
-          <p className="text-xs font-medium uppercase tracking-[0.22em] text-brand-300">06 — Ver funcionando</p>
+          <p className="text-xs font-medium uppercase tracking-[0.22em] text-brand-300">07 — Ver funcionando</p>
           <div className="mt-6 grid items-end gap-8 lg:grid-cols-2">
             <div>
               <h2 className="text-3xl font-semibold leading-tight text-fg-primary sm:text-4xl">
@@ -413,7 +486,7 @@ export function FaqHome() {
   return (
     <section id="faq" className="relative border-t border-surface-border py-20 sm:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <p className="text-xs font-medium uppercase tracking-[0.22em] text-brand-300">07 — Perguntas comerciais</p>
+        <p className="text-xs font-medium uppercase tracking-[0.22em] text-brand-300">08 — Perguntas comerciais</p>
         <h2 className="mt-6 max-w-3xl text-3xl font-semibold leading-tight text-fg-primary sm:text-4xl">
           O que decide compra. Sem rodeio.
         </h2>
