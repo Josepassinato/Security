@@ -1,141 +1,260 @@
+<!--
+  Public README for Josepassinato/Security (Quarry).
+  English-primary with a Portuguese summary at the bottom.
+
+  Editorial principles:
+    • Open-source first, MIT, attribution to upstream AiSOC preserved.
+    • Honest about early-access maturity.
+    • Anti-tagline rules enforced by scripts/lint_positioning.py.
+    • No mention of competitors, no internal sprint detail.
+-->
+
 # Quarry
 
-> **Open-source Security Operations Center for Brazilian fintechs.**
-> SOC com detecção, raciocínio assistido e cadeia probatória citável —
-> auditável, self-hostable, MIT-licensed.
+> **Open-source Sovereign SOC for Brazilian Bacen-regulated fintechs.**
+> Auditable LLM-driven investigation running inside your perimeter —
+> citation-validated forensic reasoning mapped to BCB Resolution 85/2021 and LGPD.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Status](https://img.shields.io/badge/Status-pre--alpha-orange.svg)](#status-atual)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+<p>
+  <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
+  <a href="https://github.com/Josepassinato/Security/actions"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/Josepassinato/Security/ci.yml?label=ci"></a>
+  <a href="CONTRIBUTING.md"><img alt="PRs Welcome" src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg"></a>
+  <img alt="Status" src="https://img.shields.io/badge/status-early%20access-orange">
+  <img alt="Made in Brazil" src="https://img.shields.io/badge/made%20in-Brazil-009c3b">
+</p>
 
-**Status:** pre-alpha · **Versão:** 0.0.0-dev · **Licença:** MIT (herdada do upstream AiSOC) · **Maintainer:** [Increase Trainer Inc.](https://increasetrainer.com)
-
----
-
-## Open source, primeiro
-
-Quarry é **MIT-licensed** e **community-driven**. Forkar, rodar local, modificar,
-contribuir de volta — tudo encorajado. A licença do upstream
-[AiSOC](https://github.com/beenuar/AiSOC) (commit `28ce9f6b`) é preservada
-integralmente em [`LICENSE`](LICENSE), [`NOTICE.md`](NOTICE.md) e
-[`README.AISOC.md`](README.AISOC.md).
-
-- **Issues abertas:** bugs, dúvidas, ideias — [github.com/Josepassinato/Security/issues](https://github.com/Josepassinato/Security/issues)
-- **PRs:** veja [CONTRIBUTING.md](CONTRIBUTING.md) para guidelines + setup
-- **Discussões:** aberta a qualquer um — pull request com proposta de
-  detection rule, hunt template ou playbook é o caminho mais rápido pra
-  influenciar o roadmap.
-
-Há também uma camada comercial em desenvolvimento (serviços gerenciados,
-suporte SLA, hardening Bacen-específico) operada pela [Increase Trainer
-Inc.](https://increasetrainer.com), mas **o produto open-source funciona
-de forma independente** — você pode rodar a stack inteira no seu cluster
-sem nenhum vínculo comercial.
+🌐 [Live sandbox](https://quarry.12brain.org) ·
+📘 [Docs](docs/) ·
+🛡️ [Security policy](SECURITY.md) ·
+🇧🇷 [Resumo em Português](#resumo-em-português)
 
 ---
 
-## O que é Quarry
+## The problem
 
-A base técnica, herdada do [AiSOC](https://github.com/beenuar/AiSOC), entrega:
+A serious investigation in a Brazilian fintech today has to correlate Pix
+events, mobile banking authentication, device behaviour, Open Finance access,
+boleto creation, account takeover attempts, mule accounts, fraud alerts and
+regulatory reporting. That work currently depends on a senior analyst who
+knows how to turn a vague incident brief into a sequence of queries,
+hypotheses and evidence.
 
-- **Orquestrador LangGraph** com router paralelo (phishing, identity, cloud, insider)
-- **Investigation Ledger** — cada prompt LLM + resposta + ferramentas chamadas, persistido e auditável
-- **Eval harness em CI** com 5 suítes deterministicas (MITRE accuracy, alert reduction, investigation completeness, response quality, schema/coverage)
-- **MCP server** para integração com Claude Desktop, Cursor, Cody e outros assistentes
-- **Detection corpus** multi-fonte (SigmaHQ, MITRE CAR, Splunk Security Content, Chronicle) com provenance per-regra
+It does not scale. And it does not fit an imported SIEM that was never
+designed for Pix, BCB 85/2021 or LGPD.
 
-Sobre essa fundação, Quarry adiciona uma **camada de customizações** em `customizations/`:
+## What Quarry does
 
-- Hunts e regras Sigma calibradas para o ecossistema brasileiro (BACEN, PIX, LGPD)
-- Compliance evidence automation para auditorias locais
-- Prompts em pt-BR
-- Integrações com infraestrutura nacional (em escopo)
+Quarry makes the senior-investigator workflow executable, measurable and
+repeatable — without removing the human from the approval loop:
+
+- **LangGraph orchestrator** with a parallel router (phishing · identity ·
+  cloud · insider) that decomposes one alert into simultaneous
+  sub-investigations.
+- **Investigation Ledger** — every LLM prompt, every tool call, every cited
+  document is recorded and auditable. You can defend the conclusion in a
+  Bacen audit or a court case.
+- **CI eval harness** with 5 deterministic suites: MITRE accuracy, alert
+  reduction, investigation completeness, response quality, schema coverage.
+- **Multi-source detection corpus** (SigmaHQ · MITRE CAR · Splunk Security
+  Content · Chronicle) with per-rule provenance.
+- **MCP server** to plug Claude Desktop, Cursor, Cody and other assistants
+  into the same investigation chain.
+- **Brazilian customizations** in `customizations/`: pt-BR hunts, Sigma rules
+  calibrated for Brazil's payment ecosystem (Pix, BCB, LGPD), and compliance
+  evidence automation for local audits.
+
+## What this is not
+
+Quarry does not replace your SOC; it increases its throughput. It is not a
+managed-SOC service, and it does not try to compete with tier-1 vendors on
+generic features. Generic SIEM/SOAR is out of scope.
+
+## Heritage
+
+Quarry is an independent MIT fork of [AiSOC](https://github.com/beenuar/AiSOC)
+(commit `28ce9f6b`). Upstream attribution is preserved verbatim in
+[`LICENSE`](LICENSE), [`NOTICE.md`](NOTICE.md), and
+[`README.AISOC.md`](README.AISOC.md). Inherited components (orchestrator,
+ledger, MCP server, eval harness, base detection corpus) are credited to
+their original authors; Quarry-specific work lives under `customizations/`.
 
 ---
 
-## Status atual
+## Quick start
 
-| Etapa | Status |
+Requirements: Docker 24+ and Docker Compose v2.
+
+```bash
+git clone https://github.com/Josepassinato/Security.git quarry
+cd quarry
+cp .env.example .env                       # fill in OPENAI_API_KEY and generate QUARRY_CREDENTIAL_KEY
+docker compose -f docker-compose.demo.yml up -d
+```
+
+In about 2 minutes:
+
+- API at `http://localhost:8000` (`GET /health`)
+- UI at `http://localhost:3000`
+- Postgres, Redis, Qdrant, OpenSearch and Neo4j come up as containers
+- The demo profile seeds synthetic alerts from the **FinPlay Pagamentos**
+  dataset (CPFs, Pix keys and events generated by seed — no real institution)
+
+```bash
+# run an investigation against the demo dataset
+curl -s http://localhost:8000/v1/investigations -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"alert_id":"demo-pix-mule-001"}' | jq
+
+# open the forensic ledger
+open http://localhost:3000/investigations
+```
+
+For production deploys (air-gapped, self-hosted VPS, Kubernetes), see
+[`docs/operations/`](docs/operations/).
+
+---
+
+## Architecture in 30 seconds
+
+```
+                ┌─ Alert ingress (SIEM, log shipper, MCP)
+                │
+                ▼
+       ┌─────────────────────┐         ┌──────────────────────────┐
+       │  LangGraph Router   │ ───►    │  Investigation Ledger    │
+       │  (parallel sub-     │         │  (Postgres + hash chain) │
+       │   investigators)    │         └──────────────────────────┘
+       └─────────────────────┘                   ▲
+                │                                │
+                ▼                                │
+       ┌─────────────────────┐                   │
+       │  Detection corpus   │                   │
+       │  + Brazilian Sigma  │  ─── evidence ────┘
+       │  + Hunt templates   │
+       └─────────────────────┘
+                │
+                ▼
+   Citation-validated report  ──►  Analyst review  ──►  Action / SAR / ANPD draft
+```
+
+Deep dive: [`docs/pt-br/orchestrator-deep-dive.md`](docs/pt-br/orchestrator-deep-dive.md).
+
+---
+
+## Current status
+
+Quarry is in early access. The core inherited from AiSOC (eval harness,
+ledger, MCP server) is stable; the Brazilian customizations are being
+validated with synthetic data and private pilots.
+
+| Capability | State |
 |---|---|
-| Auditoria técnica do AiSOC ([ADR-001](docs/adrs/ADR-001-fork-aisoc.md)) | ✅ Concluída — recomendação GO condicional |
-| Fork (mirror clone privado) — Quarry repo criado ([ADR-002](docs/adrs/ADR-002-fork-strategy.md)) | ✅ Concluído |
-| Rebrand AiSOC → Quarry ([ADR-003](docs/adrs/ADR-003-rebrand-strategy.md)) | ✅ Concluído — validação runtime offline pendente |
-| Deep-dive do LangGraph orchestrator | ✅ [docs/pt-br/orchestrator-deep-dive.md](docs/pt-br/orchestrator-deep-dive.md) |
-| Estratégia customização fintech BR ([ADR-004](docs/adrs/ADR-004-orchestrator-fintech-br.md)) | ✅ Aprovada — implementação por sprints A/B/C |
-| Catálogo TTPs BR fintech | ✅ 11 patterns em `customizations/threat-intel/br-fintech/` (PIX/VSH/SEN/ATO/BOL/QR/EWL/MAL) |
-| Validação funcional (demo local end-to-end) | ⏳ Pendente — ver `docs/pt-br/CARD-002-demo-checklist.md` |
-| Roadmap Quarry independente | ⏳ Próximo card |
+| LangGraph orchestrator + auditable ledger | ✅ Stable (upstream AiSOC) |
+| CI eval harness (5 suites) | ✅ Stable |
+| MCP server | ✅ Stable |
+| Detection corpus + provenance | ✅ Stable |
+| Brazilian customizations (Pix, BCB 85, LGPD) | 🟡 Validating — 11 patterns published |
+| FP reduction benchmark (FinPlay BR) | ✅ Published under `customizations/benchmarks/` |
+| Public demo | 🟢 [quarry.12brain.org](https://quarry.12brain.org) |
+| Production-ready in regulated fintech | ⏳ Pilots under NDA — get in touch |
 
-> **Rebrand concluído** em commits `dd342d0b` → `e6c9a979` → `cfb83e92`. Logos, workspaces `@quarry/*`, env vars `QUARRY_*`, helm chart, scripts, SDKs e arquivos com `aisoc` no nome — todos renomeados. Atribuições legais (LICENSE, NOTICE, README.AISOC.md, ADR-001/002) preservadas conforme cláusula MIT.
+> ⚠️ Do not run in production without a guided pilot. The project is
+> open-source, but the compliance, detection calibration and integration
+> work is still done per pilot. See [`SECURITY.md`](SECURITY.md) for
+> vulnerability reports.
 
 ---
 
-## Estrutura do repositório
+## Repository layout
 
 ```
 quarry/
-├── README.md                      # este arquivo (pt-BR)
-├── README.AISOC.md                # README original do AiSOC (preservado integral)
-├── LICENSE                        # MIT (herdado do AiSOC, mantido conforme cláusulas)
-├── NOTICE.md                      # Atribuições obrigatórias (AiSOC, detection corpora)
-│
-├── apps/                          # Frontend Next.js (herdado, será rebrand)
-├── services/                      # 14 microsserviços Python + Go (herdado)
-├── packages/                      # SDKs (herdado)
-├── detections/                    # Corpus de regras (herdado, com provenance)
-├── playbooks/                     # Playbooks de resposta (herdado)
-│
-├── customizations/                # ⭐ TUDO QUE É QUARRY-SPECIFIC VAI AQUI
-│   ├── detections/                #   Sigma rules customizadas (BR, BACEN, PIX)
-│   ├── hunts/                     #   Hunt templates em pt-BR
-│   ├── prompts/                   #   Prompts customizados Quarry
-│   └── compliance/                #   BACEN, LGPD evidence automation
-│
-├── infrastructure/                # ⭐ Deploy próprio Quarry
-│   ├── vps/                       #   Configs específicas VPS Hostinger
-│   └── deploy/                    #   Scripts de deploy
-│
-└── docs/
-    ├── SKILL.md                   # ⭐ Instruções para Claude Code trabalhando no Quarry
-    ├── adrs/                      #   Architecture Decision Records
-    │   ├── ADR-001-fork-aisoc.md
-    │   └── ADR-002-fork-strategy.md
-    └── pt-br/                     #   Documentação operacional em português
+├── apps/                     Next.js frontend + docs site
+├── services/                 14 microservices (Python + Go)
+├── packages/                 Shared SDKs and libraries
+├── detections/               Imported corpus with per-rule provenance
+├── playbooks/                Response playbooks
+├── customizations/           ⭐ Everything Quarry-specific (BR, Pix, BCB, LGPD)
+│   ├── detections/             Sigma rules calibrated for Brazil
+│   ├── threat-intel/br-fintech/ 11 patterns (Pix / ATO / Boleto / QR / …)
+│   ├── hunts/                  pt-BR hunt templates
+│   ├── prompts/                pt-BR prompts
+│   ├── compliance/             BCB 85/2021 and LGPD evidence
+│   └── benchmarks/             Publishable runs (auto-triage on FinPlay BR)
+├── infrastructure/           IaC (VPS, Kubernetes, Helm)
+├── docs/
+│   ├── adrs/                   Architecture Decision Records
+│   ├── pt-br/                  Portuguese manuals and runbooks
+│   ├── operations/             Deploy, hardening, air-gap
+│   └── compliance/             ISO 27001, NIST CSF mappings
+└── examples/                 Ready-to-clone examples
 ```
 
 ---
 
-## Princípios de design
+## Design principles
 
-1. **Customização separada de upstream.** Tudo que é Quarry-specific vive em `customizations/` ou `infrastructure/`. O código herdado não é modificado exceto via cards explícitos de rebrand. Isso permite cherry-pick controlado de melhorias upstream se necessário.
-
-2. **Inglês para código, português para docs operacionais.** Identificadores, comentários inline, mensagens de log, commits convencionais (`feat:`, `fix:`) em inglês. Manuais, runbooks, ADRs, comunicação com clientes em português.
-
-3. **Adversarial agent assumptions.** Operadores humanos podem ser hostis ou comprometidos. Auditoria é design constraint, não feature opcional. Tudo o que o agente faz tem que ser explicável e revertível.
-
-4. **Atribuição rigorosa.** [`NOTICE.md`](NOTICE.md) lista AiSOC + cada corpus de detecção (SigmaHQ/DRL-1.1, MITRE CAR/Apache, Splunk/Apache, Chronicle/Apache). Sistema de provenance herdado preserva linhagem por regra.
-
-5. **Não competir com AiSOC em features genéricas.** Quarry diferencia em vertical brasileiro (compliance BACEN/LGPD, hunts pt-BR, integrações nacionais), não em re-implementar o que upstream já entrega.
-
----
-
-## Como contribuir
-
-Por enquanto Quarry é privado e desenvolvido por Increase Trainer Inc. Contribuição externa não está aberta. Quando abrir, este README será atualizado.
+- **Customization is kept separate from upstream.** Anything Quarry-specific
+  lives under `customizations/`. This enables controlled cherry-picks of
+  upstream AiSOC improvements.
+- **English in code, Portuguese in operations.** Identifiers, logs and
+  conventional commits (`feat:` / `fix:`) are English; runbooks and ADRs
+  are Portuguese.
+- **Adversarial-agent assumptions.** Human operators may be hostile or
+  compromised. Auditability is a design constraint, not an optional feature.
+- **Rigorous attribution.** `NOTICE.md` lists AiSOC and every detection
+  corpus (SigmaHQ/DRL-1.1, MITRE CAR/Apache, Splunk/Apache, Chronicle/Apache,
+  Anthropic Cybersec/Apache-2.0).
+- **No rebrand of public research.** Quarry does not present inherited work
+  as original. See [`README.AISOC.md`](README.AISOC.md).
 
 ---
 
-## Links importantes
+## Contributing
 
-- 📘 [ADR-001 — Decisão de fork](docs/adrs/ADR-001-fork-aisoc.md) — análise da decisão GO condicional
-- 📘 [ADR-002 — Estratégia de fork e upstream](docs/adrs/ADR-002-fork-strategy.md) — como tratamos merges de cima
-- 🧭 [Fronteira GitHub/VPS/artefatos](docs/operations/storage-and-review-boundary.md) — o que fica versionado e o que fica operacional
-- 🔎 [REVIEW_GUIDE.md](REVIEW_GUIDE.md) — guia para revisão externa do código
-- 🤖 [SKILL.md](docs/SKILL.md) — instruções para Claude Code trabalhar neste repo
-- 📜 [README.AISOC.md](README.AISOC.md) — README original do AiSOC (referência técnica preservada)
-- 📜 [LICENSE](LICENSE) — MIT
-- 📜 [NOTICE.md](NOTICE.md) — atribuições obrigatórias
+Issues, PRs and bug reports are welcome. Before opening one:
+
+1. Read [`CONTRIBUTING.md`](CONTRIBUTING.md) for the PR flow, commit
+   conventions and how to run the eval suite.
+2. Read [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md).
+3. **Vulnerabilities:** do not open a public issue — follow
+   [`SECURITY.md`](SECURITY.md).
+
+Areas open for contribution right now:
+
+- 🇧🇷 pt-BR hunts for other verticals (government, retail, healthcare)
+- 🧠 Prompts and few-shots for the orchestrator
+- 📚 Detection rules calibrated to Brazilian threat actors
+- 🧪 Eval harness extensions and synthetic dataset additions
 
 ---
 
-_Forked from AiSOC commit `28ce9f6bba8d997de04244be963ea3f2c38f0084` em 2026-05-15._
+## License
+
+MIT — see [`LICENSE`](LICENSE). Upstream attributions in
+[`NOTICE.md`](NOTICE.md) and [`README.AISOC.md`](README.AISOC.md).
+
+---
+
+## Resumo em Português
+
+**Quarry — SOC soberano open-source para fintechs brasileiras reguladas pelo Bacen.**
+
+Investigação assistida por LLM com cadeia probatória citável, rodando dentro
+do seu perímetro. Mapeamento direto com Resolução BCB 85/2021 e LGPD.
+
+- **Para quem é:** fintechs Bacen-licenciadas (SCD, SEP, Conta de Pagamento,
+  PSTI, Payment Initiator, CCB) que precisam atender o monitoramento
+  contínuo da Res. BCB 85/2021 sem o custo de um MSSP enterprise.
+- **Como funciona:** orquestrador LangGraph com router paralelo, Ledger de
+  Investigação auditável (hash chain), eval harness em CI, MCP server para
+  Claude Desktop / Cursor / Cody, e customizações brasileiras (Pix, BCB,
+  LGPD) em `customizations/`.
+- **Demo público:** [quarry.12brain.org](https://quarry.12brain.org)
+- **Licença:** MIT (herdada do upstream [AiSOC](https://github.com/beenuar/AiSOC))
+- **Status:** early access. Pilotos sob NDA em curso. Não rodar em
+  produção sem piloto guiado — a calibração de detecção e a integração
+  regulatória são feitas por piloto.
+
+Reports de vulnerabilidade: [`SECURITY.md`](SECURITY.md). Contribuições:
+[`CONTRIBUTING.md`](CONTRIBUTING.md).
