@@ -1,17 +1,15 @@
 # Quarry
 
-> **O SOC soberano para fintech brasileira regulada pelo Bacen.**
-> Detecção e resposta com LLM rodando dentro do seu perímetro físico, raciocínio forense citável, mapeamento direto com Res. BCB 85/2021 e LGPD.
+> Plataforma técnica de SOC para fintech brasileira regulada pelo Bacen.
+> Detecção, raciocínio assistido e cadeia probatória citável.
 
-**Status:** em validação técnica · **Versão:** 0.0.0-dev · **Domínio (planejado):** `quarry.12brain.org` · **Owner:** [Increase Trainer Inc.](https://increasetrainer.com)
-
-> Para quem é, contra quem somos e como medimos: [`docs/pt-br/POSITIONING.md`](docs/pt-br/POSITIONING.md).
+**Status:** em validação técnica · **Versão:** 0.0.0-dev · **Owner:** [Increase Trainer Inc.](https://increasetrainer.com)
 
 ---
 
 ## O que é Quarry
 
-Quarry é um produto comercial em desenvolvimento, baseado em fork independente do projeto open-source [AiSOC](https://github.com/beenuar/AiSOC) (commit `28ce9f6b`, MIT). A base técnica entrega:
+Quarry é uma plataforma técnica de SOC (Security Operations Center) em desenvolvimento, baseada em fork independente do projeto open-source [AiSOC](https://github.com/beenuar/AiSOC) (commit `28ce9f6b`, MIT). A base técnica entrega:
 
 - **Orquestrador LangGraph** com router paralelo (phishing, identity, cloud, insider)
 - **Investigation Ledger** — cada prompt LLM + resposta + ferramentas chamadas, persistido e auditável

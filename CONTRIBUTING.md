@@ -82,24 +82,22 @@ before/after delta in the PR body.
 
 ## Positioning Gate
 
-Quarry has a precise market positioning documented at
-[`docs/pt-br/POSITIONING.md`](docs/pt-br/POSITIONING.md). Every non-trivial PR
-that touches public surfaces (landing copy, README, hero, pricing, blog,
-marketing pages, taglines, meta descriptions, product narrative) **must answer
-these three questions in the PR description**:
+Quarry's go-to-market positioning is owned internally (not part of the public
+repo). Every non-trivial PR that touches public surfaces — landing copy,
+README, hero, pricing, blog, marketing pages, taglines, meta descriptions,
+product narrative — **must answer three questions in the PR description**:
 
-1. **Which ICP does this serve?** (Section 1 of `POSITIONING.md` —
-   Bacen-licensed BR fintech, 50–300 staff, no senior internal CISO, etc.)
-2. **Which of the 3 moat pillars does this reinforce?**
-   *Sovereign deployment · Citation-validated reasoning · Bacen-native compliance.*
-3. **If a BaaS player (Stark Infra, Idwall, Dock) shipped this tomorrow, do we
-   still have a moat?**
+1. **Which target customer does this serve?**
+2. **Which moat pillar does this reinforce?**
+3. **If a major adjacent player shipped this tomorrow, would we still have a
+   moat?**
 
-PRs that introduce features, copy, or product surface area that fail all three
-questions are **out of scope** by default. Reviewers will flag and request
-either rework or a documented exception in the PR description.
+Reviewers will flag PRs that change public surface without addressing the
+three questions. Ask the maintainer for the current internal positioning
+brief if you are unsure how to answer them.
 
-Mechanical/internal changes (refactors, tests, infra, bumps, typos) are exempt.
+Mechanical/internal changes (refactors, tests, infra, bumps, typos) are
+exempt.
 
 ## Submitting a Pull Request
 

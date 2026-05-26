@@ -46,13 +46,13 @@ Closes #<!-- issue number -->
 
 > **Required if this PR touches:** landing pages (`apps/web/src/app/`), README,
 > marketing copy, blog, taglines, meta descriptions, pricing, or any narrative
-> the customer sees. Reference: [`docs/pt-br/POSITIONING.md`](../../docs/pt-br/POSITIONING.md).
+> the customer sees. Internal positioning brief is held by the maintainer.
 >
 > Skip this section for mechanical changes (refactors, tests, infra, deps).
 
-- **ICP served:** <!-- which Section-1 ICP segment does this serve? -->
-- **Moat pillar reinforced:** [ ] Sovereign deployment  [ ] Citation reasoning  [ ] Bacen-native
-- **BaaS-tomorrow test:** if Stark Infra / Idwall / Dock shipped this tomorrow, do we still have a moat? <!-- yes/no + 1 sentence why -->
+- **Target customer this serves:** <!-- which segment? -->
+- **Moat pillar reinforced:** <!-- name one of the three pillars -->
+- **Defensibility:** would the moat survive a major adjacent player shipping this tomorrow? <!-- yes/no + 1 sentence -->
 - [ ] Not applicable — internal/mechanical change
 
 ## Checklist

@@ -1,14 +1,18 @@
 ## Positioning Anchor (READ FIRST)
 
-Quarry's market positioning is locked at [`docs/pt-br/POSITIONING.md`](docs/pt-br/POSITIONING.md). Before proposing or building anything customer-facing, AI agents must verify:
+Quarry's go-to-market positioning is owned internally and tracked in
+`.planning/private/POSITIONING.md` (not part of the public repo). Before
+proposing or building anything customer-facing, AI agents must verify three
+gates against that internal document:
 
-1. **ICP fit** — does this serve a Bacen-licensed BR fintech, 50–300 staff, no senior internal CISO?
-2. **Moat pillar reinforced** — one of: Sovereign deployment · Citation-validated reasoning · Bacen-native compliance.
-3. **BaaS-tomorrow test** — if Stark Infra / Idwall / Dock shipped this tomorrow, would we still have a moat?
+1. **ICP fit** — does this serve the defined target customer profile?
+2. **Moat pillar reinforced** — does this strengthen one of the three pillars?
+3. **Defensibility test** — if a major adjacent player shipped this tomorrow,
+   would we still have a moat?
 
-If none apply, flag the misfit in the response and ask for explicit override before proceeding. Refuse the 8 anti-deals listed in `POSITIONING.md` Section 6 (Tier-1 banks, big-tech fintechs, non-financial companies, generic SIEM asks, compliance-doc AI asks, managed-SOC asks, foreign-only ICP, TAM-vanity investor framings).
-
-The anti-tagline rules (no "AI-powered", no "revolutionize", no "modern SIEM") apply to every copy you generate.
+If none apply, flag the misfit and ask for explicit override before
+proceeding. Anti-deal categories and anti-tagline rules also live in that
+internal document; ask the owner if you need the current list.
 
 ## Learned User Preferences
 
@@ -24,7 +28,7 @@ The anti-tagline rules (no "AI-powered", no "revolutionize", no "modern SIEM") a
 
 ## Learned Workspace Facts
 
-- Project: Quarry — open-source, AI-powered Security Operations Center maintained by the Quarry community under the MIT license.
+- Project: Quarry — open-source Security Operations Center platform maintained by the Quarry community under the MIT license.
 - Monorepo managed with pnpm (pnpm@8.15.1) and Turborepo; workspaces defined in `apps/*` and `packages/*`.
 - Apps: `apps/web` (Next.js frontend), `apps/docs` (documentation site).
 - Backend services in `services/`: `api` (FastAPI/Python 3.11), `agents`, `alert-fusion`, `connectors`, `demo-producer`, `enrichment`, `fusion`, `ingest`, `realtime`, `threatintel`, `ocsf`.

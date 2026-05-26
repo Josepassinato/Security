@@ -42,7 +42,6 @@ BANNED: list[tuple[str, str]] = [
 SCAN_GLOBS = [
     "README.md",
     "package.json",
-    "docs/pt-br/POSITIONING.md",   # canonical — should not contain banned phrases except inside §8 itself
     "docs/pt-br/**/*.md",
     "apps/web/src/app/**/*.tsx",
     "apps/web/src/components/landing/**/*.tsx",
@@ -60,24 +59,12 @@ SKIP = {
 # Use sparingly. Add a one-line reason.
 ALLOWLIST: list[tuple[str, str]] = [
     # POSITIONING.md §8 lists anti-taglines as examples (negative space).
-    ("docs/pt-br/POSITIONING.md", r"\bAI[- ]powered\b"),
-    ("docs/pt-br/POSITIONING.md", r"\brevolutioniz[ea]\b"),
-    ("docs/pt-br/POSITIONING.md", r"\bmodern SIEM\b"),
-    ("docs/pt-br/POSITIONING.md", r"\bend[- ]to[- ]end cyber\b"),
-    ("docs/pt-br/POSITIONING.md", r"\bcompliance copilot\b"),
-    # CONTRIBUTING.md / AGENTS.md reference POSITIONING.md anti-tagline list verbatim.
-    ("CONTRIBUTING.md", r"\bAI[- ]powered\b"),
-    ("AGENTS.md", r"\bAI[- ]powered\b"),
-    ("AGENTS.md", r"\brevolutioniz[ea]\b"),
-    ("AGENTS.md", r"\bmodern SIEM\b"),
     # The linter itself contains the banned phrases as data — allow.
     ("scripts/lint_positioning.py", "ANY"),
-    # DisqualifierBR ironizes "AI-powered cyber" as anti-ICP example (POSITIONING §6).
+    # DisqualifierBR ironizes "AI-powered cyber" as anti-ICP example.
     ("apps/web/src/components/landing/br/DisqualifierBR.tsx", r"\bAI[- ]powered\b"),
-    # pitch-deck.md disqualifier section uses "AI-powered cyber" ironically.
-    ("docs/pt-br/pitch-deck.md", r"\bAI[- ]powered\b"),
     # SovereignLlmBR.tsx disqualifier (§06 "para quem não é") uses the phrase
-    # as an explicit anti-pattern label, mirroring POSITIONING §6.
+    # as an explicit anti-pattern label.
     ("apps/web/src/components/landing/br/SovereignLlmBR.tsx", r"\bAI[- ]powered\b"),
 ]
 
