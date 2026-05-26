@@ -28,11 +28,11 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   applicationName: 'Quarry',
   title: {
-    default: 'Quarry — Sovereign Detection & Response for Bacen-Regulated Brazilian Fintechs',
+    default: 'Quarry — Bacen Evidence Engine for Brazilian Fintechs',
     template: '%s | Quarry',
   },
   description:
-    'Quarry is a sovereign SOC for Brazilian fintechs licensed by Bacen. Self-hostable, MIT-licensed. LLM runs inside your physical perimeter (Mac Mini or dedicated VPS), every alert carries a citable forensic trace, and detection logic maps directly to Res. BCB 85/2021, Open Finance, and LGPD.',
+    'Quarry is an open-source Bacen Evidence Engine for Brazilian fintechs. Replaces the consultant-and-spreadsheet workflow with a deterministic, citable, exportable evidence pipeline for BCB 85/2021, ANPD 24h, and Open Finance. Self-hostable, MIT-licensed. Optional sovereign-LLM deployment for paranoid perimeters.',
   keywords: [...DISCOVERY_KEYWORDS],
   authors: [{ name: 'Quarry Community', url: 'https://github.com/beenuar/Quarry' }],
   creator: 'Quarry Community',
@@ -59,9 +59,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Quarry — Sovereign SOC for Bacen-regulated BR fintechs',
+    title: 'Quarry — Bacen Evidence Engine for Brazilian fintechs',
     description:
-      'LLM inside your physical perimeter, citable forensic reasoning, Bacen-native compliance (Res. BCB 85/2021, LGPD). Self-host MIT-licensed.',
+      'Replaces consultant-and-spreadsheet compliance with a citable, exportable evidence pipeline for BCB 85/2021, ANPD 24h and Open Finance. Open-source, MIT.',
     site: '@aisoc_dev',
     creator: '@aisoc_dev',
   },
@@ -152,7 +152,7 @@ const jsonLd = {
       '@type': 'WebSite',
       name: 'Quarry',
       url: siteUrl,
-      description: 'Sovereign SOC for Bacen-regulated Brazilian fintechs — open-source, MIT.',
+      description: 'Bacen Evidence Engine for Brazilian fintechs — open-source, MIT.',
       potentialAction: {
         '@type': 'SearchAction',
         target: `${siteUrl}/search?q={search_term_string}`,

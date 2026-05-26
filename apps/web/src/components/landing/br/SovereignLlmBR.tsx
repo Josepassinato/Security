@@ -1,7 +1,15 @@
 import Link from 'next/link';
 
 /**
- * /br/sovereign-llm — landing pública CARD-015.
+ * /br/sovereign-llm — landing pública pra opção de DEPLOYMENT soberano.
+ *
+ * IMPORTANTE: esta página NÃO é o pitch principal do Quarry. A
+ * categoria do produto é "Bacen Evidence Engine" (ver /br). Sovereign
+ * LLM é uma das três modalidades de deployment — relevante para clientes
+ * com requisito regulatório explícito de soberania física/territorial
+ * de dado, mas não o moat de longo prazo. Llama 4 / GPT-OSS comoditizam
+ * essa camada em 12–24 meses; o roadmap principal investe na camada
+ * regulatória (Bacen Evidence Engine), que dura 3–5 anos.
  *
  * Disciplina editorial seguindo /root/RULES-anti-ai-design.md:
  *   • long-form em vez de cards-grid simétricos
@@ -16,30 +24,31 @@ import Link from 'next/link';
 export function SovereignLlmBR() {
   return (
     <>
-      {/* ── 01 — Soberania (hero) ───────────────────────────────── */}
+      {/* ── 01 — Deployment (hero) ───────────────────────────────── */}
       <section
-        id="soberania"
+        id="deployment"
         className="border-b border-[#d8d2c4] px-5 pb-24 pt-32 sm:px-8 sm:pt-40"
       >
         <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-12 lg:gap-8">
           <div className="lg:col-span-8">
             <p className="mb-6 text-[11px] uppercase tracking-[0.22em] text-[#6b665b]">
-              01 — soberania
+              opção de deployment — não é o produto
             </p>
             <h1 className="font-serif text-4xl font-medium leading-[1.08] tracking-[-0.02em] text-[#1a1a1a] sm:text-5xl lg:text-[60px] lg:leading-[1.05]">
-              O LLM roda dentro do seu{' '}
-              <span className="italic text-[#6b3a1a]">perímetro</span>.
-              Não em cima de um datacenter da OpenAI em Iowa.
+              Onde o motor pensa é{' '}
+              <span className="italic text-[#6b3a1a]">configuração</span>,
+              não diferencial.
             </h1>
             <p className="mt-8 max-w-[62ch] text-lg leading-[1.7] text-[#3a362e]">
-              A Resolução BCB 85/2021 obriga sua fintech a manter monitoramento
-              contínuo dos sistemas — e a LGPD obriga você a tratar dado de
-              transação com perímetro técnico definido. Em geral, a forma de
-              atender esses dois pontos é caro: ou contrato MSSP enterprise, ou
-              passar PII pra uma cloud pública e contar com a cláusula de
-              transferência internacional segurar de pé numa fiscalização.
-              Tem um terceiro caminho — provavelmente o mais honesto — que é
-              rodar o motor de raciocínio fisicamente dentro da sua casa.
+              Honestamente: rodar LLM em VPS dedicada ou Mac Mini deixa de ser
+              moat assim que Llama 4 e GPT-OSS rodarem em hardware comum — e
+              isso provavelmente é coisa de 12 a 24 meses. O que faz Quarry
+              diferente não é onde o modelo roda; é o que vem depois — o
+              <em className="italic"> Bacen Evidence Engine</em>, que vira um
+              alerta em artefato citável, mapeado a artigo, com cadeia
+              probatória exportável. Esta página existe pra quem já decidiu
+              que precisa de soberania de dado por razão regulatória; o resto
+              fica em <a href="/br" className="underline decoration-[#6b3a1a] decoration-1 underline-offset-2">/br</a>.
             </p>
           </div>
         </div>

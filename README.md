@@ -11,9 +11,10 @@
 
 # Quarry
 
-> **Open-source Sovereign SOC for Brazilian Bacen-regulated fintechs.**
-> Auditable LLM-driven investigation running inside your perimeter —
-> citation-validated forensic reasoning mapped to BCB Resolution 85/2021 and LGPD.
+> **Open-source Bacen Evidence Engine for Brazilian fintechs.**
+> Replace the consultant-and-spreadsheet workflow with a deterministic,
+> citable, exportable evidence pipeline for BCB 85/2021, ANPD 24h, and
+> Open Finance. Bacen-native by construction, not by retrofit.
 
 <p>
   <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
