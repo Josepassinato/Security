@@ -1,0 +1,18 @@
+# GitHub Sponsors / community funding for Quarry.
+#
+# The maintainer (Josepassinato / Increase Trainer Inc.) needs to
+# enroll in GitHub Sponsors at https://github.com/sponsors/Josepassinato
+# before the "Sponsor" button becomes active on this repository.
+#
+# Other funding rails (Open Collective, Patreon, Ko-fi, Liberapay) can
+# be uncommented when set up. Keep entries minimal — empty values cause
+# GitHub to silently disable the button.
+
+github: [Josepassinato]
+# patreon:
+# open_collective:
+# ko_fi:
+# tidelift:
+# liberapay:
+# issuehunt:
+# custom: ['https://12brain.org/sponsor']

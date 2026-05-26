@@ -210,15 +210,22 @@ quarry/
 
 ---
 
-## Contributing
+## Community & Contributing
 
-Issues, PRs and bug reports are welcome. Before opening one:
+Issues, PRs and bug reports are welcome. The community surfaces are:
 
-1. Read [`CONTRIBUTING.md`](CONTRIBUTING.md) for the PR flow, commit
-   conventions and how to run the eval suite.
-2. Read [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md).
-3. **Vulnerabilities:** do not open a public issue — follow
-   [`SECURITY.md`](SECURITY.md).
+- **[GitHub Discussions](https://github.com/Josepassinato/Security/discussions)** — open questions, ideas, roadmap input
+- **[Issues](https://github.com/Josepassinato/Security/issues)** — bug reports and feature requests
+  ([good first issues](https://github.com/Josepassinato/Security/issues?q=is%3Aopen+label%3A%22good+first+issue%22)
+  are tagged for newcomers)
+- **Pull Requests** — see [`CONTRIBUTING.md`](CONTRIBUTING.md) for flow,
+  commit conventions and how to run the eval suite
+- **Vulnerabilities** — do not open a public issue, follow
+  [`SECURITY.md`](SECURITY.md)
+- **Code of conduct** — [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md)
+
+A chat server (Discord / Slack) will be set up once the community needs
+it. For now, GitHub Discussions is the canonical place to talk.
 
 Areas open for contribution right now:
 
@@ -226,6 +233,10 @@ Areas open for contribution right now:
 - 🧠 Prompts and few-shots for the orchestrator
 - 📚 Detection rules calibrated to Brazilian threat actors
 - 🧪 Eval harness extensions and synthetic dataset additions
+
+Sponsors: if you want to fund maintenance time, see the Sponsor
+button on the [repo home](https://github.com/Josepassinato/Security)
+or check [`.github/FUNDING.yml`](.github/FUNDING.yml).
 
 ---
 
