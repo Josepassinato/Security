@@ -29,6 +29,7 @@ from app.models.mssp import (
 )
 from app.models.oauth import OAuthAppCredential, OAuthState
 from app.models.posture import PostureDriftEvent, PostureFinding, PostureScanRun
+from app.models.regulatory import RegulatoryCommunication
 from app.models.remediation import RemediationGateLog, RemediationMaturity, RemediationWhitelist
 from app.models.report import ReportArtefact, ReportTemplate
 from app.models.responder import (
@@ -85,6 +86,7 @@ __all__ = [
     "PostureDriftEvent",
     "PostureFinding",
     "PostureScanRun",
+    "RegulatoryCommunication",
     "RemediationGateLog",
     "RemediationMaturity",
     "RemediationWhitelist",

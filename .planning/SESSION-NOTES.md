@@ -4,6 +4,141 @@
 
 ---
 
+## 2026-05-26 — CARD-013 entregue em produção + CARD-014 backend foundation pronto (não-deployed)
+
+### Objetivo
+1. CARD-013 — Benchmark de redução de FP do auto-triage: rodar run publicável, criar componente `/br#benchmark`, doc reprodutibilidade, atualizar pitch.
+2. CARD-014 backend foundation — schema + model + ledger hash chain + endpoint + dispatcher email/webhook/sisbacen + detector PII + template ANPD + testes pytest. UI fica pra próxima sessão.
+
+### Status
+✅ CARD-013 100% concluído e ao vivo em `https://quarry.12brain.org/br#benchmark`.
+✅ CARD-014 backend completo no source — endpoints registrados, model + tests passando — mas **não** deployado: precisa de UI + rebuild imagem Docker + apply migration manual em prod DB (handoff abaixo).
+
+### Entregas em produção (CARD-013)
+
+**1. Benchmark publicável rodado em `customizations/benchmarks/auto_triage_finplay/runs/2026-05-26-bb5f7ccc/`**
+- 100 alertas FinPlay BR (60 TP / 30 FP / 10 benign)
+- Baseline (regras estáticas): auto-close 7%, false-close 0%
+- Quarry auto-triage (gpt-4o-mini via OpenRouter): **auto-close 36%, false-close 0%, precision 100%, recall TP esc 100%, p95 2.5s, custo US$ 0.094/mil alertas**
+- Delta +29pp / 5.1× a baseline — **resultado honesto e defensável em due diligence**
+- Chave de inferência OpenRouter criada (dedicada, limite $10) — salva em `/root/.api_keys/openrouter-inference.env`. A `/root/.api_keys/openrouter.env` continua sendo a provisioning key (não funciona pra inferência — foi o motivo do 401 do run anterior `f8f772cf`)
+
+**2. Componente novo `apps/web/src/components/landing/br/BenchmarkBR.tsx`**
+- Numero gigante 36% em serif (Fraunces), padrão anti-AI design do `/br`
+- Tabela comparativa baseline vs Quarry
+- Grid de 3 métricas (precisão, recall, custo)
+- Hedges humanos: "Dataset é sintético...em piloto rodamos contra os teus alertas reais"
+- Link pra metodologia: `/docs/pt-br/benchmark-auto-triage`
+- Anchor `#benchmark` adicionado ao NavBR
+- Renumeração de seções: 03→04 (custo), 04→05 (deliverables), 05→06 (disqualifier), 06→07 (FAQ)
+
+**3. Doc `docs/pt-br/benchmark-auto-triage.md` (canônico de reprodutibilidade)**
+- Resultado público vigente + comandos de reprodução
+- Limitações honestas (dataset sintético, 100 alertas é estável mas pouco, provider drift)
+- Como rodar contra dataset próprio em piloto
+- Curador note: capability `auto-triage-fp-benchmark` é gap real — quando estabilizar, propor INDEX.md
+
+**4. Pitch deck `docs/pt-br/pitch-deck.md` atualizado**
+- Slide 03 (a prova) ganhou parágrafo com 36% / 5.1× / zero false-close / custo / link `/br#benchmark`
+- Slide 08 (status) adicionou linha "Benchmark interno de auto-triage publicado"
+- Slide referências adiciona link pro `/br#benchmark` + metodologia
+
+**5. Deploy seletivo aplicado**
+- Sandbox: `/root/sandbox/quarry_2026-05-26-c13c14/` (2.6G, reflink — usar pra rollback até confirmação)
+- rsync 8 web files + 2 docs + dir `customizations/benchmarks/`
+- `pnpm build` prod: 65/65 páginas, zero erro
+- `pm2 restart quarry-web --update-env`
+- Smoke 5 rotas (`/`, `/br`, `/opensource`, `/demo-cinematografica`, `/api/health`) todas 200
+- `/br` tamanho subiu 76506 → 87494 bytes (+11KB do BenchmarkBR)
+- Conteúdo confirmado: id="benchmark", "36%", run "bb5f7ccc"
+
+**6. Memória `project-quarry-positioning` atualizada**
+- Adicionado bloco sobre o benchmark medido (CARD-013, 2026-05-26)
+- Aviso explícito: "Nunca prometer >80% redução FP sem novo benchmark"
+
+### CARD-014 backend foundation (no source, **não-deployed**)
+
+**Arquivos novos:**
+- `services/api/migrations/045_regulatory_communications.sql` — tabela append-only com RLS + hash chain por (tenant, kind) + trigger anti-DELETE + check constraints
+- `services/api/app/models/regulatory.py` — SQLAlchemy model RegulatoryCommunication
+- `services/api/app/services/regulatory_hash.py` — compute_entry_hash + verify_chain (domain separator `regulatory-comm-v1`, distinto do audit-log)
+- `services/api/app/services/regulatory_dispatch.py` — interface RegulatoryDispatcher + 3 impls (EmailDispatcher SMTP, WebhookDispatcher POST, SisbacenDispatcher stub explícito) + factory `get_dispatcher`
+- `services/api/app/services/pii_breach_detector.py` — heurística com 3 sinais (PII categories em findings, severity+escala, MITRE exfil techniques) — conservadora deliberada
+- `services/api/app/api/v1/endpoints/regulatory.py` — 6 endpoints: POST draft (idempotente), GET list, GET detail, GET chain-verify, POST approve (typed-name check + dispatch), POST expire-sweep + função interna `create_draft_for_case` pra trigger automático
+- `apps/web/src/components/demo/anpdReport.ts` — espelha bacenReport.ts mas pra LGPD Art. 48 §1º + IN ANPD 03/2024
+- Testes: `test_regulatory_hash.py` (12), `test_regulatory_dispatch.py` (8), `test_pii_breach_detector.py` (9) — **29/29 passando**
+
+**Arquivos modificados:**
+- `services/api/app/api/v1/router.py` — `regulatory` adicionado em imports + `include_router(regulatory.router)` após compliance
+- `services/api/app/models/__init__.py` — `RegulatoryCommunication` exposto
+
+**Reuso (Regra 11):**
+- `audit_hash.py` (pattern + hash chain semantics): reusado conceitualmente, não importado direto (campos diferentes; domain separator distinto pra evitar colisão)
+- `bacenReport.ts` (CARD-012): anpdReport.ts é espelho intencional pra manter consistência visual/estrutural
+- `compliance.py` endpoint (pattern Pydantic + router): inspiração — não reusado código
+
+### O que NÃO está pronto (handoff explícito pra próxima sessão)
+
+**1. Aplicar migration em prod**
+A migration `045_regulatory_communications.sql` precisa ser aplicada manualmente:
+```bash
+# Em prod (container quarry-demo-api ou DB direto):
+docker exec -i quarry-demo-api psql $DATABASE_URL < services/api/migrations/045_regulatory_communications.sql
+# OU rebuild a imagem core-api → auto-aplica via app/main.py se ENV != production
+```
+A função `current_tenant_id()` está em 002_rls.sql e a tabela `aisoc_cases` em 012 — ambas pré-requisitos, já em prod.
+
+**2. Rebuild imagem Docker `quarry-core-api`**
+Endpoint `/api/v1/regulatory/*` só responde após:
+```bash
+cd services/api
+docker build -t ghcr.io/beenuar/quarry-core-api:CARD-014-backend .
+docker push ghcr.io/beenuar/quarry-core-api:CARD-014-backend
+# Update docker-compose.demo.yml tag → docker-compose up -d quarry-demo-api
+```
+
+**3. UI completa (próxima sessão grande)**
+- `apps/web/src/components/cases/RegulatoryClock.tsx` — cronômetro 24h, alerta vermelho ao cruzar 6h
+- Integrar painel "Comunicação Bacen 24h" em `CaseWorkspace.tsx` com 3 estados (draft/submitted/expired)
+- Botão "Aprovar e enviar" + diálogo typed-name verification
+- Endpoint preview `.md` (reuso direto do bacenReport.ts)
+- Wiring do anpdReport.ts no demo cinematográfico (botão paralelo ao Bacen)
+
+**4. Trigger automático no classificador (Sprint+1)**
+- Hook em `services/agents/app/agents/auto_triage_agent.py` ou orchestrator: quando verdict=true_positive + severity high/critical, chamar `create_draft_for_case` em paralelo
+- Idempotente — chamadas múltiplas não criam drafts duplicados
+
+**5. Hardening da migration**
+- UPDATE atualmente livre — quando UI entrar, restringir a `submitted_at`, `dispatch_result`, `expired_at` (campos do approve flow), bloquear mutação de `draft_md` após status='draft'
+
+### Estado pós-sessão
+
+**Git working tree (dirty, sem commit ainda):**
+- `M` 9 arquivos (page.tsx, 5 componentes BR, pitch-deck.md, router.py, models/__init__.py)
+- `??` 13 novos (BenchmarkBR.tsx, anpdReport.ts, benchmark-auto-triage.md, customizations/benchmarks/, 5 backend services, regulatory endpoint, migration 045, 3 test files, regulatory.py model)
+- Os 6 .pdf/.pptx/.mp4 modificados em `docs/pitch/` e `apps/web/public/papers/` são alterações espúrias antigas (provavelmente git-lfs/binário), não desta sessão
+
+**PM2:**
+- `quarry-web` online uptime ~13min após restart pós-deploy CARD-013
+- `quarry-api` NÃO está em PM2 — roda como container Docker `quarry-demo-api` (image `ghcr.io/beenuar/quarry-core-api:latest`)
+
+**Sandbox:** `/root/sandbox/quarry_2026-05-26-c13c14/` (2.6G) preservado pra rollback até confirmação do José
+
+**Nginx:** SEM mudanças. Continua sem basic_auth (decisão da sessão 2026-05-24)
+
+**Memória atualizada:**
+- `project-quarry-positioning` — adicionado bloco "Número de auto-triage medido (CARD-013)"
+
+### Próximas ações sugeridas (prioridade do José)
+
+1. **Validar visualmente** o BenchmarkBR em `https://quarry.12brain.org/br#benchmark` (especial: tipografia 36%, tabela, hedges humanos). Aprovar ou ajustar.
+2. **Commit CARD-013 + CARD-014 backend** (mensagem sugerida em duas commits separadas).
+3. **Decidir quando rodar migration 045 em prod** (pode esperar até UI estar pronta).
+4. **Planejar sessão CARD-014 UI** — 4-5 dias de trabalho frontend (RegulatoryClock + CaseWorkspace integration + typed-name dialog + E2E).
+5. **Planejar CARD-015** (Mac Mini sovereign appliance) ou outro card do SPRINT-FINTECH-BR-2026-06.
+
+---
+
 ## 2026-05-24 — CARD-012 entregue + auditoria do pitch + Sprint Fintech BR 2026-06 planejado
 
 ### Objetivo

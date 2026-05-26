@@ -59,6 +59,7 @@ from app.api.v1.endpoints import (
     posture,
     push,
     rbac,
+    regulatory,
     remediation,
     reports,
     rule_tuning,
@@ -115,6 +116,9 @@ api_router.include_router(marketplace.router)
 api_router.include_router(rbac.router)
 api_router.include_router(audit.router)
 api_router.include_router(compliance.router)
+# Regulatory communications (CARD-014): Bacen 24h + ANPD ledger,
+# hash-chained per (tenant, kind), with human-gated dispatch.
+api_router.include_router(regulatory.router)
 api_router.include_router(metrics.router)
 # SOC Insights aggregator (T3.1 — v8.0 parallel team plan).
 # Backs apps/web/src/app/(app)/dashboards/soc-insights/page.tsx with a
