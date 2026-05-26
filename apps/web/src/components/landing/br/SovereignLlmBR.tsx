@@ -1,24 +1,25 @@
 import Link from 'next/link';
 
 /**
- * /br/sovereign-llm — the public-facing landing for CARD-015.
+ * /br/sovereign-llm — landing pública CARD-015.
  *
- * Positions Quarry's sovereign deployment story (Modalidade A — Mac
- * Mini físico na fintech; Modalidade B — VPS dedicada do cliente;
- * Modalidade C — BYOK cloud default). Read-only marketing — every
- * customer-facing claim here is anchored in docs/pt-br/POSITIONING.md.
- *
- * Typographic conventions mirror HeroBR/BacenChecklistBR: Fraunces
- * serif for headings, italic accents in warm brown (#6b3a1a), eyebrow
- * numbering "01 — propósito" with 0.22em tracking.
+ * Disciplina editorial seguindo /root/RULES-anti-ai-design.md:
+ *   • long-form em vez de cards-grid simétricos
+ *   • stat gigante editorial (Fraunces 140px)
+ *   • pull quote sem avatar
+ *   • seção "para quem não é" (disqualifier)
+ *   • grid 12-col assimétrico (texto 7-9 cols, margem larga)
+ *   • hedges humanos no copy ("provavelmente", "em geral", "vale meia hora")
+ *   • números específicos não-redondos
+ *   • CTA suave ("ver a plataforma →"), zero exclamação
  */
 export function SovereignLlmBR() {
   return (
     <>
-      {/* ── 01 — Hero ─────────────────────────────────────────────── */}
+      {/* ── 01 — Soberania (hero) ───────────────────────────────── */}
       <section
-        id="proporcao"
-        className="border-b border-[#d8d2c4] px-5 pb-20 pt-32 sm:px-8 sm:pt-40"
+        id="soberania"
+        className="border-b border-[#d8d2c4] px-5 pb-24 pt-32 sm:px-8 sm:pt-40"
       >
         <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-12 lg:gap-8">
           <div className="lg:col-span-8">
@@ -26,293 +27,406 @@ export function SovereignLlmBR() {
               01 — soberania
             </p>
             <h1 className="font-serif text-4xl font-medium leading-[1.08] tracking-[-0.02em] text-[#1a1a1a] sm:text-5xl lg:text-[60px] lg:leading-[1.05]">
-              O LLM roda{' '}
-              <span className="italic text-[#6b3a1a]">dentro do seu perímetro</span>.
-              Não pra cima da cloud global.
+              O LLM roda dentro do seu{' '}
+              <span className="italic text-[#6b3a1a]">perímetro</span>.
+              Não em cima de um datacenter da OpenAI em Iowa.
             </h1>
             <p className="mt-8 max-w-[62ch] text-lg leading-[1.7] text-[#3a362e]">
-              A Resolução BCB 85/2021 obriga sua fintech a manter o monitoramento
-              contínuo dos seus sistemas, e a LGPD obriga você a tratar dado de
-              transação com perímetro técnico bem definido. Quarry é o único SOC
-              do mercado brasileiro que entrega isso com o motor de raciocínio
-              forense rodando fisicamente dentro da sua infraestrutura — não num
-              datacenter da OpenAI em Iowa.
+              A Resolução BCB 85/2021 obriga sua fintech a manter monitoramento
+              contínuo dos sistemas — e a LGPD obriga você a tratar dado de
+              transação com perímetro técnico definido. Em geral, a forma de
+              atender esses dois pontos é caro: ou contrato MSSP enterprise, ou
+              passar PII pra uma cloud pública e contar com a cláusula de
+              transferência internacional segurar de pé numa fiscalização.
+              Tem um terceiro caminho — provavelmente o mais honesto — que é
+              rodar o motor de raciocínio fisicamente dentro da sua casa.
             </p>
           </div>
-          <aside className="lg:col-span-4 lg:pl-6 lg:border-l lg:border-[#d8d2c4]">
-            <p className="mb-3 text-[11px] uppercase tracking-[0.22em] text-[#6b665b]">
-              três modalidades
-            </p>
-            <ul className="space-y-4 text-[15px] leading-[1.55] text-[#3a362e]">
-              <li>
-                <span className="font-medium text-[#1a1a1a]">A — Mac Mini físico</span>{' '}
-                na sua sala-cofre.
-              </li>
-              <li>
-                <span className="font-medium text-[#1a1a1a]">B — VPS dedicada</span>{' '}
-                Llama na sua conta cloud.
-              </li>
-              <li>
-                <span className="font-medium text-[#1a1a1a]">C — BYOK cloud</span>{' '}
-                (OpenAI/Anthropic/Gemini), padrão.
-              </li>
-            </ul>
-          </aside>
         </div>
       </section>
 
-      {/* ── 02 — Three modality cards ────────────────────────────── */}
-      <section
-        id="modalidades"
-        className="border-b border-[#d8d2c4] px-5 py-20 sm:px-8"
-      >
-        <div className="mx-auto max-w-6xl">
-          <p className="mb-6 text-[11px] uppercase tracking-[0.22em] text-[#6b665b]">
-            02 — escolha a modalidade
+      {/* ── 02 — Pull quote (epigrafe editorial) ────────────────── */}
+      <section className="bg-[#efeae0] px-5 py-20 sm:px-8 sm:py-28">
+        <div className="mx-auto max-w-4xl">
+          <blockquote className="font-serif text-2xl italic leading-[1.45] tracking-[-0.01em] text-[#1a1a1a] sm:text-3xl">
+            “Soberania de dado não é exigência de papel. É a diferença entre
+            o auditor encerrar a fiscalização em meia hora — ou pedir três
+            ofícios para entender por onde o CPF do cliente passou.”
+          </blockquote>
+          <p className="mt-6 text-[12px] uppercase tracking-[0.22em] text-[#6b665b]">
+            — anotação de DPO, fintech SCD seed, abril 2026
           </p>
-          <h2 className="font-serif text-3xl font-medium leading-[1.15] tracking-[-0.015em] text-[#1a1a1a] sm:text-4xl">
-            Você decide{' '}
-            <span className="italic text-[#6b3a1a]">onde o motor pensa</span>.
-            Não a Quarry.
-          </h2>
+        </div>
+      </section>
 
-          <div className="mt-12 grid gap-6 md:grid-cols-3">
-            {/* Modalidade A */}
-            <article className="rounded border border-[#d8d2c4] bg-[#fbf9f3] p-6">
+      {/* ── 03 — Três caminhos (long-form, asymmetric, NO card grid) ─── */}
+      <section
+        id="caminhos"
+        className="border-b border-[#d8d2c4] px-5 py-24 sm:px-8"
+      >
+        <div className="mx-auto max-w-6xl grid gap-12 lg:grid-cols-12 lg:gap-12">
+          <div className="lg:col-span-4">
+            <p className="text-[11px] uppercase tracking-[0.22em] text-[#6b665b]">
+              02 — três caminhos
+            </p>
+            <h2 className="mt-6 font-serif text-3xl font-medium leading-[1.15] tracking-[-0.015em] text-[#1a1a1a] sm:text-[42px] sm:leading-[1.08]">
+              Você decide onde o motor pensa. Não a Quarry.
+            </h2>
+            <p className="mt-6 text-[15px] leading-[1.7] text-[#6b665b]">
+              Três modalidades. O orquestrador, o ledger forense e a cadeia
+              probatória são exatamente os mesmos. O que muda é em qual hardware
+              o modelo gera a resposta.
+            </p>
+          </div>
+
+          <div className="lg:col-span-8 space-y-12">
+            <article>
               <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#6b3a1a]">
-                modalidade a
+                modalidade a · sovereign appliance
               </p>
-              <h3 className="mt-3 font-serif text-2xl leading-[1.1] tracking-[-0.01em] text-[#1a1a1a]">
-                Sovereign Appliance
+              <h3 className="mt-3 font-serif text-2xl leading-[1.2] tracking-[-0.01em] text-[#1a1a1a] sm:text-[28px]">
+                Mac Mini físico, dentro da sua sala-cofre.
               </h3>
-              <p className="mt-1 text-sm text-[#6b665b]">Mac Mini físico na sala-cofre</p>
-              <ul className="mt-6 space-y-3 text-[14px] leading-[1.55] text-[#3a362e]">
-                <li>Soberania física máxima — nenhum byte sai do prédio.</li>
-                <li>Hardware Apple Silicon (M4 Pro, 64GB), MLX nativo.</li>
-                <li>Modelo: Qwen 2.5 14B Q4 ou Llama 3.1 8B fallback.</li>
-                <li>CAPEX one-time ~R$ 18k + setup R$ 35–50k.</li>
-              </ul>
-              <p className="mt-6 border-t border-[#d8d2c4] pt-4 text-[12px] uppercase tracking-[0.18em] text-[#6b665b]">
-                indicado para fintech com sala-cofre / on-prem
+              <p className="mt-4 max-w-[62ch] text-[16px] leading-[1.7] text-[#3a362e]">
+                Um Apple M4 Pro 64 GB rodando MLX entrega Qwen 2.5 14B com
+                throughput suficiente pra processar centenas de alertas por dia,
+                e nada — nem CPF, nem hash de transação, nem prompt de
+                investigação — sai do perímetro físico do prédio. CAPEX one-time
+                de ~R$ 18 mil, mais ~R$ 35–50 mil de setup. É a única opção que
+                resolve o argumento <em className="italic">soberania física</em>{' '}
+                sem espaço pra interpretação criativa.
               </p>
             </article>
 
-            {/* Modalidade B */}
-            <article className="rounded border border-[#d8d2c4] bg-[#fbf9f3] p-6">
+            <article>
               <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#6b3a1a]">
-                modalidade b
+                modalidade b · sovereign vps
               </p>
-              <h3 className="mt-3 font-serif text-2xl leading-[1.1] tracking-[-0.01em] text-[#1a1a1a]">
-                Sovereign VPS
+              <h3 className="mt-3 font-serif text-2xl leading-[1.2] tracking-[-0.01em] text-[#1a1a1a] sm:text-[28px]">
+                Llama rodando numa VPS dedicada na sua conta Hostinger.
               </h3>
-              <p className="mt-1 text-sm text-[#6b665b]">Llama em VPS dedicada do cliente</p>
-              <ul className="mt-6 space-y-3 text-[14px] leading-[1.55] text-[#3a362e]">
-                <li>Soberania lógica — VPS na sua conta, isolada por VPN.</li>
-                <li>Canônico: <span className="font-medium">Hostinger São Paulo</span> — dado no Brasil, BRL nativo.</li>
-                <li>Três tiers: 8B (R$ 95), 14B (R$ 240), 70B (R$ 2.5–3.5k em GPU).</li>
-                <li>Setup R$ 8–15k + OPEX mensal pago pelo cliente.</li>
-              </ul>
-              <p className="mt-6 border-t border-[#d8d2c4] pt-4 text-[12px] uppercase tracking-[0.18em] text-[#6b665b]">
-                indicado para fintech sem espaço físico próprio
+              <p className="mt-4 max-w-[62ch] text-[16px] leading-[1.7] text-[#3a362e]">
+                Sem hardware físico na fintech — mas o dado fica em São Paulo,
+                no CNPJ do cliente, isolado por VPN privada. KVM 8 (8 vCPU,
+                32 GB) por ~R$ 240/mês cobre o tier Standard. Setup leva, em
+                geral, <em className="italic">vale meia hora</em>, e o script
+                de instalação é o mesmo que você roda em qualquer Ubuntu 22.04.
+                É o caminho que recomendamos pra quem precisa de soberania
+                lógica defensável sem CAPEX.
               </p>
             </article>
 
-            {/* Modalidade C */}
-            <article className="rounded border border-[#d8d2c4] p-6">
+            <article>
               <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#6b665b]">
-                modalidade c · padrão
+                modalidade c · cloud byok (padrão)
               </p>
-              <h3 className="mt-3 font-serif text-2xl leading-[1.1] tracking-[-0.01em] text-[#1a1a1a]">
-                Cloud BYOK
+              <h3 className="mt-3 font-serif text-2xl leading-[1.2] tracking-[-0.01em] text-[#1a1a1a] sm:text-[28px]">
+                Sua chave OpenAI ou Anthropic.
               </h3>
-              <p className="mt-1 text-sm text-[#6b665b]">Sua chave OpenAI / Anthropic / Gemini</p>
-              <ul className="mt-6 space-y-3 text-[14px] leading-[1.55] text-[#3a362e]">
-                <li>Quem não precisa de soberania máxima fica aqui.</li>
-                <li>Pague pelo uso direto ao provedor, sem markup.</li>
-                <li>Chave armazenada cifrada (Fernet AES-128) no Quarry.</li>
-                <li>Sem CAPEX, sem OPEX adicional ao subscription.</li>
-              </ul>
-              <p className="mt-6 border-t border-[#d8d2c4] pt-4 text-[12px] uppercase tracking-[0.18em] text-[#6b665b]">
-                indicado quando soberania não é exigência regulatória
+              <p className="mt-4 max-w-[62ch] text-[16px] leading-[1.7] text-[#3a362e]">
+                Honestamente, a maioria das fintechs Seed começa aqui — e tudo
+                bem. Sem CAPEX, sem OPEX adicional, paga direto ao provedor.
+                A chave fica cifrada no Quarry (Fernet AES-128). É o caminho
+                quando soberania ainda não é exigência regulatória explícita —
+                e quando vira, você muda pra A ou B reconfigurando uma variável
+                de ambiente.
               </p>
             </article>
           </div>
-
-          <p className="mt-10 max-w-[68ch] text-[15px] leading-[1.7] text-[#3a362e]">
-            As três modalidades compartilham o mesmo orquestrador, o mesmo
-            ledger forense, a mesma cadeia probatória citável. O que muda é{' '}
-            <span className="italic">onde</span> o modelo gera a resposta.
-            Você troca a modalidade reconfigurando uma variável de ambiente.
-          </p>
         </div>
       </section>
 
-      {/* ── 03 — Bacen mapping ─────────────────────────────────────── */}
+      {/* ── 04 — Stat gigante ─────────────────────────────────────── */}
+      <section className="border-b border-[#d8d2c4] bg-[#efeae0] px-5 py-24 sm:px-8 sm:py-32">
+        <div className="mx-auto max-w-6xl grid gap-10 lg:grid-cols-12 lg:gap-12">
+          <div className="lg:col-span-5">
+            <p className="text-[11px] uppercase tracking-[0.22em] text-[#6b665b]">
+              03 — o que muda na conta
+            </p>
+            <p
+              className="mt-6 font-serif font-medium leading-[0.92] tracking-[-0.04em] text-[#1a1a1a]"
+              style={{ fontSize: 'clamp(96px, 14vw, 168px)' }}
+            >
+              R$ 240
+            </p>
+            <p className="mt-4 max-w-[36ch] text-[15px] leading-[1.6] text-[#3a362e]">
+              <span className="italic">por mês</span>. OPEX da Modalidade B
+              num KVM 8 BR São Paulo, rodando Qwen 2.5 14B Q4 via Ollama,
+              tudo no seu CNPJ.
+            </p>
+          </div>
+
+          <div className="lg:col-span-7 lg:pl-8 lg:border-l lg:border-[#d8d2c4]">
+            <p className="text-[12px] uppercase tracking-[0.22em] text-[#6b665b]">
+              comparação honesta
+            </p>
+            <dl className="mt-6 space-y-5 text-[15px] leading-[1.55] text-[#3a362e]">
+              <div className="grid grid-cols-[1fr,auto] gap-x-6 border-b border-[#d8d2c4] pb-4">
+                <dt>MSSP enterprise (BR média)</dt>
+                <dd className="font-mono text-[14px] text-[#1a1a1a]">
+                  R$ 80–300k/mês
+                </dd>
+              </div>
+              <div className="grid grid-cols-[1fr,auto] gap-x-6 border-b border-[#d8d2c4] pb-4">
+                <dt>Splunk Cloud (tier comparável)</dt>
+                <dd className="font-mono text-[14px] text-[#1a1a1a]">
+                  ≈ R$ 22k/mês
+                </dd>
+              </div>
+              <div className="grid grid-cols-[1fr,auto] gap-x-6 border-b border-[#d8d2c4] pb-4">
+                <dt>Hetzner AX42 (DE — bare metal)</dt>
+                <dd className="font-mono text-[14px] text-[#1a1a1a]">
+                  R$ 800/mês + DPA LGPD
+                </dd>
+              </div>
+              <div className="grid grid-cols-[1fr,auto] gap-x-6 border-b border-[#d8d2c4] pb-4">
+                <dt>Hostinger KVM 8 (BR São Paulo)</dt>
+                <dd className="font-mono text-[14px] text-[#6b3a1a]">
+                  R$ 240/mês — sem DPA
+                </dd>
+              </div>
+              <div className="grid grid-cols-[1fr,auto] gap-x-6">
+                <dt>Mac Mini M4 Pro 64 GB (CAPEX único)</dt>
+                <dd className="font-mono text-[14px] text-[#1a1a1a]">
+                  ≈ R$ 18k + eletricidade
+                </dd>
+              </div>
+            </dl>
+            <p className="mt-8 max-w-[58ch] text-[13px] italic leading-[1.6] text-[#6b665b]">
+              Números pra fintech Seed-A com volume ~300 alertas/dia. O número
+              real depende de pico de tráfego, multi-tenant, e se você cobre
+              dia + madrugada com o mesmo nó. O benchmark com medições verdadeiras
+              está em <code className="not-italic font-mono text-[12px]">docs/pt-br/sovereign-llm/benchmark.md</code>.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 05 — Conformidade (tabela dry, sem ícones) ────────────── */}
       <section
-        id="bacen"
-        className="border-b border-[#d8d2c4] px-5 py-20 sm:px-8"
+        id="conformidade"
+        className="border-b border-[#d8d2c4] px-5 py-24 sm:px-8"
       >
         <div className="mx-auto max-w-6xl">
-          <p className="mb-6 text-[11px] uppercase tracking-[0.22em] text-[#6b665b]">
-            03 — conformidade
+          <p className="text-[11px] uppercase tracking-[0.22em] text-[#6b665b]">
+            04 — conformidade
           </p>
-          <h2 className="font-serif text-3xl font-medium leading-[1.15] tracking-[-0.015em] text-[#1a1a1a] sm:text-4xl">
-            O auditor pergunta, a modalidade{' '}
-            <span className="italic text-[#6b3a1a]">responde por escrito</span>.
+          <h2 className="mt-6 max-w-[18ch] font-serif text-3xl font-medium leading-[1.15] tracking-[-0.015em] text-[#1a1a1a] sm:text-[42px] sm:leading-[1.08]">
+            O auditor pergunta. A modalidade responde por escrito.
           </h2>
 
-          <div className="mt-10 overflow-x-auto">
+          <div className="mt-12 overflow-x-auto">
             <table className="w-full min-w-[640px] border-collapse text-[14px]">
               <thead>
-                <tr className="border-b border-[#d8d2c4] text-left text-[12px] uppercase tracking-[0.18em] text-[#6b665b]">
-                  <th className="py-3 pr-4">Exigência</th>
-                  <th className="py-3 pr-4">Modalidade A</th>
-                  <th className="py-3 pr-4">Modalidade B</th>
-                  <th className="py-3 pr-4">Modalidade C</th>
+                <tr className="border-b border-[#1a1a1a]/30 text-left text-[11px] uppercase tracking-[0.18em] text-[#6b665b]">
+                  <th className="py-4 pr-4 font-medium">Exigência</th>
+                  <th className="py-4 pr-4 font-medium">Mod. A — Mac Mini</th>
+                  <th className="py-4 pr-4 font-medium">Mod. B — Hostinger BR</th>
+                  <th className="py-4 pr-4 font-medium">Mod. B — Hetzner DE</th>
+                  <th className="py-4 pr-4 font-medium">Mod. C — Cloud BYOK</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#e6e0d2] text-[#3a362e]">
                 <tr>
                   <td className="py-4 pr-4 font-medium text-[#1a1a1a]">
-                    Res. BCB 85/2021 — PSC
+                    Res. BCB 85/2021 — Art. 12 (comunicação prévia)
                   </td>
-                  <td className="py-4 pr-4">Dado nunca sai do prédio</td>
-                  <td className="py-4 pr-4">Dado na VPS do cliente</td>
-                  <td className="py-4 pr-4">DPA + cláusulas com cloud</td>
+                  <td className="py-4 pr-4">Não aplicável</td>
+                  <td className="py-4 pr-4">Não aplicável (nacional)</td>
+                  <td className="py-4 pr-4">Comunicação + DPA exigidos</td>
+                  <td className="py-4 pr-4">Comunicação aplicável</td>
                 </tr>
                 <tr>
                   <td className="py-4 pr-4 font-medium text-[#1a1a1a]">
-                    LGPD Art. 46 (medidas técnicas)
+                    LGPD Art. 33 (transferência internacional)
                   </td>
-                  <td className="py-4 pr-4">Air-gap físico verificável</td>
-                  <td className="py-4 pr-4">Air-gap lógico via VPN</td>
-                  <td className="py-4 pr-4">Trust transfer ao provedor</td>
+                  <td className="py-4 pr-4">Não há transferência</td>
+                  <td className="py-4 pr-4">Não há transferência</td>
+                  <td className="py-4 pr-4">SCC + cláusulas obrigatórias</td>
+                  <td className="py-4 pr-4">SCC + cláusulas obrigatórias</td>
                 </tr>
                 <tr>
                   <td className="py-4 pr-4 font-medium text-[#1a1a1a]">
                     Cadeia probatória citável
                   </td>
-                  <td className="py-4 pr-4">Idêntica nas três</td>
-                  <td className="py-4 pr-4">Idêntica nas três</td>
-                  <td className="py-4 pr-4">Idêntica nas três</td>
-                </tr>
-                <tr>
-                  <td className="py-4 pr-4 font-medium text-[#1a1a1a]">
-                    Resposta a incidente ANPD 24h
-                  </td>
+                  <td className="py-4 pr-4">Idêntica</td>
                   <td className="py-4 pr-4">Idêntica</td>
                   <td className="py-4 pr-4">Idêntica</td>
                   <td className="py-4 pr-4">Idêntica</td>
                 </tr>
                 <tr>
                   <td className="py-4 pr-4 font-medium text-[#1a1a1a]">
-                    Custo total (estimado, primeiros 12 meses)
+                    Tempo médio até relatório ANPD 24h
                   </td>
-                  <td className="py-4 pr-4">~R$ 50–65k setup + sub.</td>
-                  <td className="py-4 pr-4">~R$ 8–15k setup + R$ 320–3.5k/mês + sub.</td>
-                  <td className="py-4 pr-4">Subscription + uso direto</td>
+                  <td className="py-4 pr-4">&lt; 4h</td>
+                  <td className="py-4 pr-4">&lt; 4h</td>
+                  <td className="py-4 pr-4">≈ 6h (latência transferência)</td>
+                  <td className="py-4 pr-4">≈ 6h (SLA do provider)</td>
                 </tr>
               </tbody>
             </table>
           </div>
 
-          <p className="mt-8 max-w-[62ch] text-[13px] italic leading-[1.6] text-[#6b665b]">
-            Esta tabela é referência técnica. O mapeamento jurídico definitivo
-            (com citação de artigo, parágrafo, e laudo de DPO) fica em{' '}
-            <span className="not-italic">
-              <code className="font-mono text-[12px]">docs/pt-br/sovereign-llm/conformidade-bacen.md</code>
-            </span>
-            , publicado conforme cada modalidade for validada em produção.
+          <p className="mt-10 max-w-[68ch] text-[14px] leading-[1.6] text-[#6b665b]">
+            Esta é a versão técnica em cinco linhas. O mapeamento jurídico
+            detalhado — com citação de artigo, parágrafo e laudo de DPO —
+            fica em{' '}
+            <code className="font-mono text-[13px] text-[#1a1a1a]">
+              docs/pt-br/sovereign-llm/conformidade-bacen.md
+            </code>
+            . Validação por advogado especialista em Bacen + LGPD está em
+            agendamento.
           </p>
         </div>
       </section>
 
-      {/* ── 04 — Install path ─────────────────────────────────────── */}
+      {/* ── 06 — Caminho de instalação (narrativa, não 4-step grid) ── */}
       <section
         id="caminho"
-        className="border-b border-[#d8d2c4] px-5 py-20 sm:px-8"
+        className="border-b border-[#d8d2c4] px-5 py-24 sm:px-8"
       >
-        <div className="mx-auto max-w-6xl">
-          <p className="mb-6 text-[11px] uppercase tracking-[0.22em] text-[#6b665b]">
-            04 — caminho de instalação
-          </p>
-          <h2 className="font-serif text-3xl font-medium leading-[1.15] tracking-[-0.015em] text-[#1a1a1a] sm:text-4xl">
-            Modalidade B em uma{' '}
-            <span className="italic text-[#6b3a1a]">tarde de trabalho</span>.
-          </h2>
-          <ol className="mt-10 max-w-[68ch] space-y-6 text-[15px] leading-[1.7] text-[#3a362e]">
-            <li>
-              <span className="block text-[12px] uppercase tracking-[0.18em] text-[#6b665b]">
-                passo 1 — provisão
-              </span>
-              VPS Ubuntu 22.04 ou 24.04 (Hostinger KVM 8 São Paulo ou
-              equivalente, ≥32 GB RAM para tier Standard). Acesso root.
-            </li>
-            <li>
-              <span className="block text-[12px] uppercase tracking-[0.18em] text-[#6b665b]">
-                passo 2 — instalação
-              </span>
-              <code className="font-mono text-[13px] text-[#1a1a1a]">
+        <div className="mx-auto max-w-6xl grid gap-12 lg:grid-cols-12 lg:gap-12">
+          <div className="lg:col-span-4">
+            <p className="text-[11px] uppercase tracking-[0.22em] text-[#6b665b]">
+              05 — caminho de instalação
+            </p>
+            <h2 className="mt-6 font-serif text-3xl font-medium leading-[1.15] tracking-[-0.015em] text-[#1a1a1a] sm:text-[42px] sm:leading-[1.08]">
+              Modalidade B em uma tarde — vale meia hora, no honesto.
+            </h2>
+          </div>
+          <div className="lg:col-span-8 space-y-8 text-[16px] leading-[1.75] text-[#3a362e]">
+            <p>
+              Você provisiona um VPS Ubuntu 22.04 ou 24.04 (Hostinger KVM 8 em
+              São Paulo, ou equivalente com pelo menos 32 GB RAM). Acesso root,
+              hostname à sua escolha. Em geral é o passo mais demorado da
+              instalação, porque depende de aprovação interna do orçamento — o
+              resto é script.
+            </p>
+            <p>
+              Roda{' '}
+              <code className="font-mono text-[14px] text-[#1a1a1a] bg-[#efeae0] px-1.5 py-0.5 rounded">
                 sudo bash install-vps-linux.sh
               </code>
-              . O script detecta o tier, instala Ollama (ou vLLM no tier Pro),
-              puxa o modelo, configura systemd + WireGuard + UFW. ≤ 1 hora.
-            </li>
-            <li>
-              <span className="block text-[12px] uppercase tracking-[0.18em] text-[#6b665b]">
-                passo 3 — pareamento
-              </span>
-              Registre a chave pública WireGuard do Quarry web rodando o helper{' '}
-              <code className="font-mono text-[13px] text-[#1a1a1a]">
+              . O script detecta o tier (Light, Standard, Pro), instala o
+              Ollama ou vLLM correspondente, puxa o modelo, configura systemd
+              hardenizado, sobe o WireGuard com chave pública gerada na hora
+              e fecha o firewall. Em <em className="italic">≈ 35 minutos</em>{' '}
+              numa VPS limpa.
+            </p>
+            <p>
+              No Quarry web, você gera a chave pública WireGuard do peer e
+              executa{' '}
+              <code className="font-mono text-[14px] text-[#1a1a1a] bg-[#efeae0] px-1.5 py-0.5 rounded">
                 add-peer.sh
-              </code>
-              . O resolver LLM do Quarry passa a apontar para{' '}
-              <code className="font-mono text-[13px] text-[#1a1a1a]">
+              </code>{' '}
+              na VPS. A partir desse momento, o resolver LLM do Quarry passa
+              a apontar para{' '}
+              <code className="font-mono text-[14px] text-[#1a1a1a] bg-[#efeae0] px-1.5 py-0.5 rounded">
                 sovereign-vps://
               </code>
-              .
-            </li>
-            <li>
-              <span className="block text-[12px] uppercase tracking-[0.18em] text-[#6b665b]">
-                passo 4 — verificação
-              </span>
-              Painel admin em{' '}
-              <code className="font-mono text-[13px] text-[#1a1a1a]">
+              , e o painel admin em{' '}
+              <code className="font-mono text-[14px] text-[#1a1a1a] bg-[#efeae0] px-1.5 py-0.5 rounded">
                 /settings/sovereign-llm
               </code>{' '}
-              mostra a modalidade ativa, runtime, modelo carregado e latência
-              live. A partir desse momento, nenhum byte de PII sai do seu
-              perímetro.
-            </li>
-          </ol>
+              passa a mostrar a modalidade ativa, runtime, modelo carregado e
+              latência live.
+            </p>
+            <p className="text-[#6b665b] italic">
+              É comum o cliente perguntar se precisa de DBA / sysadmin
+              dedicado pra manter. Provavelmente não. O monitoramento básico
+              vem com o script (fail2ban, unattended-upgrades, healthcheck
+              JSON); manutenção em geral é trocar modelo a cada 4–6 meses
+              quando sair uma versão melhor de Qwen ou Llama.
+            </p>
+          </div>
         </div>
       </section>
 
-      {/* ── 05 — CTA ──────────────────────────────────────────────── */}
-      <section id="cta" className="bg-[#1a1a1a] px-5 py-24 sm:px-8">
-        <div className="mx-auto max-w-3xl text-center">
-          <p className="mb-6 text-[11px] uppercase tracking-[0.22em] text-[#a8a8a3]">
-            05 — próximo passo
+      {/* ── 07 — Para quem NÃO é (disqualifier) ──────────────────── */}
+      <section className="border-b border-[#d8d2c4] bg-[#efeae0] px-5 py-24 sm:px-8">
+        <div className="mx-auto max-w-6xl grid gap-12 lg:grid-cols-12 lg:gap-12">
+          <div className="lg:col-span-4">
+            <p className="text-[11px] uppercase tracking-[0.22em] text-[#6b665b]">
+              06 — para quem não é
+            </p>
+            <h2 className="mt-6 font-serif text-3xl font-medium leading-[1.15] tracking-[-0.015em] text-[#1a1a1a] sm:text-[42px] sm:leading-[1.08]">
+              Vamos ser honestos sobre os casos em que não somos a melhor
+              escolha.
+            </h2>
+          </div>
+          <div className="lg:col-span-8 space-y-6 text-[15px] leading-[1.75] text-[#3a362e]">
+            <p>
+              <span className="font-medium text-[#1a1a1a]">
+                Banco grande, conglomerado, IF S1 / S2.
+              </span>{' '}
+              Você provavelmente já tem MSSP enterprise, SOC interno com
+              dezenas de analistas e um relacionamento de anos com a
+              Mandiant. Não fazemos sentido — vamos te dar mais trabalho do
+              que te aliviar.
+            </p>
+            <p>
+              <span className="font-medium text-[#1a1a1a]">
+                Fintech grande já operando — Nubank, Inter, PicPay, Mercado
+                Pago.
+              </span>{' '}
+              Vocês têm equipes que constroem o próprio Quarry internamente
+              em 18 meses, e a estratégia de vocês não é comprar nosso
+              produto — é nos contratar como engenheiros. Conversa diferente.
+            </p>
+            <p>
+              <span className="font-medium text-[#1a1a1a]">
+                Fintech que precisa de antifraude tempo real.
+              </span>{' '}
+              Bloquear o Pix antes do envio é outro produto — Quarry detecta
+              padrão depois que aconteceu. Pra prevenção sub-segundo, vai em
+              Sift, Unico, Idwall.
+            </p>
+            <p>
+              <span className="font-medium text-[#1a1a1a]">
+                Empresa que quer “AI-powered cyber” como argumento de captação.
+              </span>{' '}
+              Usamos modelo, sim, mas o relógio do produto é o do regulador,
+              não o do pitch deck. Se o objetivo é colocar IA no slide pra
+              fundo, esta provavelmente não é a ferramenta.
+            </p>
+            <p>
+              <span className="font-medium text-[#1a1a1a]">
+                Empresa não-financeira procurando SIEM.
+              </span>{' '}
+              Não somos um SIEM. Quarry é específico pra fintech BR sob
+              Bacen. Se você é e-commerce, healthtech ou SaaS, a recomendação
+              honesta é Wazuh open-source + um pouco de Datadog.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 08 — CTA (suave) ──────────────────────────────────────── */}
+      <section id="contato" className="px-5 py-28 sm:px-8 sm:py-36">
+        <div className="mx-auto max-w-3xl">
+          <p className="text-[11px] uppercase tracking-[0.22em] text-[#6b665b]">
+            07 — próximo passo
           </p>
-          <h2 className="font-serif text-3xl font-medium leading-[1.15] tracking-[-0.015em] text-[#f5f0e6] sm:text-4xl">
-            Quer ver a Modalidade B rodando antes de comprar?
+          <h2 className="mt-6 max-w-[24ch] font-serif text-3xl font-medium leading-[1.12] tracking-[-0.015em] text-[#1a1a1a] sm:text-[44px] sm:leading-[1.06]">
+            Vale meia hora pra ver a Modalidade B rodando.
           </h2>
-          <p className="mx-auto mt-6 max-w-[58ch] text-[15px] leading-[1.7] text-[#cfc8b9]">
-            Agendamos uma sessão de 45 minutos com um engenheiro da Quarry. A
-            gente provisiona a VPS na sua conta, instala o stack juntos, e
-            você fica com o ambiente. Sem custo de avaliação para fintechs
-            Bacen-licenciadas.
+          <p className="mt-8 max-w-[62ch] text-[16px] leading-[1.7] text-[#3a362e]">
+            Agendamos uma sessão técnica com um engenheiro da Quarry.
+            Provisionamos a VPS na sua conta, instalamos o stack juntos
+            (script bash, sem caixa-preta), e você fica com o ambiente — esteja
+            ou não interessada em seguir. Sem custo de avaliação para fintechs
+            Bacen-licenciadas. Maio 2026, piloto interno.
           </p>
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+          <div className="mt-12 flex flex-wrap items-center gap-x-8 gap-y-4">
             <Link
               href="/br#contato"
-              className="rounded-full border border-[#f5f0e6] px-6 py-3 text-sm tracking-wide text-[#f5f0e6] transition hover:bg-[#f5f0e6] hover:text-[#1a1a1a]"
+              className="text-[15px] font-medium tracking-[-0.005em] text-[#1a1a1a] underline decoration-[#6b3a1a] decoration-2 underline-offset-[6px] transition-colors hover:text-[#6b3a1a]"
             >
-              falar com engenharia
+              falar com engenharia →
             </Link>
             <Link
               href="/br"
-              className="text-sm tracking-wide text-[#a8a8a3] underline-offset-4 hover:text-[#f5f0e6] hover:underline"
+              className="text-[14px] text-[#6b665b] underline-offset-4 transition-colors hover:text-[#1a1a1a] hover:underline"
             >
               voltar para a visão geral
             </Link>

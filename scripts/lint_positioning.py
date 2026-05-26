@@ -76,6 +76,9 @@ ALLOWLIST: list[tuple[str, str]] = [
     ("apps/web/src/components/landing/br/DisqualifierBR.tsx", r"\bAI[- ]powered\b"),
     # pitch-deck.md disqualifier section uses "AI-powered cyber" ironically.
     ("docs/pt-br/pitch-deck.md", r"\bAI[- ]powered\b"),
+    # SovereignLlmBR.tsx disqualifier (§06 "para quem não é") uses the phrase
+    # as an explicit anti-pattern label, mirroring POSITIONING §6.
+    ("apps/web/src/components/landing/br/SovereignLlmBR.tsx", r"\bAI[- ]powered\b"),
 ]
 
 
