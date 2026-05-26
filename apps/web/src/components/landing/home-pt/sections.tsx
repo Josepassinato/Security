@@ -27,6 +27,7 @@ const NAV = [
   { label: 'ISO 27001', href: '/trust/iso27001' },
   { label: 'Open-source', href: '/opensource' },
   { label: 'Demo', href: '/demo-cinematografica' },
+  { label: 'Demo financeira', href: '/demo-financeira' },
 ];
 
 export function HomeNav() {
@@ -449,8 +450,12 @@ export function DemoBanner() {
             </div>
             <div className="flex flex-wrap items-center gap-3 lg:justify-end">
               <Link href="/demo-cinematografica" className="group inline-flex items-center gap-2 rounded-md bg-gradient-to-br from-brand-500 to-brand-700 px-6 py-3 text-sm font-semibold text-white shadow-[0_1px_0_rgba(255,255,255,0.18)_inset] transition-shadow hover:shadow-[0_8px_24px_-8px_rgba(59,130,246,0.55)]">
-                Abrir demo →
+                Abrir demo Pix →
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+              </Link>
+              <Link href="/demo-financeira" className="inline-flex items-center gap-2 rounded-md border border-surface-border bg-surface-base/60 px-6 py-3 text-sm font-semibold text-fg-primary hover:border-brand-500/40">
+                Simular financeira
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
             </div>
           </div>
