@@ -58,7 +58,8 @@ const orgJsonLd = {
     '12Brain Solutions é a empresa por trás do Quarry, um SOC agêntico MIT-licensed focado em fintechs brasileiras em estágio Seed e Série A.',
   address: {
     '@type': 'PostalAddress',
-    addressLocality: 'Coconut Creek',
+    streetAddress: '428 Plaza Real',
+    addressLocality: 'Boca Raton',
     addressRegion: 'FL',
     addressCountry: 'US',
   },

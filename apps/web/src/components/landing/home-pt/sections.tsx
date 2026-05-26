@@ -121,7 +121,7 @@ export function HeroEmpresa() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-surface-border bg-surface-raised/40 px-3 py-1 text-xs font-medium uppercase tracking-[0.18em] text-fg-secondary">
           <Building2 className="h-3 w-3" aria-hidden="true" />
-          12Brain Solutions LLC · Coconut Creek, FL
+          Controladora · 428 Plaza Real · Boca Raton, FL
         </p>
         <h1 className="max-w-4xl text-4xl font-semibold leading-[1.05] tracking-tight text-fg-primary sm:text-5xl lg:text-6xl">
           Infraestrutura de segurança econômica para{' '}
@@ -154,7 +154,7 @@ export function HeroEmpresa() {
 export function QuemSomos() {
   const stats = [
     { num: '13', label: 'produtos no portfólio 12Brain', sub: 'todos em produção' },
-    { num: '2021', label: 'fundada em Coconut Creek, FL', sub: 'pelo José E. C. Passinato' },
+    { num: '2021', label: 'controladora em Boca Raton, FL', sub: '428 Plaza Real' },
     { num: 'MIT', label: 'licença do produto principal', sub: 'sem fork privado' },
   ];
 
@@ -169,7 +169,7 @@ export function QuemSomos() {
             </h2>
             <div className="mt-6 space-y-5 text-base leading-relaxed text-fg-secondary sm:text-lg">
               <p>
-                A 12Brain Solutions é uma operação enxuta sediada em Coconut Creek, Flórida, focada em produtos onde regulação encontra IA. Não somos consultoria. Não somos integradora. Construímos software próprio, lançamos em produção, e cobramos por valor entregue — não por hora.
+                A 12Brain Solutions é uma operação enxuta com controladora em 428 Plaza Real, Boca Raton, Flórida, focada em produtos onde regulação encontra IA. Não somos consultoria. Não somos integradora. Construímos software próprio, lançamos em produção, e cobramos por valor entregue — não por hora.
               </p>
               <p>
                 O Quarry é o produto principal do portfólio: um Security Operations Center agêntico, MIT-licensed, que substitui MSSPs caros para fintechs brasileiras em estágio Seed e Série A. Nasceu de um fork técnico do AiSOC, foi rebrandado, traduzido pro contexto BACEN, e endurecido para passar IN BCB 314 e Resolução BCB 85/2021 sem time de 12 pessoas.
@@ -522,7 +522,7 @@ export function FooterHome() {
               <p className="text-base font-semibold tracking-tight text-fg-primary">12Brain Solutions LLC</p>
             </div>
             <p className="mt-4 max-w-md text-sm leading-relaxed text-fg-secondary">
-              Coconut Creek, Flórida — EUA. Operação enxuta, produto na frente, regulação no centro. O Quarry é o produto principal; o resto do portfólio compartilha a mesma tese.
+              Controladora: 428 Plaza Real, Boca Raton, Flórida — EUA. Operação enxuta, produto na frente, regulação no centro. O Quarry é o produto principal; o resto do portfólio compartilha a mesma tese.
             </p>
             <a href="mailto:contato@12brain.org" className="mt-6 inline-flex items-center gap-2 rounded-md border border-surface-border bg-surface-base/60 px-4 py-2.5 text-sm font-medium text-fg-primary hover:border-brand-500/40">
               <Mail className="h-3.5 w-3.5" aria-hidden="true" />
