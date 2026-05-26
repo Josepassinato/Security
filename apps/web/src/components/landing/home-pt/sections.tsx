@@ -24,6 +24,7 @@ const NAV = [
   { label: 'Blindagem', href: '#blindagem' },
   { label: 'Para quem é', href: '#para-quem' },
   { label: 'Fintechs BR', href: '/br' },
+  { label: 'ISO 27001', href: '/trust/iso27001' },
   { label: 'Open-source', href: '/opensource' },
   { label: 'Demo', href: '/demo-cinematografica' },
 ];
@@ -480,6 +481,10 @@ const FAQ_ITEMS = [
     q: 'Como entro em contato comercial?',
     a: 'Resposta abaixo, no formulário. Não temos call centre. Toda conversa comercial começa por e-mail ou GitHub Discussion — escala melhor pra time enxuto e pra você.',
   },
+  {
+    q: 'O Quarry já tem ISO 27001?',
+    a: 'Ainda não. O programa de prontidão ISO/IEC 27001 foi estruturado para certificar primeiro o desenvolvimento, operação e suporte do Quarry. Enquanto a auditoria externa não for concluída, a comunicação correta é "ISO 27001 readiness" ou "controles alinhados à ISO 27001".',
+  },
 ];
 
 export function FaqHome() {
@@ -536,6 +541,7 @@ export function FooterHome() {
               <ul className="mt-4 space-y-2 text-sm text-fg-secondary">
                 <li><Link href="#produto" className="hover:text-fg-primary">O produto</Link></li>
                 <li><Link href="/br" className="hover:text-fg-primary">Fintechs BR</Link></li>
+                <li><Link href="/trust/iso27001" className="hover:text-fg-primary">ISO 27001 readiness</Link></li>
                 <li><Link href="/opensource" className="hover:text-fg-primary">Open-source</Link></li>
                 <li><Link href="/demo-cinematografica" className="hover:text-fg-primary">Demo Pix</Link></li>
               </ul>
