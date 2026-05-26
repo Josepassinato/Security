@@ -1,0 +1,16 @@
+{
+  "timestamp": "2026-05-24T01:36:36.315280",
+  "summaries": [
+    {
+      "strategy": "baseline_static",
+      "n_alerts": 100,
+      "auto_close_rate": 0.07,
+      "false_close_rate": 0.0,
+      "precision_close": 1.0,
+      "recall_tp_escalation": 1.0,
+      "latency_p50_ms": 0.0,
+      "latency_p95_ms": 0.0,
+      "cost_usd_total": 0.0
+    }
+  ]
+}

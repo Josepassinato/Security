@@ -36,7 +36,7 @@ export function FaqBR() {
         <div className="grid gap-12 lg:grid-cols-12">
           <div className="lg:col-span-4">
             <p className="text-[11px] uppercase tracking-[0.22em] text-[#6b665b]">
-              06 — o que perguntam
+              07 — o que perguntam
             </p>
             <h2 className="mt-6 font-serif text-3xl font-medium leading-[1.15] tracking-[-0.01em] text-[#1a1a1a] sm:text-4xl">
               Perguntas que apareceram nas primeiras conversas com fintechs.

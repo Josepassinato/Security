@@ -8,7 +8,7 @@ export function RegulatoryDeliverablesBR() {
     >
       <div className="mx-auto max-w-6xl">
         <p className="text-[11px] uppercase tracking-[0.22em] text-[#a09a8e]">
-          04 — o que sai do produto
+          05 — o que sai do produto
         </p>
         <h2 className="mt-6 max-w-[20ch] font-serif text-3xl font-medium leading-[1.12] tracking-[-0.01em] text-[#f4efe5] sm:text-4xl lg:text-5xl">
           Cada investigação termina em três artefatos auditáveis.

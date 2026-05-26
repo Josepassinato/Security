@@ -56,6 +56,14 @@ export function NavBR() {
           </li>
           <li>
             <a
+              href="#benchmark"
+              className="text-sm text-[#3a362e] no-underline hover:text-[#1a1a1a]"
+            >
+              benchmark
+            </a>
+          </li>
+          <li>
+            <a
               href="#custo"
               className="text-sm text-[#3a362e] no-underline hover:text-[#1a1a1a]"
             >

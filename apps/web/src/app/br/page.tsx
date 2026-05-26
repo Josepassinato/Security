@@ -3,6 +3,7 @@ import { Fraunces } from 'next/font/google';
 import { NavBR } from '@/components/landing/br/NavBR';
 import { HeroBR } from '@/components/landing/br/HeroBR';
 import { BacenChecklistBR } from '@/components/landing/br/BacenChecklistBR';
+import { BenchmarkBR } from '@/components/landing/br/BenchmarkBR';
 import { CostComparisonBR } from '@/components/landing/br/CostComparisonBR';
 import { RegulatoryDeliverablesBR } from '@/components/landing/br/RegulatoryDeliverablesBR';
 import { DisqualifierBR } from '@/components/landing/br/DisqualifierBR';
@@ -43,6 +44,7 @@ export default function BrLandingPage() {
       <NavBR />
       <HeroBR />
       <BacenChecklistBR />
+      <BenchmarkBR />
       <CostComparisonBR />
       <RegulatoryDeliverablesBR />
       <DisqualifierBR />

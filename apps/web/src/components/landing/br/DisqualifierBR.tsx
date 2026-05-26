@@ -8,7 +8,7 @@ export function DisqualifierBR() {
         <div className="grid gap-12 lg:grid-cols-12">
           <div className="lg:col-span-4">
             <p className="text-[11px] uppercase tracking-[0.22em] text-[#6b665b]">
-              05 — para quem isso não é
+              06 — para quem isso não é
             </p>
             <h2 className="mt-6 font-serif text-3xl font-medium leading-[1.15] tracking-[-0.01em] text-[#1a1a1a] sm:text-4xl">
               Vale a meia hora de leitura, mas só se você se reconhece aqui.

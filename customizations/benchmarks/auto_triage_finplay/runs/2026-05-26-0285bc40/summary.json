@@ -1,0 +1,16 @@
+{
+  "timestamp": "2026-05-26T00:25:18.391550",
+  "summaries": [
+    {
+      "strategy": "llm_auto_triage:openai/gpt-4o-mini",
+      "n_alerts": 10,
+      "auto_close_rate": 0.0,
+      "false_close_rate": 0.0,
+      "precision_close": 1.0,
+      "recall_tp_escalation": 1.0,
+      "latency_p50_ms": 10.92,
+      "latency_p95_ms": 48.07,
+      "cost_usd_total": 0.0
+    }
+  ]
+}

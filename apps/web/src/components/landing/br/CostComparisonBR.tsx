@@ -8,7 +8,7 @@ export function CostComparisonBR() {
         <div className="grid gap-16 lg:grid-cols-12">
           <div className="lg:col-span-5">
             <p className="text-[11px] uppercase tracking-[0.22em] text-[#6b665b]">
-              03 — o número que pesa
+              04 — o número que pesa
             </p>
             <p className="mt-8 font-serif text-[120px] font-medium leading-[0.92] tracking-[-0.035em] text-[#1a1a1a] sm:text-[160px]">
               R$&nbsp;27<span className="text-[#6b3a1a]">,40</span>

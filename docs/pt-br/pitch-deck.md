@@ -68,7 +68,10 @@ Tempo total: **4 min 30 s.**
 Custo médio de uma investigação completa pela IA: **R$ 27,40.**
 Comparável a um analista sênior: ~18 horas · R$ ~2.250.
 
+**Auto-triage medido em benchmark interno** (run `bb5f7ccc`, 100 alertas FinPlay BR): o agente fecha **36% dos alertas sem humano**, contra 7% de uma baseline de regras estáticas — 5,1× mais. **Zero falso-fechamento** nas duas estratégias. Custo: US$ 0,094 por mil alertas processados. Reproduzível por commit: `customizations/benchmarks/auto_triage_finplay/`.
+
 → `quarry.12brain.org/demo-cinematografica` (acesso por convite)
+→ Benchmark publicado: `quarry.12brain.org/br#benchmark`
 
 ---
 
@@ -155,6 +158,7 @@ Disqualifier é parte da estratégia. Vender pra cliente errado é prejuízo com
 - Landing `/br` com posicionamento + checklist BACEN + comparativo.
 - 5 datasets sintéticos BR (FinPlay, BOTS v3 BR, scraping Open Finance).
 - Cadeia probatória + ledger imutável + replayable runs.
+- Benchmark interno de auto-triage publicado (36% auto-close, 0% falso-fech.).
 
 **Falta:**
 - Primeiro cliente pagante.
@@ -195,6 +199,7 @@ contato: **contato@quarry.dev**
 - Site fintech BR: `https://quarry.12brain.org/br`
 - Demo cinematográfica: `https://quarry.12brain.org/demo-cinematografica`
 - Comparativo de custo: `/br#custo`
+- Benchmark auto-triage: `/br#benchmark` · metodologia em `docs/pt-br/benchmark-auto-triage.md`
 - Disqualifier explícito: `/br#para-quem-nao-e`
 - Owner legal: Increase Trainer Inc. (Coconut Creek, FL)
 - Regimes citados: Res. BCB 85/2021, IN BCB 314, LGPD Art. 48 e 50
