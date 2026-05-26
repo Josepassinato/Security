@@ -26,6 +26,8 @@
 -- ============================================================
 
 -- 1. Seed the two new permissions into the global permissions catalog.
+ALTER TABLE permissions ALTER COLUMN id SET DEFAULT gen_random_uuid();
+
 INSERT INTO permissions (name, description, category) VALUES
     ('lake:query',       'Execute SELECT queries against the tenant warm-tier lake', 'lake'),
     ('lake:read_schema', 'Read table and column metadata from the tenant lake',      'lake')

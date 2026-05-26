@@ -136,9 +136,10 @@ async def start_run(
                 """
                 INSERT INTO investigation_runs
                   (id, tenant_id, case_id, alert_summary, raw_alert,
-                   model_used, status, started_at, created_at)
+                   model_used, status, total_tokens, total_cost_usd,
+                   iterations, started_at, created_at)
                 VALUES
-                  ($1, $2, $3, $4, $5::jsonb, $6, 'running', now(), now())
+                  ($1, $2, $3, $4, $5::jsonb, $6, 'running', 0, 0, 0, now(), now())
                 """,
                 run_id,
                 tenant_id,

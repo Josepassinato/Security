@@ -1116,7 +1116,17 @@ async def case_investigate(
     resp = await _agents_proxy(
         "POST",
         f"/api/v1/cases/{cid}/investigate",
-        json={"alert_summary": body.alert_summary or ""},
+        json={
+            "alert_summary": body.alert_summary or "",
+            # The agents service persists its decision ledger directly to
+            # Postgres and must resolve the tenant before inserting
+            # investigation_runs/events. Its request model defaults to the
+            # string "default", which is fine for local smoke tests but does
+            # not match this seeded public demo tenant. Always forward the
+            # authenticated tenant UUID so the agent run, report artifacts,
+            # and replayable ledger are durable instead of in-memory only.
+            "tenant_id": str(user.tenant_id),
+        },
     )
     if resp.status_code >= 400:
         raise HTTPException(status_code=resp.status_code, detail=resp.text)

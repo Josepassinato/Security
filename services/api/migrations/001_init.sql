@@ -112,6 +112,7 @@ CREATE TABLE IF NOT EXISTS alerts (
     created_at          TIMESTAMPTZ  DEFAULT NOW(),
     updated_at          TIMESTAMPTZ  DEFAULT NOW()
 );
+ALTER TABLE alerts ADD COLUMN IF NOT EXISTS dedup_hash VARCHAR(64);
 CREATE INDEX IF NOT EXISTS idx_alerts_tenant   ON alerts(tenant_id);
 CREATE INDEX IF NOT EXISTS idx_alerts_severity ON alerts(severity);
 CREATE INDEX IF NOT EXISTS idx_alerts_status   ON alerts(status);
@@ -192,6 +193,8 @@ CREATE TABLE IF NOT EXISTS detection_rules (
     created_at      TIMESTAMPTZ  DEFAULT NOW(),
     updated_at      TIMESTAMPTZ  DEFAULT NOW()
 );
+ALTER TABLE detection_rules ADD COLUMN IF NOT EXISTS enabled BOOLEAN DEFAULT TRUE;
+ALTER TABLE detection_rules ADD COLUMN IF NOT EXISTS rule_type VARCHAR(20) DEFAULT 'sigma';
 CREATE INDEX IF NOT EXISTS idx_rules_tenant  ON detection_rules(tenant_id);
 CREATE INDEX IF NOT EXISTS idx_rules_enabled ON detection_rules(enabled);
 CREATE INDEX IF NOT EXISTS idx_rules_type    ON detection_rules(rule_type);
@@ -200,12 +203,25 @@ CREATE INDEX IF NOT EXISTS idx_rules_type    ON detection_rules(rule_type);
 -- Seed: default tenant & admin user
 -- ──────────────────────────────────────────────────────────────────────────────
 
-INSERT INTO tenants (id, name, slug, plan)
-VALUES ('00000000-0000-0000-0000-000000000001', 'Default', 'default', 'enterprise')
-ON CONFLICT (slug) DO NOTHING;
+INSERT INTO tenants (id, name, slug, plan, is_active, settings, limits, created_at, updated_at)
+VALUES (
+    '00000000-0000-0000-0000-000000000001',
+    'Default',
+    'default',
+    'enterprise',
+    TRUE,
+    '{}'::jsonb,
+    '{}'::jsonb,
+    NOW(),
+    NOW()
+)
+ON CONFLICT DO NOTHING;
 
 -- password = "admin" (bcrypt)
-INSERT INTO users (id, tenant_id, email, username, hashed_password, role, is_active, is_verified)
+INSERT INTO users (
+    id, tenant_id, email, username, hashed_password, role,
+    is_active, is_verified, preferences, created_at, updated_at
+)
 VALUES (
     '00000000-0000-0000-0000-000000000002',
     '00000000-0000-0000-0000-000000000001',
@@ -214,5 +230,8 @@ VALUES (
     '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj3EEbF7FtRS',
     'admin',
     TRUE,
-    TRUE
-) ON CONFLICT (email) DO NOTHING;
+    TRUE,
+    '{}'::jsonb,
+    NOW(),
+    NOW()
+) ON CONFLICT DO NOTHING;

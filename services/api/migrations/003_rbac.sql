@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS roles (
     updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     UNIQUE (tenant_id, name)
 );
+ALTER TABLE roles ALTER COLUMN id SET DEFAULT gen_random_uuid();
 
 CREATE INDEX IF NOT EXISTS idx_roles_tenant ON roles(tenant_id);
 
@@ -26,6 +27,7 @@ CREATE TABLE IF NOT EXISTS permissions (
     description TEXT,
     category    VARCHAR(100)                   -- e.g. "cases", "alerts", "admin"
 );
+ALTER TABLE permissions ALTER COLUMN id SET DEFAULT gen_random_uuid();
 
 -- Seed built-in permissions
 INSERT INTO permissions (name, description, category) VALUES

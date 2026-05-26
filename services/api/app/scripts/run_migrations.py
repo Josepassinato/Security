@@ -54,6 +54,11 @@ CREATE TABLE IF NOT EXISTS aisoc_schema_migrations (
 );
 """
 
+CREATE_REQUIRED_EXTENSIONS = """
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+"""
+
 
 def _asyncpg_dsn(url: str) -> tuple[str, dict]:
     """Strip SQLAlchemy/libpq adornments and return (DSN, asyncpg connect kwargs).
@@ -131,6 +136,7 @@ async def main() -> None:
 
     conn = await _connect()
     try:
+        await conn.execute(CREATE_REQUIRED_EXTENSIONS)
         await conn.execute(CREATE_MIGRATIONS_TABLE)
         already = await _applied(conn)
         pending = [p for p in files if p.name not in already]

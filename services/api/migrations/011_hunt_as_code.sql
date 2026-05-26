@@ -12,6 +12,8 @@
 -- All three tables enforce tenant isolation via Row-Level Security so
 -- hunts that fire are scoped to a tenant the same way alerts and cases are.
 
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
 -- ============================================================
 -- 1. hunt_hypotheses (catalog)
 -- ============================================================

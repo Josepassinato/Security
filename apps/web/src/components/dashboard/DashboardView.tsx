@@ -184,6 +184,20 @@ const COLOR_MAP = {
   gray: 'text-gray-400',
 };
 
+function SyntheticDataNotice({ source }: { source: string }) {
+  return (
+    <div
+      role="status"
+      className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-100"
+    >
+      <span className="font-semibold">Dados sintéticos no dashboard.</span>{' '}
+      {source} não retornou dados reais válidos agora; esta seção está usando
+      fixtures de demonstração para manter a tela navegável. Em produção, este
+      aviso deve desaparecer e os cartões devem vir dos eventos reais ingeridos.
+    </div>
+  );
+}
+
 function MetricCard({ label, value, sub, color = 'blue', trend }: MetricCardProps) {
   return (
     <div className="bg-gray-900/60 border border-gray-800/60 rounded-xl p-5">
@@ -387,6 +401,7 @@ export function DashboardView() {
 
   const isValidMetrics = rawMetrics && typeof rawMetrics.alerts?.total === "number" && Array.isArray(rawMetrics.alertsTrend);
   const metrics = isValidMetrics ? rawMetrics : MOCK_METRICS;
+  const usingSyntheticMetrics = !isValidMetrics;
 
   const trendData = metrics.alertsTrend.map((d) => ({
     time: format(new Date(d.timestamp), 'HH:mm'),
@@ -551,6 +566,9 @@ export function DashboardView() {
   return (
     <DashboardErrorBoundary>
       <div className="space-y-5">
+        {usingSyntheticMetrics ? (
+          <SyntheticDataNotice source="/api/v1/metrics/dashboard" />
+        ) : null}
         {order.map((id) => (
           <DraggableWidget
             key={id}

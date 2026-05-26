@@ -230,6 +230,11 @@ export function SOCMetricsDashboard() {
 
   return (
     <div className="space-y-6">
+      {!isValidSOC ? (
+        <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-xs text-amber-100">
+          Dados sintéticos: /api/v1/metrics/soc não retornou métricas reais válidas.
+        </div>
+      ) : null}
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold text-white">SOC Performance Metrics</h2>
@@ -374,6 +379,11 @@ function CostTelemetryPanel() {
 
   return (
     <div className="bg-gray-900 border border-gray-700 rounded-lg p-4">
+      {!isValidCost && !isLoading ? (
+        <div className="mb-3 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-100">
+          Dados sintéticos: custos de investigação ainda não vieram do ledger real.
+        </div>
+      ) : null}
       <div className="flex items-center justify-between mb-1">
         <h3 className="text-sm font-semibold text-gray-300">
           Investigation Cost Telemetry (30d)

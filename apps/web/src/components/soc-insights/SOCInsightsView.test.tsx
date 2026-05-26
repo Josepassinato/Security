@@ -12,6 +12,7 @@
 
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
+import { SWRConfig } from 'swr';
 
 vi.mock('@/lib/api', () => ({
   insightsApi: {
@@ -105,6 +106,14 @@ const sampleResponse: SOCInsightsResponse = {
   ],
 };
 
+function renderView() {
+  return render(
+    <SWRConfig value={{ provider: () => new Map(), dedupingInterval: 0 }}>
+      <SOCInsightsView />
+    </SWRConfig>,
+  );
+}
+
 describe('SOCInsightsView', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -116,7 +125,7 @@ describe('SOCInsightsView', () => {
       new Promise(() => {}),
     );
 
-    render(<SOCInsightsView />);
+    renderView();
 
     expect(screen.getByLabelText(/loading soc insights/i)).toBeInTheDocument();
   });
@@ -126,7 +135,7 @@ describe('SOCInsightsView', () => {
       sampleResponse,
     );
 
-    render(<SOCInsightsView />);
+    renderView();
 
     // Wait for at least one tile to land — proves the SWR cycle
     // completed without re-rendering into the error/loading branch.
@@ -150,7 +159,7 @@ describe('SOCInsightsView', () => {
       new Error('500 boom'),
     );
 
-    render(<SOCInsightsView />);
+    renderView();
 
     await waitFor(() =>
       expect(screen.getByRole('alert')).toBeInTheDocument(),
