@@ -12,41 +12,10 @@ the canonicalisation or the digest algorithm, you MUST update both
 sides in lockstep — the agents service writes, the API service
 verifies, and they have to agree on what "this row's hash" means.
 
-Stay-in-sync helper (planned, mirror of
-``scripts/sync_vendored_narrative.py``):
+Stay-in-sync helper (THIS FILE):
     scripts/sync_vendored_merkle.py — diff the two files and fail
-    CI on drift. Not yet implemented; for the MVP, change both
-    files in the same PR.
-
-────────────────────────────────────────────────────────────────────
-
-The current ledger is append-only Postgres. Item 1 of CARD-016 raises
-it to *evidence-grade*: every row gets a ``prev_hash`` and an
-``entry_hash`` so a fiscalização can prove the chain has not been
-tampered with after the fact.
-
-This module is **pure**: it does not touch Postgres. The caller passes
-in the previous-row hash and the current row's stable serialisation;
-we compute the next ``entry_hash`` and return it. The migration that
-adds the columns and the trigger that calls these helpers live with
-the ledger module (services/agents/app/investigator/ledger.py), not
-here — keeping the math testable in isolation.
-
-Algorithm
----------
-
-* Serialise the row to a **canonical JSON** form (sorted keys, no
-  whitespace, ``ensure_ascii=False``). This is what gets hashed; not
-  Python ``str()`` (which is unstable across versions) and not Postgres
-  ``ROW()`` (which depends on column order at write time).
-* ``entry_hash = SHA-256(prev_hash || canonical_row_bytes)``.
-* The genesis row uses ``prev_hash = b"\\x00" * 32``.
-* All hashes are 32-byte hex strings (64 chars) in storage; we use the
-  raw bytes form internally for the concatenation.
-
-Why SHA-256 (and not SHA-3 or BLAKE3): SHA-256 is what RFC 3161
-(ICP-Brasil TSA) signs, what Bacen's own published verification tools
-expect, and what every Big-4 audit team knows how to verify.
+    CI on drift. Run with ``--write`` to overwrite the vendored
+    copy from the canonical source.
 """
 from __future__ import annotations
 

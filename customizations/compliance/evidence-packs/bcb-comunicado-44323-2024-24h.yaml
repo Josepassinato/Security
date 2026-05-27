@@ -1,0 +1,114 @@
+# Evidence Pack — Comunicado Bacen 44.323/2024, incidente cibernético em 24h
+#
+# Real, verifiable Bacen communication (44.323/2024) published in
+# 2024 anchoring the 24-hour cyber-incident notification obligation
+# that Res. BCB 85/2021 establishes at a high level (Art. 6, V). The
+# Comunicado pinned the timing and standardised the form fields the
+# regulated entity must populate when notifying.
+#
+# This pack produces the evidence dossier the security operations
+# team submits with the 24h notification: timeline of detection,
+# containment status at submission time, technical scope (assets,
+# data classes), and the agent-decision trail.
+#
+# Status: NOT counsel-validated. The CISO/DPO + a Bacen-specialist
+# lawyer must review before submission to BCB.
+
+schema_version: v1
+
+meta:
+  pack_id: bcb-comunicado-44323-2024-24h
+  regulation_code: BCB-COMUNICADO-44323-2024
+  article: Comunicado
+  title: Notificação de incidente cibernético em 24 horas
+  requirement: |
+    Comunicado 44.323/2024 do Banco Central fixa as diretrizes para
+    notificação de incidente cibernético em até 24 horas após a
+    detecção. A entidade regulada deve informar: natureza e
+    classificação do incidente, ativos afetados, escopo dos dados
+    e sistemas envolvidos, medidas de contenção em curso, status
+    do plano de continuidade, e a estimativa de impacto. A
+    notificação é cumulativa à comunicação à ANPD (LGPD Art. 48)
+    quando há dado pessoal envolvido.
+
+reporting_period: point_in_time
+output_format: BCB_24h_incident
+
+evidence_queries:
+
+  - type: detections_fired
+    label: Detecções que originaram o incidente
+    params:
+      min_severity: high
+
+  - type: investigations
+    label: Investigações abertas no incidente
+    params:
+      severity_in: [high, critical]
+
+  - type: ledger_export
+    label: Trilha forense — primeiras 24 horas
+    params:
+      schema_version: v1
+      # PII redacted by default: the 24h notification reports
+      # *categories* of data affected, not raw records.
+      include_redacted_pii: true
+
+  - type: config_state
+    label: Postura de segurança no momento da detecção
+    params:
+      keys:
+        - incident_response.plan_version
+        - incident_response.last_review_date
+        - business_continuity.plan_version
+        - access_control.mfa_enforced
+        - network.egress_filtering_enabled
+        - backup.last_successful_at
+
+  - type: sigma_rules_active
+    label: Regras de detecção em produção (subset relevante)
+    params:
+      rule_ids:
+        - PIX-mule-burst
+        - ATO-otp-relay
+        - boleto-phishing-email
+        - openfinance-tpp-throttle
+
+  - type: controls_mapping
+    label: Cross-walk com Res. BCB 85 e LGPD
+    params:
+      frameworks:
+        - ISO-27001
+        - NIST-CSF
+
+narrative_template: |
+  Em conformidade com o Comunicado Bacen 44.323/2024 e o Art. 6º,
+  V da Res. BCB 85/2021, comunicamos ao Banco Central a ocorrência
+  do incidente cibernético detectado no período coberto.
+
+  Foram acionadas {{ detections_fired.total }} detecções de
+  severidade alta ou crítica nas primeiras 24 horas. A
+  investigação envolve {{ investigations | length }} caso(s)
+  ativo(s); todos foram tratados sob o plano de resposta vigente
+  ({{ config_state.incident_response.plan_version }}, revisado em
+  {{ config_state.incident_response.last_review_date }}).
+
+  Os controles operacionais no momento da detecção:
+
+    - MFA aplicado: {{ config_state.access_control.mfa_enforced }}
+    - Filtragem de egress: {{ config_state.network.egress_filtering_enabled }}
+    - Último backup íntegro: {{ config_state.backup.last_successful_at }}
+
+  Plano de continuidade negocial em vigor:
+  {{ config_state.business_continuity.plan_version }}.
+
+  A trilha forense detalhada, com PII redacionada e cadeia probatória
+  citável, acompanha esta notificação.
+
+cross_references:
+  - Res. BCB 85/2021 Art. 6 V — comunicação de incidente
+  - Res. CMN 4.893/2021 — Política de Segurança Cibernética
+  - LGPD Art. 48 — notificação ANPD (quando há dado pessoal)
+  - ISO 27001 A.5.25 — Assessment of information security events
+  - ISO 27001 A.5.27 — Learning from information security incidents
+  - NIST CSF RS.AN-1 — Notifications from detection systems
