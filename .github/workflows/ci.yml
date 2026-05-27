@@ -28,6 +28,25 @@ jobs:
         run: python3 scripts/lint_positioning.py
 
   # ──────────────────────────────────────────────
+  # Vendored merkle drift check — CARD-016. The agents service writes
+  # the Investigation Ledger Merkle chain; the API service verifies it.
+  # If the vendored services/agents/app/security/merkle.py drifts from
+  # the canonical services/api/app/evidence_pack/merkle.py the verifier
+  # will report every chain as broken. This step fails the PR if the
+  # two have diverged.
+  # ──────────────────────────────────────────────
+  vendored-merkle-drift:
+    name: Vendored merkle drift check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run vendored merkle drift check
+        run: python3 scripts/sync_vendored_merkle.py
+
+  # ──────────────────────────────────────────────
   # Lint & type-check the Next.js web app
   # ──────────────────────────────────────────────
   web-lint:
