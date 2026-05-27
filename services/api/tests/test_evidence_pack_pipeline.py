@@ -279,9 +279,13 @@ def test_end_to_end_bcb_85_art_6_pack_compiles_into_sealed_bundle():
     # Pack identity
     assert bundle.pack_id == "bcb-85-2021-art-6"
 
-    # All 5 query steps produced output
+    # All 7 query steps produced output (P2.7+P2.8 added the
+    # "Governança" and "Treinamento" governance/execution config sections
+    # the Bacen fiscal expects per Art. 7º Res. BCB 85/2021).
     assert set(bundle.data.keys()) == {
         "Plano de resposta a incidentes vigente",
+        "Governança e responsabilidades (Art. 7º)",
+        "Treinamento e execução do plano",
         "Detecções relevantes acionadas no período",
         "Investigações abertas e fechadas no período",
         "Trilha de auditoria — decisões dos agentes",

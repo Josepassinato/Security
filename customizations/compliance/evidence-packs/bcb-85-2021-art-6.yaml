@@ -40,7 +40,31 @@ evidence_queries:
         - incident_response.plan_version
         - incident_response.last_review_date
         - incident_response.approved_by
+
+  - type: config_state
+    label: Governança e responsabilidades (Art. 7º)
+    params:
+      keys:
+        # Art. 7º Res. BCB 85/2021 — diretor responsável designado
+        # pela conformidade com a política de segurança cibernética.
+        # Fiscalização verifica esse mapeamento explicitamente.
+        - compliance.designated_director_name
+        - compliance.designated_director_cpf
+        - compliance.designated_director_role
+        - compliance.board_approval_date
+        - compliance.board_approval_minutes_ref
+
+  - type: config_state
+    label: Treinamento e execução do plano
+    params:
+      keys:
+        # Fiscalização Bacen verifica "o plano existe" + "o plano é
+        # executado" — não basta documentar, precisa demonstrar prática.
         - incident_response.training_completion_rate
+        - incident_response.last_training_date
+        - incident_response.last_tabletop_exercise_date
+        - incident_response.last_tabletop_exercise_outcome
+        - incident_response.policy_revision_history_ref
 
   - type: detections_fired
     label: Detecções relevantes acionadas no período
@@ -67,22 +91,39 @@ evidence_queries:
 
 narrative_template: |
   Este pacote de evidências demonstra, perante fiscalização Bacen, a
-  aderência ao Art. 6º da Resolução BCB 85/2021 no que toca à
-  manutenção e operacionalização do plano de resposta a incidentes.
+  aderência aos Arts. 6º e 7º da Resolução BCB 85/2021 no que toca à
+  manutenção, governança e operacionalização do plano de resposta
+  a incidentes cibernéticos.
+
+  Governança (Art. 7º) — Diretor responsável designado:
+    Nome: {{ config_state["compliance.designated_director_name"] }}
+    CPF:  {{ config_state["compliance.designated_director_cpf"] }}
+    Cargo: {{ config_state["compliance.designated_director_role"] }}
+    Aprovação do colegiado: {{ config_state["compliance.board_approval_date"] }}
+    Referência da ata: {{ config_state["compliance.board_approval_minutes_ref"] }}
+
+  Política vigente (Art. 6º):
+    Versão: {{ config_state.incident_response.plan_version }}
+    Última revisão: {{ config_state.incident_response.last_review_date }}
+    Aprovado por: {{ config_state.incident_response.approved_by }}
+    Histórico de revisões: {{ config_state["incident_response.policy_revision_history_ref"] }}
+
+  Execução do plano (demonstração de aderência prática):
+    Cobertura de treinamento: {{ config_state.incident_response.training_completion_rate }}
+    Último treinamento: {{ config_state["incident_response.last_training_date"] }}
+    Último teste de mesa (tabletop): {{ config_state["incident_response.last_tabletop_exercise_date"] }}
+    Resultado do tabletop: {{ config_state["incident_response.last_tabletop_exercise_outcome"] }}
 
   No período coberto, {{ ledger_export.entries_count }} entradas no
   ledger forense documentam decisões agentes, e
   {{ detections_fired.total }} detecções de severidade média ou
-  superior foram acionadas. Todas as investigações abertas no período
-  estão refletidas no Investigation Ledger com cadeia probatória
-  citável, conforme exigido pelo Art. 7º da mesma resolução.
-
-  Os procedimentos do plano são revisados ao menos anualmente; a
-  versão vigente é {{ config_state.incident_response.plan_version }},
-  aprovada em {{ config_state.incident_response.last_review_date }}.
+  superior foram acionadas. Todas as investigações abertas estão
+  refletidas no Investigation Ledger com cadeia probatória citável.
 
 cross_references:
+  - Res. BCB 85/2021 Art. 7º — Diretor responsável designado
   - ISO 27001 A.5.24 — Information security incident management planning
   - ISO 27001 A.5.26 — Response to information security incidents
   - NIST CSF RS.RP-1 — Response plan is executed during or after an incident
   - NIST CSF RS.CO-1 — Personnel know their roles
+  - NIST CSF PR.AT-1 — Awareness training

@@ -65,6 +65,56 @@ evidence_queries:
         - network.egress_filtering_enabled
         - backup.last_successful_at
 
+  - type: config_state
+    label: Impacto operacional e continuidade (Comunicado 44.323/2024)
+    params:
+      keys:
+        # Bacen analisa continuidade operacional + criticidade sistêmica
+        # + resposta executiva. Estes campos são o que o supervisor
+        # examina primeiro na notificação 24h.
+        - incident.operational_impact_description
+        - incident.critical_services_affected      # lista: PIX, TED, internet banking, mobile, etc
+        - incident.contingency_status              # ativado / parcial / não acionado
+        - incident.estimated_recovery_time         # RTO restante
+        - incident.estimated_data_loss             # RPO efetivo se aplicável
+
+  - type: config_state
+    label: Impacto em rails de pagamento e Open Finance
+    params:
+      keys:
+        # Bacen tem visão sistêmica de PIX e Open Finance — qualquer
+        # incidente que toque esses rails é avaliado com peso adicional.
+        - pix.affected               # boolean: incidente impactou PIX
+        - pix.degradation_window     # janela de degradação, se houve
+        - pix.transactions_blocked   # número de transações afetadas
+        - open_finance.affected      # boolean: impactou Open Finance
+        - open_finance.tpp_consents_affected  # nº de consentimentos
+        - open_finance.fapi_endpoints_down    # endpoints fora do ar
+
+  - type: config_state
+    label: Timeline objetiva do incidente
+    params:
+      keys:
+        - incident.first_detected_at        # T0 — detecção
+        - incident.first_responder_engaged_at  # T1 — equipe acionada
+        - incident.containment_started_at   # T2 — contenção iniciada
+        - incident.containment_completed_at # T3 — contenção concluída
+        - incident.eradication_completed_at # T4 — erradicação
+        - incident.public_communication_at  # T5 — comunicação externa
+        - incident.full_recovery_at         # T6 — restauração total
+
+  - type: config_state
+    label: Terceiros e cadeia de fornecimento envolvidos
+    params:
+      keys:
+        # Origem do incidente em terceiro (vendor, parceiro, prestador
+        # de TI) muda o tratamento regulatório — Bacen precisa saber.
+        - incident.third_party_involved       # boolean
+        - incident.third_party_name           # vendor / parceiro
+        - incident.third_party_contract_ref   # referência contratual
+        - incident.third_party_notified_at    # quando o terceiro foi avisado
+        - incident.third_party_response       # resposta recebida
+
   - type: sigma_rules_active
     label: Regras de detecção em produção (subset relevante)
     params:
@@ -86,6 +136,44 @@ narrative_template: |
   V da Res. BCB 85/2021, comunicamos ao Banco Central a ocorrência
   do incidente cibernético detectado no período coberto.
 
+  IMPACTO OPERACIONAL
+    Descrição: {{ config_state["incident.operational_impact_description"] }}
+    Serviços críticos afetados: {{ config_state["incident.critical_services_affected"] }}
+    Status de contingência: {{ config_state["incident.contingency_status"] }}
+    Tempo estimado de recuperação: {{ config_state["incident.estimated_recovery_time"] }}
+    Perda de dados estimada (RPO): {{ config_state["incident.estimated_data_loss"] }}
+
+  IMPACTO EM RAILS DE PAGAMENTO
+    PIX afetado: {{ config_state["pix.affected"] }}
+      Janela de degradação: {{ config_state["pix.degradation_window"] }}
+      Transações bloqueadas: {{ config_state["pix.transactions_blocked"] }}
+    Open Finance afetado: {{ config_state["open_finance.affected"] }}
+      Consentimentos TPP afetados: {{ config_state["open_finance.tpp_consents_affected"] }}
+      Endpoints FAPI fora do ar: {{ config_state["open_finance.fapi_endpoints_down"] }}
+
+  TIMELINE OBJETIVA
+    T0 detecção:           {{ config_state["incident.first_detected_at"] }}
+    T1 equipe acionada:    {{ config_state["incident.first_responder_engaged_at"] }}
+    T2 contenção iniciada: {{ config_state["incident.containment_started_at"] }}
+    T3 contenção concluída:{{ config_state["incident.containment_completed_at"] }}
+    T4 erradicação:        {{ config_state["incident.eradication_completed_at"] }}
+    T5 comunicação pública:{{ config_state["incident.public_communication_at"] }}
+    T6 restauração total:  {{ config_state["incident.full_recovery_at"] }}
+
+  TERCEIROS / CADEIA DE FORNECIMENTO
+    Envolvimento de terceiro: {{ config_state["incident.third_party_involved"] }}
+    Nome: {{ config_state["incident.third_party_name"] }}
+    Referência contratual: {{ config_state["incident.third_party_contract_ref"] }}
+    Notificação ao terceiro: {{ config_state["incident.third_party_notified_at"] }}
+    Resposta recebida: {{ config_state["incident.third_party_response"] }}
+
+  POSTURA DE SEGURANÇA NO MOMENTO DA DETECÇÃO
+    MFA aplicado: {{ config_state.access_control.mfa_enforced }}
+    Filtragem de egress: {{ config_state.network.egress_filtering_enabled }}
+    Último backup íntegro: {{ config_state.backup.last_successful_at }}
+    Plano de continuidade: {{ config_state.business_continuity.plan_version }}
+
+  DETECÇÕES E INVESTIGAÇÕES
   Foram acionadas {{ detections_fired.total }} detecções de
   severidade alta ou crítica nas primeiras 24 horas. A
   investigação envolve {{ investigations | length }} caso(s)
@@ -93,17 +181,10 @@ narrative_template: |
   ({{ config_state.incident_response.plan_version }}, revisado em
   {{ config_state.incident_response.last_review_date }}).
 
-  Os controles operacionais no momento da detecção:
-
-    - MFA aplicado: {{ config_state.access_control.mfa_enforced }}
-    - Filtragem de egress: {{ config_state.network.egress_filtering_enabled }}
-    - Último backup íntegro: {{ config_state.backup.last_successful_at }}
-
-  Plano de continuidade negocial em vigor:
-  {{ config_state.business_continuity.plan_version }}.
-
-  A trilha forense detalhada, com PII redacionada e cadeia probatória
-  citável, acompanha esta notificação.
+  A trilha forense detalhada, com PII pseudonimizada (HMAC-SHA256 +
+  salt por tenant — Res. CD/ANPD 15/2024) e cadeia probatória
+  citável (Merkle + TSA ICP-Brasil + e-CNPJ A3), acompanha esta
+  notificação.
 
 cross_references:
   - Res. BCB 85/2021 Art. 6 V — comunicação de incidente
