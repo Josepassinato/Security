@@ -86,6 +86,10 @@ function previewUrl(packId: string): string {
   return `/api/v1/evidence-packs/${encodeURIComponent(packId)}/preview.html`;
 }
 
+function downloadUrl(packId: string): string {
+  return `/api/v1/evidence-packs/${encodeURIComponent(packId)}/download.pdf`;
+}
+
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
 function shortHash(hex: string | null | undefined, head = 10, tail = 6): string {
@@ -208,6 +212,13 @@ export function EvidencePacksView() {
                       >
                         preview ↗
                       </a>
+                      <a
+                        href={downloadUrl(p.pack_id)}
+                        className="rounded border border-border px-3 py-1.5 text-xs hover:bg-accent"
+                        title="download as PDF (requires WeasyPrint on the server)"
+                      >
+                        PDF ↓
+                      </a>
                     </div>
                   </td>
                 </tr>
@@ -289,6 +300,13 @@ export function EvidencePacksView() {
               className="rounded border border-border bg-background px-3 py-1.5 text-xs hover:bg-accent"
             >
               open preview ↗
+            </a>
+            <a
+              href={downloadUrl(bundle.pack_id)}
+              className="rounded border border-border bg-background px-3 py-1.5 text-xs hover:bg-accent"
+              title="download as PDF (requires WeasyPrint on the server)"
+            >
+              download PDF ↓
             </a>
             <button
               type="button"

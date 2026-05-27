@@ -264,3 +264,62 @@ async def preview_pack_html(pack_id: str) -> HTMLResponse:
     bundle = compiler.compile(pack)
     html_doc = render_evidence_html(pack=pack, bundle=bundle)
     return HTMLResponse(content=html_doc)
+
+
+@router.get(
+    "/{pack_id}/download.pdf",
+    summary="Render the compiled pack as a PDF download (auditor artifact)",
+)
+async def download_pack_pdf(pack_id: str):
+    """Compile + render the pack as a PDF byte stream.
+
+    The PDF is the canonical auditor-facing artifact: same content as
+    the HTML preview, paginated through WeasyPrint with A4 page rules.
+    If the deployment lacks the WeasyPrint native stack we surface a
+    503 with an actionable message rather than crashing.
+
+    Production verification: a PDF whose internal mock-seal banner
+    visibly says ``MOCK SEAL`` is NOT admissible. The operator must
+    refuse to send such artifacts to a fiscalização until the real
+    TSA + e-CNPJ are wired.
+    """
+    from fastapi.responses import Response  # noqa: PLC0415
+
+    from app.evidence_pack.renderer import (  # noqa: PLC0415
+        WeasyPrintUnavailableError,
+        render_evidence_pdf,
+    )
+
+    catalog = _load_catalog()
+    pack = catalog.get(pack_id)
+    if pack is None:
+        raise HTTPException(status_code=404, detail=f"unknown pack_id: {pack_id}")
+
+    compiler = _make_compiler()
+    bundle = compiler.compile(pack)
+
+    try:
+        pdf_bytes = render_evidence_pdf(pack=pack, bundle=bundle)
+    except WeasyPrintUnavailableError as exc:
+        raise HTTPException(
+            status_code=503,
+            detail=(
+                "PDF rendering is unavailable on this deployment "
+                "(WeasyPrint native stack missing). Use /preview.html "
+                "instead, or install Cairo/Pango/GLib in the container."
+            ),
+        ) from exc
+
+    # Filename: pack_id + ISO date so an auditor receiving multiple
+    # bundles for the same pack can sort them in their Drive without
+    # opening each one.
+    filename = (
+        f"{pack_id}__{bundle.generated_at.strftime('%Y%m%dT%H%M%SZ')}.pdf"
+    )
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f'attachment; filename="{filename}"',
+        },
+    )

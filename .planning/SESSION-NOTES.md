@@ -4,6 +4,101 @@
 
 ---
 
+## 2026-05-26 (PM) — CARD-016 Item 1 ENCERRADO: Bacen Evidence Engine estruturalmente completo
+
+### Pivôt de posicionamento (esta sessão)
+Categoria mudou de "Sovereign SOC" → **"Bacen Evidence Engine"**. Razão:
+re-análise de durabilidade de moat indica que sovereign deployment +
+citation reasoning viram commodity em 12–24 meses (Llama 4 / GPT-OSS +
+frontier models com grounded output nativo). Único pilar que dura 3–5
+anos é Bacen-native compliance — onde o roadmap concentra agora.
+Detalhes em `.planning/private/POSITIONING.md` (atualizado) +
+`.planning/private/CARD-016-bacen-evidence-engine.md` (novo).
+
+Concorrente real revisado: **NÃO é Splunk/CrowdStrike — é a consultoria
++ planilha + Word que toda fintech Bacen-licenciada usa hoje** (PwC,
+Deloitte, KPMG, boutiques BR cobrando R$ 40–120k/projeto).
+
+### Modelo de licenciamento aprovado (open-core)
+Core MIT em github.com/Josepassinato/Security (já público). Camada
+premium futura (templates curated, hosted SaaS, KMS + e-CNPJ wiring,
+auditor companion) sob BSL → Apache 2.0 em 4 anos. Padrão Sentry /
+Posthog / Cal.com. Sem repo separado: monorepo dual-license em
+`core/` + `enterprise/` (planejado).
+
+### CARD-016 Item 1 — ENTREGUE (10 commits, ~4750 linhas, 123+ tests)
+
+| Camada | Componentes | Arquivos |
+|---|---|---|
+| DSL | strict Pydantic + parser + regulation allowlist | `services/api/app/evidence_pack/{schema,parser}.py` |
+| Sealing | Merkle chain + RFC 3161 TSA (mock+stub) + PKCS#7 e-CNPJ (mock+stub) | `merkle.py` `tsa.py` `signer.py` |
+| Compiler | choreographer + 6 query types + MockRuntime | `compiler.py` |
+| Renderer | HTML self-contained + WeasyPrint PDF | `renderer.py` |
+| API endpoints | list, get, compile, preview.html, download.pdf, verify-chain | `endpoints/evidence_packs.py` + `endpoints/investigations.py` |
+| DB | migration 046 + ORM (prev_hash + entry_hash) | `migrations/046_*.sql` + `models/investigation.py` |
+| Ledger writer | vendored merkle + chain on every INSERT | `services/agents/app/investigator/ledger.py` |
+| Content | 3 evidence packs reais (BCB 85 Art. 6, LGPD Art. 48, Bacen 24h) | `customizations/compliance/evidence-packs/*.yaml` |
+| Operator UI | `/settings/evidence-packs` (list + compile + preview + PDF) | `apps/web/src/components/settings/EvidencePacksView.tsx` |
+| CI guards | positioning anti-tagline lint + vendored merkle drift check | `.github/workflows/ci.yml` |
+
+### Bloqueios não-engineering (acionáveis pelo José)
+
+| Item | Custo | Destrava |
+|---|---|---|
+| Aplicar migration 046 em prod | $0 | Chain writer ativa |
+| Renovar token Hostinger API (`/root/.secrets/hostinger.env`) | $0 | Provisionar VPS via MCP |
+| Conta SafeWeb TSA (ICP-Brasil) | R$ 60–150/mês | TSA real → seal admissível em juízo |
+| e-CNPJ A3 cert Increase Trainer (Serasa/Certisign) | R$ 250 + ~1h | Assinatura digital real |
+| Advisor jurídico revisar 3 packs | R$ 5–10k | Packs go-to-market reais |
+| Autorizar Hostinger KVM 8 BR (~R$ 240/mês) | R$ 240/mês | Benchmark Sovereign LLM real |
+
+### Surfaces públicas atualizadas (esta sessão)
+- README.md → "Open-source Bacen Evidence Engine for Brazilian fintechs"
+- GitHub repo description → mesma narrativa
+- `/br/sovereign-llm` landing → reframado como deployment option (não wedge)
+- 5 good-first-issue tickets seedados (#24-#28)
+- GitHub Discussions habilitadas + 15 topics + 6 labels custom
+- `.github/FUNDING.yml` scaffold (José precisa enrolar em GitHub Sponsors)
+- `launch-announcement-drafts.md` (Twitter, LinkedIn, HN) — privado em `.planning/private/`
+
+### Próxima sessão — opções
+
+A — **CARD-016 Item 2** (real SafeWeb TSA wiring) — desbloqueado quando José
+    obtiver credencial ICP-Brasil. Implementação ASN.1 da `TimeStampReq` +
+    parsing do `TimeStampToken`. ~1.5 dia.
+
+B — **CARD-016 Item 3** (real e-CNPJ PKCS#7 signing) — desbloqueado quando
+    José tiver cert A3 + senha. Implementação PKCS#12 → PKCS#7 detached. ~1 dia.
+
+C — **CARD-019** (Compliance Officer Copilot) — chat com retrieval grounded
+    no Regulatory Knowledge Graph. Pré-requisito: Bacen RKG MVP (~4 sem) —
+    Fase 1 do CARD-016 estendido. Conta como onboard do 1º cliente piloto.
+
+D — **Frontend integration tests** — React Testing Library + MSW para o
+    `EvidencePacksView` + `SovereignLlmView`. ~1 dia. Higiênico.
+
+E — **Integration tests com Postgres real** — `services/api/tests/integration/`
+    pro verify-chain endpoint + compile end-to-end com migration aplicada.
+    ~1 dia. Necessário antes de qualquer piloto produção.
+
+F — **Parar e levar pra revisão jurídica + comercial** — backlog técnico já
+    grande pro estágio. Validação externa antes de mais engineering.
+
+**Recomendação:** F (pausar engineering, rodar item-a-item de bloqueio
+não-engenharia). Pipeline técnico está estrutural completo; o próximo
+risco é dependência interna (jurídica + credenciais), não código.
+
+### Arquivos críticos pra ler em sessão futura
+- Esta nota
+- `.planning/private/POSITIONING.md` — categoria + pilares + ICP
+- `.planning/private/CARD-016-bacen-evidence-engine.md` — roadmap CARD-016
+- `.planning/private/FUTURE-MOATS.md` — Items #3 e #4 com gatilhos
+- `services/api/app/evidence_pack/` — toda a stack do Engine
+- `customizations/compliance/evidence-packs/` — 3 packs
+- `services/api/migrations/046_investigation_events_hash_chain.sql`
+
+---
+
 ## 2026-05-26 — CARD-013 entregue em produção + CARD-014 backend foundation pronto (não-deployed)
 
 ### Objetivo
