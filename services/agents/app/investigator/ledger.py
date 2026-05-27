@@ -33,7 +33,7 @@ from typing import Any
 import asyncpg
 import structlog
 
-from app.security.merkle import hash_entry
+from app.security.merkle import build_investigation_event_chain_payload, hash_entry
 
 logger = structlog.get_logger()
 
@@ -191,36 +191,13 @@ async def _lookup_chain_tail(
     return row["entry_hash"] if row else None
 
 
-def _build_chain_payload(
-    *,
-    seq: int,
-    ts: datetime,
-    kind: str,
-    agent: str,
-    summary: str,
-    payload: dict[str, Any] | None,
-    input_hash: str | None,
-    output_hash: str | None,
-    duration_ms: int,
-) -> dict[str, Any]:
-    """Return the canonical fields that go into the row's entry_hash.
-
-    KEEP THIS STABLE across versions. Anything that changes here
-    invalidates every historical hash; auditors verifying a chain
-    written before the change will see an immediate diff and the
-    artifact's defensibility evaporates.
-    """
-    return {
-        "seq": seq,
-        "ts": ts.isoformat(),
-        "kind": kind,
-        "agent": agent,
-        "summary": summary[:8000],
-        "payload": payload or {},
-        "input_hash": input_hash,
-        "output_hash": output_hash,
-        "duration_ms": duration_ms,
-    }
+# Legacy alias preserved for tests that still import the underscore-
+# prefixed name. The canonical implementation lives in
+# ``app.security.merkle.build_investigation_event_chain_payload`` —
+# moved there so the API-side verifier can build the same payload when
+# walking the chain. Keeping a thin alias here avoids breaking older
+# callers + the unit-test pinning the field set.
+_build_chain_payload = build_investigation_event_chain_payload
 
 
 async def record_event(

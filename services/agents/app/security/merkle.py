@@ -58,6 +58,46 @@ from typing import Any
 GENESIS_PREV_HASH = b"\x00" * 32
 
 
+def build_investigation_event_chain_payload(
+    *,
+    seq: int,
+    ts,  # datetime
+    kind: str,
+    agent: str,
+    summary: str,
+    payload: dict | None,
+    input_hash: str | None,
+    output_hash: str | None,
+    duration_ms: int,
+) -> dict:
+    """Canonical field set hashed for ``investigation_events`` rows.
+
+    Used by BOTH the writer (services/agents/app/investigator/ledger.py)
+    and the verifier (services/api/app/api/v1/endpoints/investigations.py
+    /verify-chain). The two must agree byte-for-byte on what goes into
+    each row's hash, otherwise the verifier will see a "broken" chain
+    where the writer recorded a valid one.
+
+    KEEP THIS STABLE across versions. Adding/removing/reordering keys
+    here invalidates every historic hash; an auditor verifying a chain
+    written before the change sees an immediate diff and the artifact
+    loses its defensibility. If you must evolve this, version the
+    schema (``schema_version`` field) so the verifier can dispatch on
+    the row's stored version.
+    """
+    return {
+        "seq": seq,
+        "ts": ts.isoformat(),
+        "kind": kind,
+        "agent": agent,
+        "summary": summary[:8000],
+        "payload": payload or {},
+        "input_hash": input_hash,
+        "output_hash": output_hash,
+        "duration_ms": duration_ms,
+    }
+
+
 @dataclass(frozen=True)
 class HashChainEntry:
     """Result of hashing one ledger row into the chain."""

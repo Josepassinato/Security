@@ -1030,3 +1030,115 @@ def _render_pdf(markdown_text: str, run_id: str) -> bytes:
         header = b"%PDF-1.4\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n"
         body = markdown_text.encode("utf-8", errors="replace")
         return header + body
+
+
+# ───────────────────────────────────────────────────────────────────────────
+# Chain verifier — CARD-016 Item 1
+# ───────────────────────────────────────────────────────────────────────────
+
+
+class ChainVerifyResponse(BaseModel):
+    """Outcome of walking the Merkle chain for one run.
+
+    On success: ``valid=True`` and ``broken_at`` is null.
+    On failure: ``valid=False`` and ``broken_at`` is the ``seq`` of the
+    first row whose stored ``entry_hash`` does not match the recomputed
+    one (or whose ``prev_hash`` does not link to the previous row).
+    """
+
+    run_id: uuid.UUID
+    total_events: int
+    hashed_events: int
+    valid: bool
+    broken_at_seq: int | None = None
+    broken_reason: str | None = None
+    walked_at: datetime
+
+
+@router.get("/{run_id}/verify-chain", response_model=ChainVerifyResponse)
+async def verify_chain_endpoint(
+    run_id: uuid.UUID,
+    current_user: Annotated[AuthUser, Depends(require_permission("cases:read"))],
+    db: TenantDBSession,
+) -> ChainVerifyResponse:
+    """Walk the Merkle chain for this run and report integrity.
+
+    Reads every event with ``entry_hash IS NOT NULL`` in ``seq`` order
+    and recomputes the chain against the canonical payload helper
+    shared with the writer (``app.evidence_pack.merkle.
+    build_investigation_event_chain_payload``). The two MUST agree
+    byte-for-byte; if they diverge the verifier reports the first
+    offending row.
+
+    This is the read-side companion to the writer in
+    ``services/agents/app/investigator/ledger.py``. Together they
+    close the loop: writer hashes on INSERT, verifier walks on demand.
+
+    Read-only. No side effects. RBAC: ``cases:read``.
+    """
+    from app.evidence_pack.merkle import (
+        build_investigation_event_chain_payload,
+        verify_chain,
+    )
+
+    # 404 if the run does not exist for this tenant.
+    await _fetch_run(db, run_id, current_user.tenant_id)
+
+    # Total events vs hashed events — useful diagnostic for partially-
+    # chained runs (e.g. migrated from before the writer landed).
+    total_q = select(func.count()).select_from(
+        select(InvestigationEvent).where(InvestigationEvent.run_id == run_id).subquery()
+    )
+    total_events: int = (await db.execute(total_q)).scalar_one()
+
+    q = (
+        select(InvestigationEvent)
+        .where(InvestigationEvent.run_id == run_id)
+        .where(InvestigationEvent.entry_hash.isnot(None))
+        .order_by(InvestigationEvent.seq.asc())
+    )
+    rows = (await db.execute(q)).scalars().all()
+
+    # Build the verify_chain input from each row using the same payload
+    # shape the writer used. If the shape ever drifts, this is where
+    # the verifier finds out.
+    entries: list[dict] = []
+    for ev in rows:
+        payload = build_investigation_event_chain_payload(
+            seq=ev.seq,
+            ts=ev.ts,
+            kind=ev.kind,
+            agent=ev.agent,
+            summary=ev.summary,
+            payload=ev.payload,
+            input_hash=ev.input_hash,
+            output_hash=ev.output_hash,
+            duration_ms=ev.duration_ms,
+        )
+        entries.append(
+            {
+                "prev_hash": ev.prev_hash,
+                "entry_hash": ev.entry_hash,
+                "payload": payload,
+            }
+        )
+
+    ok, bad_idx = verify_chain(entries)
+    broken_at: int | None = None
+    broken_reason: str | None = None
+    if not ok and bad_idx is not None:
+        broken_at = rows[bad_idx].seq
+        broken_reason = (
+            "stored entry_hash does not match recomputed hash OR "
+            "stored prev_hash does not link to the previous row"
+        )
+
+    return ChainVerifyResponse(
+        run_id=run_id,
+        total_events=total_events,
+        hashed_events=len(entries),
+        valid=ok,
+        broken_at_seq=broken_at,
+        broken_reason=broken_reason,
+        walked_at=datetime.now(UTC),
+    )
