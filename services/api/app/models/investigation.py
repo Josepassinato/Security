@@ -104,6 +104,13 @@ class InvestigationEvent(Base):
     payload: Mapped[dict | None] = mapped_column(JSONB)
     input_hash: Mapped[str | None] = mapped_column(String(64))
     output_hash: Mapped[str | None] = mapped_column(String(64))
+    # Tamper-evident hash chain — CARD-016 Item 1.
+    # Populated by services/agents/app/investigator/ledger.py via
+    # app.evidence_pack.merkle.hash_entry. Schema migration 046 added
+    # both columns as NULLABLE so existing rows survive untouched;
+    # every NEW row carries the chain link going forward.
+    prev_hash: Mapped[str | None] = mapped_column(String(64))
+    entry_hash: Mapped[str | None] = mapped_column(String(64))
     duration_ms: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
