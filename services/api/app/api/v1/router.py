@@ -43,6 +43,7 @@ from app.api.v1.endpoints import (
     investigations,
     knowledge_base,
     lake,
+    evidence_packs,
     llm_credentials,
     llm_status,
     sovereign_llm,
@@ -227,6 +228,9 @@ api_router.include_router(llm_credentials.router)
 
 # Sovereign LLM deployment status — CARD-015 (Modalidade A Mac Mini / B VPS).
 api_router.include_router(sovereign_llm.router)
+
+# Bacen Evidence Pack Engine — CARD-016 (framework + content layer).
+api_router.include_router(evidence_packs.router)
 
 # STIX/TAXII threat intelligence publishing (Tier 4)
 api_router.include_router(stix_taxii.router)
