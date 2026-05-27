@@ -33,6 +33,8 @@ from typing import Any
 import asyncpg
 import structlog
 
+from app.security.merkle import hash_entry
+
 logger = structlog.get_logger()
 
 
@@ -160,6 +162,67 @@ async def start_run(
         return None
 
 
+async def _lookup_chain_tail(
+    conn: asyncpg.Connection,
+    *,
+    tenant_id: uuid.UUID,
+    run_id: uuid.UUID,
+) -> str | None:
+    """Return the ``entry_hash`` of the latest hashed event in this run.
+
+    Returns ``None`` when this is the first hashed event (genesis) for
+    the (tenant_id, run_id) pair. Uses the partial index
+    ``idx_inv_events_chain_tail`` added by migration 046 so the lookup
+    is O(log n) even when the run has thousands of events.
+    """
+    row = await conn.fetchrow(
+        """
+        SELECT entry_hash
+        FROM investigation_events
+        WHERE tenant_id = $1
+          AND run_id    = $2
+          AND entry_hash IS NOT NULL
+        ORDER BY seq DESC
+        LIMIT 1
+        """,
+        tenant_id,
+        run_id,
+    )
+    return row["entry_hash"] if row else None
+
+
+def _build_chain_payload(
+    *,
+    seq: int,
+    ts: datetime,
+    kind: str,
+    agent: str,
+    summary: str,
+    payload: dict[str, Any] | None,
+    input_hash: str | None,
+    output_hash: str | None,
+    duration_ms: int,
+) -> dict[str, Any]:
+    """Return the canonical fields that go into the row's entry_hash.
+
+    KEEP THIS STABLE across versions. Anything that changes here
+    invalidates every historical hash; auditors verifying a chain
+    written before the change will see an immediate diff and the
+    artifact's defensibility evaporates.
+    """
+    return {
+        "seq": seq,
+        "ts": ts.isoformat(),
+        "kind": kind,
+        "agent": agent,
+        "summary": summary[:8000],
+        "payload": payload or {},
+        "input_hash": input_hash,
+        "output_hash": output_hash,
+        "duration_ms": duration_ms,
+    }
+
+
 async def record_event(
     *,
     run_id: uuid.UUID,
@@ -174,7 +237,18 @@ async def record_event(
     duration_ms: int = 0,
     timestamp: datetime | None = None,
 ) -> uuid.UUID | None:
-    """Append an immutable event row. Returns the new event id, or None."""
+    """Append an immutable event row to the chain. Returns the new event id, or None.
+
+    On every successful INSERT the row carries a Merkle chain link
+    (prev_hash + entry_hash) computed against the canonical fields
+    above. Migration 046 added the columns; the partial index
+    ``idx_inv_events_chain_tail`` keeps the tail lookup fast.
+
+    If the chain lookup or hash computation fails for any reason we
+    fall back to a NULL-hash insert and log the failure. Best-effort
+    is the ledger's contract — losing the chain on a single row is
+    better than losing the row.
+    """
     pool = await get_pool()
     if pool is None:
         return None
@@ -185,13 +259,48 @@ async def record_event(
     try:
         async with pool.acquire() as conn:
             await _set_rls_context(conn, tenant_id)
+
+            # Compute chain link in the same transaction the row is
+            # inserted in so a concurrent writer cannot interleave a
+            # row between our lookup and our INSERT.
+            prev_hash: str | None = None
+            entry_hash: str | None = None
+            try:
+                prev_hash = await _lookup_chain_tail(
+                    conn, tenant_id=tenant_id, run_id=run_id
+                )
+                chain_payload = _build_chain_payload(
+                    seq=seq,
+                    ts=ts,
+                    kind=kind,
+                    agent=agent,
+                    summary=summary,
+                    payload=payload,
+                    input_hash=input_hash,
+                    output_hash=output_hash,
+                    duration_ms=duration_ms,
+                )
+                link = hash_entry(prev_entry_hash=prev_hash, row=chain_payload)
+                entry_hash = link.entry_hash_hex
+            except Exception as exc:  # noqa: BLE001
+                logger.warning(
+                    "ledger.chain_compute_failed",
+                    run_id=str(run_id),
+                    seq=seq,
+                    error=str(exc),
+                )
+                prev_hash = None
+                entry_hash = None
+
             await conn.execute(
                 """
                 INSERT INTO investigation_events
                   (id, run_id, tenant_id, seq, ts, kind, agent, summary,
-                   payload, input_hash, output_hash, duration_ms, created_at)
+                   payload, input_hash, output_hash, duration_ms,
+                   prev_hash, entry_hash, created_at)
                 VALUES
-                  ($1, $2, $3, $4, $5, $6, $7, $8, $9::jsonb, $10, $11, $12, now())
+                  ($1, $2, $3, $4, $5, $6, $7, $8, $9::jsonb, $10, $11, $12,
+                   $13, $14, now())
                 ON CONFLICT (run_id, seq) DO NOTHING
                 """,
                 event_id,
@@ -206,6 +315,8 @@ async def record_event(
                 input_hash,
                 output_hash,
                 duration_ms,
+                prev_hash,
+                entry_hash,
             )
             return event_id
     except Exception as exc:  # noqa: BLE001
