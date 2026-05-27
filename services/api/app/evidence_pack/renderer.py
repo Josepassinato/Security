@@ -219,6 +219,40 @@ footer {
   size: A4;
   margin: 16mm 18mm;
 }
+
+/* P1.4 — Persistent watermark for mock seals.
+ *
+ * Per Parecer Jurídico Nº 012/2026, the warning banner reduces
+ * operational risk but does NOT eliminate it. A user who scrolls past
+ * the banner could still mistake a mock-sealed PDF for a real one. A
+ * watermark stamped on every page makes that misclassification
+ * essentially impossible.
+ *
+ * Uses ``position: fixed`` — WeasyPrint repeats fixed-position blocks
+ * on every page (the same trick used for headers/footers).
+ */
+.watermark {
+  position: fixed;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  transform: translateY(-50%) rotate(-30deg);
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: bold;
+  font-size: 36pt;
+  color: rgba(180, 90, 20, 0.18);
+  letter-spacing: 0.04em;
+  pointer-events: none;
+  z-index: 9999;
+  line-height: 1.3;
+}
+.watermark .small {
+  display: block;
+  font-size: 13pt;
+  margin-top: 4pt;
+  letter-spacing: 0.12em;
+}
 """
 
 
@@ -271,6 +305,11 @@ def render_evidence_html(
     ]
 
     if has_mock_seal:
+        parts.append(
+            '  <div class="watermark">DOCUMENTO NÃO ASSINADO'
+            '<span class="small">AMBIENTE DE HOMOLOGAÇÃO</span>'
+            '</div>'
+        )
         parts.append(
             '  <div class="warning">'
             "⚠ Este pacote contém timestamp OU assinatura de mock (dev). "

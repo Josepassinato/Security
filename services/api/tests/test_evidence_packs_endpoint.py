@@ -142,6 +142,51 @@ def test_preview_html_404_for_unknown_pack(client: TestClient):
     assert resp.status_code == 404
 
 
+# ── P1.4 mock-seal hardening ───────────────────────────────────────────────
+
+
+def test_compile_response_carries_seal_status_field(client: TestClient):
+    """BundleResponse must expose seal_status='mock' for mock bundles.
+
+    Per Parecer Jurídico Nº 012/2026 § II.5, contracts will reference
+    `seal_status` directly — the bool `mock_seal` flag is too easy to
+    forget to check. Both must coexist (backwards-compat).
+    """
+    resp = client.post("/api/v1/evidence-packs/bcb-85-2021-art-6/compile")
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["mock_seal"] is True
+    assert body["seal_status"] == "mock"
+
+
+def test_preview_html_carries_persistent_watermark_on_mock(client: TestClient):
+    """Mock-sealed HTML must include the every-page watermark.
+
+    The warning banner alone is not enough — a reader who scrolls past
+    it could mistake the document for real. The watermark element with
+    `position: fixed` repeats on every PDF page.
+    """
+    resp = client.get("/api/v1/evidence-packs/bcb-85-2021-art-6/preview.html")
+    body = resp.text
+    assert 'class="watermark"' in body
+    assert "DOCUMENTO NÃO ASSINADO" in body
+    assert "AMBIENTE DE HOMOLOGAÇÃO" in body
+    # CSS rule that makes it repeat on every page
+    assert "position: fixed" in body
+
+
+def test_download_pdf_refuses_mock_in_production(monkeypatch, client: TestClient):
+    """In production env, download.pdf must 403 if the seal is mock.
+
+    Last-line defense against an operator forwarding a homologation PDF
+    to a regulator. Test, dev, demo envs continue to work.
+    """
+    monkeypatch.setenv("ENV", "production")
+    resp = client.get("/api/v1/evidence-packs/bcb-85-2021-art-6/download.pdf")
+    assert resp.status_code == 403
+    assert "mock" in resp.json()["detail"].lower()
+
+
 # ── auth gate (P0 regression guard) ────────────────────────────────────────
 
 

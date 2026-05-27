@@ -137,6 +137,16 @@ class BundleResponse(BaseModel):
             "MockSigner. Production verification must refuse mock seals."
         )
     )
+    seal_status: str = Field(
+        description=(
+            "Explicit string seal status: 'mock' when MockTsaClient or "
+            "MockSigner is in the chain, 'production' otherwise. "
+            "Derived from `mock_seal` — clients should prefer this field "
+            "since it is unambiguous in logs and contracts. Per Parecer "
+            "Jurídico Nº 012/2026, contracts must forbid regulatory use "
+            "of any bundle with seal_status='mock'."
+        )
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -188,7 +198,37 @@ def _bundle_to_response(bundle: EvidenceBundle) -> BundleResponse:
         hash_chain_entry_hash_hex=bundle.hash_chain_entry_hash_hex,
         prev_chain_entry_hash_hex=bundle.prev_chain_entry_hash_hex,
         mock_seal=mock_seal,
+        seal_status="mock" if mock_seal else "production",
     )
+
+
+def _refuse_mock_in_production(mock_seal: bool) -> None:
+    """Block mock-sealed PDF downloads from leaving a production deployment.
+
+    The watermark + warning banner reduce operational risk but cannot
+    fully prevent a user from forwarding a mock PDF to a regulator. The
+    last-line defense is to refuse the download itself when the deployment
+    declares itself production.
+
+    The env predicate ``is_auth_bypass_env`` returns True for dev/local/
+    demo — its inverse is the "production-ish" set. We use that here so
+    test, demo, and dev envs continue to produce PDFs unimpeded.
+    """
+    if not mock_seal:
+        return
+    from app.core.config import current_env_from_os, is_auth_bypass_env  # noqa: PLC0415
+
+    if not is_auth_bypass_env(current_env_from_os()):
+        raise HTTPException(
+            status_code=403,
+            detail=(
+                "Refusing to render a PDF with mock seal in production. "
+                "Configure SAFEWEB_TSA_API_KEY and ECNPJ_PKCS12_PATH so the "
+                "compiler can seal with real TSA + e-CNPJ A3 credentials. "
+                "(Per Parecer Jurídico Nº 012/2026 § II.5: contracts must "
+                "forbid regulatory use of mock-sealed bundles.)"
+            ),
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -309,6 +349,14 @@ async def download_pack_pdf(pack_id: str, current_user: ReadAuth):
 
     compiler = _make_compiler()
     bundle = compiler.compile(pack)
+
+    from app.evidence_pack.signer import is_mock_signature  # noqa: PLC0415
+    from app.evidence_pack.tsa import is_mock_token  # noqa: PLC0415
+
+    mock_seal = is_mock_token(bundle.timestamp.token_der) or is_mock_signature(
+        bundle.signature.signature_der
+    )
+    _refuse_mock_in_production(mock_seal)
 
     try:
         pdf_bytes = render_evidence_pdf(pack=pack, bundle=bundle)
