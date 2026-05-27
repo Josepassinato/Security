@@ -147,6 +147,23 @@ class BundleResponse(BaseModel):
             "of any bundle with seal_status='mock'."
         )
     )
+    event_id: str = Field(
+        description=(
+            "Deterministic UUID5 of (pack_id, data_digest_hex, "
+            "generated_at). Same bundle compiled twice yields the same "
+            "id; two distinct compiles diverge. Required by Parecer "
+            "Jurídico Nº 012/2026 § III as the 'identificador único "
+            "imutável do evento'."
+        )
+    )
+    cert_serial: str = Field(
+        description=(
+            "Serial number of the signing certificate, extracted from "
+            "the subject DN. Currently '—' for mock signers; populated "
+            "automatically when the e-CNPJ A3 signer surfaces "
+            "serialNumber= in the DN."
+        )
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -168,12 +185,15 @@ def _make_compiler() -> EvidenceCompiler:
 
 
 def _bundle_to_response(bundle: EvidenceBundle) -> BundleResponse:
+    from app.evidence_pack.renderer import _bundle_event_id, _extract_cert_serial
     from app.evidence_pack.signer import is_mock_signature
     from app.evidence_pack.tsa import is_mock_token
 
     mock_seal = is_mock_token(bundle.timestamp.token_der) or is_mock_signature(
         bundle.signature.signature_der
     )
+    event_id = _bundle_event_id(bundle)
+    cert_serial = _extract_cert_serial(bundle.signature.signer_subject)
 
     return BundleResponse(
         pack_id=bundle.pack_id,
@@ -199,6 +219,8 @@ def _bundle_to_response(bundle: EvidenceBundle) -> BundleResponse:
         prev_chain_entry_hash_hex=bundle.prev_chain_entry_hash_hex,
         mock_seal=mock_seal,
         seal_status="mock" if mock_seal else "production",
+        event_id=event_id,
+        cert_serial=cert_serial,
     )
 
 

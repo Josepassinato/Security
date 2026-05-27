@@ -61,6 +61,37 @@ def _fmt_datetime(dt: datetime) -> str:
     return dt.strftime("%Y-%m-%d %H:%M:%S UTC")
 
 
+def _bundle_event_id(bundle: "EvidenceBundle") -> str:
+    """Deterministic UUID for the compiled bundle (P1.3).
+
+    Per Parecer Jurídico Nº 012/2026 § III, every artifact must carry
+    an "identificador único imutável do evento". We derive it from
+    (pack_id, data_digest, generated_at) so the same bundle compiled
+    twice yields the same id, while two distinct compiles diverge.
+
+    Imported here lazily because EvidenceBundle is a forward type
+    reference at module load time.
+    """
+    import uuid  # noqa: PLC0415
+
+    seed = f"{bundle.pack_id}|{bundle.data_digest_hex}|{bundle.generated_at.isoformat()}"
+    return str(uuid.uuid5(uuid.NAMESPACE_URL, seed))
+
+
+def _extract_cert_serial(subject_dn: str) -> str:
+    """Pull serialNumber=... out of an X.509 subject DN, if present.
+
+    Returns ``'—'`` when not exposed (current mock signer doesn't
+    publish a serial). When the real e-CNPJ A3 signer lands, the
+    PKCS#12 cert's serial will appear here automatically because the
+    SafeWebSigner is expected to surface it in the DN.
+    """
+    import re  # noqa: PLC0415
+
+    m = re.search(r"serialNumber=([^,]+)", subject_dn)
+    return m.group(1).strip() if m else "—"
+
+
 def _pretty_json(payload: Any) -> str:
     """Render a structured payload as readable JSON for the auditor pane."""
     return html.escape(json.dumps(payload, indent=2, ensure_ascii=False, sort_keys=True))
@@ -359,15 +390,20 @@ def render_evidence_html(
         "verifique, sem acesso à infraestrutura da Quarry, que o "
         "artefato existia neste instante e não foi alterado depois.</p>"
     )
+    event_id = _bundle_event_id(bundle)
+    cert_serial = _extract_cert_serial(bundle.signature.signer_subject)
+
     parts.append('    <dl class="seal-grid">')
     parts.extend(
         [
-            f"      <dt>SHA-256 do conteúdo</dt><dd>{_esc(bundle.data_digest_hex)}</dd>",
+            f"      <dt>Identificador do evento</dt><dd>{_esc(event_id)}</dd>",
+            f"      <dt>SHA-256 do conteúdo (payload JSON)</dt><dd>{_esc(bundle.data_digest_hex)}</dd>",
             f"      <dt>Timestamp (TSA)</dt><dd>{_esc(bundle.timestamp.tsa_name)}<br>"
             f"{_esc(_fmt_datetime(bundle.timestamp.stamped_at))}</dd>",
             f"      <dt>Token TSA (hex)</dt><dd>{_esc(bundle.timestamp.token_der.hex()[:128])}…</dd>",
             f"      <dt>Assinatura digital</dt><dd>{_esc(bundle.signature.signer_subject)}<br>"
             f"{_esc(_fmt_datetime(bundle.signature.signed_at))}</dd>",
+            f"      <dt>Serial do certificado</dt><dd>{_esc(cert_serial)}</dd>",
             f"      <dt>Algoritmo</dt><dd>{_esc(bundle.signature.digest_algorithm)}</dd>",
             f"      <dt>Cadeia Merkle — entrada anterior</dt>"
             f"<dd>{_esc(bundle.prev_chain_entry_hash_hex)}</dd>",

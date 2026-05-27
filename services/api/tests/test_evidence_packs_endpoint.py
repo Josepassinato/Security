@@ -175,6 +175,23 @@ def test_preview_html_carries_persistent_watermark_on_mock(client: TestClient):
     assert "position: fixed" in body
 
 
+def test_compile_response_carries_event_id_and_cert_serial(client: TestClient):
+    """P1.3 — Bundle must carry deterministic event_id + cert_serial.
+
+    Per Parecer Jurídico Nº 012/2026 § III, every artifact carries an
+    "identificador único imutável do evento" and a serial of the
+    signing certificate.
+    """
+    import uuid
+
+    resp = client.post("/api/v1/evidence-packs/bcb-85-2021-art-6/compile")
+    body = resp.json()
+    # event_id is a valid UUID string
+    uuid.UUID(body["event_id"])
+    # cert_serial is "—" for mock signer (no serial in DN)
+    assert body["cert_serial"] == "—"
+
+
 def test_download_pdf_refuses_mock_in_production(monkeypatch, client: TestClient):
     """In production env, download.pdf must 403 if the seal is mock.
 
