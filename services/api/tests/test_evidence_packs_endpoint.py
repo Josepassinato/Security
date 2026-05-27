@@ -242,19 +242,18 @@ def test_endpoints_require_auth_when_no_override(monkeypatch):
         assert resp.status_code == 401, f"{method} {path} should require auth"
 
 
-# ── PII redaction safety gate (P0 regression guard) ────────────────────────
+# ── PII pseudonimization (P1.5/P1.6) ──────────────────────────────────────
 
 
-def test_compile_refuses_when_pii_redaction_requested():
-    """Packs requesting redacted PII must fail-loud until the redactor lands.
+def test_compile_pseudonimizes_pii_for_regulatory_submission():
+    """Packs requesting redacted PII receive HMAC-pseudonimized rows.
 
-    The MockRuntime cannot honor ``include_redacted_pii: true`` — shipping
-    raw rows under a "redacted" contract would leak CPFs to the ANPD
-    notification. The compiler must refuse with EvidencePackError, surfaced
-    by the endpoint as HTTP 422.
+    The default export level (REGULATORY_SUBMISSION) replaces CPF,
+    email, phone, etc. with deterministic ``{kind}_{hex16}`` tokens.
+    The DPO can de-pseudonimize via the salt held in their vault.
     """
     from app.evidence_pack.compiler import EvidenceCompiler, MockRuntime
-    from app.evidence_pack.parser import EvidencePackError
+    from app.evidence_pack.pii import ExportLevel
     from app.evidence_pack.signer import MockSigner
     from app.evidence_pack.tsa import MockTsaClient
 
@@ -266,8 +265,92 @@ def test_compile_refuses_when_pii_redaction_requested():
     if pack is None:  # pragma: no cover
         pytest.skip("no PII-redacting pack bundled in this build")
 
-    compiler = EvidenceCompiler(
-        runtime=MockRuntime(), tsa=MockTsaClient(), signer=MockSigner()
+    runtime = MockRuntime(
+        ledger_rows=[
+            {"cpf": "12345678900", "email": "alice@example.com", "action": "login"},
+            {"cpf": "98765432100", "email": "bob@example.com", "action": "export"},
+        ]
     )
-    with pytest.raises(EvidencePackError, match="include_redacted_pii"):
-        compiler.compile(pack)
+    compiler = EvidenceCompiler(
+        runtime=runtime,
+        tsa=MockTsaClient(),
+        signer=MockSigner(),
+        export_level=ExportLevel.REGULATORY_SUBMISSION,
+    )
+    bundle = compiler.compile(pack)
+    assert bundle.export_level == ExportLevel.REGULATORY_SUBMISSION
+
+    # Find the ledger_export step's output in bundle.data and verify
+    # PII was pseudonimized (raw CPFs must NOT appear anywhere).
+    flat = repr(bundle.data)
+    assert "12345678900" not in flat
+    assert "alice@example.com" not in flat
+    assert "cpf_" in flat  # pseudonimized prefix appears
+    assert "email_" in flat
+
+
+def test_compile_strips_pii_for_executive_summary():
+    """EXECUTIVE_SUMMARY level removes PII values entirely."""
+    from app.evidence_pack.compiler import EvidenceCompiler, MockRuntime
+    from app.evidence_pack.pii import ExportLevel
+    from app.evidence_pack.signer import MockSigner
+    from app.evidence_pack.tsa import MockTsaClient
+
+    evidence_packs._load_catalog.cache_clear()
+    catalog = evidence_packs._load_catalog()
+    pack = catalog.get("lgpd-art-48-anpd-res-15-2024")
+    if pack is None:  # pragma: no cover
+        pytest.skip("no PII-redacting pack bundled")
+
+    runtime = MockRuntime(
+        ledger_rows=[{"cpf": "12345678900", "email": "x@y.com", "action": "login"}],
+    )
+    compiler = EvidenceCompiler(
+        runtime=runtime,
+        tsa=MockTsaClient(),
+        signer=MockSigner(),
+        export_level=ExportLevel.EXECUTIVE_SUMMARY,
+    )
+    bundle = compiler.compile(pack)
+    flat = repr(bundle.data)
+    assert "12345678900" not in flat
+    assert "x@y.com" not in flat
+    # The summary keeps the field with the redaction marker so callers
+    # can still count rows by category.
+    assert "[redacted]" in flat
+
+
+def test_compile_endpoint_accepts_level_query_param(client: TestClient):
+    """POST /compile?level=... must apply the requested PII tier."""
+    resp = client.post(
+        "/api/v1/evidence-packs/bcb-85-2021-art-6/compile"
+        "?level=executive_summary"
+    )
+    assert resp.status_code == 200
+    assert resp.json()["export_level"] == "executive_summary"
+
+    # Default (no param) → regulatory_submission
+    resp = client.post("/api/v1/evidence-packs/bcb-85-2021-art-6/compile")
+    assert resp.json()["export_level"] == "regulatory_submission"
+
+
+def test_compile_endpoint_rejects_unknown_level(client: TestClient):
+    """Unknown export levels return 400 — fail-loud."""
+    resp = client.post(
+        "/api/v1/evidence-packs/bcb-85-2021-art-6/compile?level=garbage"
+    )
+    assert resp.status_code == 400
+    assert "garbage" in resp.json()["detail"]
+
+
+def test_pseudonimize_is_deterministic():
+    """Same value + same salt = same pseudonym across calls."""
+    from app.evidence_pack.pii import pseudonimize
+
+    salt = b"0123456789abcdef" * 2
+    a = pseudonimize("12345678900", salt=salt, kind="cpf")
+    b = pseudonimize("12345678900", salt=salt, kind="cpf")
+    c = pseudonimize("00000000000", salt=salt, kind="cpf")
+    assert a == b
+    assert a != c
+    assert a.startswith("cpf_") and len(a) == len("cpf_") + 16

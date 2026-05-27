@@ -164,6 +164,14 @@ class BundleResponse(BaseModel):
             "serialNumber= in the DN."
         )
     )
+    export_level: str = Field(
+        description=(
+            "PII handling tier applied to ledger_export rows. One of "
+            "'internal_forensics' (raw PII), 'regulatory_submission' "
+            "(HMAC-pseudonimized — default for ANPD/BACEN), or "
+            "'executive_summary' (PII fully stripped)."
+        )
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -221,6 +229,7 @@ def _bundle_to_response(bundle: EvidenceBundle) -> BundleResponse:
         seal_status="mock" if mock_seal else "production",
         event_id=event_id,
         cert_serial=cert_serial,
+        export_level=bundle.export_level.value,
     )
 
 
@@ -308,15 +317,38 @@ async def get_pack(pack_id: str, current_user: ReadAuth) -> PackSummary:
     response_model=BundleResponse,
     summary="Compile a pack against the runtime and return a sealed bundle",
 )
-async def compile_pack(pack_id: str, current_user: WriteAuth) -> BundleResponse:
+async def compile_pack(
+    pack_id: str,
+    current_user: WriteAuth,
+    level: str = "regulatory_submission",
+) -> BundleResponse:
+    """Compile + seal a pack. ``level`` controls PII handling:
+
+      - ``internal_forensics``    — raw PII (controller's eyes only)
+      - ``regulatory_submission`` — HMAC-pseudonimized PII (default)
+      - ``executive_summary``     — PII stripped entirely
+    """
     del current_user
+    from app.evidence_pack.pii import ExportLevel  # noqa: PLC0415
+
+    try:
+        export_level = ExportLevel(level)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                f"unknown export level '{level}' — must be one of "
+                f"{[e.value for e in ExportLevel]}"
+            ),
+        ) from exc
+
     catalog = _load_catalog()
     pack = catalog.get(pack_id)
     if pack is None:
         raise HTTPException(status_code=404, detail=f"unknown pack_id: {pack_id}")
     try:
         compiler = _make_compiler()
-        bundle = compiler.compile(pack)
+        bundle = compiler.compile(pack, export_level=export_level)
     except EvidencePackError as exc:  # pragma: no cover
         raise HTTPException(status_code=422, detail=str(exc)) from exc
     return _bundle_to_response(bundle)

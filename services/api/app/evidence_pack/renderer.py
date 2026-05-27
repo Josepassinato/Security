@@ -392,11 +392,17 @@ def render_evidence_html(
     )
     event_id = _bundle_event_id(bundle)
     cert_serial = _extract_cert_serial(bundle.signature.signer_subject)
+    level_label = {
+        "internal_forensics": "Forense interno (PII integral)",
+        "regulatory_submission": "Submissão regulatória (PII pseudonimizada)",
+        "executive_summary": "Sumário executivo (PII removida)",
+    }.get(bundle.export_level.value, bundle.export_level.value)
 
     parts.append('    <dl class="seal-grid">')
     parts.extend(
         [
             f"      <dt>Identificador do evento</dt><dd>{_esc(event_id)}</dd>",
+            f"      <dt>Nível de exportação</dt><dd>{_esc(level_label)}</dd>",
             f"      <dt>SHA-256 do conteúdo (payload JSON)</dt><dd>{_esc(bundle.data_digest_hex)}</dd>",
             f"      <dt>Timestamp (TSA)</dt><dd>{_esc(bundle.timestamp.tsa_name)}<br>"
             f"{_esc(_fmt_datetime(bundle.timestamp.stamped_at))}</dd>",

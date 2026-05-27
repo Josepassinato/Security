@@ -25,6 +25,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from app.evidence_pack.merkle import canonical_json, hash_entry
+from app.evidence_pack.pii import ExportLevel, redact_rows
 from app.evidence_pack.schema import (
     EvidencePack,
     EvidenceQueryStep,
@@ -41,6 +42,11 @@ from app.evidence_pack.tsa import (
     TimestampResponse,
     TsaClient,
 )
+
+# Per-deployment default salt for mock pseudonimization. Production
+# deployments override this per-tenant via the runtime's own config —
+# the per-tenant salt lives in a vault accessible only to the DPO.
+_MOCK_PII_SALT = b"quarry-mock-pii-salt-not-secret-replace-in-prod"
 
 
 # ---------------------------------------------------------------------------
@@ -78,6 +84,8 @@ class EvidenceRuntime(ABC):
         window_end: datetime,
         schema_version: str,
         include_redacted_pii: bool,
+        export_level: ExportLevel = ExportLevel.REGULATORY_SUBMISSION,
+        pii_salt: bytes | None = None,
     ) -> dict[str, Any]: ...
 
     @abstractmethod
@@ -152,29 +160,32 @@ class MockRuntime(EvidenceRuntime):
         window_end: datetime,
         schema_version: str,
         include_redacted_pii: bool,
+        export_level: ExportLevel = ExportLevel.REGULATORY_SUBMISSION,
+        pii_salt: bytes = _MOCK_PII_SALT,
     ) -> dict[str, Any]:
-        # SECURITY GATE: a pack that requests redacted PII (e.g. LGPD
-        # Art. 48, Bacen 24h) MUST get redaction, not raw rows. Until the
-        # PII redactor lands (next card alongside PostgresRuntime), refuse
-        # the compile so an operator never ships a "redacted" bundle that
-        # is in fact raw. The endpoint catches this and returns 422.
+        # P1.5/P1.6 — Pseudonimização determinística por nível de export.
+        # When include_redacted_pii is True the rows are passed through
+        # the HMAC-based pseudonimizer (REGULATORY_SUBMISSION) or fully
+        # stripped (EXECUTIVE_SUMMARY); raw rows are returned only for
+        # INTERNAL_FORENSICS, which the API endpoint refuses to render
+        # without explicit operator opt-in.
         if include_redacted_pii:
-            from app.evidence_pack.parser import EvidencePackError  # noqa: PLC0415
-
-            raise EvidencePackError(
-                "ledger_export(include_redacted_pii=True) is not yet "
-                "implemented in this runtime. Refusing to return raw "
-                "rows under the redacted contract. Either wait for the "
-                "PII redactor card, or set include_redacted_pii: false "
-                "in the pack and accept that the bundle is internal-only."
+            redacted = redact_rows(
+                self.ledger_rows, level=export_level, salt=pii_salt
             )
+        else:
+            # Pack explicitly opted out of PII handling — return rows as-is.
+            # This branch is for internal-only packs (e.g. forensic exports
+            # that stay inside the controller's perimeter).
+            redacted = self.ledger_rows
         return {
             "schema_version": schema_version,
             "window_start": window_start.isoformat(),
             "window_end": window_end.isoformat(),
             "include_redacted_pii": include_redacted_pii,
-            "entries_count": len(self.ledger_rows),
-            "entries": self.ledger_rows,
+            "export_level": export_level.value,
+            "entries_count": len(redacted),
+            "entries": redacted,
         }
 
     def config_state(self, keys: list[str]) -> dict[str, Any]:
@@ -234,6 +245,11 @@ class EvidenceBundle:
     hash_chain_entry_hash_hex: str | None
     prev_chain_entry_hash_hex: str | None
 
+    export_level: ExportLevel = ExportLevel.REGULATORY_SUBMISSION
+    """Which PII-handling tier was applied to ledger exports inside
+    ``data``. Surfaced in the API response + PDF seal grid so the
+    reader knows what they are looking at without guessing."""
+
 
 # ---------------------------------------------------------------------------
 # Compiler
@@ -250,6 +266,12 @@ class EvidenceCompiler:
     now_provider: Any = field(default=None)
     """Optional ``() -> datetime`` for deterministic tests. Defaults to
     ``datetime.now(timezone.utc)``."""
+    export_level: ExportLevel = ExportLevel.REGULATORY_SUBMISSION
+    """Default PII handling tier applied to every ledger_export step.
+    Override per-compile via :meth:`compile`."""
+    pii_salt: bytes = _MOCK_PII_SALT
+    """Tenant-scoped salt for the HMAC pseudonimizer. Production
+    deployments inject the real tenant salt here."""
 
     def __post_init__(self) -> None:
         if self.now_provider is None:
@@ -262,6 +284,7 @@ class EvidenceCompiler:
         pack: EvidencePack,
         *,
         prev_chain_entry_hash_hex: str | None = None,
+        export_level: ExportLevel | None = None,
     ) -> EvidenceBundle:
         """Materialise the pack into a sealed bundle.
 
@@ -269,16 +292,22 @@ class EvidenceCompiler:
             pack: A validated :class:`EvidencePack`.
             prev_chain_entry_hash_hex: Previous bundle's chain hash for
                 merkle linkage. ``None`` for the first bundle ever.
+            export_level: PII tier override for this compile. Defaults
+                to the compiler's configured ``self.export_level``.
 
         Returns:
             :class:`EvidenceBundle`.
         """
+        effective_level = export_level or self.export_level
         window_start, window_end = self._resolve_window(pack.reporting_period)
 
         data: dict[str, Any] = {}
         for step in pack.evidence_queries:
             data[step.label] = self._execute_step(
-                step, window_start=window_start, window_end=window_end
+                step,
+                window_start=window_start,
+                window_end=window_end,
+                export_level=effective_level,
             )
 
         canonical = canonical_json(
@@ -320,6 +349,7 @@ class EvidenceCompiler:
             signature=sig,
             hash_chain_entry_hash_hex=chain.entry_hash_hex,
             prev_chain_entry_hash_hex=chain.prev_hash_hex,
+            export_level=effective_level,
         )
 
     # -- Step dispatch ------------------------------------------------------
@@ -330,6 +360,7 @@ class EvidenceCompiler:
         *,
         window_start: datetime,
         window_end: datetime,
+        export_level: ExportLevel = ExportLevel.REGULATORY_SUBMISSION,
     ) -> Any:
         match step.type:
             case QueryType.SIGMA_RULES_ACTIVE:
@@ -350,6 +381,8 @@ class EvidenceCompiler:
                     include_redacted_pii=step.params.get(
                         "include_redacted_pii", False
                     ),
+                    export_level=export_level,
+                    pii_salt=self.pii_salt,
                 )
             case QueryType.CONFIG_STATE:
                 return self.runtime.config_state(step.params["keys"])
