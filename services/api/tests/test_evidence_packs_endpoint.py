@@ -7,6 +7,7 @@ keeps these tests fast and isolated to the API surface we own.
 from __future__ import annotations
 
 import sys
+import uuid
 from pathlib import Path
 
 import pytest
@@ -17,7 +18,24 @@ _API_ROOT = Path(__file__).resolve().parents[1]
 if str(_API_ROOT) not in sys.path:
     sys.path.insert(0, str(_API_ROOT))
 
+from app.api.v1.deps import CurrentUser, get_current_user  # noqa: E402
 from app.api.v1.endpoints import evidence_packs  # noqa: E402
+
+
+def _stub_admin_user() -> CurrentUser:
+    """Bypass auth in tests via FastAPI dependency override.
+
+    The ``test`` environment deliberately does NOT trigger the dev-auth
+    shim (see ``AUTH_BYPASS_ENVIRONMENTS``), so the auth dependency must
+    be overridden explicitly. We use a deterministic admin so role-based
+    permission checks (settings:read / settings:write) pass.
+    """
+    return CurrentUser(
+        user_id=uuid.UUID("00000000-0000-0000-0000-000000000002"),
+        tenant_id=uuid.UUID("00000000-0000-0000-0000-000000000001"),
+        role="admin",
+        email="test-admin@quarry.dev",
+    )
 
 
 @pytest.fixture
@@ -27,6 +45,7 @@ def client() -> TestClient:
     evidence_packs._load_catalog.cache_clear()
     app = FastAPI()
     app.include_router(evidence_packs.router, prefix="/api/v1")
+    app.dependency_overrides[get_current_user] = _stub_admin_user
     return TestClient(app)
 
 
@@ -121,3 +140,72 @@ def test_preview_html_returns_self_contained_document(client: TestClient):
 def test_preview_html_404_for_unknown_pack(client: TestClient):
     resp = client.get("/api/v1/evidence-packs/missing/preview.html")
     assert resp.status_code == 404
+
+
+# ── auth gate (P0 regression guard) ────────────────────────────────────────
+
+
+def test_endpoints_require_auth_when_no_override(monkeypatch):
+    """All 5 endpoints must reject unauthenticated callers.
+
+    Regression guard for the pre-patch state where every handler was
+    anonymous. We override ``get_current_user`` with a stub that raises
+    401 (mirroring its real "no credentials, no dev-auth" path) so the
+    test doesn't need a real DB session for ``Depends(get_db)``.
+
+    A 200 from any handler under this fixture means the auth dependency
+    was silently dropped — the very regression we are guarding against.
+    """
+    from fastapi import HTTPException
+
+    monkeypatch.setenv("ENV", "test")
+
+    async def _no_creds() -> CurrentUser:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    evidence_packs._load_catalog.cache_clear()
+    app = FastAPI()
+    app.include_router(evidence_packs.router, prefix="/api/v1")
+    app.dependency_overrides[get_current_user] = _no_creds
+    bare = TestClient(app)
+
+    for method, path in [
+        ("GET", "/api/v1/evidence-packs"),
+        ("GET", "/api/v1/evidence-packs/bcb-85-2021-art-6"),
+        ("POST", "/api/v1/evidence-packs/bcb-85-2021-art-6/compile"),
+        ("GET", "/api/v1/evidence-packs/bcb-85-2021-art-6/preview.html"),
+        ("GET", "/api/v1/evidence-packs/bcb-85-2021-art-6/download.pdf"),
+    ]:
+        resp = bare.request(method, path)
+        assert resp.status_code == 401, f"{method} {path} should require auth"
+
+
+# ── PII redaction safety gate (P0 regression guard) ────────────────────────
+
+
+def test_compile_refuses_when_pii_redaction_requested():
+    """Packs requesting redacted PII must fail-loud until the redactor lands.
+
+    The MockRuntime cannot honor ``include_redacted_pii: true`` — shipping
+    raw rows under a "redacted" contract would leak CPFs to the ANPD
+    notification. The compiler must refuse with EvidencePackError, surfaced
+    by the endpoint as HTTP 422.
+    """
+    from app.evidence_pack.compiler import EvidenceCompiler, MockRuntime
+    from app.evidence_pack.parser import EvidencePackError
+    from app.evidence_pack.signer import MockSigner
+    from app.evidence_pack.tsa import MockTsaClient
+
+    evidence_packs._load_catalog.cache_clear()
+    catalog = evidence_packs._load_catalog()
+    pack = catalog.get("lgpd-art-48-anpd-48h") or catalog.get(
+        "bacen-comunicado-44323-2024-24h"
+    )
+    if pack is None:  # pragma: no cover
+        pytest.skip("no PII-redacting pack bundled in this build")
+
+    compiler = EvidenceCompiler(
+        runtime=MockRuntime(), tsa=MockTsaClient(), signer=MockSigner()
+    )
+    with pytest.raises(EvidencePackError, match="include_redacted_pii"):
+        compiler.compile(pack)

@@ -153,6 +153,21 @@ class MockRuntime(EvidenceRuntime):
         schema_version: str,
         include_redacted_pii: bool,
     ) -> dict[str, Any]:
+        # SECURITY GATE: a pack that requests redacted PII (e.g. LGPD
+        # Art. 48, Bacen 24h) MUST get redaction, not raw rows. Until the
+        # PII redactor lands (next card alongside PostgresRuntime), refuse
+        # the compile so an operator never ships a "redacted" bundle that
+        # is in fact raw. The endpoint catches this and returns 422.
+        if include_redacted_pii:
+            from app.evidence_pack.parser import EvidencePackError  # noqa: PLC0415
+
+            raise EvidencePackError(
+                "ledger_export(include_redacted_pii=True) is not yet "
+                "implemented in this runtime. Refusing to return raw "
+                "rows under the redacted contract. Either wait for the "
+                "PII redactor card, or set include_redacted_pii: false "
+                "in the pack and accept that the bundle is internal-only."
+            )
         return {
             "schema_version": schema_version,
             "window_start": window_start.isoformat(),

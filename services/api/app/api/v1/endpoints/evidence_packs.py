@@ -29,12 +29,13 @@ from __future__ import annotations
 import os
 from functools import lru_cache
 from pathlib import Path
-from typing import Any
+from typing import Annotated, Any
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
 
+from app.api.v1.deps import AuthUser, require_permission
 from app.evidence_pack.compiler import (
     EvidenceBundle,
     EvidenceCompiler,
@@ -51,6 +52,12 @@ from app.evidence_pack.tsa import MockTsaClient
 
 
 router = APIRouter(prefix="/evidence-packs", tags=["evidence-packs"])
+
+# RBAC: reads use ``settings:read``; compile (POST, produces sealed
+# artifact) uses ``settings:write``. Without these any anonymous caller
+# could list/compile/download packs from any tenant.
+ReadAuth = Annotated[AuthUser, Depends(require_permission("settings:read"))]
+WriteAuth = Annotated[AuthUser, Depends(require_permission("settings:write"))]
 
 
 # ---------------------------------------------------------------------------
@@ -194,8 +201,9 @@ def _bundle_to_response(bundle: EvidenceBundle) -> BundleResponse:
     response_model=PackListResponse,
     summary="List discovered evidence packs",
 )
-async def list_packs() -> PackListResponse:
+async def list_packs(current_user: ReadAuth) -> PackListResponse:
     """Return every YAML pack found under the configured directory."""
+    del current_user  # auth only — pack catalog is global to the deployment
     catalog = _load_catalog()
     summaries = [
         PackSummary(
@@ -217,7 +225,8 @@ async def list_packs() -> PackListResponse:
     response_model=PackSummary,
     summary="Get a single evidence pack's metadata",
 )
-async def get_pack(pack_id: str) -> PackSummary:
+async def get_pack(pack_id: str, current_user: ReadAuth) -> PackSummary:
+    del current_user
     catalog = _load_catalog()
     pack = catalog.get(pack_id)
     if pack is None:
@@ -237,7 +246,8 @@ async def get_pack(pack_id: str) -> PackSummary:
     response_model=BundleResponse,
     summary="Compile a pack against the runtime and return a sealed bundle",
 )
-async def compile_pack(pack_id: str) -> BundleResponse:
+async def compile_pack(pack_id: str, current_user: WriteAuth) -> BundleResponse:
+    del current_user
     catalog = _load_catalog()
     pack = catalog.get(pack_id)
     if pack is None:
@@ -255,7 +265,8 @@ async def compile_pack(pack_id: str) -> BundleResponse:
     response_class=HTMLResponse,
     summary="Render the compiled pack as a self-contained HTML preview",
 )
-async def preview_pack_html(pack_id: str) -> HTMLResponse:
+async def preview_pack_html(pack_id: str, current_user: ReadAuth) -> HTMLResponse:
+    del current_user
     catalog = _load_catalog()
     pack = catalog.get(pack_id)
     if pack is None:
@@ -270,7 +281,7 @@ async def preview_pack_html(pack_id: str) -> HTMLResponse:
     "/{pack_id}/download.pdf",
     summary="Render the compiled pack as a PDF download (auditor artifact)",
 )
-async def download_pack_pdf(pack_id: str):
+async def download_pack_pdf(pack_id: str, current_user: ReadAuth):
     """Compile + render the pack as a PDF byte stream.
 
     The PDF is the canonical auditor-facing artifact: same content as
@@ -290,6 +301,7 @@ async def download_pack_pdf(pack_id: str):
         render_evidence_pdf,
     )
 
+    del current_user
     catalog = _load_catalog()
     pack = catalog.get(pack_id)
     if pack is None:
