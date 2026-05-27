@@ -1,0 +1,88 @@
+# Evidence Pack — Resolução BCB 85/2021, Art. 6º
+#
+# This file is the *content* layer of the Bacen Evidence Pack Engine.
+# The framework that consumes it lives at services/api/app/evidence_pack/.
+#
+# IMPORTANT: this pack references real, verifiable regulation
+# (Resolução BCB 85/2021, available at bcb.gov.br). The article
+# paraphrase below is plain-language; the auditable obligation is the
+# article text itself, which the compiler links to in the rendered PDF.
+#
+# This pack has NOT been counsel-validated. It is a working draft of
+# the DSL format. Before it goes to a real fiscalização, the DPO and a
+# Bacen-specialist lawyer must review and sign off — see
+# .planning/private/CARD-016 §7 (Risco jurídico) for the process.
+
+schema_version: v1
+
+meta:
+  pack_id: bcb-85-2021-art-6
+  regulation_code: BCB-85-2021
+  article: Art. 6º
+  title: Política de segurança cibernética — plano de ação e resposta a incidentes
+  requirement: |
+    A política de segurança cibernética deve incluir um plano de ação e
+    de resposta a incidentes, com os procedimentos a serem seguidos
+    durante e após a ocorrência de incidentes relevantes; o pessoal
+    envolvido deve ter conhecimento desses procedimentos. A entidade
+    deve evidenciar, para fins de fiscalização, que o plano existe,
+    está atualizado e que os procedimentos são efetivamente seguidos.
+
+reporting_period: 90d
+output_format: BCB_RFI_v1
+
+evidence_queries:
+
+  - type: config_state
+    label: Plano de resposta a incidentes vigente
+    params:
+      keys:
+        - incident_response.plan_version
+        - incident_response.last_review_date
+        - incident_response.approved_by
+        - incident_response.training_completion_rate
+
+  - type: detections_fired
+    label: Detecções relevantes acionadas no período
+    params:
+      min_severity: medium
+
+  - type: investigations
+    label: Investigações abertas e fechadas no período
+    params:
+      severity_in: [medium, high, critical]
+
+  - type: ledger_export
+    label: Trilha de auditoria — decisões dos agentes
+    params:
+      schema_version: v1
+      include_redacted_pii: false
+
+  - type: controls_mapping
+    label: Cross-walk com frameworks de certificação
+    params:
+      frameworks:
+        - ISO-27001
+        - NIST-CSF
+
+narrative_template: |
+  Este pacote de evidências demonstra, perante fiscalização Bacen, a
+  aderência ao Art. 6º da Resolução BCB 85/2021 no que toca à
+  manutenção e operacionalização do plano de resposta a incidentes.
+
+  No período coberto, {{ ledger_export.entries_count }} entradas no
+  ledger forense documentam decisões agentes, e
+  {{ detections_fired.total }} detecções de severidade média ou
+  superior foram acionadas. Todas as investigações abertas no período
+  estão refletidas no Investigation Ledger com cadeia probatória
+  citável, conforme exigido pelo Art. 7º da mesma resolução.
+
+  Os procedimentos do plano são revisados ao menos anualmente; a
+  versão vigente é {{ config_state.incident_response.plan_version }},
+  aprovada em {{ config_state.incident_response.last_review_date }}.
+
+cross_references:
+  - ISO 27001 A.5.24 — Information security incident management planning
+  - ISO 27001 A.5.26 — Response to information security incidents
+  - NIST CSF RS.RP-1 — Response plan is executed during or after an incident
+  - NIST CSF RS.CO-1 — Personnel know their roles
