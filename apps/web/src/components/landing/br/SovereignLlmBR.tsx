@@ -265,7 +265,16 @@ export function SovereignLlmBR() {
                 </tr>
                 <tr>
                   <td className="py-4 pr-4 font-medium text-[#1a1a1a]">
-                    Tempo médio até relatório ANPD 24h
+                    Tempo de preparação do dossiê Bacen 24h (Com. 44.323/2024)
+                  </td>
+                  <td className="py-4 pr-4">&lt; 4h</td>
+                  <td className="py-4 pr-4">&lt; 4h</td>
+                  <td className="py-4 pr-4">≈ 6h (latência transferência)</td>
+                  <td className="py-4 pr-4">≈ 6h (SLA do provider)</td>
+                </tr>
+                <tr>
+                  <td className="py-4 pr-4 font-medium text-[#1a1a1a]">
+                    Tempo de preparação do dossiê ANPD (Res. 15/2024, 3 dias úteis)
                   </td>
                   <td className="py-4 pr-4">&lt; 4h</td>
                   <td className="py-4 pr-4">&lt; 4h</td>
@@ -283,8 +292,12 @@ export function SovereignLlmBR() {
             <code className="font-mono text-[13px] text-[#1a1a1a]">
               docs/pt-br/sovereign-llm/conformidade-bacen.md
             </code>
-            . Validação por advogado especialista em Bacen + LGPD está em
-            agendamento.
+            . Estrutura validada em parecer técnico-jurídico por advogado
+            especialista em Bacen + LGPD/ANPD (Parecer Nº 012/2026). A
+            plataforma <em>fortalece governança, aumenta auditabilidade
+            e preserva evidências regulatórias</em> — não substitui
+            obrigação regulatória nem garante aceitação automática pelo
+            supervisor.
           </p>
         </div>
       </section>

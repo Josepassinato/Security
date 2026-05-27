@@ -13,8 +13,12 @@
 
 > **Open-source Bacen Evidence Engine for Brazilian fintechs.**
 > Replace the consultant-and-spreadsheet workflow with a deterministic,
-> citable, exportable evidence pipeline for BCB 85/2021, ANPD 24h, and
-> Open Finance. Bacen-native by construction, not by retrofit.
+> citable, exportable evidence pipeline for BCB 85/2021, Bacen
+> Comunicado 44.323/2024 (24h), LGPD/ANPD (Res. 15/2024, 3 business
+> days), and Open Finance. Bacen-native by construction, not by
+> retrofit. Strengthens governance, increases auditability, and
+> preserves regulatory evidence — does not substitute regulatory
+> obligation nor guarantee supervisor acceptance.
 
 <p>
   <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
