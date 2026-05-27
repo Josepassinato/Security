@@ -198,7 +198,7 @@ def test_compile_refuses_when_pii_redaction_requested():
 
     evidence_packs._load_catalog.cache_clear()
     catalog = evidence_packs._load_catalog()
-    pack = catalog.get("lgpd-art-48-anpd-48h") or catalog.get(
+    pack = catalog.get("lgpd-art-48-anpd-res-15-2024") or catalog.get(
         "bacen-comunicado-44323-2024-24h"
     )
     if pack is None:  # pragma: no cover

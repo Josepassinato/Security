@@ -70,8 +70,9 @@ class OutputFormat(str, Enum):
     BCB_RFI_V1 = "BCB_RFI_v1"
     """Bacen Request-For-Information response, PDF + JSON envelope."""
 
-    ANPD_INCIDENT_48H = "ANPD_incident_48h"
-    """ANPD-format incident report under LGPD Art. 48."""
+    ANPD_INCIDENT_RES_15_2024 = "ANPD_incident_res_15_2024"
+    """ANPD-format incident report under LGPD Art. 48 c/c Res. CD/ANPD
+    15/2024 (3 dias úteis from controller awareness)."""
 
     BCB_24H_INCIDENT = "BCB_24h_incident"
     """24-hour cyber incident report under Comunicado Bacen 44.323/2024."""
