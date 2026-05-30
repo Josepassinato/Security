@@ -6,7 +6,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const base = getPublicSiteUrl();
   const now = new Date();
 
-  const highPriority = ["/", "/benchmark", "/connectors"];
+  const highPriority = [
+    "/",
+    "/br",
+    "/br/pld-ft",
+    "/br/pld-ft/lab",
+    "/br/pld-ft/cases",
+    "/br/pld-ft/rules",
+    "/br/pld-ft/benchmark",
+    "/br/pld-ft/readiness",
+    "/benchmark",
+    "/connectors",
+  ];
   const mediumPriority = [
     "/purple-team",
     "/responder",

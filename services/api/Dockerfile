@@ -64,7 +64,8 @@ RUN set -eux; \
             "pyyaml>=6.0.1,<7" \
             "strawberry-graphql[fastapi]>=0.236,<0.237" \
             "webauthn>=2.2,<3" \
-            "weasyprint>=62,<63" ; \
+            "weasyprint>=62,<63" \
+            "pydyf>=0.10,<0.11" ; \
     fi
 
 COPY . .

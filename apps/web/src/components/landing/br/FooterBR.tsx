@@ -33,6 +33,14 @@ export function FooterBR() {
             </Link>
           </li>
           <li>
+            <Link
+              href="/br/pld-ft"
+              className="text-[#a09a8e] no-underline hover:text-[#f4efe5]"
+            >
+              PLD/FT
+            </Link>
+          </li>
+          <li>
             <a
               href="mailto:contato@quarry.dev"
               className="text-[#a09a8e] no-underline hover:text-[#f4efe5]"

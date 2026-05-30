@@ -40,7 +40,7 @@ export function NavBR() {
         <ul className="hidden items-center gap-6 sm:flex">
           <li>
             <a
-              href="#proporcao"
+              href="/br#proporcao"
               className="text-sm text-[#3a362e] no-underline hover:text-[#1a1a1a]"
             >
               proporção
@@ -48,15 +48,23 @@ export function NavBR() {
           </li>
           <li>
             <a
-              href="#bacen"
+              href="/br#bacen"
               className="text-sm text-[#3a362e] no-underline hover:text-[#1a1a1a]"
             >
               bacen
             </a>
           </li>
           <li>
+            <Link
+              href="/br/pld-ft"
+              className="text-sm text-[#3a362e] no-underline hover:text-[#1a1a1a]"
+            >
+              PLD/FT
+            </Link>
+          </li>
+          <li>
             <a
-              href="#benchmark"
+              href="/br#benchmark"
               className="text-sm text-[#3a362e] no-underline hover:text-[#1a1a1a]"
             >
               benchmark
@@ -64,7 +72,7 @@ export function NavBR() {
           </li>
           <li>
             <a
-              href="#custo"
+              href="/br#custo"
               className="text-sm text-[#3a362e] no-underline hover:text-[#1a1a1a]"
             >
               custo
@@ -72,7 +80,7 @@ export function NavBR() {
           </li>
           <li>
             <a
-              href="#para-quem-nao-e"
+              href="/br#para-quem-nao-e"
               className="text-sm text-[#3a362e] no-underline hover:text-[#1a1a1a]"
             >
               limites

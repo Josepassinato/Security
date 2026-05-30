@@ -56,6 +56,7 @@ from app.api.v1.endpoints import (
     oncall,
     passkeys,
     phishing,
+    pld_ft,
     playbooks,
     plugins,
     posture,
@@ -198,6 +199,11 @@ api_router.include_router(saved_hunts.router)
 
 # Email-security + phishing-triage workflow (Tier 3)
 api_router.include_router(phishing.router)
+
+# Brazilian PLD/FT fintech-compliance workflow.
+# Persists deterministic risk dossiers, cases, decisions, thresholds and
+# benchmark runs for the public Quarry compliance vertical.
+api_router.include_router(pld_ft.router)
 
 # Knowledge-base + RAG over org docs/runbooks (Tier 3)
 api_router.include_router(knowledge_base.router)
