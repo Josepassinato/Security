@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Download, FileText, Search, Trash2 } from 'lucide-react';
+import { ArrowLeft, Brain, Download, FileText, Search, ShieldCheck, Trash2 } from 'lucide-react';
 import {
   addPldCaseDecision,
   listPldCases,
@@ -11,7 +11,13 @@ import {
   type PldCaseRecord,
   type PldCaseStatus,
 } from '@/lib/pldft/cases';
-import { addPldCaseDecisionBackend, downloadPldCaseReportBackend, listPldCasesBackend } from '@/lib/pldft/api';
+import {
+  addPldCaseDecisionBackend,
+  downloadPldCaseReportBackend,
+  getPldCaseAiAnalystBackend,
+  listPldCasesBackend,
+  type PldAiAnalystResponse,
+} from '@/lib/pldft/api';
 import { pldDossierToMarkdown } from '@/lib/pldft/engine';
 
 const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -93,6 +99,8 @@ export function PldFtCases() {
   const [statusFilter, setStatusFilter] = useState<'todos' | PldCaseStatus>('todos');
   const [severityFilter, setSeverityFilter] = useState<'todas' | string>('todas');
   const [query, setQuery] = useState('');
+  const [aiBrief, setAiBrief] = useState<PldAiAnalystResponse | null>(null);
+  const [aiBriefLoading, setAiBriefLoading] = useState(false);
 
   useEffect(() => {
     void refresh();
@@ -117,6 +125,28 @@ export function PldFtCases() {
       return matchesStatus && matchesSeverity && (!term || searchable.includes(term));
     });
   }, [records, query, severityFilter, statusFilter]);
+
+  useEffect(() => {
+    if (!selected?.id || source !== 'postgres') {
+      setAiBrief(null);
+      return;
+    }
+    let active = true;
+    setAiBriefLoading(true);
+    getPldCaseAiAnalystBackend(selected.id)
+      .then((payload) => {
+        if (active) setAiBrief(payload);
+      })
+      .catch(() => {
+        if (active) setAiBrief(null);
+      })
+      .finally(() => {
+        if (active) setAiBriefLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [selected?.id, source]);
 
   async function refresh() {
     try {
@@ -344,6 +374,99 @@ export function PldFtCases() {
                 <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
                   <p className="text-xs uppercase tracking-[0.16em] text-slate-400">Decisões</p>
                   <p className="mt-2 text-xl font-semibold text-white">{selected.decisions.length}</p>
+                </div>
+              </section>
+
+              <section className="rounded-3xl border border-blue-400/20 bg-blue-500/[0.06] p-6">
+                <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                  <div>
+                    <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-blue-200">
+                      <Brain className="h-4 w-4" />
+                      Analista IA auditável
+                    </p>
+                    <h3 className="mt-3 text-2xl font-semibold text-white">
+                      Investigação guiada por evidências
+                    </h3>
+                    <p className="mt-2 text-sm leading-7 text-slate-300">
+                      A IA organiza hipóteses, lacunas e próximos passos sem substituir a decisão humana.
+                    </p>
+                  </div>
+                  <span className="rounded-full border border-blue-300/30 px-3 py-1 text-xs font-semibold text-blue-100">
+                    {aiBriefLoading ? 'Gerando briefing...' : aiBrief ? 'Briefing ativo' : 'Usando dossiê local'}
+                  </span>
+                </div>
+
+                <div className="mt-5 grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+                  <div className="rounded-2xl border border-white/10 bg-slate-950/60 p-5">
+                    <p className="text-sm font-semibold text-white">
+                      {aiBrief?.operatorBrief.headline || selected.dossier.aiAnalyst?.caseNarrative.summary || 'Briefing não disponível.'}
+                    </p>
+                    <p className="mt-3 text-sm leading-6 text-slate-300">
+                      {aiBrief?.operatorBrief.recommendedAction || selected.dossier.aiAnalyst?.caseNarrative.recommendedDecision}
+                    </p>
+                    <div className="mt-4 rounded-xl border border-amber-400/20 bg-amber-400/10 p-3 text-sm leading-6 text-amber-100">
+                      {aiBrief?.operatorBrief.guardrail || 'Guardrail: a IA não declara crime, culpa ou ilegalidade; ela organiza evidências para revisão humana.'}
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl border border-white/10 bg-slate-950/60 p-5">
+                    <p className="inline-flex items-center gap-2 text-sm font-semibold text-white">
+                      <ShieldCheck className="h-4 w-4 text-emerald-300" />
+                      Memória de decisões
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-slate-300">
+                      {aiBrief?.operatorBrief.memoryInsight || 'A memória aparece quando há outros casos semelhantes no Postgres.'}
+                    </p>
+                    <div className="mt-3 grid gap-2">
+                      {(aiBrief?.decisionMemory || []).slice(0, 3).map((memory) => (
+                        <div key={memory.caseId} className="rounded-xl border border-white/10 bg-white/[0.04] p-3">
+                          <p className="text-xs font-semibold text-white">
+                            {memory.dossierId} · similaridade {memory.similarityScore}/100
+                          </p>
+                          <p className="mt-1 text-xs text-slate-400">
+                            {pldCaseStatusLabels[memory.status]} · regras: {memory.overlapRules.join(', ') || 'sem sobreposição'}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4 grid gap-4 lg:grid-cols-3">
+                  {(aiBrief?.aiAnalyst?.hypotheses || selected.dossier.aiAnalyst?.hypotheses || []).slice(0, 3).map((hypothesis) => (
+                    <article key={`${hypothesis.title}-${hypothesis.confidence}`} className="rounded-2xl border border-white/10 bg-slate-950/60 p-5">
+                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-200">
+                        Confiança {hypothesis.confidence}
+                      </p>
+                      <h4 className="mt-2 text-base font-semibold text-white">{hypothesis.title}</h4>
+                      <p className="mt-2 text-sm leading-6 text-slate-300">{hypothesis.basis}</p>
+                      <p className="mt-3 text-xs leading-5 text-slate-400">
+                        Contraponto: {hypothesis.alternateExplanation}
+                      </p>
+                    </article>
+                  ))}
+                </div>
+
+                <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950/60 p-5">
+                  <p className="text-sm font-semibold text-white">Crítico de evidências</p>
+                  <div className="mt-3 grid gap-3 md:grid-cols-2">
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.14em] text-slate-500">Lacunas</p>
+                      <ul className="mt-2 list-disc space-y-1 pl-5 text-sm leading-6 text-slate-300">
+                        {(aiBrief?.aiAnalyst?.critic.gaps || selected.dossier.aiAnalyst?.critic.gaps || []).map((gap) => (
+                          <li key={gap}>{gap}</li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.14em] text-slate-500">Afirmações bloqueadas</p>
+                      <ul className="mt-2 list-disc space-y-1 pl-5 text-sm leading-6 text-slate-300">
+                        {(aiBrief?.aiAnalyst?.critic.unsupportedClaims || selected.dossier.aiAnalyst?.critic.unsupportedClaims || []).map((claim) => (
+                          <li key={claim}>{claim}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
                 </div>
               </section>
 

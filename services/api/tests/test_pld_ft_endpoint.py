@@ -97,6 +97,9 @@ async def test_analyze_persists_import_and_returns_dossier():
     assert response["mode"] == "backend"
     assert response["transactionCount"] == 2
     assert response["dossier"]["findings"][0]["ruleId"] == "PLD-PIX-001"
+    assert response["dossier"]["aiAnalyst"]["version"] == "quarry-ai-compliance-analyst-v1"
+    assert response["dossier"]["aiAnalyst"]["hypotheses"][0]["confidence"] == "alta"
+    assert response["dossier"]["aiAnalyst"]["critic"]["verdict"] == "revisao_humana_obrigatoria"
     assert response["payloadHash"]
     assert db.committed is True
     assert any("INSERT INTO pld_ft_imports" in sql for sql in db.executed)

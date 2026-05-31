@@ -1,5 +1,5 @@
 import type { PldCaseDecision, PldCaseRecord, PldCaseStatus } from './cases';
-import type { PldDossier, PldInput, PldThresholds } from './engine';
+import type { PldAiAnalyst, PldDossier, PldInput, PldThresholds } from './engine';
 
 interface BackendAnalyzeResponse {
   mode: 'backend';
@@ -19,6 +19,31 @@ interface BackendCasesResponse {
     dossier: PldDossier;
     decisions?: PldCaseDecision[];
   }>;
+}
+
+export interface PldDecisionMemoryItem {
+  caseId: string;
+  dossierId: string;
+  status: PldCaseStatus;
+  riskScore: number;
+  severity: string;
+  similarityScore: number;
+  overlapRules: string[];
+  overlapEntities: string[];
+  lastDecision?: PldCaseDecision;
+}
+
+export interface PldAiAnalystResponse {
+  caseId: string;
+  dossierId: string;
+  aiAnalyst: PldAiAnalyst;
+  decisionMemory: PldDecisionMemoryItem[];
+  operatorBrief: {
+    headline: string;
+    recommendedAction?: string;
+    memoryInsight: string;
+    guardrail: string;
+  };
 }
 
 async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
@@ -76,6 +101,10 @@ export async function downloadPldCaseReportBackend(caseId: string): Promise<Blob
     throw new Error(text || `Erro HTTP ${response.status}`);
   }
   return response.blob();
+}
+
+export async function getPldCaseAiAnalystBackend(caseId: string): Promise<PldAiAnalystResponse> {
+  return requestJson<PldAiAnalystResponse>(`/api/v1/pld-ft/cases/${caseId}/ai-analyst`);
 }
 
 export async function savePldThresholdsBackend(thresholds: Partial<PldThresholds>): Promise<void> {

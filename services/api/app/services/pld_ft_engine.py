@@ -407,6 +407,189 @@ def _network(transactions: list[dict[str, Any]], findings: list[dict[str, Any]])
     }
 
 
+def _timeline(transactions: list[dict[str, Any]], tx_ids: set[str]) -> list[dict[str, Any]]:
+    events: list[dict[str, Any]] = []
+    for tx in sorted(transactions, key=_time):
+        if str(tx.get("id")) not in tx_ids:
+            continue
+        events.append(
+            {
+                "timestamp": tx.get("timestamp"),
+                "transactionId": str(tx.get("id")),
+                "direction": tx.get("direction"),
+                "rail": tx.get("rail"),
+                "amount": _amount(tx),
+                "customerId": tx.get("customerId"),
+                "counterpartyId": tx.get("counterpartyId"),
+                "description": (
+                    f"{tx.get('direction', 'movimentação')} via {tx.get('rail', 'canal não informado')} "
+                    f"de {_brl(_amount(tx))} entre {tx.get('customerId')} e {tx.get('counterpartyId')}"
+                ),
+            }
+        )
+    return events[:20]
+
+
+def _analyst_confidence(finding: dict[str, Any]) -> str:
+    score = int(finding.get("score") or 0)
+    evidence_count = len(finding.get("evidence") or [])
+    tx_count = len(finding.get("transactionIds") or [])
+    if score >= 85 and evidence_count >= 2 and tx_count >= 2:
+        return "alta"
+    if score >= 65 and evidence_count >= 1:
+        return "media"
+    return "baixa"
+
+
+def _build_ai_analyst(
+    *,
+    transactions: list[dict[str, Any]],
+    customers: dict[str, dict[str, Any]],
+    findings: list[dict[str, Any]],
+    risk_score: int,
+    severity: str,
+    suspicious_amount: float,
+) -> dict[str, Any]:
+    """Build an evidence-first AI analyst layer without making decisions.
+
+    The structure is intentionally deterministic and source-bound. It gives an
+    LLM-ready investigation plan, but all facts here come from the executed
+    rules, transactions and KYC fields. This keeps the compliance record
+    explainable and avoids unsupported narrative.
+    """
+    tx_ids = {tx_id for item in findings for tx_id in item.get("transactionIds", [])}
+    top_findings = findings[:4]
+    drivers = [
+        {
+            "ruleId": finding["ruleId"],
+            "title": finding["title"],
+            "severity": finding["severity"],
+            "score": finding["score"],
+            "amountInScope": finding["amountInScope"],
+            "evidence": finding.get("evidence") or [],
+        }
+        for finding in top_findings
+    ]
+    hypotheses = [
+        {
+            "title": finding["title"],
+            "confidence": _analyst_confidence(finding),
+            "basis": finding["rationale"],
+            "evidenceIds": finding.get("transactionIds") or [],
+            "evidence": finding.get("evidence") or [],
+            "alternateExplanation": (
+                "Pode haver justificativa econômica legítima se o cliente comprovar origem, finalidade, "
+                "vínculo com contraparte e compatibilidade com o perfil cadastral."
+            ),
+            "nextSteps": [
+                "Conferir KYC/KYB atualizado, CNAE/atividade, renda ou faturamento declarado.",
+                "Validar vínculo econômico entre cliente, favorecidos e remetentes.",
+                "Preservar extrato, logs de device/IP e evidências originais antes de contato externo.",
+            ],
+        }
+        for finding in top_findings
+    ]
+    if not hypotheses:
+        hypotheses.append(
+            {
+                "title": "Sem hipótese prioritária nesta execução",
+                "confidence": "baixa",
+                "basis": "As regras determinísticas ativas não produziram achados suficientes.",
+                "evidenceIds": [],
+                "evidence": [],
+                "alternateExplanation": "O lote pode estar fora das tipologias cobertas ou conter volume insuficiente.",
+                "nextSteps": [
+                    "Aumentar janela de análise se houver suspeita externa.",
+                    "Cruzar com KYC/KYB, listas e histórico fora do lote importado.",
+                ],
+            }
+        )
+
+    missing_context: list[str] = []
+    if not customers:
+        missing_context.append("KYC/KYB do cliente não foi enviado no lote analisado.")
+    if not any(tx.get("deviceId") for tx in transactions):
+        missing_context.append("Logs de dispositivo não aparecem em todas as transações.")
+    if not any(tx.get("ip") for tx in transactions):
+        missing_context.append("Dados de IP/geolocalização não foram suficientes para análise de origem.")
+    if not any(str(tx.get("counterpartyDocument") or "").strip() for tx in transactions):
+        missing_context.append("Documentos das contrapartes não estão completos.")
+
+    if risk_score >= 85:
+        recommended_decision = "Escalar para responsável PLD/FT com prioridade e preparar dossiê para decisão humana."
+    elif risk_score >= 65:
+        recommended_decision = "Manter em revisão reforçada, solicitar contexto e decidir entre monitoramento ou escalonamento."
+    elif findings:
+        recommended_decision = "Revisar manualmente e manter monitoramento proporcional ao risco."
+    else:
+        recommended_decision = "Arquivar como baixo sinal nesta execução, mantendo evidência e trilha de auditoria."
+
+    objective_facts = [
+        f"{len(findings)} achado(s) determinístico(s) executado(s) sobre {len(transactions)} transação(ões).",
+        f"Score consolidado {risk_score}/100 com severidade {severity}.",
+        f"Valor em escopo suspeito: {_brl(suspicious_amount)}.",
+    ]
+    objective_facts.extend(
+        f"{finding['ruleId']}: {finding['title']} ({_brl(float(finding.get('amountInScope') or 0))})."
+        for finding in top_findings[:3]
+    )
+
+    unsupported_claims = [
+        "Não afirmar lavagem de dinheiro, terrorismo, fraude ou crime sem validação humana e base externa suficiente.",
+        "Não concluir má-fé de cliente ou contraparte apenas por padrão transacional.",
+    ]
+    critic_gaps = missing_context or ["Sem lacuna crítica automática; ainda assim exige revisão humana documentada."]
+
+    return {
+        "version": "quarry-ai-compliance-analyst-v1",
+        "mode": "evidence_bound_deterministic_agent",
+        "caseNarrative": {
+            "summary": (
+                f"O caso reúne {len(findings)} sinal(is) PLD/FT com score {risk_score}/100. "
+                f"A camada de IA analítica prioriza hipóteses, lacunas e próximos passos, mas não substitui decisão humana."
+            ),
+            "timeline": _timeline(transactions, tx_ids),
+            "keyRiskDrivers": drivers,
+            "counterpoints": [
+                "Padrão transacional pode ter explicação comercial legítima se houver documentação consistente.",
+                "O alerta depende da qualidade do lote importado e das fontes KYC/KYB disponíveis.",
+            ],
+            "recommendedDecision": recommended_decision,
+        },
+        "hypotheses": hypotheses,
+        "investigationPlan": [
+            "Confirmar identidade, atividade econômica e beneficiário final das entidades envolvidas.",
+            "Cruzar contrapartes com listas restritivas, PEP, mídia adversa e histórico interno.",
+            "Comparar comportamento atual com histórico de 30/90/180 dias, quando disponível.",
+            "Documentar decisão humana com evidência objetiva e justificativa defensável.",
+        ],
+        "critic": {
+            "verdict": "revisao_humana_obrigatoria",
+            "gaps": critic_gaps,
+            "unsupportedClaims": unsupported_claims,
+            "requiredHumanChecks": [
+                "Validar fontes externas e integridade dos dados recebidos.",
+                "Confirmar se há obrigação ou conveniência de comunicação regulatória conforme política interna.",
+                "Registrar justificativa de arquivamento, monitoramento ou escalonamento.",
+            ],
+        },
+        "coafDraft": {
+            "shouldPrepare": risk_score >= 85,
+            "rationale": (
+                "Preparar minuta para avaliação do responsável PLD/FT quando houver severidade crítica, "
+                "múltiplas evidências e valor relevante em escopo."
+            ),
+            "objectiveFacts": objective_facts,
+            "humanApprovalRequired": True,
+        },
+        "similarityFingerprint": {
+            "rules": [finding["ruleId"] for finding in findings],
+            "entities": sorted({str(finding.get("entityId")) for finding in findings if finding.get("entityId")})[:12],
+            "severity": severity,
+        },
+    }
+
+
 def analyze_pld_ft(payload: dict[str, Any], saved_thresholds: dict[str, Any] | None = None) -> dict[str, Any]:
     transactions = sorted(payload.get("transactions") or [], key=_time)
     customers = _customers(payload)
@@ -428,12 +611,13 @@ def analyze_pld_ft(payload: dict[str, Any], saved_thresholds: dict[str, Any] | N
     suspicious_amount = _sum([tx for tx in transactions if str(tx.get("id")) in finding_tx_ids])
     generated_at = payload.get("generatedAt") or datetime.utcnow().isoformat() + "Z"
     dossier_id = "PLD-" + hashlib.sha1((generated_at + payload_hash(payload)).encode("utf-8")).hexdigest()[:12].upper()
+    severity = _severity(risk_score)
 
     if findings:
         top = "; ".join(item["title"] for item in findings[:3])
         summary = (
             f"O Quarry identificou {len(findings)} achado(s) compatíveis com risco PLD/FT em "
-            f"{len(transactions)} transações. Score consolidado {risk_score}/100 ({_severity(risk_score)}), "
+            f"{len(transactions)} transações. Score consolidado {risk_score}/100 ({severity}), "
             f"com {_brl(suspicious_amount)} em escopo suspeito. Principais sinais: {top}."
         )
     else:
@@ -447,12 +631,20 @@ def analyze_pld_ft(payload: dict[str, Any], saved_thresholds: dict[str, Any] | N
         "institution": payload.get("institution") or "Instituição financeira",
         "generatedAt": generated_at,
         "riskScore": risk_score,
-        "severity": _severity(risk_score),
+        "severity": severity,
         "totalTransactions": len(transactions),
         "totalAmount": _sum(transactions),
         "suspiciousAmount": suspicious_amount,
         "findings": findings,
         "network": _network(transactions, findings),
+        "aiAnalyst": _build_ai_analyst(
+            transactions=transactions,
+            customers=customers,
+            findings=findings,
+            risk_score=risk_score,
+            severity=severity,
+            suspicious_amount=suspicious_amount,
+        ),
         "executiveSummary": summary,
         "analystChecklist": [
             "Validar KYC, renda/faturamento e substância econômica das entidades com maior score.",

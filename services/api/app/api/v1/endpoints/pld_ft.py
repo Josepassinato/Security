@@ -162,6 +162,11 @@ def _case_report_html(case: dict[str, Any]) -> str:
     dossier = case["dossier"]
     decisions = case.get("decisions") or []
     findings = dossier.get("findings") or []
+    ai_analyst = dossier.get("aiAnalyst") or {}
+    narrative = ai_analyst.get("caseNarrative") or {}
+    hypotheses = ai_analyst.get("hypotheses") or []
+    critic = ai_analyst.get("critic") or {}
+    coaf = ai_analyst.get("coafDraft") or {}
     checklist = dossier.get("analystChecklist") or []
     audit = dossier.get("auditTrail") or []
     generated_at = datetime.utcnow().isoformat() + "Z"
@@ -194,6 +199,22 @@ def _case_report_html(case: dict[str, Any]) -> str:
             for decision in decisions
         )
         or "<p class='muted'>Nenhuma decisão humana registrada.</p>"
+    )
+    hypotheses_html = (
+        "".join(
+            f"""
+            <article class="card">
+              <p class="eyebrow">Hipótese · confiança {_html_escape(item.get("confidence"))}</p>
+              <h3>{_html_escape(item.get("title"))}</h3>
+              <p>{_html_escape(item.get("basis"))}</p>
+              <p><strong>Contraponto:</strong> {_html_escape(item.get("alternateExplanation"))}</p>
+              <p><strong>Evidências:</strong> {_html_escape(", ".join(item.get("evidenceIds") or []))}</p>
+              <ul>{"".join(f"<li>{_html_escape(step)}</li>" for step in item.get("nextSteps") or [])}</ul>
+            </article>
+            """
+            for item in hypotheses
+        )
+        or "<p class='muted'>Nenhuma hipótese prioritária disponível.</p>"
     )
     return f"""
     <!doctype html>
@@ -234,6 +255,23 @@ def _case_report_html(case: dict[str, Any]) -> str:
 
         <h2>Achados explicáveis</h2>
         {findings_html or "<p class='muted'>Nenhum achado registrado.</p>"}
+
+        <h2>Analista IA auditável</h2>
+        <article class="card">
+          <p>{_html_escape(narrative.get("summary"))}</p>
+          <p class="action"><strong>Recomendação operacional:</strong> {_html_escape(narrative.get("recommendedDecision"))}</p>
+          <p><strong>Preparar minuta COAF:</strong> {_html_escape("sim" if coaf.get("shouldPrepare") else "não")} · {_html_escape(coaf.get("rationale"))}</p>
+        </article>
+        {hypotheses_html}
+
+        <h2>Crítico de evidências</h2>
+        <article class="card">
+          <p><strong>Veredito:</strong> {_html_escape(critic.get("verdict"))}</p>
+          <p><strong>Lacunas:</strong></p>
+          <ul>{"".join(f"<li>{_html_escape(item)}</li>" for item in critic.get("gaps") or [])}</ul>
+          <p><strong>Afirmações bloqueadas:</strong></p>
+          <ul>{"".join(f"<li>{_html_escape(item)}</li>" for item in critic.get("unsupportedClaims") or [])}</ul>
+        </article>
 
         <h2>Decisões humanas</h2>
         {decisions_html}
@@ -302,6 +340,59 @@ async def _get_case_or_404(case_id: uuid.UUID, db: DBSession, user: AuthUser) ->
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="PLD/FT case not found")
     decisions = await _case_decisions(db, user, case_id)
     return _row_to_case(row, decisions)
+
+
+def _rules_from_case(case: dict[str, Any]) -> set[str]:
+    dossier = case.get("dossier") or {}
+    return {str(item.get("ruleId")) for item in dossier.get("findings") or [] if item.get("ruleId")}
+
+
+def _entities_from_case(case: dict[str, Any]) -> set[str]:
+    dossier = case.get("dossier") or {}
+    return {str(item.get("entityId")) for item in dossier.get("findings") or [] if item.get("entityId")}
+
+
+async def _decision_memory(db: DBSession, user: AuthUser, case: dict[str, Any]) -> list[dict[str, Any]]:
+    current_rules = _rules_from_case(case)
+    current_entities = _entities_from_case(case)
+    rows = (
+        await db.execute(
+            text(
+                """
+                SELECT *
+                FROM pld_ft_cases
+                WHERE tenant_id = :tenant_id AND id <> :id
+                ORDER BY updated_at DESC, created_at DESC
+                LIMIT 80
+                """
+            ).bindparams(tenant_id=user.tenant_id, id=uuid.UUID(case["id"]))
+        )
+    ).fetchall()
+    memories: list[dict[str, Any]] = []
+    for row in rows:
+        candidate = _row_to_case(row, await _case_decisions(db, user, row.id))
+        candidate_rules = _rules_from_case(candidate)
+        candidate_entities = _entities_from_case(candidate)
+        rule_overlap = sorted(current_rules & candidate_rules)
+        entity_overlap = sorted(current_entities & candidate_entities)
+        severity_match = candidate.get("severity") == case.get("severity")
+        score = (len(rule_overlap) * 35) + (len(entity_overlap) * 20) + (15 if severity_match else 0)
+        if score <= 0:
+            continue
+        memories.append(
+            {
+                "caseId": candidate["id"],
+                "dossierId": candidate["dossierId"],
+                "status": candidate["status"],
+                "riskScore": candidate["riskScore"],
+                "severity": candidate["severity"],
+                "similarityScore": min(100, score),
+                "overlapRules": rule_overlap,
+                "overlapEntities": entity_overlap,
+                "lastDecision": (candidate.get("decisions") or [{}])[0],
+            }
+        )
+    return sorted(memories, key=lambda item: item["similarityScore"], reverse=True)[:8]
 
 
 @router.get("/rules")
@@ -501,6 +592,30 @@ async def case_report_pdf(case_id: uuid.UUID, db: DBSession, user: AuthUser) -> 
             media_type="text/html; charset=utf-8",
             headers={"content-disposition": f'attachment; filename="quarry-pldft-{case["dossierId"]}.html"'},
         )
+
+
+@router.get("/cases/{case_id}/ai-analyst")
+async def case_ai_analyst(case_id: uuid.UUID, db: DBSession, user: AuthUser) -> dict[str, Any]:
+    case = await _get_case_or_404(case_id, db, user)
+    dossier = case.get("dossier") or {}
+    ai_analyst = dossier.get("aiAnalyst") or {}
+    memories = await _decision_memory(db, user, case)
+    return {
+        "caseId": case["id"],
+        "dossierId": case["dossierId"],
+        "aiAnalyst": ai_analyst,
+        "decisionMemory": memories,
+        "operatorBrief": {
+            "headline": "Revisar evidências, lacunas e casos semelhantes antes da decisão.",
+            "recommendedAction": (ai_analyst.get("caseNarrative") or {}).get("recommendedDecision"),
+            "memoryInsight": (
+                f"{len(memories)} caso(s) semelhante(s) encontrados na memória institucional."
+                if memories
+                else "Ainda não há casos semelhantes decididos para comparar."
+            ),
+            "guardrail": "A IA organiza hipóteses e evidências; a decisão final permanece humana e auditável.",
+        },
+    }
 
 
 @router.patch("/cases/{case_id}/decision")

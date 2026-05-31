@@ -97,6 +97,63 @@ export interface PldNetworkEdge {
   transactionIds: string[];
 }
 
+export interface PldAiHypothesis {
+  title: string;
+  confidence: 'alta' | 'media' | 'baixa' | string;
+  basis: string;
+  evidenceIds: string[];
+  evidence: string[];
+  alternateExplanation: string;
+  nextSteps: string[];
+}
+
+export interface PldAiAnalyst {
+  version: string;
+  mode: string;
+  caseNarrative: {
+    summary: string;
+    timeline: Array<{
+      timestamp?: string;
+      transactionId: string;
+      direction?: string;
+      rail?: string;
+      amount: number;
+      customerId?: string;
+      counterpartyId?: string;
+      description: string;
+    }>;
+    keyRiskDrivers: Array<{
+      ruleId: string;
+      title: string;
+      severity: RiskSeverity;
+      score: number;
+      amountInScope: number;
+      evidence: string[];
+    }>;
+    counterpoints: string[];
+    recommendedDecision: string;
+  };
+  hypotheses: PldAiHypothesis[];
+  investigationPlan: string[];
+  critic: {
+    verdict: string;
+    gaps: string[];
+    unsupportedClaims: string[];
+    requiredHumanChecks: string[];
+  };
+  coafDraft: {
+    shouldPrepare: boolean;
+    rationale: string;
+    objectiveFacts: string[];
+    humanApprovalRequired: boolean;
+  };
+  similarityFingerprint: {
+    rules: string[];
+    entities: string[];
+    severity: RiskSeverity;
+  };
+}
+
 export interface PldDossier {
   id: string;
   institution: string;
@@ -111,6 +168,7 @@ export interface PldDossier {
     nodes: PldNetworkNode[];
     edges: PldNetworkEdge[];
   };
+  aiAnalyst?: PldAiAnalyst;
   executiveSummary: string;
   analystChecklist: string[];
   auditTrail: string[];
