@@ -102,6 +102,23 @@ const diagnosticSteps = [
   },
 ];
 
+const founderIncludes = [
+  'Reunião executiva de contexto.',
+  'Checklist PLD/FT, fraude, KYC/KYB e governança.',
+  'Análise de amostra anonimizada de transações.',
+  'Detecção de contas de passagem, fracionamento e incompatibilidade econômica.',
+  'Mapa de lacunas de evidência e controles.',
+  'Relatório executivo para diretoria, compliance e jurídico.',
+  'Reunião de devolutiva e plano de piloto de 60 dias.',
+];
+
+const founderExcludes = [
+  'Integração completa com core banking.',
+  'Monitoramento contínuo em produção.',
+  'Comunicação oficial COAF/Bacen.',
+  'Parecer jurídico ou assinatura de especialista externo.',
+];
+
 const positioning = [
   {
     title: 'Mais profundo que screening',
@@ -245,32 +262,45 @@ export default function PldFtPage() {
 
       <section className="border-b border-[#ddd4c6] bg-[#f7f4ef] px-5 py-16 sm:px-8 lg:py-20">
         <div className="mx-auto max-w-6xl">
-          <div className="grid gap-8 lg:grid-cols-[0.92fr_1.08fr] lg:items-end">
+          <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-stretch">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#916f3b]">
-                Diagnóstico remoto PLD/FT
+                Oferta Founder · primeiras 5 fintechs
               </p>
               <h2 className="mt-3 font-serif text-3xl font-semibold tracking-tight sm:text-5xl">
-                Em 7 dias, sua fintech descobre onde está exposta sem instalar nada pesado.
+                Diagnóstico PLD/FT de R$ 60.000 por R$ 18.000.
               </h2>
+              <p className="mt-5 text-base leading-8 text-[#4d4639]">
+                Queremos avaliar se sua fintech está protegida contra fraudes,
+                lavagem de dinheiro e movimentações ligadas a organizações criminosas.
+                Em até 7 dias, analisamos uma amostra anonimizada, identificamos
+                padrões de risco, lacunas de controle e entregamos um relatório
+                executivo para diretoria, compliance e jurídico.
+              </p>
             </div>
-            <div className="rounded-3xl border border-[#d8cdb9] bg-white p-6 shadow-[0_16px_50px_rgba(64,45,20,0.08)]">
-              <p className="text-base leading-8 text-[#4d4639]">
-                O diagnóstico inicial é online, assistido e controlado. Não precisa
-                técnico nosso dentro da fintech. Trabalhamos com dados anonimizados,
-                termo de confidencialidade e uma amostra segura para gerar relatório
-                executivo, mapa de risco e proposta objetiva de piloto.
+            <div className="rounded-3xl border border-[#17140f] bg-[#17140f] p-6 text-[#f7f4ef] shadow-[0_24px_80px_rgba(64,45,20,0.2)]">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#d8b56d]">
+                Preço de validação controlada
+              </p>
+              <div className="mt-5 flex items-end gap-4">
+                <span className="text-lg text-[#b8ad9b] line-through">R$ 60.000</span>
+                <span className="font-serif text-5xl font-semibold text-white">R$ 18.000</span>
+              </div>
+              <p className="mt-4 text-sm leading-7 text-[#d9cfbf]">
+                Valor founder limitado para as primeiras 5 fintechs que aceitarem
+                participar da validação controlada do diagnóstico. Sem instalação pesada,
+                sem técnico dentro da fintech e com dados anonimizados.
               </p>
               <div className="mt-5 flex flex-col gap-3 sm:flex-row">
                 <Link
                   href="mailto:contato@quarry.dev?subject=Diagnostico%20PLD%2FFT%20Quarry"
-                  className="inline-flex items-center justify-center rounded-full bg-[#17140f] px-5 py-3 text-sm font-semibold text-white no-underline transition hover:bg-[#2a241b]"
+                  className="inline-flex items-center justify-center rounded-full bg-[#d8b56d] px-5 py-3 text-sm font-semibold text-[#17140f] no-underline transition hover:bg-[#f0d28a]"
                 >
-                  Solicitar diagnóstico
+                  Reservar oferta founder
                 </Link>
                 <Link
                   href="/br/pld-ft/readiness"
-                  className="inline-flex items-center justify-center rounded-full border border-[#17140f] px-5 py-3 text-sm font-semibold text-[#17140f] no-underline transition hover:bg-[#efe6d8]"
+                  className="inline-flex items-center justify-center rounded-full border border-white/20 px-5 py-3 text-sm font-semibold text-white no-underline transition hover:bg-white/10"
                 >
                   Ver prontidão PLD/FT
                 </Link>
@@ -290,6 +320,29 @@ export default function PldFtPage() {
                 <p className="mt-3 text-sm leading-7 text-[#544b3c]">{step.body}</p>
               </article>
             ))}
+          </div>
+
+          <div className="mt-8 grid gap-4 lg:grid-cols-2">
+            <div className="rounded-3xl border border-[#ddd4c6] bg-white p-6">
+              <h3 className="font-serif text-2xl font-semibold text-[#17140f]">
+                Inclui no diagnóstico
+              </h3>
+              <ul className="mt-4 grid gap-3 text-sm leading-6 text-[#544b3c]">
+                {founderIncludes.map((item) => (
+                  <li key={item} className="rounded-2xl bg-[#f7f4ef] p-3">{item}</li>
+                ))}
+              </ul>
+            </div>
+            <div className="rounded-3xl border border-[#ddd4c6] bg-white p-6">
+              <h3 className="font-serif text-2xl font-semibold text-[#17140f]">
+                Não inclui nesta etapa
+              </h3>
+              <ul className="mt-4 grid gap-3 text-sm leading-6 text-[#544b3c]">
+                {founderExcludes.map((item) => (
+                  <li key={item} className="rounded-2xl bg-[#f7f4ef] p-3">{item}</li>
+                ))}
+              </ul>
+            </div>
           </div>
         </div>
       </section>
