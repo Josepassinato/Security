@@ -82,7 +82,7 @@ const positioning = [
 export const metadata: Metadata = {
   title: { absolute: 'Quarry PLD/FT — monitoramento AML brasileiro para fintechs' },
   description:
-    'Monitoramento transacional PLD/FT para fintechs brasileiras: score de risco, casos, tuning de regras, trilha auditavel, governanca e exportacao regulatoria com aprovacao humana.',
+    'Monitoramento transacional PLD/FT para fintechs brasileiras com foco em prevencao a lavagem de dinheiro por organizacoes criminosas: score de risco, casos, trilha auditavel e aprovacao humana.',
   alternates: { canonical: '/br/pld-ft' },
   openGraph: {
     title: 'Quarry PLD/FT — risco transacional e evidência auditável',
@@ -111,14 +111,15 @@ export default function PldFtPage() {
               PLD/FT para fintechs brasileiras
             </p>
             <h1 className="max-w-4xl font-serif text-4xl font-semibold leading-[0.98] tracking-tight text-[#17140f] sm:text-6xl">
-              Monitoramento AML brasileiro para fintechs que precisam provar controle PLD/FT.
+              Proteja sua fintech de ser usada como instrumento financeiro de organizações criminosas.
             </h1>
             <p className="mt-6 max-w-3xl text-lg leading-8 text-[#4d4639]">
               Com organizações criminosas brasileiras entrando no radar internacional de
-              sanções e terrorismo, fintechs precisam provar que conseguem detectar
-              movimentações anormais, investigar redes financeiras e preservar evidências
-              defensáveis. Quarry transforma esse trabalho em pipeline auditável: alerta,
-              caso, score, decisão humana, trilha hash e exportação regulatória.
+              sanções e terrorismo, fintechs precisam provar que conseguem prevenir e
+              detectar sinais compatíveis com lavagem de dinheiro, movimentações
+              anormais e redes financeiras suspeitas. Quarry transforma esse trabalho em
+              pipeline auditável: alerta, caso, score, decisão humana, trilha hash e
+              exportação regulatória.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link
