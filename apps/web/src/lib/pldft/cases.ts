@@ -12,7 +12,14 @@ export interface PldCaseDecision {
 export interface PldCaseRecord {
   id: string;
   createdAt: string;
+  updatedAt?: string;
   status: PldCaseStatus;
+  assignee?: string | null;
+  priority?: string | null;
+  slaDueAt?: string | null;
+  closedAt?: string | null;
+  reopenedAt?: string | null;
+  workflow?: Record<string, unknown>;
   dossier: PldDossier;
   decisions: PldCaseDecision[];
 }

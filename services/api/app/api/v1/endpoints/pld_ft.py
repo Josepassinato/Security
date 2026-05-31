@@ -123,19 +123,71 @@ class ThresholdsRequest(BaseModel):
     thresholds: dict[str, Any] = Field(default_factory=dict)
 
 
+class RuleSimulationRequest(BaseModel):
+    thresholds: dict[str, Any] = Field(default_factory=dict)
+    payload: AnalyzeRequest | None = None
+
+
+class RuleVersionRequest(BaseModel):
+    versionName: str = Field(..., min_length=2, max_length=120)
+    thresholds: dict[str, Any] = Field(default_factory=dict)
+    rationale: str = Field(default="", max_length=4000)
+
+
+class RuleVersionDecisionRequest(BaseModel):
+    note: str = Field(default="", max_length=2000)
+
+
+class WorkflowRequest(BaseModel):
+    assignee: str | None = Field(default=None, max_length=160)
+    priority: str | None = Field(default=None, max_length=40)
+    slaDueAt: str | None = None
+    status: str | None = Field(default=None, max_length=40)
+    note: str | None = Field(default=None, max_length=2000)
+
+
+class CommentRequest(BaseModel):
+    body: str = Field(..., min_length=1, max_length=4000)
+    author: str | None = Field(default=None, max_length=160)
+
+
+class AttachmentRequest(BaseModel):
+    fileName: str = Field(..., min_length=1, max_length=240)
+    contentType: str = Field(default="", max_length=120)
+    fileSize: int = Field(default=0, ge=0)
+    description: str = Field(default="", max_length=1000)
+    storageUrl: str = Field(default="", max_length=1000)
+
+
+def _row_value(row: Any, key: str, default: Any = None) -> Any:
+    try:
+        return getattr(row, key)
+    except AttributeError:
+        try:
+            return row._mapping.get(key, default)
+        except AttributeError:
+            return default
+
+
 def _row_to_case(row: Any, decisions: list[dict[str, Any]] | None = None) -> dict[str, Any]:
-    dossier = dict(row.dossier or {})
+    dossier = dict(_row_value(row, "dossier", {}) or {})
     return {
-        "id": str(row.id),
-        "status": row.status,
-        "importId": str(row.import_id) if row.import_id else None,
+        "id": str(_row_value(row, "id")),
+        "status": _row_value(row, "status"),
+        "importId": str(_row_value(row, "import_id")) if _row_value(row, "import_id") else None,
         "dossier": dossier,
-        "dossierId": row.dossier_id,
-        "institution": row.institution,
-        "riskScore": row.risk_score,
-        "severity": row.severity,
-        "createdAt": row.created_at.isoformat() if row.created_at else None,
-        "updatedAt": row.updated_at.isoformat() if row.updated_at else None,
+        "dossierId": _row_value(row, "dossier_id"),
+        "institution": _row_value(row, "institution"),
+        "riskScore": _row_value(row, "risk_score"),
+        "severity": _row_value(row, "severity"),
+        "assignee": _row_value(row, "assignee"),
+        "priority": _row_value(row, "priority", "normal"),
+        "slaDueAt": _row_value(row, "sla_due_at").isoformat() if _row_value(row, "sla_due_at") else None,
+        "closedAt": _row_value(row, "closed_at").isoformat() if _row_value(row, "closed_at") else None,
+        "reopenedAt": _row_value(row, "reopened_at").isoformat() if _row_value(row, "reopened_at") else None,
+        "workflow": _row_value(row, "workflow", {}) or {},
+        "createdAt": _row_value(row, "created_at").isoformat() if _row_value(row, "created_at") else None,
+        "updatedAt": _row_value(row, "updated_at").isoformat() if _row_value(row, "updated_at") else None,
         "decisions": decisions or [],
     }
 
@@ -291,6 +343,55 @@ def _case_report_html(case: dict[str, Any]) -> str:
     """
 
 
+def _executive_report_html(report: dict[str, Any]) -> str:
+    kpis = report.get("kpis") or {}
+    top_customers = report.get("topCustomers") or []
+    top_rules = report.get("topRules") or []
+    return f"""
+    <!doctype html>
+    <html lang="pt-BR">
+      <head>
+        <meta charset="utf-8" />
+        <title>Relatório Executivo PLD/FT</title>
+        <style>
+          @page {{ size: A4; margin: 20mm 18mm; }}
+          body {{ font-family: Inter, Arial, sans-serif; color: #111827; line-height: 1.55; }}
+          h1 {{ font-size: 26px; margin: 0 0 8px; }}
+          h2 {{ margin-top: 24px; font-size: 18px; border-bottom: 1px solid #d1d5db; padding-bottom: 6px; }}
+          .grid {{ display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }}
+          .card {{ border: 1px solid #d1d5db; border-radius: 10px; padding: 12px; break-inside: avoid; }}
+          .muted {{ color: #4b5563; font-size: 12px; }}
+          table {{ width: 100%; border-collapse: collapse; }}
+          td, th {{ border-bottom: 1px solid #e5e7eb; padding: 8px; text-align: left; font-size: 12px; }}
+        </style>
+      </head>
+      <body>
+        <p class="muted">Quarry PLD/FT · Comitê de PLD/FT · {_html_escape(report.get("generatedAt"))}</p>
+        <h1>Relatório Executivo PLD/FT</h1>
+        <p>{_html_escape(report.get("executiveSummary"))}</p>
+        <div class="grid">
+          <div class="card"><strong>Casos</strong><br />{_html_escape(kpis.get("totalCases"))}</div>
+          <div class="card"><strong>Abertos</strong><br />{_html_escape(kpis.get("openCases"))}</div>
+          <div class="card"><strong>Críticos</strong><br />{_html_escape(kpis.get("criticalCases"))}</div>
+          <div class="card"><strong>SLA vencido</strong><br />{_html_escape(kpis.get("overdueCases"))}</div>
+        </div>
+        <h2>Clientes de maior risco contínuo</h2>
+        <table>
+          <tr><th>Cliente</th><th>Score</th><th>Severidade</th><th>Casos</th><th>Volume</th></tr>
+          {"".join(f"<tr><td>{_html_escape(item.get('customerId'))}</td><td>{_html_escape(item.get('riskScore'))}</td><td>{_html_escape(item.get('severity'))}</td><td>{_html_escape(item.get('totalCases'))}</td><td>{_brl(item.get('totalAmount'))}</td></tr>" for item in top_customers)}
+        </table>
+        <h2>Regras mais acionadas</h2>
+        <table>
+          <tr><th>Regra</th><th>Ocorrências</th></tr>
+          {"".join(f"<tr><td>{_html_escape(item.get('ruleId'))}</td><td>{_html_escape(item.get('count'))}</td></tr>" for item in top_rules)}
+        </table>
+        <h2>Recomendações para diretoria/comitê</h2>
+        <ul>{"".join(f"<li>{_html_escape(item)}</li>" for item in report.get("committeeRecommendations") or [])}</ul>
+      </body>
+    </html>
+    """
+
+
 async def _saved_thresholds(db: DBSession, user: AuthUser) -> dict[str, Any]:
     row = (
         await db.execute(
@@ -340,6 +441,202 @@ async def _get_case_or_404(case_id: uuid.UUID, db: DBSession, user: AuthUser) ->
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="PLD/FT case not found")
     decisions = await _case_decisions(db, user, case_id)
     return _row_to_case(row, decisions)
+
+
+def _case_customer_ids(case: dict[str, Any]) -> set[str]:
+    dossier = case.get("dossier") or {}
+    ids = {
+        str(item.get("entityId"))
+        for item in dossier.get("findings") or []
+        if item.get("entityId") and item.get("entityType") == "customer"
+    }
+    for node in (dossier.get("network") or {}).get("nodes") or []:
+        if node.get("type") == "customer" and node.get("id"):
+            ids.add(str(node["id"]))
+    return ids
+
+
+def _risk_severity(score: int) -> str:
+    if score >= 85:
+        return "critical"
+    if score >= 65:
+        return "high"
+    if score >= 40:
+        return "medium"
+    return "low"
+
+
+async def _recompute_customer_risk(db: DBSession, user: AuthUser) -> list[dict[str, Any]]:
+    rows = (
+        await db.execute(
+            text(
+                """
+                SELECT *
+                FROM pld_ft_cases
+                WHERE tenant_id = :tenant_id
+                ORDER BY updated_at DESC, created_at DESC
+                """
+            ).bindparams(tenant_id=user.tenant_id)
+        )
+    ).fetchall()
+    grouped: dict[str, dict[str, Any]] = {}
+    for row in rows:
+        case = _row_to_case(row, [])
+        for customer_id in _case_customer_ids(case):
+            item = grouped.setdefault(
+                customer_id,
+                {
+                    "customerId": customer_id,
+                    "riskScore": 0,
+                    "totalCases": 0,
+                    "openCases": 0,
+                    "escalatedCases": 0,
+                    "falsePositiveCases": 0,
+                    "totalAmount": 0.0,
+                    "rules": {},
+                    "evidence": [],
+                    "lastCaseAt": None,
+                },
+            )
+            status_value = str(case.get("status") or "")
+            case_score = int(case.get("riskScore") or 0)
+            if status_value == "falso_positivo":
+                case_score = max(0, round(case_score * 0.25))
+                item["falsePositiveCases"] += 1
+            elif status_value == "escalado":
+                case_score = min(100, case_score + 8)
+                item["escalatedCases"] += 1
+            if status_value not in {"encerrado", "falso_positivo"}:
+                item["openCases"] += 1
+            item["riskScore"] = max(int(item["riskScore"]), case_score)
+            item["totalCases"] += 1
+            item["totalAmount"] += float((case.get("dossier") or {}).get("suspiciousAmount") or 0)
+            item["lastCaseAt"] = item["lastCaseAt"] or case.get("updatedAt") or case.get("createdAt")
+            for finding in (case.get("dossier") or {}).get("findings") or []:
+                rule_id = str(finding.get("ruleId") or "unknown")
+                item["rules"][rule_id] = int(item["rules"].get(rule_id, 0)) + 1
+            item["evidence"].append(
+                {
+                    "caseId": case["id"],
+                    "dossierId": case.get("dossierId"),
+                    "status": status_value,
+                    "riskScore": case.get("riskScore"),
+                    "severity": case.get("severity"),
+                }
+            )
+
+    result: list[dict[str, Any]] = []
+    await db.execute(text("DELETE FROM pld_ft_customer_risk WHERE tenant_id = :tenant_id").bindparams(tenant_id=user.tenant_id))
+    for item in grouped.values():
+        top_rules = [
+            {"ruleId": rule, "count": count}
+            for rule, count in sorted(item["rules"].items(), key=lambda pair: pair[1], reverse=True)[:6]
+        ]
+        score = min(100, int(item["riskScore"]) + min(10, max(0, int(item["openCases"]) - 1) * 3))
+        severity = _risk_severity(score)
+        await db.execute(
+            text(
+                """
+                INSERT INTO pld_ft_customer_risk (
+                    tenant_id, customer_id, risk_score, severity, total_cases, open_cases,
+                    escalated_cases, false_positive_cases, total_amount, top_rules, evidence,
+                    last_case_at, updated_at
+                )
+                VALUES (
+                    :tenant_id, :customer_id, :risk_score, :severity, :total_cases, :open_cases,
+                    :escalated_cases, :false_positive_cases, :total_amount, CAST(:top_rules AS jsonb),
+                    CAST(:evidence AS jsonb), CAST(:last_case_at AS timestamptz), now()
+                )
+                ON CONFLICT (tenant_id, customer_id)
+                DO UPDATE SET
+                    risk_score = EXCLUDED.risk_score,
+                    severity = EXCLUDED.severity,
+                    total_cases = EXCLUDED.total_cases,
+                    open_cases = EXCLUDED.open_cases,
+                    escalated_cases = EXCLUDED.escalated_cases,
+                    false_positive_cases = EXCLUDED.false_positive_cases,
+                    total_amount = EXCLUDED.total_amount,
+                    top_rules = EXCLUDED.top_rules,
+                    evidence = EXCLUDED.evidence,
+                    last_case_at = EXCLUDED.last_case_at,
+                    updated_at = now()
+                """
+            ).bindparams(
+                tenant_id=user.tenant_id,
+                customer_id=item["customerId"],
+                risk_score=score,
+                severity=severity,
+                total_cases=item["totalCases"],
+                open_cases=item["openCases"],
+                escalated_cases=item["escalatedCases"],
+                false_positive_cases=item["falsePositiveCases"],
+                total_amount=item["totalAmount"],
+                top_rules=json.dumps(top_rules, ensure_ascii=False),
+                evidence=json.dumps(item["evidence"][:10], ensure_ascii=False),
+                last_case_at=item["lastCaseAt"],
+            )
+        )
+        result.append(
+            {
+                **{key: value for key, value in item.items() if key not in {"rules"}},
+                "riskScore": score,
+                "severity": severity,
+                "topRules": top_rules,
+            }
+        )
+    await db.commit()
+    return sorted(result, key=lambda item: item["riskScore"], reverse=True)
+
+
+async def _case_comments(db: DBSession, user: AuthUser, case_id: uuid.UUID) -> list[dict[str, Any]]:
+    rows = (
+        await db.execute(
+            text(
+                """
+                SELECT id, body, author, created_at
+                FROM pld_ft_case_comments
+                WHERE tenant_id = :tenant_id AND case_id = :case_id
+                ORDER BY created_at DESC
+                """
+            ).bindparams(tenant_id=user.tenant_id, case_id=case_id)
+        )
+    ).fetchall()
+    return [
+        {
+            "id": str(row.id),
+            "body": row.body,
+            "author": row.author,
+            "createdAt": row.created_at.isoformat() if row.created_at else None,
+        }
+        for row in rows
+    ]
+
+
+async def _case_attachments(db: DBSession, user: AuthUser, case_id: uuid.UUID) -> list[dict[str, Any]]:
+    rows = (
+        await db.execute(
+            text(
+                """
+                SELECT id, file_name, content_type, file_size, description, storage_url, created_at
+                FROM pld_ft_case_attachments
+                WHERE tenant_id = :tenant_id AND case_id = :case_id
+                ORDER BY created_at DESC
+                """
+            ).bindparams(tenant_id=user.tenant_id, case_id=case_id)
+        )
+    ).fetchall()
+    return [
+        {
+            "id": str(row.id),
+            "fileName": row.file_name,
+            "contentType": row.content_type,
+            "fileSize": row.file_size,
+            "description": row.description,
+            "storageUrl": row.storage_url,
+            "createdAt": row.created_at.isoformat() if row.created_at else None,
+        }
+        for row in rows
+    ]
 
 
 def _rules_from_case(case: dict[str, Any]) -> set[str]:
@@ -428,6 +725,208 @@ async def save_thresholds(payload: ThresholdsRequest, db: DBSession, user: AuthU
     )
     await db.commit()
     return {"thresholds": {**DEFAULT_THRESHOLDS, **payload.thresholds}, "saved": True}
+
+
+@router.post("/rule-simulations")
+async def simulate_rules(payload: RuleSimulationRequest, db: DBSession, user: AuthUser) -> dict[str, Any]:
+    saved = await _saved_thresholds(db, user)
+    proposed = {**saved, **payload.thresholds}
+    if payload.payload:
+        body = payload.payload.model_dump()
+        baseline = analyze_pld_ft(body, saved_thresholds=saved)
+        simulated = analyze_pld_ft(body, saved_thresholds=proposed)
+        baseline_rules = {item["ruleId"] for item in baseline.get("findings") or []}
+        simulated_rules = {item["ruleId"] for item in simulated.get("findings") or []}
+        return {
+            "mode": "payload",
+            "baseline": {
+                "riskScore": baseline["riskScore"],
+                "severity": baseline["severity"],
+                "findingCount": len(baseline.get("findings") or []),
+                "rules": sorted(baseline_rules),
+            },
+            "simulated": {
+                "riskScore": simulated["riskScore"],
+                "severity": simulated["severity"],
+                "findingCount": len(simulated.get("findings") or []),
+                "rules": sorted(simulated_rules),
+            },
+            "delta": {
+                "riskScore": int(simulated["riskScore"]) - int(baseline["riskScore"]),
+                "findingCount": len(simulated.get("findings") or []) - len(baseline.get("findings") or []),
+                "addedRules": sorted(simulated_rules - baseline_rules),
+                "removedRules": sorted(baseline_rules - simulated_rules),
+            },
+            "recommendation": (
+                "Mudança reduz alertas neste lote; validar se não remove tipologias críticas."
+                if len(simulated.get("findings") or []) < len(baseline.get("findings") or [])
+                else "Mudança aumenta sensibilidade; monitorar falso positivo antes de aprovar."
+            ),
+        }
+
+    rows = (
+        await db.execute(
+            text(
+                """
+                SELECT status, risk_score, severity
+                FROM pld_ft_cases
+                WHERE tenant_id = :tenant_id
+                """
+            ).bindparams(tenant_id=user.tenant_id)
+        )
+    ).fetchall()
+    strictness_delta = 0.0
+    for key, value in payload.thresholds.items():
+        default_value = float(DEFAULT_THRESHOLDS.get(key, saved.get(key, value)) or 1)
+        try:
+            strictness_delta += (float(value) - default_value) / max(default_value, 1)
+        except (TypeError, ValueError):
+            continue
+    false_positive_count = sum(1 for row in rows if row.status == "falso_positivo")
+    open_count = sum(1 for row in rows if row.status not in {"encerrado", "falso_positivo"})
+    pressure = round((false_positive_count / max(len(rows), 1)) * 100, 1)
+    return {
+        "mode": "historical_estimate",
+        "sampleSize": len(rows),
+        "openCases": open_count,
+        "falsePositiveCases": false_positive_count,
+        "falsePositivePressure": pressure,
+        "strictnessDelta": round(strictness_delta, 3),
+        "estimatedImpact": (
+            "Pode reduzir falso positivo, mas exige teste em lote real antes de aprovação."
+            if strictness_delta > 0
+            else "Pode aumentar captura de risco, com chance de mais falso positivo."
+        ),
+        "nextStep": "Crie uma versão de regra, submeta para aprovação e registre a justificativa do compliance officer.",
+    }
+
+
+@router.get("/rule-versions")
+async def list_rule_versions(db: DBSession, user: AuthUser) -> dict[str, Any]:
+    rows = (
+        await db.execute(
+            text(
+                """
+                SELECT id, version_name, thresholds, status, rationale, submitted_at, approved_at, rejected_at, created_at, updated_at
+                FROM pld_ft_rule_versions
+                WHERE tenant_id = :tenant_id
+                ORDER BY created_at DESC
+                LIMIT 100
+                """
+            ).bindparams(tenant_id=user.tenant_id)
+        )
+    ).fetchall()
+    return {
+        "versions": [
+            {
+                "id": str(row.id),
+                "versionName": row.version_name,
+                "thresholds": row.thresholds or {},
+                "status": row.status,
+                "rationale": row.rationale,
+                "submittedAt": row.submitted_at.isoformat() if row.submitted_at else None,
+                "approvedAt": row.approved_at.isoformat() if row.approved_at else None,
+                "rejectedAt": row.rejected_at.isoformat() if row.rejected_at else None,
+                "createdAt": row.created_at.isoformat() if row.created_at else None,
+                "updatedAt": row.updated_at.isoformat() if row.updated_at else None,
+            }
+            for row in rows
+        ]
+    }
+
+
+@router.post("/rule-versions", status_code=status.HTTP_201_CREATED)
+async def create_rule_version(payload: RuleVersionRequest, db: DBSession, user: AuthUser) -> dict[str, Any]:
+    row = (
+        await db.execute(
+            text(
+                """
+                INSERT INTO pld_ft_rule_versions (tenant_id, version_name, thresholds, rationale, created_by)
+                VALUES (:tenant_id, :version_name, CAST(:thresholds AS jsonb), :rationale, :user_id)
+                ON CONFLICT (tenant_id, version_name)
+                DO UPDATE SET thresholds = EXCLUDED.thresholds, rationale = EXCLUDED.rationale, status = 'draft', updated_at = now()
+                RETURNING id, version_name, thresholds, status, rationale, created_at, updated_at
+                """
+            ).bindparams(
+                tenant_id=user.tenant_id,
+                version_name=payload.versionName,
+                thresholds=json.dumps(payload.thresholds, ensure_ascii=False),
+                rationale=payload.rationale,
+                user_id=user.user_id,
+            )
+        )
+    ).fetchone()
+    await db.commit()
+    return {
+        "id": str(row.id),
+        "versionName": row.version_name,
+        "thresholds": row.thresholds or {},
+        "status": row.status,
+        "rationale": row.rationale,
+        "createdAt": row.created_at.isoformat() if row.created_at else None,
+        "updatedAt": row.updated_at.isoformat() if row.updated_at else None,
+    }
+
+
+@router.patch("/rule-versions/{version_id}/{action}")
+async def decide_rule_version(
+    version_id: uuid.UUID,
+    action: str,
+    payload: RuleVersionDecisionRequest,
+    db: DBSession,
+    user: AuthUser,
+) -> dict[str, Any]:
+    if action not in {"submit", "approve", "reject"}:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Invalid rule version action")
+    status_value = {"submit": "pending_approval", "approve": "approved", "reject": "rejected"}[action]
+    timestamp_column = {"submit": "submitted_at", "approve": "approved_at", "reject": "rejected_at"}[action]
+    row = (
+        await db.execute(
+            text(
+                f"""
+                UPDATE pld_ft_rule_versions
+                SET status = :status, {timestamp_column} = now(), approved_by = CASE WHEN :action = 'approve' THEN :user_id ELSE approved_by END, updated_at = now()
+                WHERE tenant_id = :tenant_id AND id = :id
+                RETURNING id, version_name, thresholds, status, rationale, submitted_at, approved_at, rejected_at
+                """
+            ).bindparams(
+                tenant_id=user.tenant_id,
+                id=version_id,
+                status=status_value,
+                action=action,
+                user_id=user.user_id,
+            )
+        )
+    ).fetchone()
+    if not row:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Rule version not found")
+    if action == "approve":
+        await db.execute(
+            text(
+                """
+                INSERT INTO pld_ft_thresholds (tenant_id, thresholds, updated_by, updated_at)
+                VALUES (:tenant_id, CAST(:thresholds AS jsonb), :user_id, now())
+                ON CONFLICT (tenant_id)
+                DO UPDATE SET thresholds = EXCLUDED.thresholds, updated_by = EXCLUDED.updated_by, updated_at = now()
+                """
+            ).bindparams(
+                tenant_id=user.tenant_id,
+                thresholds=json.dumps(row.thresholds or {}, ensure_ascii=False),
+                user_id=user.user_id,
+            )
+        )
+    await db.commit()
+    return {
+        "id": str(row.id),
+        "versionName": row.version_name,
+        "thresholds": row.thresholds or {},
+        "status": row.status,
+        "rationale": row.rationale,
+        "submittedAt": row.submitted_at.isoformat() if row.submitted_at else None,
+        "approvedAt": row.approved_at.isoformat() if row.approved_at else None,
+        "rejectedAt": row.rejected_at.isoformat() if row.rejected_at else None,
+        "note": payload.note,
+    }
 
 
 @router.post("/analyze", status_code=status.HTTP_201_CREATED)
@@ -534,6 +1033,7 @@ async def save_case(payload: SaveCaseRequest, db: DBSession, user: AuthUser) -> 
             ).bindparams(tenant_id=user.tenant_id, import_id=payload.importId, case_id_text=str(row.id))
         )
     await db.commit()
+    await _recompute_customer_risk(db, user)
 
     decisions = await _case_decisions(db, user, row.id)
     return _row_to_case(row, decisions)
@@ -571,6 +1071,65 @@ async def list_cases(
         decisions = await _case_decisions(db, user, row.id)
         cases.append(_row_to_case(row, decisions))
     return {"cases": cases}
+
+
+@router.get("/customer-risk")
+async def list_customer_risk(db: DBSession, user: AuthUser, limit: int = Query(default=50, ge=1, le=250)) -> dict[str, Any]:
+    rows = (
+        await db.execute(
+            text(
+                """
+                SELECT customer_id, risk_score, severity, total_cases, open_cases, escalated_cases,
+                       false_positive_cases, total_amount, top_rules, evidence, last_case_at, updated_at
+                FROM pld_ft_customer_risk
+                WHERE tenant_id = :tenant_id
+                ORDER BY risk_score DESC, updated_at DESC
+                LIMIT :limit
+                """
+            ).bindparams(tenant_id=user.tenant_id, limit=limit)
+        )
+    ).fetchall()
+    if not rows:
+        await _recompute_customer_risk(db, user)
+        rows = (
+            await db.execute(
+                text(
+                    """
+                    SELECT customer_id, risk_score, severity, total_cases, open_cases, escalated_cases,
+                           false_positive_cases, total_amount, top_rules, evidence, last_case_at, updated_at
+                    FROM pld_ft_customer_risk
+                    WHERE tenant_id = :tenant_id
+                    ORDER BY risk_score DESC, updated_at DESC
+                    LIMIT :limit
+                    """
+                ).bindparams(tenant_id=user.tenant_id, limit=limit)
+            )
+        ).fetchall()
+    return {
+        "customers": [
+            {
+                "customerId": row.customer_id,
+                "riskScore": row.risk_score,
+                "severity": row.severity,
+                "totalCases": row.total_cases,
+                "openCases": row.open_cases,
+                "escalatedCases": row.escalated_cases,
+                "falsePositiveCases": row.false_positive_cases,
+                "totalAmount": float(row.total_amount or 0),
+                "topRules": row.top_rules or [],
+                "evidence": row.evidence or [],
+                "lastCaseAt": row.last_case_at.isoformat() if row.last_case_at else None,
+                "updatedAt": row.updated_at.isoformat() if row.updated_at else None,
+            }
+            for row in rows
+        ]
+    }
+
+
+@router.post("/customer-risk/recompute")
+async def recompute_customer_risk(db: DBSession, user: AuthUser) -> dict[str, Any]:
+    customers = await _recompute_customer_risk(db, user)
+    return {"customers": customers, "count": len(customers)}
 
 
 @router.get("/cases/{case_id}/report.pdf")
@@ -618,6 +1177,124 @@ async def case_ai_analyst(case_id: uuid.UUID, db: DBSession, user: AuthUser) -> 
     }
 
 
+@router.patch("/cases/{case_id}/workflow")
+async def update_case_workflow(case_id: uuid.UUID, payload: WorkflowRequest, db: DBSession, user: AuthUser) -> dict[str, Any]:
+    await _get_case_or_404(case_id, db, user)
+    status_value = payload.status
+    workflow_patch = {
+        "lastWorkflowNote": payload.note,
+        "lastWorkflowUpdateBy": user.email,
+        "lastWorkflowUpdateAt": datetime.utcnow().isoformat() + "Z",
+    }
+    row = (
+        await db.execute(
+            text(
+                """
+                UPDATE pld_ft_cases
+                SET
+                    assignee = COALESCE(:assignee, assignee),
+                    priority = COALESCE(:priority, priority),
+                    sla_due_at = COALESCE(CAST(:sla_due_at AS timestamptz), sla_due_at),
+                    status = COALESCE(:status, status),
+                    closed_at = CASE WHEN :status = 'encerrado' THEN now() ELSE closed_at END,
+                    reopened_at = CASE WHEN :status IN ('novo', 'em_revisao', 'escalado') AND closed_at IS NOT NULL THEN now() ELSE reopened_at END,
+                    workflow = workflow || CAST(:workflow_patch AS jsonb),
+                    updated_at = now()
+                WHERE tenant_id = :tenant_id AND id = :id
+                RETURNING *
+                """
+            ).bindparams(
+                tenant_id=user.tenant_id,
+                id=case_id,
+                assignee=payload.assignee,
+                priority=payload.priority,
+                sla_due_at=payload.slaDueAt,
+                status=status_value,
+                workflow_patch=json.dumps(workflow_patch, ensure_ascii=False),
+            )
+        )
+    ).fetchone()
+    if payload.note:
+        await db.execute(
+            text(
+                """
+                INSERT INTO pld_ft_case_comments (tenant_id, case_id, body, author, created_by)
+                VALUES (:tenant_id, :case_id, :body, :author, :user_id)
+                """
+            ).bindparams(
+                tenant_id=user.tenant_id,
+                case_id=case_id,
+                body=payload.note,
+                author=user.email,
+                user_id=user.user_id,
+            )
+        )
+    await db.commit()
+    await _recompute_customer_risk(db, user)
+    return _row_to_case(row, await _case_decisions(db, user, case_id))
+
+
+@router.get("/cases/{case_id}/comments")
+async def list_case_comments(case_id: uuid.UUID, db: DBSession, user: AuthUser) -> dict[str, Any]:
+    await _get_case_or_404(case_id, db, user)
+    return {"comments": await _case_comments(db, user, case_id)}
+
+
+@router.post("/cases/{case_id}/comments", status_code=status.HTTP_201_CREATED)
+async def create_case_comment(case_id: uuid.UUID, payload: CommentRequest, db: DBSession, user: AuthUser) -> dict[str, Any]:
+    await _get_case_or_404(case_id, db, user)
+    await db.execute(
+        text(
+            """
+            INSERT INTO pld_ft_case_comments (tenant_id, case_id, body, author, created_by)
+            VALUES (:tenant_id, :case_id, :body, :author, :user_id)
+            """
+        ).bindparams(
+            tenant_id=user.tenant_id,
+            case_id=case_id,
+            body=payload.body,
+            author=payload.author or user.email,
+            user_id=user.user_id,
+        )
+    )
+    await db.commit()
+    return {"comments": await _case_comments(db, user, case_id)}
+
+
+@router.get("/cases/{case_id}/attachments")
+async def list_case_attachments(case_id: uuid.UUID, db: DBSession, user: AuthUser) -> dict[str, Any]:
+    await _get_case_or_404(case_id, db, user)
+    return {"attachments": await _case_attachments(db, user, case_id)}
+
+
+@router.post("/cases/{case_id}/attachments", status_code=status.HTTP_201_CREATED)
+async def create_case_attachment(case_id: uuid.UUID, payload: AttachmentRequest, db: DBSession, user: AuthUser) -> dict[str, Any]:
+    await _get_case_or_404(case_id, db, user)
+    await db.execute(
+        text(
+            """
+            INSERT INTO pld_ft_case_attachments (
+                tenant_id, case_id, file_name, content_type, file_size, description, storage_url, uploaded_by
+            )
+            VALUES (
+                :tenant_id, :case_id, :file_name, :content_type, :file_size, :description, :storage_url, :user_id
+            )
+            """
+        ).bindparams(
+            tenant_id=user.tenant_id,
+            case_id=case_id,
+            file_name=payload.fileName,
+            content_type=payload.contentType,
+            file_size=payload.fileSize,
+            description=payload.description,
+            storage_url=payload.storageUrl,
+            user_id=user.user_id,
+        )
+    )
+    await db.commit()
+    return {"attachments": await _case_attachments(db, user, case_id)}
+
+
 @router.patch("/cases/{case_id}/decision")
 async def decide_case(case_id: uuid.UUID, payload: DecisionRequest, db: DBSession, user: AuthUser) -> dict[str, Any]:
     await _get_case_or_404(case_id, db, user)
@@ -651,9 +1328,128 @@ async def decide_case(case_id: uuid.UUID, payload: DecisionRequest, db: DBSessio
         )
     ).fetchone()
     await db.commit()
+    await _recompute_customer_risk(db, user)
 
     decisions = await _case_decisions(db, user, case_id)
     return _row_to_case(row, decisions)
+
+
+async def _executive_report(db: DBSession, user: AuthUser) -> dict[str, Any]:
+    await _recompute_customer_risk(db, user)
+    case_rows = (
+        await db.execute(
+            text(
+                """
+                SELECT status, severity, risk_score, sla_due_at, dossier
+                FROM pld_ft_cases
+                WHERE tenant_id = :tenant_id
+                """
+            ).bindparams(tenant_id=user.tenant_id)
+        )
+    ).fetchall()
+    customer_rows = (
+        await db.execute(
+            text(
+                """
+                SELECT customer_id, risk_score, severity, total_cases, open_cases, total_amount, top_rules
+                FROM pld_ft_customer_risk
+                WHERE tenant_id = :tenant_id
+                ORDER BY risk_score DESC
+                LIMIT 10
+                """
+            ).bindparams(tenant_id=user.tenant_id)
+        )
+    ).fetchall()
+    version_rows = (
+        await db.execute(
+            text(
+                """
+                SELECT status, count(*) AS count
+                FROM pld_ft_rule_versions
+                WHERE tenant_id = :tenant_id
+                GROUP BY status
+                """
+            ).bindparams(tenant_id=user.tenant_id)
+        )
+    ).fetchall()
+    now = datetime.utcnow()
+    open_statuses = {"novo", "em_revisao", "escalado"}
+    total_cases = len(case_rows)
+    open_cases = sum(1 for row in case_rows if row.status in open_statuses)
+    critical_cases = sum(1 for row in case_rows if row.severity == "critical")
+    escalated_cases = sum(1 for row in case_rows if row.status == "escalado")
+    false_positive_cases = sum(1 for row in case_rows if row.status == "falso_positivo")
+    overdue_cases = sum(1 for row in case_rows if row.sla_due_at and row.sla_due_at.replace(tzinfo=None) < now and row.status in open_statuses)
+    rules: dict[str, int] = {}
+    for row in case_rows:
+        for finding in (row.dossier or {}).get("findings") or []:
+            rule_id = str(finding.get("ruleId") or "unknown")
+            rules[rule_id] = rules.get(rule_id, 0) + 1
+    top_rules = [{"ruleId": rule, "count": count} for rule, count in sorted(rules.items(), key=lambda pair: pair[1], reverse=True)[:8]]
+    top_customers = [
+        {
+            "customerId": row.customer_id,
+            "riskScore": row.risk_score,
+            "severity": row.severity,
+            "totalCases": row.total_cases,
+            "openCases": row.open_cases,
+            "totalAmount": float(row.total_amount or 0),
+            "topRules": row.top_rules or [],
+        }
+        for row in customer_rows
+    ]
+    recommendations = [
+        "Priorizar revisão dos clientes com score contínuo crítico e casos em SLA vencido.",
+        "Submeter alterações de thresholds via versão formal e aprovação do compliance officer.",
+        "Revisar regras com maior incidência em falso positivo antes de ampliar sensibilidade.",
+    ]
+    if critical_cases:
+        recommendations.insert(0, "Realizar comitê sobre casos críticos e avaliar necessidade de comunicação regulatória.")
+    return {
+        "generatedAt": now.isoformat() + "Z",
+        "executiveSummary": (
+            f"O ambiente possui {total_cases} caso(s) PLD/FT, {open_cases} aberto(s), "
+            f"{critical_cases} crítico(s) e {overdue_cases} com SLA vencido."
+        ),
+        "kpis": {
+            "totalCases": total_cases,
+            "openCases": open_cases,
+            "criticalCases": critical_cases,
+            "escalatedCases": escalated_cases,
+            "falsePositiveCases": false_positive_cases,
+            "overdueCases": overdue_cases,
+        },
+        "topRules": top_rules,
+        "topCustomers": top_customers,
+        "ruleVersionStatus": {row.status: row.count for row in version_rows},
+        "committeeRecommendations": recommendations,
+    }
+
+
+@router.get("/executive-report")
+async def executive_report(db: DBSession, user: AuthUser) -> dict[str, Any]:
+    return await _executive_report(db, user)
+
+
+@router.get("/executive-report.pdf")
+async def executive_report_pdf(db: DBSession, user: AuthUser) -> Response:
+    report = await _executive_report(db, user)
+    html = _executive_report_html(report)
+    try:
+        from weasyprint import HTML  # type: ignore
+
+        pdf = HTML(string=html).write_pdf()
+        return Response(
+            content=pdf,
+            media_type="application/pdf",
+            headers={"content-disposition": 'attachment; filename="quarry-pldft-relatorio-executivo.pdf"'},
+        )
+    except Exception:
+        return Response(
+            content=html,
+            media_type="text/html; charset=utf-8",
+            headers={"content-disposition": 'attachment; filename="quarry-pldft-relatorio-executivo.html"'},
+        )
 
 
 @router.get("/benchmark")

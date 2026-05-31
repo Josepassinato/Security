@@ -63,6 +63,14 @@ export function NavBR() {
             </Link>
           </li>
           <li>
+            <Link
+              href="/br/pld-ft/governance"
+              className="text-sm text-[#3a362e] no-underline hover:text-[#1a1a1a]"
+            >
+              governança
+            </Link>
+          </li>
+          <li>
             <a
               href="/br#benchmark"
               className="text-sm text-[#3a362e] no-underline hover:text-[#1a1a1a]"

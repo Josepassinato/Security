@@ -10,6 +10,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/",
     "/br",
     "/br/pld-ft",
+    "/br/pld-ft/governance",
     "/br/pld-ft/lab",
     "/br/pld-ft/cases",
     "/br/pld-ft/rules",

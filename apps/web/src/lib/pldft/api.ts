@@ -46,6 +46,67 @@ export interface PldAiAnalystResponse {
   };
 }
 
+export interface PldCustomerRiskRecord {
+  customerId: string;
+  riskScore: number;
+  severity: string;
+  totalCases: number;
+  openCases: number;
+  escalatedCases: number;
+  falsePositiveCases: number;
+  totalAmount: number;
+  topRules: Array<{ ruleId: string; count: number }>;
+  evidence: Array<{ caseId: string; dossierId: string; status: string; riskScore: number; severity: string }>;
+  lastCaseAt?: string | null;
+  updatedAt?: string | null;
+}
+
+export interface PldRuleSimulationResponse {
+  mode: string;
+  baseline?: { riskScore: number; severity: string; findingCount: number; rules: string[] };
+  simulated?: { riskScore: number; severity: string; findingCount: number; rules: string[] };
+  delta?: { riskScore: number; findingCount: number; addedRules: string[]; removedRules: string[] };
+  sampleSize?: number;
+  openCases?: number;
+  falsePositiveCases?: number;
+  falsePositivePressure?: number;
+  strictnessDelta?: number;
+  estimatedImpact?: string;
+  recommendation?: string;
+  nextStep?: string;
+}
+
+export interface PldRuleVersion {
+  id: string;
+  versionName: string;
+  thresholds: Partial<PldThresholds>;
+  status: string;
+  rationale: string;
+  submittedAt?: string | null;
+  approvedAt?: string | null;
+  rejectedAt?: string | null;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+  note?: string;
+}
+
+export interface PldExecutiveReport {
+  generatedAt: string;
+  executiveSummary: string;
+  kpis: {
+    totalCases: number;
+    openCases: number;
+    criticalCases: number;
+    escalatedCases: number;
+    falsePositiveCases: number;
+    overdueCases: number;
+  };
+  topRules: Array<{ ruleId: string; count: number }>;
+  topCustomers: PldCustomerRiskRecord[];
+  ruleVersionStatus: Record<string, number>;
+  committeeRecommendations: string[];
+}
+
 async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, {
     ...init,
@@ -112,4 +173,112 @@ export async function savePldThresholdsBackend(thresholds: Partial<PldThresholds
     method: 'PUT',
     body: JSON.stringify({ thresholds }),
   });
+}
+
+export async function listPldCustomerRiskBackend(): Promise<PldCustomerRiskRecord[]> {
+  const payload = await requestJson<{ customers: PldCustomerRiskRecord[] }>('/api/v1/pld-ft/customer-risk');
+  return payload.customers;
+}
+
+export async function recomputePldCustomerRiskBackend(): Promise<PldCustomerRiskRecord[]> {
+  const payload = await requestJson<{ customers: PldCustomerRiskRecord[] }>('/api/v1/pld-ft/customer-risk/recompute', {
+    method: 'POST',
+    body: JSON.stringify({}),
+  });
+  return payload.customers;
+}
+
+export async function simulatePldRulesBackend(thresholds: Partial<PldThresholds>): Promise<PldRuleSimulationResponse> {
+  return requestJson<PldRuleSimulationResponse>('/api/v1/pld-ft/rule-simulations', {
+    method: 'POST',
+    body: JSON.stringify({ thresholds }),
+  });
+}
+
+export async function listPldRuleVersionsBackend(): Promise<PldRuleVersion[]> {
+  const payload = await requestJson<{ versions: PldRuleVersion[] }>('/api/v1/pld-ft/rule-versions');
+  return payload.versions;
+}
+
+export async function createPldRuleVersionBackend(
+  versionName: string,
+  thresholds: Partial<PldThresholds>,
+  rationale: string,
+): Promise<PldRuleVersion> {
+  return requestJson<PldRuleVersion>('/api/v1/pld-ft/rule-versions', {
+    method: 'POST',
+    body: JSON.stringify({ versionName, thresholds, rationale }),
+  });
+}
+
+export async function decidePldRuleVersionBackend(
+  versionId: string,
+  action: 'submit' | 'approve' | 'reject',
+  note = '',
+): Promise<PldRuleVersion> {
+  return requestJson<PldRuleVersion>(`/api/v1/pld-ft/rule-versions/${versionId}/${action}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ note }),
+  });
+}
+
+export async function getPldExecutiveReportBackend(): Promise<PldExecutiveReport> {
+  return requestJson<PldExecutiveReport>('/api/v1/pld-ft/executive-report');
+}
+
+export async function downloadPldExecutiveReportBackend(): Promise<Blob> {
+  const response = await fetch('/api/v1/pld-ft/executive-report.pdf');
+  if (!response.ok) {
+    const text = await response.text().catch(() => '');
+    throw new Error(text || `Erro HTTP ${response.status}`);
+  }
+  return response.blob();
+}
+
+export async function updatePldCaseWorkflowBackend(
+  caseId: string,
+  payload: {
+    assignee?: string;
+    priority?: string;
+    slaDueAt?: string;
+    status?: PldCaseStatus;
+    note?: string;
+  },
+): Promise<PldCaseRecord> {
+  return requestJson<PldCaseRecord>(`/api/v1/pld-ft/cases/${caseId}/workflow`, {
+    method: 'PATCH',
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function listPldCaseCommentsBackend(caseId: string): Promise<Array<{ id: string; body: string; author: string; createdAt?: string }>> {
+  const payload = await requestJson<{ comments: Array<{ id: string; body: string; author: string; createdAt?: string }> }>(
+    `/api/v1/pld-ft/cases/${caseId}/comments`,
+  );
+  return payload.comments;
+}
+
+export async function createPldCaseCommentBackend(caseId: string, body: string, author?: string): Promise<Array<{ id: string; body: string; author: string; createdAt?: string }>> {
+  const payload = await requestJson<{ comments: Array<{ id: string; body: string; author: string; createdAt?: string }> }>(
+    `/api/v1/pld-ft/cases/${caseId}/comments`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ body, author }),
+    },
+  );
+  return payload.comments;
+}
+
+export async function createPldCaseAttachmentBackend(
+  caseId: string,
+  attachment: { fileName: string; contentType?: string; fileSize?: number; description?: string; storageUrl?: string },
+): Promise<Array<{ id: string; fileName: string; contentType: string; fileSize: number; description: string; storageUrl: string; createdAt?: string }>> {
+  const payload = await requestJson<{ attachments: Array<{ id: string; fileName: string; contentType: string; fileSize: number; description: string; storageUrl: string; createdAt?: string }> }>(
+    `/api/v1/pld-ft/cases/${caseId}/attachments`,
+    {
+      method: 'POST',
+      body: JSON.stringify(attachment),
+    },
+  );
+  return payload.attachments;
 }

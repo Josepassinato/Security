@@ -13,9 +13,13 @@ import {
 } from '@/lib/pldft/cases';
 import {
   addPldCaseDecisionBackend,
+  createPldCaseAttachmentBackend,
+  createPldCaseCommentBackend,
   downloadPldCaseReportBackend,
   getPldCaseAiAnalystBackend,
+  listPldCaseCommentsBackend,
   listPldCasesBackend,
+  updatePldCaseWorkflowBackend,
   type PldAiAnalystResponse,
 } from '@/lib/pldft/api';
 import { pldDossierToMarkdown } from '@/lib/pldft/engine';
@@ -101,6 +105,12 @@ export function PldFtCases() {
   const [query, setQuery] = useState('');
   const [aiBrief, setAiBrief] = useState<PldAiAnalystResponse | null>(null);
   const [aiBriefLoading, setAiBriefLoading] = useState(false);
+  const [workflowAssignee, setWorkflowAssignee] = useState('');
+  const [workflowPriority, setWorkflowPriority] = useState('normal');
+  const [workflowSla, setWorkflowSla] = useState('');
+  const [workflowNote, setWorkflowNote] = useState('');
+  const [comments, setComments] = useState<Array<{ id: string; body: string; author: string; createdAt?: string }>>([]);
+  const [attachmentName, setAttachmentName] = useState('');
 
   useEffect(() => {
     void refresh();
@@ -129,10 +139,14 @@ export function PldFtCases() {
   useEffect(() => {
     if (!selected?.id || source !== 'postgres') {
       setAiBrief(null);
+      setComments([]);
       return;
     }
     let active = true;
     setAiBriefLoading(true);
+    setWorkflowAssignee(selected.assignee || '');
+    setWorkflowPriority(selected.priority || 'normal');
+    setWorkflowSla(selected.slaDueAt ? selected.slaDueAt.slice(0, 16) : '');
     getPldCaseAiAnalystBackend(selected.id)
       .then((payload) => {
         if (active) setAiBrief(payload);
@@ -142,6 +156,13 @@ export function PldFtCases() {
       })
       .finally(() => {
         if (active) setAiBriefLoading(false);
+      });
+    listPldCaseCommentsBackend(selected.id)
+      .then((items) => {
+        if (active) setComments(items);
+      })
+      .catch(() => {
+        if (active) setComments([]);
       });
     return () => {
       active = false;
@@ -210,6 +231,42 @@ export function PldFtCases() {
       setNotice('Não foi possível baixar o PDF oficial. Abrindo versão de impressão local.');
       printCase(record);
     }
+  }
+
+  async function saveWorkflow() {
+    if (!selected || source !== 'postgres') return;
+    const updated = await updatePldCaseWorkflowBackend(selected.id, {
+      assignee: workflowAssignee || undefined,
+      priority: workflowPriority,
+      slaDueAt: workflowSla ? new Date(workflowSla).toISOString() : undefined,
+      note: workflowNote || undefined,
+    });
+    setRecords((current) => current.map((record) => record.id === updated.id ? updated : record));
+    if (workflowNote) {
+      const nextComments = await listPldCaseCommentsBackend(selected.id);
+      setComments(nextComments);
+    }
+    setWorkflowNote('');
+    setNotice('Workflow atualizado com responsável, prioridade e SLA.');
+  }
+
+  async function addComment() {
+    if (!selected || !workflowNote.trim()) return;
+    const nextComments = await createPldCaseCommentBackend(selected.id, workflowNote, analyst);
+    setComments(nextComments);
+    setWorkflowNote('');
+    setNotice('Comentário registrado no caso.');
+  }
+
+  async function addAttachment() {
+    if (!selected || !attachmentName.trim()) return;
+    await createPldCaseAttachmentBackend(selected.id, {
+      fileName: attachmentName,
+      contentType: 'referencia/manual',
+      description: 'Anexo registrado manualmente para trilha do caso.',
+    });
+    setAttachmentName('');
+    setNotice('Anexo registrado na trilha do caso.');
   }
 
   return (
@@ -374,6 +431,65 @@ export function PldFtCases() {
                 <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
                   <p className="text-xs uppercase tracking-[0.16em] text-slate-400">Decisões</p>
                   <p className="mt-2 text-xl font-semibold text-white">{selected.decisions.length}</p>
+                </div>
+              </section>
+
+              <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
+                <h3 className="text-xl font-semibold text-white">Workflow do caso</h3>
+                <div className="mt-4 grid gap-3 md:grid-cols-[0.8fr_0.6fr_0.8fr_auto]">
+                  <input
+                    value={workflowAssignee}
+                    onChange={(event) => setWorkflowAssignee(event.target.value)}
+                    placeholder="Responsável"
+                    className="rounded-xl border border-white/10 bg-slate-950 px-3 py-3 text-sm text-white"
+                  />
+                  <select
+                    value={workflowPriority}
+                    onChange={(event) => setWorkflowPriority(event.target.value)}
+                    className="rounded-xl border border-white/10 bg-slate-950 px-3 py-3 text-sm text-white"
+                  >
+                    <option value="low">Baixa</option>
+                    <option value="normal">Normal</option>
+                    <option value="high">Alta</option>
+                    <option value="critical">Crítica</option>
+                  </select>
+                  <input
+                    type="datetime-local"
+                    value={workflowSla}
+                    onChange={(event) => setWorkflowSla(event.target.value)}
+                    className="rounded-xl border border-white/10 bg-slate-950 px-3 py-3 text-sm text-white"
+                  />
+                  <button type="button" onClick={saveWorkflow} disabled={source !== 'postgres'} className="rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-white disabled:opacity-50">
+                    Salvar workflow
+                  </button>
+                </div>
+                <div className="mt-3 grid gap-3 md:grid-cols-[1fr_auto_auto]">
+                  <input
+                    value={workflowNote}
+                    onChange={(event) => setWorkflowNote(event.target.value)}
+                    placeholder="Comentário, reabertura, pendência ou justificativa"
+                    className="rounded-xl border border-white/10 bg-slate-950 px-3 py-3 text-sm text-white"
+                  />
+                  <button type="button" onClick={addComment} disabled={source !== 'postgres'} className="rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-slate-200 disabled:opacity-50">
+                    Comentar
+                  </button>
+                  <input
+                    value={attachmentName}
+                    onChange={(event) => setAttachmentName(event.target.value)}
+                    placeholder="Nome do anexo"
+                    className="rounded-xl border border-white/10 bg-slate-950 px-3 py-3 text-sm text-white"
+                  />
+                  <button type="button" onClick={addAttachment} disabled={source !== 'postgres'} className="rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-slate-200 disabled:opacity-50 md:col-start-3">
+                    Registrar anexo
+                  </button>
+                </div>
+                <div className="mt-4 grid gap-3">
+                  {comments.slice(0, 4).map((comment) => (
+                    <div key={comment.id} className="rounded-2xl border border-white/10 bg-slate-950/70 p-4">
+                      <p className="text-xs text-slate-500">{comment.author} · {comment.createdAt}</p>
+                      <p className="mt-2 text-sm leading-6 text-slate-300">{comment.body}</p>
+                    </div>
+                  ))}
                 </div>
               </section>
 

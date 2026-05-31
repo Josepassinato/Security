@@ -109,6 +109,12 @@ export default function PldFtPage() {
                 Abrir laboratório PLD/FT
               </Link>
               <Link
+                href="/br/pld-ft/governance"
+                className="inline-flex items-center justify-center rounded-full border border-[#17140f] bg-white px-6 py-3 text-sm font-semibold text-[#17140f] no-underline transition hover:bg-[#f0e8d8]"
+              >
+                Governança e comitê
+              </Link>
+              <Link
                 href="/demo-financeira"
                 className="inline-flex items-center justify-center rounded-full border border-[#b9ad9a] px-6 py-3 text-sm font-semibold text-[#262017] no-underline transition hover:border-[#17140f]"
               >
