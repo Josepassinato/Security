@@ -107,6 +107,65 @@ export interface PldExecutiveReport {
   committeeRecommendations: string[];
 }
 
+export interface PldMonthlyMetrics {
+  month: string;
+  period: { start: string; end: string };
+  kpis: {
+    alerts: number;
+    cases: number;
+    archived: number;
+    escalated: number;
+    slaTracked: number;
+    slaOverdue: number;
+    slaComplianceRate: number;
+    criticalCases: number;
+    averageRiskScore: number;
+  };
+  noisyRules: Array<{ ruleId: string; count: number; falsePositive: number; noiseScore: number }>;
+  recommendations: string[];
+}
+
+export interface PldAuditEntry {
+  id: string;
+  actorEmail: string;
+  actorRole: string;
+  action: string;
+  resource: string;
+  resourceId: string;
+  details: Record<string, unknown>;
+  prevHash?: string | null;
+  entryHash: string;
+  createdAt?: string | null;
+}
+
+export interface PldIngestionJob {
+  id: string;
+  name: string;
+  sourceType: string;
+  status: string;
+  intervalSeconds: number;
+  autoCaseMinScore: number;
+  config: Record<string, unknown>;
+  lastRunAt?: string | null;
+  nextRunAt?: string | null;
+  lastResult: Record<string, unknown>;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+}
+
+export interface PldRegulatoryExport {
+  id: string;
+  caseId: string;
+  exportType: string;
+  status: string;
+  structuredPayload: Record<string, unknown>;
+  approvalNote: string;
+  approvedAt?: string | null;
+  exportedAt?: string | null;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+}
+
 async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, {
     ...init,
@@ -228,6 +287,75 @@ export async function getPldExecutiveReportBackend(): Promise<PldExecutiveReport
 
 export async function downloadPldExecutiveReportBackend(): Promise<Blob> {
   const response = await fetch('/api/v1/pld-ft/executive-report.pdf');
+  if (!response.ok) {
+    const text = await response.text().catch(() => '');
+    throw new Error(text || `Erro HTTP ${response.status}`);
+  }
+  return response.blob();
+}
+
+export async function getPldMonthlyMetricsBackend(month?: string): Promise<PldMonthlyMetrics> {
+  const suffix = month ? `?month=${encodeURIComponent(month)}` : '';
+  return requestJson<PldMonthlyMetrics>(`/api/v1/pld-ft/monthly-metrics${suffix}`);
+}
+
+export async function listPldAuditLogBackend(): Promise<{ chainVerifiedForWindow: boolean; entries: PldAuditEntry[] }> {
+  return requestJson<{ chainVerifiedForWindow: boolean; entries: PldAuditEntry[] }>('/api/v1/pld-ft/audit-log');
+}
+
+export async function ingestPldStreamBackend(input: PldInput, autoCaseMinScore = 65): Promise<BackendAnalyzeResponse & { createdCase?: PldCaseRecord | null }> {
+  return requestJson<BackendAnalyzeResponse & { createdCase?: PldCaseRecord | null }>('/api/v1/pld-ft/ingest-stream', {
+    method: 'POST',
+    body: JSON.stringify({ sourceType: 'ui-stream', ...input, autoCaseMinScore, openCase: true }),
+  });
+}
+
+export async function listPldIngestionJobsBackend(): Promise<PldIngestionJob[]> {
+  const payload = await requestJson<{ jobs: PldIngestionJob[] }>('/api/v1/pld-ft/ingestion-jobs');
+  return payload.jobs;
+}
+
+export async function createPldIngestionJobBackend(payload: {
+  name: string;
+  sourceType?: string;
+  intervalSeconds?: number;
+  autoCaseMinScore?: number;
+  config?: Record<string, unknown>;
+}): Promise<PldIngestionJob> {
+  return requestJson<PldIngestionJob>('/api/v1/pld-ft/ingestion-jobs', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function runPldIngestionJobBackend(jobId: string): Promise<{ job: PldIngestionJob; result: Record<string, unknown> }> {
+  return requestJson<{ job: PldIngestionJob; result: Record<string, unknown> }>(`/api/v1/pld-ft/ingestion-jobs/${jobId}/run`, {
+    method: 'POST',
+    body: JSON.stringify({}),
+  });
+}
+
+export async function createPldRegulatoryExportBackend(caseId: string, approvalNote = ''): Promise<PldRegulatoryExport> {
+  return requestJson<PldRegulatoryExport>(`/api/v1/pld-ft/cases/${caseId}/regulatory-exports`, {
+    method: 'POST',
+    body: JSON.stringify({ exportType: 'coaf_internal', approvalNote }),
+  });
+}
+
+export async function listPldRegulatoryExportsBackend(): Promise<PldRegulatoryExport[]> {
+  const payload = await requestJson<{ exports: PldRegulatoryExport[] }>('/api/v1/pld-ft/regulatory-exports');
+  return payload.exports;
+}
+
+export async function approvePldRegulatoryExportBackend(exportId: string, approvalNote: string): Promise<PldRegulatoryExport> {
+  return requestJson<PldRegulatoryExport>(`/api/v1/pld-ft/regulatory-exports/${exportId}/approve`, {
+    method: 'PATCH',
+    body: JSON.stringify({ exportType: 'coaf_internal', approvalNote }),
+  });
+}
+
+export async function downloadPldRegulatoryExportBackend(exportId: string): Promise<Blob> {
+  const response = await fetch(`/api/v1/pld-ft/regulatory-exports/${exportId}.json`);
   if (!response.ok) {
     const text = await response.text().catch(() => '');
     throw new Error(text || `Erro HTTP ${response.status}`);

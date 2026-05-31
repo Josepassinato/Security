@@ -8,8 +8,9 @@ auditable workflow: import -> deterministic dossier -> case -> human decision.
 from __future__ import annotations
 
 import json
+import hashlib
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any
 
 from fastapi import APIRouter, HTTPException, Query, Response, status
@@ -159,6 +160,24 @@ class AttachmentRequest(BaseModel):
     storageUrl: str = Field(default="", max_length=1000)
 
 
+class IngestionJobRequest(BaseModel):
+    name: str = Field(..., min_length=2, max_length=160)
+    sourceType: str = Field(default="api", max_length=40)
+    intervalSeconds: int = Field(default=300, ge=30, le=86400)
+    autoCaseMinScore: int = Field(default=65, ge=0, le=100)
+    config: dict[str, Any] = Field(default_factory=dict)
+
+
+class StreamIngestionRequest(AnalyzeRequest):
+    autoCaseMinScore: int = Field(default=65, ge=0, le=100)
+    openCase: bool = True
+
+
+class RegulatoryExportRequest(BaseModel):
+    exportType: str = Field(default="coaf_internal", max_length=80)
+    approvalNote: str = Field(default="", max_length=4000)
+
+
 def _row_value(row: Any, key: str, default: Any = None) -> Any:
     try:
         return getattr(row, key)
@@ -208,6 +227,325 @@ def _html_escape(value: Any) -> str:
         .replace(">", "&gt;")
         .replace('"', "&quot;")
     )
+
+
+PLD_ROLE_PERMISSIONS: dict[str, set[str]] = {
+    "read": {"admin", "analyst", "soc_analyst", "compliance_officer", "pld_compliance_officer", "auditor", "viewer"},
+    "write": {"admin", "analyst", "soc_analyst", "compliance_officer", "pld_compliance_officer"},
+    "approve": {"admin", "compliance_officer", "pld_compliance_officer"},
+    "audit": {"admin", "compliance_officer", "pld_compliance_officer", "auditor"},
+}
+
+
+def _require_pld_role(user: AuthUser, permission: str) -> None:
+    allowed = PLD_ROLE_PERMISSIONS.get(permission, set())
+    role = str(getattr(user, "role", "") or "").lower()
+    if role not in allowed:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"PLD/FT role denied: {permission}",
+        )
+
+
+def _canonical_hash(payload: dict[str, Any]) -> str:
+    raw = json.dumps(payload, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+
+
+async def _emit_pld_audit(
+    db: DBSession,
+    user: AuthUser,
+    *,
+    action: str,
+    resource: str,
+    resource_id: str = "",
+    details: dict[str, Any] | None = None,
+) -> None:
+    prev = (
+        await db.execute(
+            text(
+                """
+                SELECT entry_hash
+                FROM pld_ft_audit_log
+                WHERE tenant_id = :tenant_id
+                ORDER BY created_at DESC, id DESC
+                LIMIT 1
+                """
+            ).bindparams(tenant_id=user.tenant_id)
+        )
+    ).fetchone()
+    payload = {
+        "tenant_id": str(user.tenant_id),
+        "actor_id": str(user.user_id),
+        "actor_email": user.email,
+        "actor_role": getattr(user, "role", ""),
+        "action": action,
+        "resource": resource,
+        "resource_id": resource_id,
+        "details": details or {},
+        "prev_hash": prev.entry_hash if prev else None,
+        "created_at": datetime.utcnow().isoformat() + "Z",
+    }
+    entry_hash = _canonical_hash(payload)
+    await db.execute(
+        text(
+            """
+            INSERT INTO pld_ft_audit_log (
+                tenant_id, actor_id, actor_email, actor_role, action, resource,
+                resource_id, details, prev_hash, entry_hash, created_at
+            )
+            VALUES (
+                :tenant_id, :actor_id, :actor_email, :actor_role, :action, :resource,
+                :resource_id, CAST(:details AS jsonb), :prev_hash, :entry_hash, CAST(:created_at AS timestamptz)
+            )
+            """
+        ).bindparams(
+            tenant_id=user.tenant_id,
+            actor_id=user.user_id,
+            actor_email=user.email,
+            actor_role=getattr(user, "role", ""),
+            action=action,
+            resource=resource,
+            resource_id=resource_id,
+            details=json.dumps(details or {}, ensure_ascii=False),
+            prev_hash=payload["prev_hash"],
+            entry_hash=entry_hash,
+            created_at=payload["created_at"],
+        )
+    )
+
+
+def _json_default(value: Any) -> str:
+    if isinstance(value, datetime):
+        return value.isoformat()
+    return str(value)
+
+
+def _month_window(month: str | None) -> tuple[datetime, datetime, str]:
+    if month:
+        try:
+            start = datetime.strptime(month, "%Y-%m")
+        except ValueError as exc:
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="month must be YYYY-MM") from exc
+    else:
+        now = datetime.utcnow()
+        start = datetime(now.year, now.month, 1)
+    if start.month == 12:
+        end = datetime(start.year + 1, 1, 1)
+    else:
+        end = datetime(start.year, start.month + 1, 1)
+    return start, end, start.strftime("%Y-%m")
+
+
+def _row_to_ingestion_job(row: Any) -> dict[str, Any]:
+    return {
+        "id": str(row.id),
+        "name": row.name,
+        "sourceType": row.source_type,
+        "status": row.status,
+        "intervalSeconds": row.interval_seconds,
+        "autoCaseMinScore": row.auto_case_min_score,
+        "config": row.config or {},
+        "lastRunAt": row.last_run_at.isoformat() if row.last_run_at else None,
+        "nextRunAt": row.next_run_at.isoformat() if row.next_run_at else None,
+        "lastResult": row.last_result or {},
+        "createdAt": row.created_at.isoformat() if row.created_at else None,
+        "updatedAt": row.updated_at.isoformat() if row.updated_at else None,
+    }
+
+
+def _row_to_regulatory_export(row: Any) -> dict[str, Any]:
+    return {
+        "id": str(row.id),
+        "caseId": str(row.case_id),
+        "exportType": row.export_type,
+        "status": row.status,
+        "structuredPayload": row.structured_payload or {},
+        "approvalNote": row.approval_note,
+        "approvedAt": row.approved_at.isoformat() if row.approved_at else None,
+        "exportedAt": row.exported_at.isoformat() if row.exported_at else None,
+        "createdAt": row.created_at.isoformat() if row.created_at else None,
+        "updatedAt": row.updated_at.isoformat() if row.updated_at else None,
+    }
+
+
+def _regulatory_payload_from_case(case: dict[str, Any], export_type: str) -> dict[str, Any]:
+    dossier = case.get("dossier") or {}
+    findings = dossier.get("findings") or []
+    transactions: set[str] = set()
+    entities: set[str] = set()
+    for finding in findings:
+        entities.add(str(finding.get("entityId") or ""))
+        for tx_id in finding.get("transactionIds") or []:
+            transactions.add(str(tx_id))
+    return {
+        "schema": "quarry.pld_ft.regulatory_export.v1",
+        "exportType": export_type,
+        "humanApprovalRequired": True,
+        "approvalStatus": "pending_approval",
+        "caseId": case.get("id"),
+        "dossierId": case.get("dossierId"),
+        "institution": case.get("institution") or dossier.get("institution"),
+        "status": case.get("status"),
+        "riskScore": case.get("riskScore"),
+        "severity": case.get("severity"),
+        "generatedAt": datetime.utcnow().isoformat() + "Z",
+        "summary": dossier.get("executiveSummary"),
+        "totalAmount": dossier.get("totalAmount"),
+        "suspiciousAmount": dossier.get("suspiciousAmount"),
+        "involvedEntities": sorted(entity for entity in entities if entity),
+        "transactionIds": sorted(transactions),
+        "findings": [
+            {
+                "ruleId": finding.get("ruleId"),
+                "title": finding.get("title"),
+                "score": finding.get("score"),
+                "severity": finding.get("severity"),
+                "entityType": finding.get("entityType"),
+                "entityId": finding.get("entityId"),
+                "amountInScope": finding.get("amountInScope"),
+                "evidence": finding.get("evidence") or [],
+                "recommendedAction": finding.get("recommendedAction"),
+            }
+            for finding in findings
+        ],
+        "humanDecisions": case.get("decisions") or [],
+        "guardrails": [
+            "Exportacao estruturada nao e enviada automaticamente ao regulador.",
+            "Compliance officer deve aprovar o conteudo antes do uso externo.",
+            "O arquivo preserva evidencias, hipoteses e limites de interpretacao; nao declara crime ou culpa.",
+        ],
+    }
+
+
+async def _persist_analysis(
+    payload: AnalyzeRequest,
+    db: DBSession,
+    user: AuthUser,
+    *,
+    source_type: str | None = None,
+    open_case: bool = False,
+    auto_case_min_score: int = 65,
+    audit_action: str | None = None,
+    audit_resource_id: str = "",
+) -> dict[str, Any]:
+    body = payload.model_dump()
+    if source_type:
+        body["sourceType"] = source_type
+    saved = await _saved_thresholds(db, user)
+    dossier = analyze_pld_ft(body, saved_thresholds=saved)
+    p_hash = payload_hash(body)
+    tx_count = len(body.get("transactions") or [])
+
+    import_row = (
+        await db.execute(
+            text(
+                """
+                INSERT INTO pld_ft_imports (
+                    tenant_id, user_id, institution, source_type, payload_hash,
+                    transaction_count, dossier, risk_score, severity
+                )
+                VALUES (
+                    :tenant_id, :user_id, :institution, :source_type, :payload_hash,
+                    :transaction_count, CAST(:dossier AS jsonb), :risk_score, :severity
+                )
+                RETURNING id, created_at
+                """
+            ).bindparams(
+                tenant_id=user.tenant_id,
+                user_id=user.user_id,
+                institution=dossier.get("institution"),
+                source_type=body.get("sourceType") or payload.sourceType,
+                payload_hash=p_hash,
+                transaction_count=tx_count,
+                dossier=json.dumps(dossier, ensure_ascii=False),
+                risk_score=dossier.get("riskScore"),
+                severity=dossier.get("severity"),
+            )
+        )
+    ).fetchone()
+
+    created_case: dict[str, Any] | None = None
+    if open_case and int(dossier.get("riskScore") or 0) >= auto_case_min_score:
+        dossier_id = str(dossier.get("id") or "")
+        case_row = (
+            await db.execute(
+                text(
+                    """
+                    INSERT INTO pld_ft_cases (
+                        tenant_id, import_id, dossier_id, status, institution,
+                        risk_score, severity, dossier, created_by, updated_at
+                    )
+                    VALUES (
+                        :tenant_id, :import_id, :dossier_id, 'novo', :institution,
+                        :risk_score, :severity, CAST(:dossier AS jsonb), :user_id, now()
+                    )
+                    ON CONFLICT (tenant_id, dossier_id)
+                    DO UPDATE SET
+                        import_id = COALESCE(EXCLUDED.import_id, pld_ft_cases.import_id),
+                        institution = EXCLUDED.institution,
+                        risk_score = EXCLUDED.risk_score,
+                        severity = EXCLUDED.severity,
+                        dossier = EXCLUDED.dossier,
+                        updated_at = now()
+                    RETURNING *
+                    """
+                ).bindparams(
+                    tenant_id=user.tenant_id,
+                    import_id=import_row.id,
+                    dossier_id=dossier_id,
+                    institution=dossier.get("institution"),
+                    risk_score=dossier.get("riskScore"),
+                    severity=dossier.get("severity"),
+                    dossier=json.dumps(dossier, ensure_ascii=False),
+                    user_id=user.user_id,
+                )
+            )
+        ).fetchone()
+        await db.execute(
+            text(
+                """
+                UPDATE pld_ft_imports
+                SET case_ids = (
+                    SELECT jsonb_agg(DISTINCT value)
+                    FROM jsonb_array_elements(case_ids || jsonb_build_array(:case_id_text)) AS value
+                )
+                WHERE tenant_id = :tenant_id AND id = :import_id
+                """
+            ).bindparams(tenant_id=user.tenant_id, import_id=import_row.id, case_id_text=str(case_row.id))
+        )
+        created_case = _row_to_case(case_row, [])
+
+    if audit_action:
+        await _emit_pld_audit(
+            db,
+            user,
+            action=audit_action,
+            resource="pld_ft_import",
+            resource_id=audit_resource_id or str(import_row.id),
+            details={
+                "importId": str(import_row.id),
+                "payloadHash": p_hash,
+                "transactionCount": tx_count,
+                "riskScore": dossier.get("riskScore"),
+                "severity": dossier.get("severity"),
+                "createdCaseId": created_case.get("id") if created_case else None,
+            },
+        )
+
+    await db.commit()
+    if created_case:
+        await _recompute_customer_risk(db, user)
+
+    return {
+        "mode": "backend",
+        "importId": str(import_row.id),
+        "createdAt": import_row.created_at.isoformat() if import_row.created_at else datetime.utcnow().isoformat(),
+        "payloadHash": p_hash,
+        "transactionCount": tx_count,
+        "dossier": dossier,
+        "createdCase": created_case,
+    }
 
 
 def _case_report_html(case: dict[str, Any]) -> str:
@@ -703,12 +1041,14 @@ async def list_rules() -> dict[str, Any]:
 
 @router.get("/thresholds")
 async def get_thresholds(db: DBSession, user: AuthUser) -> dict[str, Any]:
+    _require_pld_role(user, "read")
     saved = await _saved_thresholds(db, user)
     return {"thresholds": {**DEFAULT_THRESHOLDS, **saved}, "defaults": DEFAULT_THRESHOLDS}
 
 
 @router.put("/thresholds")
 async def save_thresholds(payload: ThresholdsRequest, db: DBSession, user: AuthUser) -> dict[str, Any]:
+    _require_pld_role(user, "approve")
     await db.execute(
         text(
             """
@@ -723,12 +1063,20 @@ async def save_thresholds(payload: ThresholdsRequest, db: DBSession, user: AuthU
             user_id=user.user_id,
         )
     )
+    await _emit_pld_audit(
+        db,
+        user,
+        action="thresholds.updated",
+        resource="pld_ft_thresholds",
+        details={"keys": sorted(payload.thresholds.keys())},
+    )
     await db.commit()
     return {"thresholds": {**DEFAULT_THRESHOLDS, **payload.thresholds}, "saved": True}
 
 
 @router.post("/rule-simulations")
 async def simulate_rules(payload: RuleSimulationRequest, db: DBSession, user: AuthUser) -> dict[str, Any]:
+    _require_pld_role(user, "read")
     saved = await _saved_thresholds(db, user)
     proposed = {**saved, **payload.thresholds}
     if payload.payload:
@@ -803,6 +1151,7 @@ async def simulate_rules(payload: RuleSimulationRequest, db: DBSession, user: Au
 
 @router.get("/rule-versions")
 async def list_rule_versions(db: DBSession, user: AuthUser) -> dict[str, Any]:
+    _require_pld_role(user, "read")
     rows = (
         await db.execute(
             text(
@@ -837,6 +1186,7 @@ async def list_rule_versions(db: DBSession, user: AuthUser) -> dict[str, Any]:
 
 @router.post("/rule-versions", status_code=status.HTTP_201_CREATED)
 async def create_rule_version(payload: RuleVersionRequest, db: DBSession, user: AuthUser) -> dict[str, Any]:
+    _require_pld_role(user, "write")
     row = (
         await db.execute(
             text(
@@ -856,6 +1206,14 @@ async def create_rule_version(payload: RuleVersionRequest, db: DBSession, user: 
             )
         )
     ).fetchone()
+    await _emit_pld_audit(
+        db,
+        user,
+        action="rule_version.created",
+        resource="pld_ft_rule_version",
+        resource_id=str(row.id),
+        details={"versionName": row.version_name, "status": row.status},
+    )
     await db.commit()
     return {
         "id": str(row.id),
@@ -876,6 +1234,7 @@ async def decide_rule_version(
     db: DBSession,
     user: AuthUser,
 ) -> dict[str, Any]:
+    _require_pld_role(user, "approve" if action in {"approve", "reject"} else "write")
     if action not in {"submit", "approve", "reject"}:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Invalid rule version action")
     status_value = {"submit": "pending_approval", "approve": "approved", "reject": "rejected"}[action]
@@ -915,6 +1274,14 @@ async def decide_rule_version(
                 user_id=user.user_id,
             )
         )
+    await _emit_pld_audit(
+        db,
+        user,
+        action=f"rule_version.{action}",
+        resource="pld_ft_rule_version",
+        resource_id=str(row.id),
+        details={"status": status_value, "note": payload.note},
+    )
     await db.commit()
     return {
         "id": str(row.id),
@@ -931,6 +1298,7 @@ async def decide_rule_version(
 
 @router.post("/analyze", status_code=status.HTTP_201_CREATED)
 async def analyze(payload: AnalyzeRequest, db: DBSession, user: AuthUser) -> dict[str, Any]:
+    _require_pld_role(user, "write")
     body = payload.model_dump()
     saved = await _saved_thresholds(db, user)
     dossier = analyze_pld_ft(body, saved_thresholds=saved)
@@ -978,6 +1346,7 @@ async def analyze(payload: AnalyzeRequest, db: DBSession, user: AuthUser) -> dic
 
 @router.post("/cases", status_code=status.HTTP_201_CREATED)
 async def save_case(payload: SaveCaseRequest, db: DBSession, user: AuthUser) -> dict[str, Any]:
+    _require_pld_role(user, "write")
     dossier_id = str(payload.dossier.get("id") or "")
     if not dossier_id:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="dossier.id is required")
@@ -1032,6 +1401,14 @@ async def save_case(payload: SaveCaseRequest, db: DBSession, user: AuthUser) -> 
                 """
             ).bindparams(tenant_id=user.tenant_id, import_id=payload.importId, case_id_text=str(row.id))
         )
+    await _emit_pld_audit(
+        db,
+        user,
+        action="case.saved",
+        resource="pld_ft_case",
+        resource_id=str(row.id),
+        details={"dossierId": dossier_id, "status": payload.status, "riskScore": payload.dossier.get("riskScore")},
+    )
     await db.commit()
     await _recompute_customer_risk(db, user)
 
@@ -1046,6 +1423,7 @@ async def list_cases(
     status_filter: str | None = Query(default=None, alias="status"),
     limit: int = Query(default=100, ge=1, le=250),
 ) -> dict[str, Any]:
+    _require_pld_role(user, "read")
     params: dict[str, Any] = {"tenant_id": user.tenant_id, "limit": limit}
     where = "tenant_id = :tenant_id"
     if status_filter:
@@ -1075,6 +1453,7 @@ async def list_cases(
 
 @router.get("/customer-risk")
 async def list_customer_risk(db: DBSession, user: AuthUser, limit: int = Query(default=50, ge=1, le=250)) -> dict[str, Any]:
+    _require_pld_role(user, "read")
     rows = (
         await db.execute(
             text(
@@ -1128,12 +1507,22 @@ async def list_customer_risk(db: DBSession, user: AuthUser, limit: int = Query(d
 
 @router.post("/customer-risk/recompute")
 async def recompute_customer_risk(db: DBSession, user: AuthUser) -> dict[str, Any]:
+    _require_pld_role(user, "write")
     customers = await _recompute_customer_risk(db, user)
+    await _emit_pld_audit(
+        db,
+        user,
+        action="customer_risk.recomputed",
+        resource="pld_ft_customer_risk",
+        details={"count": len(customers)},
+    )
+    await db.commit()
     return {"customers": customers, "count": len(customers)}
 
 
 @router.get("/cases/{case_id}/report.pdf")
 async def case_report_pdf(case_id: uuid.UUID, db: DBSession, user: AuthUser) -> Response:
+    _require_pld_role(user, "read")
     case = await _get_case_or_404(case_id, db, user)
     html = _case_report_html(case)
     try:
@@ -1155,6 +1544,7 @@ async def case_report_pdf(case_id: uuid.UUID, db: DBSession, user: AuthUser) -> 
 
 @router.get("/cases/{case_id}/ai-analyst")
 async def case_ai_analyst(case_id: uuid.UUID, db: DBSession, user: AuthUser) -> dict[str, Any]:
+    _require_pld_role(user, "read")
     case = await _get_case_or_404(case_id, db, user)
     dossier = case.get("dossier") or {}
     ai_analyst = dossier.get("aiAnalyst") or {}
@@ -1179,6 +1569,7 @@ async def case_ai_analyst(case_id: uuid.UUID, db: DBSession, user: AuthUser) -> 
 
 @router.patch("/cases/{case_id}/workflow")
 async def update_case_workflow(case_id: uuid.UUID, payload: WorkflowRequest, db: DBSession, user: AuthUser) -> dict[str, Any]:
+    _require_pld_role(user, "write")
     await _get_case_or_404(case_id, db, user)
     status_value = payload.status
     workflow_patch = {
@@ -1229,6 +1620,14 @@ async def update_case_workflow(case_id: uuid.UUID, payload: WorkflowRequest, db:
                 user_id=user.user_id,
             )
         )
+    await _emit_pld_audit(
+        db,
+        user,
+        action="case.workflow_updated",
+        resource="pld_ft_case",
+        resource_id=str(case_id),
+        details=payload.model_dump(exclude_none=True),
+    )
     await db.commit()
     await _recompute_customer_risk(db, user)
     return _row_to_case(row, await _case_decisions(db, user, case_id))
@@ -1236,12 +1635,14 @@ async def update_case_workflow(case_id: uuid.UUID, payload: WorkflowRequest, db:
 
 @router.get("/cases/{case_id}/comments")
 async def list_case_comments(case_id: uuid.UUID, db: DBSession, user: AuthUser) -> dict[str, Any]:
+    _require_pld_role(user, "read")
     await _get_case_or_404(case_id, db, user)
     return {"comments": await _case_comments(db, user, case_id)}
 
 
 @router.post("/cases/{case_id}/comments", status_code=status.HTTP_201_CREATED)
 async def create_case_comment(case_id: uuid.UUID, payload: CommentRequest, db: DBSession, user: AuthUser) -> dict[str, Any]:
+    _require_pld_role(user, "write")
     await _get_case_or_404(case_id, db, user)
     await db.execute(
         text(
@@ -1257,18 +1658,28 @@ async def create_case_comment(case_id: uuid.UUID, payload: CommentRequest, db: D
             user_id=user.user_id,
         )
     )
+    await _emit_pld_audit(
+        db,
+        user,
+        action="case.comment_created",
+        resource="pld_ft_case",
+        resource_id=str(case_id),
+        details={"author": payload.author or user.email, "bodyLength": len(payload.body)},
+    )
     await db.commit()
     return {"comments": await _case_comments(db, user, case_id)}
 
 
 @router.get("/cases/{case_id}/attachments")
 async def list_case_attachments(case_id: uuid.UUID, db: DBSession, user: AuthUser) -> dict[str, Any]:
+    _require_pld_role(user, "read")
     await _get_case_or_404(case_id, db, user)
     return {"attachments": await _case_attachments(db, user, case_id)}
 
 
 @router.post("/cases/{case_id}/attachments", status_code=status.HTTP_201_CREATED)
 async def create_case_attachment(case_id: uuid.UUID, payload: AttachmentRequest, db: DBSession, user: AuthUser) -> dict[str, Any]:
+    _require_pld_role(user, "write")
     await _get_case_or_404(case_id, db, user)
     await db.execute(
         text(
@@ -1291,12 +1702,21 @@ async def create_case_attachment(case_id: uuid.UUID, payload: AttachmentRequest,
             user_id=user.user_id,
         )
     )
+    await _emit_pld_audit(
+        db,
+        user,
+        action="case.attachment_created",
+        resource="pld_ft_case",
+        resource_id=str(case_id),
+        details={"fileName": payload.fileName, "contentType": payload.contentType, "fileSize": payload.fileSize},
+    )
     await db.commit()
     return {"attachments": await _case_attachments(db, user, case_id)}
 
 
 @router.patch("/cases/{case_id}/decision")
 async def decide_case(case_id: uuid.UUID, payload: DecisionRequest, db: DBSession, user: AuthUser) -> dict[str, Any]:
+    _require_pld_role(user, "write")
     await _get_case_or_404(case_id, db, user)
 
     analyst = payload.analyst or user.email
@@ -1327,6 +1747,14 @@ async def decide_case(case_id: uuid.UUID, payload: DecisionRequest, db: DBSessio
             ).bindparams(tenant_id=user.tenant_id, id=case_id, status=payload.status)
         )
     ).fetchone()
+    await _emit_pld_audit(
+        db,
+        user,
+        action="case.decision_recorded",
+        resource="pld_ft_case",
+        resource_id=str(case_id),
+        details={"status": payload.status, "analyst": analyst, "noteLength": len(payload.note or "")},
+    )
     await db.commit()
     await _recompute_customer_risk(db, user)
 
@@ -1433,6 +1861,7 @@ async def executive_report(db: DBSession, user: AuthUser) -> dict[str, Any]:
 
 @router.get("/executive-report.pdf")
 async def executive_report_pdf(db: DBSession, user: AuthUser) -> Response:
+    _require_pld_role(user, "read")
     report = await _executive_report(db, user)
     html = _executive_report_html(report)
     try:
@@ -1450,6 +1879,460 @@ async def executive_report_pdf(db: DBSession, user: AuthUser) -> Response:
             media_type="text/html; charset=utf-8",
             headers={"content-disposition": 'attachment; filename="quarry-pldft-relatorio-executivo.html"'},
         )
+
+
+@router.get("/monthly-metrics")
+async def monthly_metrics(db: DBSession, user: AuthUser, month: str | None = Query(default=None)) -> dict[str, Any]:
+    _require_pld_role(user, "read")
+    start, end, label = _month_window(month)
+    rows = (
+        await db.execute(
+            text(
+                """
+                SELECT status, severity, risk_score, sla_due_at, dossier, created_at, updated_at
+                FROM pld_ft_cases
+                WHERE tenant_id = :tenant_id
+                  AND created_at >= :start
+                  AND created_at < :end
+                """
+            ).bindparams(tenant_id=user.tenant_id, start=start, end=end)
+        )
+    ).fetchall()
+    import_rows = (
+        await db.execute(
+            text(
+                """
+                SELECT count(*) AS total
+                FROM pld_ft_imports
+                WHERE tenant_id = :tenant_id
+                  AND created_at >= :start
+                  AND created_at < :end
+                """
+            ).bindparams(tenant_id=user.tenant_id, start=start, end=end)
+        )
+    ).fetchone()
+    open_statuses = {"novo", "em_revisao", "escalado"}
+    now = datetime.utcnow()
+    rules: dict[str, dict[str, int]] = {}
+    for row in rows:
+        for finding in (row.dossier or {}).get("findings") or []:
+            rule_id = str(finding.get("ruleId") or "unknown")
+            item = rules.setdefault(rule_id, {"count": 0, "falsePositive": 0})
+            item["count"] += 1
+            if row.status == "falso_positivo":
+                item["falsePositive"] += 1
+    noisy_rules = [
+        {
+            "ruleId": rule_id,
+            "count": values["count"],
+            "falsePositive": values["falsePositive"],
+            "noiseScore": round((values["falsePositive"] / max(values["count"], 1)) * 100, 1),
+        }
+        for rule_id, values in sorted(rules.items(), key=lambda pair: (pair[1]["falsePositive"], pair[1]["count"]), reverse=True)[:8]
+    ]
+    total_cases = len(rows)
+    archived = sum(1 for row in rows if row.status in {"encerrado", "falso_positivo"})
+    escalated = sum(1 for row in rows if row.status == "escalado")
+    overdue = sum(1 for row in rows if row.sla_due_at and row.sla_due_at.replace(tzinfo=None) < now and row.status in open_statuses)
+    with_sla = sum(1 for row in rows if row.sla_due_at)
+    return {
+        "month": label,
+        "period": {"start": start.isoformat() + "Z", "end": end.isoformat() + "Z"},
+        "kpis": {
+            "alerts": int(import_rows.total or 0) if import_rows else 0,
+            "cases": total_cases,
+            "archived": archived,
+            "escalated": escalated,
+            "slaTracked": with_sla,
+            "slaOverdue": overdue,
+            "slaComplianceRate": round(((with_sla - overdue) / max(with_sla, 1)) * 100, 1),
+            "criticalCases": sum(1 for row in rows if row.severity == "critical"),
+            "averageRiskScore": round(sum(int(row.risk_score or 0) for row in rows) / max(total_cases, 1), 1),
+        },
+        "noisyRules": noisy_rules,
+        "recommendations": [
+            "Atacar regras com ruido acima de 30% antes de ampliar sensibilidade.",
+            "Revisar casos escalados e SLA vencido no comite PLD/FT mensal.",
+            "Conferir se alertas sem caso aberto exigem calibragem do limiar de criacao automatica.",
+        ],
+    }
+
+
+@router.get("/audit-log")
+async def audit_log(db: DBSession, user: AuthUser, limit: int = Query(default=100, ge=1, le=500)) -> dict[str, Any]:
+    _require_pld_role(user, "audit")
+    rows = (
+        await db.execute(
+            text(
+                """
+                SELECT id, actor_email, actor_role, action, resource, resource_id,
+                       details, prev_hash, entry_hash, created_at
+                FROM pld_ft_audit_log
+                WHERE tenant_id = :tenant_id
+                ORDER BY created_at DESC, id DESC
+                LIMIT :limit
+                """
+            ).bindparams(tenant_id=user.tenant_id, limit=limit)
+        )
+    ).fetchall()
+    ordered = list(reversed(rows))
+    chain_ok = True
+    previous_hash: str | None = ordered[0].prev_hash if ordered else None
+    for row in ordered:
+        if row.prev_hash != previous_hash:
+            chain_ok = False
+            break
+        previous_hash = row.entry_hash
+    return {
+        "chainVerifiedForWindow": chain_ok,
+        "entries": [
+            {
+                "id": str(row.id),
+                "actorEmail": row.actor_email,
+                "actorRole": row.actor_role,
+                "action": row.action,
+                "resource": row.resource,
+                "resourceId": row.resource_id,
+                "details": row.details or {},
+                "prevHash": row.prev_hash,
+                "entryHash": row.entry_hash,
+                "createdAt": row.created_at.isoformat() if row.created_at else None,
+            }
+            for row in rows
+        ],
+    }
+
+
+@router.post("/ingest-stream", status_code=status.HTTP_201_CREATED)
+async def ingest_stream(payload: StreamIngestionRequest, db: DBSession, user: AuthUser) -> dict[str, Any]:
+    _require_pld_role(user, "write")
+    analyze_payload = AnalyzeRequest(**payload.model_dump(exclude={"autoCaseMinScore", "openCase"}))
+    return await _persist_analysis(
+        analyze_payload,
+        db,
+        user,
+        source_type=payload.sourceType or "stream",
+        open_case=payload.openCase,
+        auto_case_min_score=payload.autoCaseMinScore,
+        audit_action="ingestion.stream_processed",
+    )
+
+
+@router.get("/ingestion-jobs")
+async def list_ingestion_jobs(db: DBSession, user: AuthUser) -> dict[str, Any]:
+    _require_pld_role(user, "read")
+    rows = (
+        await db.execute(
+            text(
+                """
+                SELECT *
+                FROM pld_ft_ingestion_jobs
+                WHERE tenant_id = :tenant_id
+                ORDER BY created_at DESC
+                LIMIT 100
+                """
+            ).bindparams(tenant_id=user.tenant_id)
+        )
+    ).fetchall()
+    return {"jobs": [_row_to_ingestion_job(row) for row in rows]}
+
+
+@router.post("/ingestion-jobs", status_code=status.HTTP_201_CREATED)
+async def create_ingestion_job(payload: IngestionJobRequest, db: DBSession, user: AuthUser) -> dict[str, Any]:
+    _require_pld_role(user, "write")
+    next_run_at = datetime.utcnow() + timedelta(seconds=payload.intervalSeconds)
+    row = (
+        await db.execute(
+            text(
+                """
+                INSERT INTO pld_ft_ingestion_jobs (
+                    tenant_id, name, source_type, interval_seconds, auto_case_min_score,
+                    config, created_by, next_run_at
+                )
+                VALUES (
+                    :tenant_id, :name, :source_type, :interval_seconds, :auto_case_min_score,
+                    CAST(:config AS jsonb), :user_id, :next_run_at
+                )
+                RETURNING *
+                """
+            ).bindparams(
+                tenant_id=user.tenant_id,
+                name=payload.name,
+                source_type=payload.sourceType,
+                interval_seconds=payload.intervalSeconds,
+                auto_case_min_score=payload.autoCaseMinScore,
+                config=json.dumps(payload.config, ensure_ascii=False),
+                user_id=user.user_id,
+                next_run_at=next_run_at,
+            )
+        )
+    ).fetchone()
+    await _emit_pld_audit(
+        db,
+        user,
+        action="ingestion_job.created",
+        resource="pld_ft_ingestion_job",
+        resource_id=str(row.id),
+        details={"name": row.name, "intervalSeconds": row.interval_seconds},
+    )
+    await db.commit()
+    return _row_to_ingestion_job(row)
+
+
+async def _run_ingestion_job(job_id: uuid.UUID, db: DBSession, user: AuthUser) -> dict[str, Any]:
+    row = (
+        await db.execute(
+            text("SELECT * FROM pld_ft_ingestion_jobs WHERE tenant_id = :tenant_id AND id = :id").bindparams(
+                tenant_id=user.tenant_id,
+                id=job_id,
+            )
+        )
+    ).fetchone()
+    if not row:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Ingestion job not found")
+    config = row.config or {}
+    sample_payload = config.get("samplePayload") or config.get("payload")
+    if not sample_payload:
+        result = {
+            "status": "skipped",
+            "reason": "Configure config.samplePayload para o MVP de ingestao recorrente.",
+            "ranAt": datetime.utcnow().isoformat() + "Z",
+        }
+    else:
+        analyze_payload = AnalyzeRequest(**{**sample_payload, "sourceType": row.source_type})
+        analysis = await _persist_analysis(
+            analyze_payload,
+            db,
+            user,
+            source_type=row.source_type,
+            open_case=True,
+            auto_case_min_score=int(row.auto_case_min_score or 65),
+            audit_action="ingestion_job.executed",
+            audit_resource_id=str(row.id),
+        )
+        result = {
+            "status": "processed",
+            "importId": analysis["importId"],
+            "createdCaseId": (analysis.get("createdCase") or {}).get("id"),
+            "riskScore": analysis["dossier"].get("riskScore"),
+            "severity": analysis["dossier"].get("severity"),
+            "ranAt": datetime.utcnow().isoformat() + "Z",
+        }
+    next_run_at = datetime.utcnow() + timedelta(seconds=int(row.interval_seconds or 300))
+    updated = (
+        await db.execute(
+            text(
+                """
+                UPDATE pld_ft_ingestion_jobs
+                SET last_run_at = now(),
+                    next_run_at = :next_run_at,
+                    last_result = CAST(:last_result AS jsonb),
+                    updated_at = now()
+                WHERE tenant_id = :tenant_id AND id = :id
+                RETURNING *
+                """
+            ).bindparams(
+                tenant_id=user.tenant_id,
+                id=job_id,
+                next_run_at=next_run_at,
+                last_result=json.dumps(result, ensure_ascii=False),
+            )
+        )
+    ).fetchone()
+    await _emit_pld_audit(
+        db,
+        user,
+        action="ingestion_job.run_recorded",
+        resource="pld_ft_ingestion_job",
+        resource_id=str(job_id),
+        details=result,
+    )
+    await db.commit()
+    return {"job": _row_to_ingestion_job(updated), "result": result}
+
+
+@router.post("/ingestion-jobs/{job_id}/run")
+async def run_ingestion_job(job_id: uuid.UUID, db: DBSession, user: AuthUser) -> dict[str, Any]:
+    _require_pld_role(user, "write")
+    return await _run_ingestion_job(job_id, db, user)
+
+
+@router.post("/ingestion-jobs/run-due")
+async def run_due_ingestion_jobs(db: DBSession, user: AuthUser) -> dict[str, Any]:
+    _require_pld_role(user, "write")
+    rows = (
+        await db.execute(
+            text(
+                """
+                SELECT id
+                FROM pld_ft_ingestion_jobs
+                WHERE tenant_id = :tenant_id
+                  AND status = 'active'
+                  AND (next_run_at IS NULL OR next_run_at <= now())
+                ORDER BY next_run_at NULLS FIRST, created_at
+                LIMIT 20
+                """
+            ).bindparams(tenant_id=user.tenant_id)
+        )
+    ).fetchall()
+    results = [await _run_ingestion_job(row.id, db, user) for row in rows]
+    return {"count": len(results), "results": results}
+
+
+@router.post("/cases/{case_id}/regulatory-exports", status_code=status.HTTP_201_CREATED)
+async def create_regulatory_export(
+    case_id: uuid.UUID,
+    payload: RegulatoryExportRequest,
+    db: DBSession,
+    user: AuthUser,
+) -> dict[str, Any]:
+    _require_pld_role(user, "write")
+    case = await _get_case_or_404(case_id, db, user)
+    structured = _regulatory_payload_from_case(case, payload.exportType)
+    row = (
+        await db.execute(
+            text(
+                """
+                INSERT INTO pld_ft_regulatory_exports (
+                    tenant_id, case_id, export_type, status, structured_payload,
+                    approval_note, created_by
+                )
+                VALUES (
+                    :tenant_id, :case_id, :export_type, 'pending_approval',
+                    CAST(:structured_payload AS jsonb), :approval_note, :user_id
+                )
+                RETURNING *
+                """
+            ).bindparams(
+                tenant_id=user.tenant_id,
+                case_id=case_id,
+                export_type=payload.exportType,
+                structured_payload=json.dumps(structured, ensure_ascii=False, default=_json_default),
+                approval_note=payload.approvalNote,
+                user_id=user.user_id,
+            )
+        )
+    ).fetchone()
+    await _emit_pld_audit(
+        db,
+        user,
+        action="regulatory_export.created",
+        resource="pld_ft_regulatory_export",
+        resource_id=str(row.id),
+        details={"caseId": str(case_id), "exportType": payload.exportType, "status": row.status},
+    )
+    await db.commit()
+    return _row_to_regulatory_export(row)
+
+
+@router.get("/regulatory-exports")
+async def list_regulatory_exports(db: DBSession, user: AuthUser) -> dict[str, Any]:
+    _require_pld_role(user, "read")
+    rows = (
+        await db.execute(
+            text(
+                """
+                SELECT *
+                FROM pld_ft_regulatory_exports
+                WHERE tenant_id = :tenant_id
+                ORDER BY created_at DESC
+                LIMIT 100
+                """
+            ).bindparams(tenant_id=user.tenant_id)
+        )
+    ).fetchall()
+    return {"exports": [_row_to_regulatory_export(row) for row in rows]}
+
+
+@router.patch("/regulatory-exports/{export_id}/approve")
+async def approve_regulatory_export(
+    export_id: uuid.UUID,
+    payload: RegulatoryExportRequest,
+    db: DBSession,
+    user: AuthUser,
+) -> dict[str, Any]:
+    _require_pld_role(user, "approve")
+    row = (
+        await db.execute(
+            text(
+                """
+                UPDATE pld_ft_regulatory_exports
+                SET status = 'approved',
+                    approval_note = :approval_note,
+                    approved_by = :user_id,
+                    approved_at = now(),
+                    updated_at = now()
+                WHERE tenant_id = :tenant_id AND id = :id
+                RETURNING *
+                """
+            ).bindparams(
+                tenant_id=user.tenant_id,
+                id=export_id,
+                approval_note=payload.approvalNote,
+                user_id=user.user_id,
+            )
+        )
+    ).fetchone()
+    if not row:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Regulatory export not found")
+    await _emit_pld_audit(
+        db,
+        user,
+        action="regulatory_export.approved",
+        resource="pld_ft_regulatory_export",
+        resource_id=str(row.id),
+        details={"caseId": str(row.case_id), "approvalNote": payload.approvalNote},
+    )
+    await db.commit()
+    return _row_to_regulatory_export(row)
+
+
+@router.get("/regulatory-exports/{export_id}.json")
+async def download_regulatory_export_json(export_id: uuid.UUID, db: DBSession, user: AuthUser) -> Response:
+    _require_pld_role(user, "read")
+    row = (
+        await db.execute(
+            text(
+                """
+                SELECT *
+                FROM pld_ft_regulatory_exports
+                WHERE tenant_id = :tenant_id AND id = :id
+                """
+            ).bindparams(tenant_id=user.tenant_id, id=export_id)
+        )
+    ).fetchone()
+    if not row:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Regulatory export not found")
+    if row.status not in {"approved", "exported"}:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Regulatory export requires compliance officer approval before download",
+        )
+    if row.status == "approved":
+        await db.execute(
+            text(
+                """
+                UPDATE pld_ft_regulatory_exports
+                SET status = 'exported', exported_at = now(), updated_at = now()
+                WHERE tenant_id = :tenant_id AND id = :id
+                """
+            ).bindparams(tenant_id=user.tenant_id, id=export_id)
+        )
+        await _emit_pld_audit(
+            db,
+            user,
+            action="regulatory_export.downloaded",
+            resource="pld_ft_regulatory_export",
+            resource_id=str(row.id),
+            details={"caseId": str(row.case_id)},
+        )
+        await db.commit()
+    content = json.dumps(row.structured_payload or {}, ensure_ascii=False, indent=2, default=_json_default)
+    return Response(
+        content=content,
+        media_type="application/json; charset=utf-8",
+        headers={"content-disposition": f'attachment; filename="quarry-pldft-export-{row.id}.json"'},
+    )
 
 
 @router.get("/benchmark")
