@@ -61,10 +61,28 @@ const deliverables = [
   'Pacote de evidencia exportavel para auditoria, juridico e regulador.',
 ];
 
+const positioning = [
+  {
+    title: 'Mais profundo que screening',
+    body:
+      'Ferramentas de KYC, PEP e sancoes ajudam no cadastro. Quarry entra depois: monitora transacoes, comportamento, rede, recorrencia e evidencia operacional.',
+  },
+  {
+    title: 'Mais leve que suite bancaria legada',
+    body:
+      'Bancos grandes compram plataformas caras e longas de implantar. Quarry foi desenhado para fintech brasileira que precisa maturidade PLD/FT sem um projeto de 12 meses.',
+  },
+  {
+    title: 'Mais brasileiro que AML generico',
+    body:
+      'Pix, conta digital, Bacen, COAF, LGPD, Open Finance, decisao humana e trilha auditavel entram como centro do produto, nao como adaptacao de rodape.',
+  },
+];
+
 export const metadata: Metadata = {
-  title: { absolute: 'Quarry PLD/FT — risco PCC, CV e sancoes para fintechs BR' },
+  title: { absolute: 'Quarry PLD/FT — monitoramento AML brasileiro para fintechs' },
   description:
-    'Modulo Quarry para fintechs brasileiras detectarem, investigarem e documentarem sinais de risco PLD/FT, sancoes, Pix anomalo, contas de passagem e redes financeiras suspeitas.',
+    'Monitoramento transacional PLD/FT para fintechs brasileiras: score de risco, casos, tuning de regras, trilha auditavel, governanca e exportacao regulatoria com aprovacao humana.',
   alternates: { canonical: '/br/pld-ft' },
   openGraph: {
     title: 'Quarry PLD/FT — risco transacional e evidência auditável',
@@ -93,13 +111,14 @@ export default function PldFtPage() {
               PLD/FT para fintechs brasileiras
             </p>
             <h1 className="max-w-4xl font-serif text-4xl font-semibold leading-[0.98] tracking-tight text-[#17140f] sm:text-6xl">
-              Quando o risco deixa de ser fraude comum e vira exposição regulatória.
+              Monitoramento AML brasileiro para fintechs que precisam provar controle PLD/FT.
             </h1>
             <p className="mt-6 max-w-3xl text-lg leading-8 text-[#4d4639]">
               Com organizações criminosas brasileiras entrando no radar internacional de
               sanções e terrorismo, fintechs precisam provar que conseguem detectar
               movimentações anormais, investigar redes financeiras e preservar evidências
-              defensáveis. Quarry transforma esse trabalho em pipeline auditável.
+              defensáveis. Quarry transforma esse trabalho em pipeline auditável: alerta,
+              caso, score, decisão humana, trilha hash e exportação regulatória.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link
@@ -152,6 +171,42 @@ export default function PldFtPage() {
               </div>
             </div>
           </aside>
+        </div>
+      </section>
+
+      <section className="border-b border-[#ddd4c6] bg-[#fffaf1] px-5 py-16 sm:px-8 lg:py-20">
+        <div className="mx-auto max-w-6xl">
+          <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-end">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#916f3b]">
+                Categoria de mercado
+              </p>
+              <h2 className="mt-3 font-serif text-3xl font-semibold tracking-tight sm:text-5xl">
+                Uma camada moderna de AML transaction monitoring para o contexto brasileiro.
+              </h2>
+            </div>
+            <p className="text-base leading-8 text-[#4d4639]">
+              O posicionamento correto do Quarry PLD/FT não é “curso de compliance”,
+              nem “screening de listas”, nem “suite bancaria enterprise”. É uma
+              plataforma operacional para fintech: detectar padrões, priorizar risco,
+              abrir casos, registrar decisões e entregar evidência defensável ao
+              compliance officer.
+            </p>
+          </div>
+
+          <div className="mt-10 grid gap-4 md:grid-cols-3">
+            {positioning.map((item) => (
+              <article
+                key={item.title}
+                className="rounded-3xl border border-[#dccfbd] bg-white p-6 shadow-[0_16px_50px_rgba(64,45,20,0.07)]"
+              >
+                <h3 className="font-serif text-2xl font-semibold text-[#17140f]">
+                  {item.title}
+                </h3>
+                <p className="mt-3 text-sm leading-7 text-[#544b3c]">{item.body}</p>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 
