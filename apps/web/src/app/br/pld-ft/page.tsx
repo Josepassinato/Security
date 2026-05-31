@@ -61,6 +61,14 @@ const deliverables = [
   'Pacote de evidencia exportavel para auditoria, juridico e regulador.',
 ];
 
+const impactRisks = [
+  'Sua fintech pode ser usada como conta de passagem.',
+  'Seu Pix pode virar trilha de lavagem.',
+  'Seu onboarding pode aceitar laranjas e CNPJs de fachada.',
+  'Seu compliance pode não conseguir provar que investigou.',
+  'Seu board pode descobrir o problema tarde demais.',
+];
+
 const positioning = [
   {
     title: 'Mais profundo que screening',
@@ -111,28 +119,27 @@ export default function PldFtPage() {
               PLD/FT para fintechs brasileiras
             </p>
             <h1 className="max-w-4xl font-serif text-4xl font-semibold leading-[0.98] tracking-tight text-[#17140f] sm:text-6xl">
-              Proteja sua fintech de ser usada como instrumento financeiro de organizações criminosas.
+              Proteja sua fintech antes que ela vire infraestrutura financeira do crime.
             </h1>
             <p className="mt-6 max-w-3xl text-lg leading-8 text-[#4d4639]">
-              Com organizações criminosas brasileiras entrando no radar internacional de
-              sanções e terrorismo, fintechs precisam provar que conseguem prevenir e
-              detectar sinais compatíveis com lavagem de dinheiro, movimentações
-              anormais e redes financeiras suspeitas. Quarry transforma esse trabalho em
-              pipeline auditável: alerta, caso, score, decisão humana, trilha hash e
-              exportação regulatória.
+              Organizações criminosas usam contas digitais, Pix, CNPJs de fachada,
+              laranjas e redes de repasse para lavar dinheiro. O Quarry monitora
+              sinais compatíveis com PLD/FT, abre casos, organiza evidências, registra
+              decisões humanas e cria trilha auditável para Bacen, COAF, jurídico e
+              auditoria.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link
-                href="/br/pld-ft/lab"
+                href="/br/pld-ft/governance"
                 className="inline-flex items-center justify-center rounded-full bg-[#17140f] px-6 py-3 text-sm font-semibold text-white no-underline transition hover:bg-[#2a241b]"
               >
-                Abrir laboratório PLD/FT
+                Ver risco da minha fintech
               </Link>
               <Link
-                href="/br/pld-ft/governance"
+                href="/br/pld-ft/lab"
                 className="inline-flex items-center justify-center rounded-full border border-[#17140f] bg-white px-6 py-3 text-sm font-semibold text-[#17140f] no-underline transition hover:bg-[#f0e8d8]"
               >
-                Governança e comitê
+                Abrir simulação PLD/FT
               </Link>
               <Link
                 href="/demo-financeira"
@@ -172,6 +179,34 @@ export default function PldFtPage() {
               </div>
             </div>
           </aside>
+        </div>
+      </section>
+
+      <section className="border-b border-[#ddd4c6] bg-[#17140f] px-5 py-16 text-[#f7f4ef] sm:px-8 lg:py-20">
+        <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#d8b56d]">
+              O risco não é só multa
+            </p>
+            <h2 className="mt-3 font-serif text-3xl font-semibold tracking-tight sm:text-5xl">
+              Não espere sua fintech aparecer em uma investigação para descobrir que ela foi usada.
+            </h2>
+            <p className="mt-5 text-base leading-8 text-[#c8bdad]">
+              A ameaça real é operacional, reputacional e regulatória ao mesmo tempo.
+              Quando o problema aparece fora da empresa, a pergunta deixa de ser
+              “houve fraude?” e vira “por que ninguém detectou antes?”.
+            </p>
+          </div>
+          <div className="grid gap-3">
+            {impactRisks.map((item) => (
+              <div
+                key={item}
+                className="rounded-2xl border border-white/10 bg-white/[0.05] p-5 text-base leading-7 text-[#f3eadc]"
+              >
+                {item}
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
