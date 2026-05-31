@@ -69,6 +69,39 @@ const impactRisks = [
   'Seu board pode descobrir o problema tarde demais.',
 ];
 
+const diagnosticSteps = [
+  {
+    title: '1. Reunião remota de contexto',
+    body:
+      'Em 60 a 90 minutos entendemos produto financeiro, volume, Pix, boleto, cartão, cripto, BaaS, KYC/KYB e controles PLD/FT já existentes.',
+  },
+  {
+    title: '2. Checklist de prontidão',
+    body:
+      'A fintech responde um formulário sobre política PLD/FT, matriz de risco, sanções, PEP, monitoramento, decisões, COAF e retenção de evidências.',
+  },
+  {
+    title: '3. Amostra anonimizada',
+    body:
+      'Recebemos 30 a 90 dias de transações com IDs internos, valores, datas, origem/destino, canal, device e perfil econômico mínimo. CPF real não é necessário.',
+  },
+  {
+    title: '4. Análise no Quarry',
+    body:
+      'Rodamos regras, score de risco, contas de passagem, fracionamento, incompatibilidade econômica, clientes críticos e regras mais acionadas.',
+  },
+  {
+    title: '5. Devolutiva executiva',
+    body:
+      'Entregamos relatório com vulnerabilidades, dados faltantes, evidências encontradas, riscos prioritários e o que a fintech conseguiria ou não provar hoje.',
+  },
+  {
+    title: '6. Plano de piloto',
+    body:
+      'Se o diagnóstico mostrar risco real, propomos um piloto controlado para conectar fontes, abrir casos, registrar decisões e criar trilha auditável.',
+  },
+];
+
 const positioning = [
   {
     title: 'Mais profundo que screening',
@@ -205,6 +238,57 @@ export default function PldFtPage() {
               >
                 {item}
               </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="border-b border-[#ddd4c6] bg-[#f7f4ef] px-5 py-16 sm:px-8 lg:py-20">
+        <div className="mx-auto max-w-6xl">
+          <div className="grid gap-8 lg:grid-cols-[0.92fr_1.08fr] lg:items-end">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#916f3b]">
+                Diagnóstico remoto PLD/FT
+              </p>
+              <h2 className="mt-3 font-serif text-3xl font-semibold tracking-tight sm:text-5xl">
+                Em 7 dias, sua fintech descobre onde está exposta sem instalar nada pesado.
+              </h2>
+            </div>
+            <div className="rounded-3xl border border-[#d8cdb9] bg-white p-6 shadow-[0_16px_50px_rgba(64,45,20,0.08)]">
+              <p className="text-base leading-8 text-[#4d4639]">
+                O diagnóstico inicial é online, assistido e controlado. Não precisa
+                técnico nosso dentro da fintech. Trabalhamos com dados anonimizados,
+                termo de confidencialidade e uma amostra segura para gerar relatório
+                executivo, mapa de risco e proposta objetiva de piloto.
+              </p>
+              <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+                <Link
+                  href="mailto:contato@quarry.dev?subject=Diagnostico%20PLD%2FFT%20Quarry"
+                  className="inline-flex items-center justify-center rounded-full bg-[#17140f] px-5 py-3 text-sm font-semibold text-white no-underline transition hover:bg-[#2a241b]"
+                >
+                  Solicitar diagnóstico
+                </Link>
+                <Link
+                  href="/br/pld-ft/readiness"
+                  className="inline-flex items-center justify-center rounded-full border border-[#17140f] px-5 py-3 text-sm font-semibold text-[#17140f] no-underline transition hover:bg-[#efe6d8]"
+                >
+                  Ver prontidão PLD/FT
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {diagnosticSteps.map((step) => (
+              <article
+                key={step.title}
+                className="rounded-3xl border border-[#ddd4c6] bg-white p-6"
+              >
+                <h3 className="font-serif text-xl font-semibold text-[#17140f]">
+                  {step.title}
+                </h3>
+                <p className="mt-3 text-sm leading-7 text-[#544b3c]">{step.body}</p>
+              </article>
             ))}
           </div>
         </div>
