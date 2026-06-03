@@ -21,7 +21,7 @@ const deliverables = [
 
 const path = [
   ['Cadastro', 'A fintech informa modelo, volume, responsável e dor principal.'],
-  ['Compra ou proposta', 'Checkout externo quando configurado; proposta comercial quando o pagamento ainda for assistido.'],
+  ['Triagem ou compra', 'A fintech pode experimentar o sandbox gratuito ou contratar o diagnóstico completo por checkout.'],
   ['Onboarding técnico', 'Checklist, documentos e amostras anonimizadas antes de qualquer API real.'],
   ['Diagnóstico', 'Quarry roda regras, score, evidências, lacunas e hipóteses revisáveis.'],
   ['Implantação', 'Se fizer sentido, conecta core/BaaS/Pix e abre monitoramento contínuo.'],
@@ -57,7 +57,7 @@ export default function DiagnosticoPldFtPage() {
         <div className="mx-auto grid max-w-6xl gap-10 pt-14 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
           <div>
             <p className="mb-5 text-xs font-bold uppercase tracking-[0.24em] text-[#916f3b]">
-              Produto de entrada · Diagnóstico PLD/FT
+              Produto de entrada · Triagem gratuita + Diagnóstico PLD/FT
             </p>
             <h1 className="max-w-4xl text-4xl font-semibold leading-[1.02] tracking-tight text-[#17140f] sm:text-6xl">
               Queremos avaliar se sua fintech pode estar vulnerável a fraude, lavagem e contas de passagem.
@@ -68,6 +68,10 @@ export default function DiagnosticoPldFtPage() {
               provar que conseguem detectar movimentações anormais com evidência defensável.
             </p>
             <div className="mt-8 grid gap-3 sm:grid-cols-3">
+              <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+                <p className="text-xs uppercase tracking-[0.16em] text-emerald-800">Primeiro passo</p>
+                <p className="mt-2 text-2xl font-semibold text-emerald-950">Grátis</p>
+              </div>
               <div className="rounded-2xl border border-[#d8cdb9] bg-white p-4">
                 <p className="text-xs uppercase tracking-[0.16em] text-[#916f3b]">Preço cheio</p>
                 <p className="mt-2 text-2xl font-semibold line-through">R$ 60.000</p>
@@ -76,22 +80,24 @@ export default function DiagnosticoPldFtPage() {
                 <p className="text-xs uppercase tracking-[0.16em] text-[#d8b56d]">Oferta inicial</p>
                 <p className="mt-2 text-2xl font-semibold">R$ 18.000</p>
               </div>
-              <div className="rounded-2xl border border-[#d8cdb9] bg-white p-4">
-                <p className="text-xs uppercase tracking-[0.16em] text-[#916f3b]">Entrega</p>
-                <p className="mt-2 text-2xl font-semibold">Remota</p>
-              </div>
             </div>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <a
                 href="#cadastro"
                 className="inline-flex items-center justify-center gap-2 rounded-full bg-[#17140f] px-6 py-3 text-sm font-semibold text-white no-underline transition hover:bg-[#2a241b]"
               >
-                Começar cadastro
+                Fazer triagem gratuita
                 <ArrowRight className="h-4 w-4" />
+              </a>
+              <a
+                href="#cadastro"
+                className="inline-flex items-center justify-center rounded-full border border-[#17140f] bg-white px-6 py-3 text-sm font-semibold text-[#17140f] no-underline transition hover:bg-[#f0e8d8]"
+              >
+                Contratar diagnóstico
               </a>
               <Link
                 href="/br/pld-ft/readiness"
-                className="inline-flex items-center justify-center rounded-full border border-[#17140f] bg-white px-6 py-3 text-sm font-semibold text-[#17140f] no-underline transition hover:bg-[#f0e8d8]"
+                className="inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold text-[#514839] no-underline transition hover:bg-[#f0e8d8]"
               >
                 Ver prontidão técnica
               </Link>
@@ -123,6 +129,35 @@ export default function DiagnosticoPldFtPage() {
                 {item}
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="border-b border-[#ddd4c6] bg-white px-5 py-16 sm:px-8">
+        <div className="mx-auto grid max-w-6xl gap-5 md:grid-cols-2">
+          <div className="rounded-[2rem] border border-emerald-200 bg-emerald-50 p-6">
+            <p className="text-xs font-bold uppercase tracking-[0.22em] text-emerald-800">
+              Experimente antes
+            </p>
+            <h2 className="mt-4 text-3xl font-semibold text-emerald-950">
+              Triagem gratuita de 7 dias com sandbox e score preliminar.
+            </h2>
+            <p className="mt-4 text-sm leading-7 text-emerald-950/80">
+              Indicada para fintechs que ainda estão avaliando o problema. Usa dados declarados,
+              simulação e checklist inicial. Não substitui o diagnóstico técnico com documentos.
+            </p>
+          </div>
+          <div className="rounded-[2rem] border border-[#17140f] bg-[#17140f] p-6 text-white">
+            <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#d8b56d]">
+              Diagnóstico completo
+            </p>
+            <h2 className="mt-4 text-3xl font-semibold">
+              Avaliação paga com documentos, amostra anonimizada e relatório executivo.
+            </h2>
+            <p className="mt-4 text-sm leading-7 text-[#d8d0c0]">
+              Indicada quando a fintech quer uma leitura séria de exposição PLD/FT,
+              recomendações auditáveis e plano de implantação.
+            </p>
           </div>
         </div>
       </section>

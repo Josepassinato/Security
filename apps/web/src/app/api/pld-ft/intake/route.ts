@@ -13,6 +13,7 @@ export async function POST(request: Request) {
 
   try {
     const intake = await createDiagnosticIntake(body && typeof body === 'object' ? body : {});
+    const isFreeTriage = intake.commercialPath === 'free_triage';
     return NextResponse.json({
       ok: true,
       intake,
@@ -21,7 +22,9 @@ export async function POST(request: Request) {
         checkoutUrl: intake.checkoutUrl,
         paymentMode: intake.paymentMode,
         message:
-          intake.paymentMode === 'external_checkout'
+          isFreeTriage
+            ? 'Triagem gratuita criada. Abra o workspace para ver o score preliminar, preencher o checklist e experimentar o fluxo com dados declarados ou simulados.'
+            : intake.paymentMode === 'external_checkout'
             ? 'Cadastro criado. Siga para o pagamento e depois complete o onboarding tecnico.'
             : 'Cadastro criado. Como o checkout ainda nao esta configurado, o sistema gerou uma proposta comercial e liberou o onboarding tecnico.',
       },

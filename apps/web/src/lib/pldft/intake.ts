@@ -3,6 +3,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 
 export type DiagnosticIntakeInput = {
+  commercialPath?: string;
   companyName?: string;
   cnpj?: string;
   website?: string;
@@ -29,15 +30,22 @@ export type IntakeUpload = {
 
 export type DiagnosticIntake = Required<DiagnosticIntakeInput> & {
   id: string;
-  status: 'registered' | 'diagnostic_pending_payment' | 'diagnostic_paid' | 'onboarding' | 'analysis_ready';
+  status: 'registered' | 'free_triage' | 'diagnostic_pending_payment' | 'diagnostic_paid' | 'onboarding' | 'analysis_ready';
   product: 'diagnostico-pld-ft';
+  commercialPath: 'free_triage' | 'paid_diagnostic';
   listPriceBrl: number;
   offerPriceBrl: number;
   riskTier: 'baixo' | 'medio' | 'alto' | 'critico';
   riskScore: number;
   triageNotes: string[];
   paymentMode: 'external_checkout' | 'proposal';
+  paymentStatus?: 'not_required' | 'pending' | 'paid' | 'failed';
   checkoutUrl: string | null;
+  stripeCheckoutSessionId?: string | null;
+  paidAt?: string | null;
+  paymentAmountBrl?: number | null;
+  paymentCurrency?: string | null;
+  trialEndsAt?: string | null;
   onboardingPath: string;
   checklist: Record<string, boolean>;
   uploads: IntakeUpload[];
@@ -129,11 +137,11 @@ async function createStripeCheckoutSession({
   intakeId: string;
   companyName: string;
   email: string;
-}): Promise<string | null> {
+}): Promise<{ id: string; url: string } | null> {
   const secretKey = process.env.STRIPE_SECRET_KEY || '';
   if (!secretKey) return null;
 
-  const successUrl = `${PUBLIC_SITE_URL}/diagnostico-pld-ft/onboarding?id=${encodeURIComponent(intakeId)}&payment=success`;
+  const successUrl = `${PUBLIC_SITE_URL}/diagnostico-pld-ft/onboarding?id=${encodeURIComponent(intakeId)}&payment=success&session_id={CHECKOUT_SESSION_ID}`;
   const cancelUrl = `${PUBLIC_SITE_URL}/diagnostico-pld-ft?payment=cancelled`;
   const params = new URLSearchParams();
   params.set('mode', 'payment');
@@ -176,7 +184,30 @@ async function createStripeCheckoutSession({
     });
     return null;
   }
-  return typeof payload.url === 'string' ? payload.url : null;
+  return typeof payload.url === 'string' && typeof payload.id === 'string'
+    ? { id: payload.id, url: payload.url }
+    : null;
+}
+
+async function retrieveStripeCheckoutSession(sessionId: string) {
+  const secretKey = process.env.STRIPE_SECRET_KEY || '';
+  if (!secretKey) throw new Error('Stripe nao configurado no runtime.');
+  const response = await fetch(`https://api.stripe.com/v1/checkout/sessions/${encodeURIComponent(sessionId)}`, {
+    headers: { Authorization: `Bearer ${secretKey}` },
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(payload?.error?.message || 'Nao foi possivel consultar o checkout no Stripe.');
+  }
+  return payload as {
+    id?: string;
+    client_reference_id?: string;
+    metadata?: { intake_id?: string };
+    payment_status?: string;
+    status?: string;
+    amount_total?: number;
+    currency?: string;
+  };
 }
 
 function intakePath(id: string) {
@@ -185,6 +216,7 @@ function intakePath(id: string) {
 
 export async function createDiagnosticIntake(input: DiagnosticIntakeInput): Promise<DiagnosticIntake> {
   const normalized: Required<DiagnosticIntakeInput> = {
+    commercialPath: clean(input.commercialPath, 40),
     companyName: clean(input.companyName, 160),
     cnpj: clean(input.cnpj, 40),
     website: clean(input.website, 180),
@@ -206,20 +238,28 @@ export async function createDiagnosticIntake(input: DiagnosticIntakeInput): Prom
 
   await ensureDir();
   const now = new Date().toISOString();
+  const commercialPath: DiagnosticIntake['commercialPath'] =
+    normalized.commercialPath === 'free_triage' ? 'free_triage' : 'paid_diagnostic';
   const slug = safeIdPart(normalized.companyName);
   const id = `diag_${slug}_${crypto.randomBytes(4).toString('hex')}`;
+  const checkoutSession =
+    commercialPath === 'paid_diagnostic'
+      ? (await createStripeCheckoutSession({
+          intakeId: id,
+          companyName: normalized.companyName,
+          email: normalized.email,
+        }).catch(() => null))
+      : null;
   const checkoutUrl =
-    process.env.QUARRY_DIAGNOSTIC_CHECKOUT_URL ||
-    (await createStripeCheckoutSession({
-      intakeId: id,
-      companyName: normalized.companyName,
-      email: normalized.email,
-    }).catch(() => null));
+    commercialPath === 'paid_diagnostic'
+      ? process.env.QUARRY_DIAGNOSTIC_CHECKOUT_URL || checkoutSession?.url || null
+      : null;
   const triage = scoreInput(normalized);
   const intake: DiagnosticIntake = {
     ...normalized,
+    commercialPath,
     id,
-    status: checkoutUrl ? 'diagnostic_pending_payment' : 'registered',
+    status: commercialPath === 'free_triage' ? 'free_triage' : checkoutUrl ? 'diagnostic_pending_payment' : 'registered',
     product: 'diagnostico-pld-ft',
     listPriceBrl: LIST_PRICE_BRL,
     offerPriceBrl: OFFER_PRICE_BRL,
@@ -227,7 +267,16 @@ export async function createDiagnosticIntake(input: DiagnosticIntakeInput): Prom
     riskScore: triage.riskScore,
     triageNotes: triage.notes,
     paymentMode: checkoutUrl ? 'external_checkout' : 'proposal',
+    paymentStatus: commercialPath === 'free_triage' ? 'not_required' : checkoutUrl ? 'pending' : 'not_required',
     checkoutUrl,
+    stripeCheckoutSessionId: checkoutSession?.id || null,
+    paidAt: null,
+    paymentAmountBrl: null,
+    paymentCurrency: null,
+    trialEndsAt:
+      commercialPath === 'free_triage'
+        ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+        : null,
     onboardingPath: `/diagnostico-pld-ft/onboarding?id=${encodeURIComponent(id)}`,
     checklist: { ...checklistDefaults },
     uploads: [],
@@ -253,6 +302,43 @@ export async function saveDiagnosticIntake(intake: DiagnosticIntake): Promise<Di
   await ensureDir();
   await fs.writeFile(intakePath(next.id), `${JSON.stringify(next, null, 2)}\n`, 'utf8');
   return next;
+}
+
+export async function confirmDiagnosticPayment({
+  id,
+  sessionId,
+}: {
+  id: string;
+  sessionId: string;
+}): Promise<DiagnosticIntake> {
+  const intake = await getDiagnosticIntake(id);
+  if (!intake) throw new Error('Cadastro nao encontrado.');
+  const cleanSessionId = clean(sessionId, 120);
+  if (!cleanSessionId) throw new Error('Sessao de checkout nao informada.');
+
+  const session = await retrieveStripeCheckoutSession(cleanSessionId);
+  const expectedId = session.client_reference_id || session.metadata?.intake_id;
+  if (expectedId !== intake.id) {
+    throw new Error('Sessao Stripe nao pertence a este cadastro.');
+  }
+
+  intake.stripeCheckoutSessionId = session.id || cleanSessionId;
+  intake.paymentCurrency = session.currency ? session.currency.toUpperCase() : intake.paymentCurrency || null;
+  intake.paymentAmountBrl =
+    typeof session.amount_total === 'number' && session.currency === 'brl'
+      ? Math.round(session.amount_total / 100)
+      : intake.paymentAmountBrl || null;
+
+  if (session.payment_status === 'paid' || session.status === 'complete') {
+    intake.paymentStatus = 'paid';
+    intake.status = intake.status === 'analysis_ready' ? intake.status : 'diagnostic_paid';
+    intake.paidAt = intake.paidAt || new Date().toISOString();
+  } else {
+    intake.paymentStatus = 'pending';
+    intake.status = intake.status === 'registered' ? 'diagnostic_pending_payment' : intake.status;
+  }
+
+  return saveDiagnosticIntake(intake);
 }
 
 export async function updateChecklist(id: string, checklist: Record<string, boolean>) {

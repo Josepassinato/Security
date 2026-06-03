@@ -12,6 +12,8 @@ type IntakeResponse = {
     listPriceBrl: number;
     riskTier: string;
     riskScore: number;
+    commercialPath: 'free_triage' | 'paid_diagnostic';
+    trialEndsAt?: string | null;
     triageNotes: string[];
     paymentMode: 'external_checkout' | 'proposal';
     checkoutUrl: string | null;
@@ -65,6 +67,7 @@ export function DiagnosticIntakeForm() {
 
   const ctaLabel = useMemo(() => {
     if (!response) return 'Solicitar diagnostico';
+    if (response.intake.commercialPath === 'free_triage') return 'Abrir triagem gratuita';
     return response.next.checkoutUrl ? 'Pagar diagnostico' : 'Abrir onboarding tecnico';
   }, [response]);
 
@@ -73,6 +76,8 @@ export function DiagnosticIntakeForm() {
     setLoading(true);
     setError('');
     const form = new FormData(event.currentTarget);
+    const submitter = (event.nativeEvent as SubmitEvent).submitter as HTMLButtonElement | null;
+    form.set('commercialPath', submitter?.value === 'free_triage' ? 'free_triage' : 'paid_diagnostic');
     const payload = Object.fromEntries(form.entries());
 
     try {
@@ -113,13 +118,21 @@ export function DiagnosticIntakeForm() {
 
         <div className="mt-6 grid gap-3 rounded-2xl bg-[#f7f4ef] p-4 text-sm text-[#3a362e]">
           <div className="flex items-center justify-between gap-4">
-            <span>Oferta de entrada</span>
-            <strong>{formatBrl(response.intake.offerPriceBrl)}</strong>
+            <span>{response.intake.commercialPath === 'free_triage' ? 'Triagem inicial' : 'Oferta de entrada'}</span>
+            <strong>{response.intake.commercialPath === 'free_triage' ? 'Gratuita' : formatBrl(response.intake.offerPriceBrl)}</strong>
           </div>
-          <div className="flex items-center justify-between gap-4">
-            <span>Preco cheio</span>
-            <span className="line-through">{formatBrl(response.intake.listPriceBrl)}</span>
-          </div>
+          {response.intake.commercialPath === 'paid_diagnostic' && (
+            <div className="flex items-center justify-between gap-4">
+              <span>Preco cheio</span>
+              <span className="line-through">{formatBrl(response.intake.listPriceBrl)}</span>
+            </div>
+          )}
+          {response.intake.trialEndsAt && (
+            <div className="flex items-center justify-between gap-4">
+              <span>Validade</span>
+              <strong>7 dias</strong>
+            </div>
+          )}
           <div className="flex items-center justify-between gap-4">
             <span>Triagem inicial</span>
             <strong>
@@ -242,14 +255,32 @@ export function DiagnosticIntakeForm() {
 
       {error && <p className="mt-4 rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</p>}
 
-      <button
-        type="submit"
-        disabled={loading}
-        className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#17140f] px-6 py-4 text-sm font-semibold text-white transition hover:bg-[#2a241b] disabled:cursor-not-allowed disabled:opacity-60"
-      >
-        {loading ? 'Criando cadastro...' : 'Solicitar diagnostico por R$ 18.000'}
-        <ArrowRight className="h-4 w-4" />
-      </button>
+      <div className="mt-6 grid gap-3">
+        <button
+          type="submit"
+          name="commercialPath"
+          value="free_triage"
+          disabled={loading}
+          className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-[#17140f] bg-white px-6 py-4 text-sm font-semibold text-[#17140f] transition hover:bg-[#f0e8d8] disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {loading ? 'Criando cadastro...' : 'Fazer triagem gratuita'}
+          <ArrowRight className="h-4 w-4" />
+        </button>
+        <button
+          type="submit"
+          name="commercialPath"
+          value="paid_diagnostic"
+          disabled={loading}
+          className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#17140f] px-6 py-4 text-sm font-semibold text-white transition hover:bg-[#2a241b] disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {loading ? 'Criando cadastro...' : 'Contratar diagnostico completo por R$ 18.000'}
+          <ArrowRight className="h-4 w-4" />
+        </button>
+      </div>
+      <p className="mt-3 text-xs leading-5 text-[#6c6252]">
+        A triagem gratuita usa sandbox e informações declaradas. O diagnóstico pago entra em documentos,
+        amostras anonimizadas e relatório executivo.
+      </p>
     </form>
   );
 }

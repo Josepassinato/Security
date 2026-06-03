@@ -11,6 +11,9 @@ type Intake = {
   contactName: string;
   email: string;
   status: string;
+  paymentStatus?: string;
+  paidAt?: string | null;
+  paymentAmountBrl?: number | null;
   riskTier: string;
   riskScore: number;
   checklist: Record<string, boolean>;
@@ -52,6 +55,8 @@ function formatBytes(size: number) {
 export function OnboardingWorkspace() {
   const params = useSearchParams();
   const id = params.get('id') || '';
+  const payment = params.get('payment') || '';
+  const sessionId = params.get('session_id') || '';
   const [intake, setIntake] = useState<Intake | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -76,6 +81,18 @@ export function OnboardingWorkspace() {
         const res = await fetch(`/api/pld-ft/intake/${encodeURIComponent(id)}`);
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Cadastro nao encontrado.');
+        if (payment === 'success' && sessionId) {
+          const confirmation = await fetch('/api/pld-ft/checkout/confirm', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, sessionId }),
+          });
+          const confirmed = await confirmation.json();
+          if (!confirmation.ok) throw new Error(confirmed.error || 'Pagamento nao confirmado.');
+          setIntake(confirmed.intake);
+          setMessage('Pagamento confirmado no Stripe. Continue o checklist de onboarding.');
+          return;
+        }
         setIntake(data.intake);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Erro ao carregar onboarding.');
@@ -84,7 +101,7 @@ export function OnboardingWorkspace() {
       }
     }
     load();
-  }, [id]);
+  }, [id, payment, sessionId]);
 
   async function toggleItem(key: string) {
     if (!intake) return;
@@ -188,6 +205,24 @@ export function OnboardingWorkspace() {
               <span>Status</span>
               <strong>{intake.status.replace(/_/g, ' ')}</strong>
             </div>
+            {intake.paymentStatus && (
+              <div className="flex items-center justify-between gap-3">
+                <span>Pagamento</span>
+                <strong>{intake.paymentStatus === 'paid' ? 'confirmado' : intake.paymentStatus}</strong>
+              </div>
+            )}
+            {intake.paymentAmountBrl && (
+              <div className="flex items-center justify-between gap-3">
+                <span>Valor confirmado</span>
+                <strong>
+                  {intake.paymentAmountBrl.toLocaleString('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL',
+                    maximumFractionDigits: 0,
+                  })}
+                </strong>
+              </div>
+            )}
           </div>
           <p className="mt-5 text-xs leading-5 text-[#6c6252]">
             Nesta etapa a fintech ainda nao precisa integrar API real. O time pode iniciar
