@@ -40,8 +40,7 @@ beforeEach(() => {
   swrLoadingKeys.clear();
   swrMutate.mockReset();
   fetchMock.mockReset();
-  // @ts-expect-error — global stub
-  global.fetch = fetchMock;
+  global.fetch = fetchMock as typeof fetch;
 });
 
 // Component imports MUST come after the mocks above.

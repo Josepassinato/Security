@@ -33,15 +33,15 @@ import {
   type PldRuleVersion,
 } from '@/lib/pldft/api';
 import type { PldCaseRecord } from '@/lib/pldft/cases';
-import type { PldThresholds } from '@/lib/pldft/engine';
+import type { PldInput, PldThresholds } from '@/lib/pldft/engine';
 
 const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
-const SAMPLE_STREAM_PAYLOAD = {
+const SAMPLE_STREAM_PAYLOAD: PldInput = {
   institution: 'Quarry Demo Bank',
   customers: [
-    { customerId: 'C-STREAM-001', declaredMonthlyIncome: 4200, accountAgeDays: 8 },
-    { customerId: 'C-STREAM-002', declaredMonthlyIncome: 9000, accountAgeDays: 640 },
+    { customerId: 'C-STREAM-001', name: 'Cliente Stream 001', declaredMonthlyIncome: 4200, accountAgeDays: 8 },
+    { customerId: 'C-STREAM-002', name: 'Cliente Stream 002', declaredMonthlyIncome: 9000, accountAgeDays: 640 },
   ],
   transactions: [
     {
@@ -332,7 +332,9 @@ export function PldFtGovernance() {
                       <div>
                         <p className="font-semibold text-white">{job.name}</p>
                         <p className="mt-1 text-xs text-slate-400">{job.status} · {job.sourceType} · a cada {job.intervalSeconds}s · próximo {job.nextRunAt || 'sob demanda'}</p>
-                        {job.lastResult?.status && <p className="mt-2 text-xs text-slate-500">Último resultado: {String(job.lastResult.status)}</p>}
+                        {typeof job.lastResult?.status === 'string' && (
+                          <p className="mt-2 text-xs text-slate-500">Último resultado: {job.lastResult.status}</p>
+                        )}
                       </div>
                       <button type="button" onClick={() => runJob(job.id)} className="rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-slate-200">Executar</button>
                     </div>
@@ -497,7 +499,7 @@ export function PldFtGovernance() {
                 <select value={selectedCaseId} onChange={(event) => setSelectedCaseId(event.target.value)} className="min-w-[280px] rounded-xl border border-white/10 bg-slate-950 px-3 py-3 text-sm text-white">
                   <option value="">Selecione um caso</option>
                   {cases.map((item) => (
-                    <option key={item.id} value={item.id}>{item.dossierId || item.id} · {item.status}</option>
+                    <option key={item.id} value={item.id}>{item.dossier.id || item.id} · {item.status}</option>
                   ))}
                 </select>
                 <button type="button" onClick={createRegulatoryExport} className="rounded-xl bg-amber-400 px-4 py-3 text-sm font-semibold text-slate-950">Criar exportação</button>
