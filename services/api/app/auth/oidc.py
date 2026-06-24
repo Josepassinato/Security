@@ -82,6 +82,105 @@ async def _discover(issuer: str) -> dict[str, Any]:
     return data
 
 
+# ─── id_token signature verification (JWKS) ───────────────────────────────────
+
+# Cache of provider JWKS keyed by issuer. Refreshed lazily on a kid miss so key
+# rotation is picked up without a process restart.
+_jwks_cache: dict[str, Any] = {}
+
+# Asymmetric algorithms we accept for id_token signatures. ``none`` and
+# symmetric HS* are deliberately excluded: an attacker who controls the token's
+# ``alg`` header must not be able to downgrade verification.
+_ALLOWED_ID_TOKEN_ALGS = {
+    "RS256", "RS384", "RS512",
+    "ES256", "ES384", "ES512",
+    "PS256", "PS384", "PS512",
+}
+
+
+async def _get_jwk_set(provider: dict[str, Any], issuer: str, *, force: bool = False) -> Any:
+    """Fetch (and cache) the provider JWKS as a ``PyJWKSet``.
+
+    Returns ``None`` when the provider advertises no ``jwks_uri`` — callers must
+    treat that as a hard failure rather than trust an unverified token.
+    """
+    jwks_uri = provider.get("jwks_uri")
+    if not jwks_uri:
+        return None
+    if not force and issuer in _jwks_cache:
+        return _jwks_cache[issuer]
+    async with httpx.AsyncClient(timeout=10) as client:
+        resp = await client.get(jwks_uri)
+        resp.raise_for_status()
+        jwk_set = _jwt.PyJWKSet.from_dict(resp.json())
+    _jwks_cache[issuer] = jwk_set
+    return jwk_set
+
+
+def _match_signing_key(jwk_set: Any, id_token: str) -> Any:
+    """Return the JWK whose ``kid`` matches the token header, or raise."""
+    header = _jwt.get_unverified_header(id_token)
+    kid = header.get("kid")
+    keys = list(jwk_set.keys)
+    for key in keys:
+        if key.key_id == kid:
+            return key
+    # Single-key providers may omit ``kid`` in the JWKS and/or the token header.
+    if kid is None and len(keys) == 1:
+        return keys[0]
+    raise _jwt.PyJWKClientError(f"No JWKS key matches id_token kid={kid!r}")
+
+
+async def _verify_id_token(
+    provider: dict[str, Any],
+    issuer: str,
+    id_token: str,
+    client_id: str,
+    expected_nonce: str,
+) -> dict[str, Any]:
+    """Verify an OIDC id_token: signature (provider JWKS) + ``aud``/``iss``/
+    ``exp`` claims + ``nonce`` binding. Raises on any failure so the caller can
+    fail the login **closed** instead of trusting unverified claims.
+    """
+    expected_iss = provider.get("issuer") or issuer
+    algs = [
+        a
+        for a in provider.get("id_token_signing_alg_values_supported", ["RS256"])
+        if a in _ALLOWED_ID_TOKEN_ALGS
+    ] or ["RS256"]
+
+    last_exc: Exception | None = None
+    signing_key = None
+    for attempt in (1, 2):  # one lazy refresh to absorb JWKS key rotation
+        jwk_set = await _get_jwk_set(provider, issuer, force=attempt == 2)
+        if jwk_set is None:
+            raise HTTPException(
+                status_code=502,
+                detail="OIDC provider exposes no jwks_uri; refusing to trust unverified id_token",
+            )
+        try:
+            signing_key = _match_signing_key(jwk_set, id_token)
+            break
+        except _jwt.PyJWKClientError as exc:
+            last_exc = exc
+    if signing_key is None:
+        raise last_exc or _jwt.PyJWKClientError("Unable to resolve OIDC signing key")
+
+    claims: dict[str, Any] = _jwt.decode(
+        id_token,
+        signing_key.key,
+        algorithms=algs,
+        audience=client_id,
+        issuer=expected_iss,
+        options={"require": ["exp", "iat", "iss", "aud"]},
+    )
+
+    if expected_nonce and claims.get("nonce") != expected_nonce:
+        raise _jwt.InvalidTokenError("OIDC id_token nonce mismatch")
+
+    return claims
+
+
 # ─── In-memory state store (replace with Redis in production) ─────────────────
 
 _state_store: dict[str, dict[str, str]] = {}
@@ -218,14 +317,26 @@ async def oidc_callback(
             raise HTTPException(status_code=502, detail=f"Token exchange failed: {token_resp.text}")
         tokens = token_resp.json()
 
-    # Decode id_token (no signature verification here — use provider JWKS in production)
+    # Verify the id_token signature against the provider JWKS and validate
+    # aud/iss/exp + nonce binding. We fail CLOSED: a present-but-invalid
+    # id_token aborts the login rather than silently falling back to userinfo.
+    # When no id_token is returned, identity comes from the userinfo endpoint
+    # below (fetched with the provider-issued access token, authenticated
+    # upstream).
     id_token = tokens.get("id_token", "")
     claims: dict[str, Any] = {}
     if id_token:
         try:
-            claims = _jwt.decode(id_token, options={"verify_signature": False})
+            claims = await _verify_id_token(
+                provider, issuer, id_token, client_id, state_data.get("nonce", "")
+            )
+        except HTTPException:
+            raise
         except Exception as exc:  # noqa: BLE001
-            logger.debug("Failed to decode id_token claims: %s", exc)
+            logger.warning("OIDC id_token verification failed: %s", exc)
+            raise HTTPException(
+                status_code=401, detail="OIDC id_token verification failed"
+            ) from exc
 
     access_token = tokens.get("access_token", "")
 
