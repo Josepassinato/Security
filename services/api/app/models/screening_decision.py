@@ -43,9 +43,12 @@ class ScreeningDecision(Base):
     tenant_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False
     )
-    case_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("pld_ft_cases.id", ondelete="RESTRICT")
-    )
+    # FK to pld_ft_cases (ON DELETE RESTRICT) is enforced at the DB level by
+    # migration 050. pld_ft_cases is NOT an ORM-mapped table, so declaring a
+    # SQLAlchemy ForeignKey here would make configure_mappers() raise
+    # NoReferencedTableError and break the whole ORM registry. Keep it a plain
+    # column; the database still enforces referential integrity.
+    case_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
 
     # Counterparty
     counterparty_name: Mapped[str] = mapped_column(Text, nullable=False)
