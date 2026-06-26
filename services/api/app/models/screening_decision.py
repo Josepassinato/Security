@@ -50,8 +50,12 @@ class ScreeningDecision(Base):
     # Counterparty
     counterparty_name: Mapped[str] = mapped_column(Text, nullable=False)
     counterparty_normalized: Mapped[str] = mapped_column(Text, nullable=False)
-    counterparty_id: Mapped[str] = mapped_column(Text, nullable=False)
+    # Nullable: a screening can run on a name alone (no document at decision time).
+    counterparty_id: Mapped[str | None] = mapped_column(Text)
     counterparty_id_type: Mapped[str] = mapped_column(Text, nullable=False)
+    # §1 identity/scope (migration 051) — evidence-bearing, folded into the chain.
+    counterparty_jurisdiction: Mapped[str | None] = mapped_column(Text)
+    screening_trigger: Mapped[str | None] = mapped_column(Text)
 
     # Attribution: who matched vs. who witnesses the list version
     matching_engine: Mapped[str] = mapped_column(Text, nullable=False)

@@ -46,8 +46,10 @@ def _row(
     case_id: uuid.UUID | None = None,
     counterparty_name: str = "Joao da Silva",
     counterparty_normalized: str = "joao da silva",
-    counterparty_id: str = "12345678901",
+    counterparty_id: str | None = "12345678901",
     counterparty_id_type: str = "CPF",
+    counterparty_jurisdiction: str | None = "BR",
+    screening_trigger: str | None = "onboarding",
     matching_engine: str = "complyadvantage",
     list_of_record: str = "opensanctions",
     list_source: str = "OFAC_SDN",
@@ -80,6 +82,8 @@ def _row(
         counterparty_normalized=counterparty_normalized,
         counterparty_id=counterparty_id,
         counterparty_id_type=counterparty_id_type,
+        counterparty_jurisdiction=counterparty_jurisdiction,
+        screening_trigger=screening_trigger,
         matching_engine=matching_engine,
         list_of_record=list_of_record,
         list_source=list_source,
@@ -104,6 +108,8 @@ def _row(
         "counterparty_normalized": counterparty_normalized,
         "counterparty_id": counterparty_id,
         "counterparty_id_type": counterparty_id_type,
+        "counterparty_jurisdiction": counterparty_jurisdiction,
+        "screening_trigger": screening_trigger,
         "matching_engine": matching_engine,
         "list_of_record": list_of_record,
         "list_source": list_source,
@@ -133,8 +139,10 @@ def _kwargs(row: dict[str, Any]) -> dict[str, Any]:
         "case_id": row.get("case_id"),
         "counterparty_name": row["counterparty_name"],
         "counterparty_normalized": row["counterparty_normalized"],
-        "counterparty_id": row["counterparty_id"],
+        "counterparty_id": row.get("counterparty_id"),
         "counterparty_id_type": row["counterparty_id_type"],
+        "counterparty_jurisdiction": row.get("counterparty_jurisdiction"),
+        "screening_trigger": row.get("screening_trigger"),
         "matching_engine": row["matching_engine"],
         "list_of_record": row["list_of_record"],
         "list_source": row["list_source"],
@@ -159,6 +167,17 @@ def test_compute_entry_hash_is_deterministic() -> None:
     assert a == b
 
 
+def test_name_only_screening_chains_and_differs() -> None:
+    """A name-only screening (counterparty_id=None) hashes cleanly and is
+    distinct from the same name carrying a document — None is evidence too."""
+    with_doc = compute_entry_hash(**_kwargs(_row(prev_hash=None)))
+    name_only = compute_entry_hash(**_kwargs(_row(prev_hash=None, counterparty_id=None)))
+    assert with_doc != name_only
+    chain = [_row(prev_hash=None, counterparty_id=None)]
+    ok, idx, reason = verify_chain(chain)
+    assert ok and idx is None and reason is None
+
+
 @pytest.mark.parametrize(
     "field,new_value",
     [
@@ -166,6 +185,8 @@ def test_compute_entry_hash_is_deterministic() -> None:
         ("counterparty_normalized", "maria souza"),
         ("counterparty_id", "98765432100"),
         ("counterparty_id_type", "PASSPORT"),
+        ("counterparty_jurisdiction", "US"),
+        ("screening_trigger", "transaction:abc123"),
         ("matching_engine", "dowjones"),
         ("list_of_record", "ofac_public_file"),
         ("list_source", "UN"),
