@@ -83,6 +83,14 @@ class OutputFormat(str, Enum):
     GENERIC_AUDITOR_PDF = "generic_auditor_pdf"
     """Free-form auditor PDF — used during pack development."""
 
+    AML_SCREENING_CASE_DOSSIER_V1 = "AML_SCREENING_CASE_DOSSIER_v1"
+    """Per-case sanctions-screening dossier (6 sections) rendered via the
+    sandboxed narrative motor from one screening_decisions row."""
+
+    AML_PORTFOLIO_REPORT_V1 = "AML_PORTFOLIO_REPORT_v1"
+    """Aggregated portfolio screening report (the commercial artifact):
+    N counterparties, list-freshness index, dispositions, chain integrity."""
+
 
 # ---------------------------------------------------------------------------
 # Models
