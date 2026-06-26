@@ -1,0 +1,113 @@
+{# ============================================================================
+   DOSSIÊ DE EVIDÊNCIA DE SCREENING — CASO INDIVIDUAL
+   output_format: AML_SCREENING_CASE_DOSSIER_v1
+   Template Jinja2 para evidence_pack.narrative.render_screening_case_dossier()
+   ----------------------------------------------------------------------------
+   ESTADO DOS BLOCOS:
+     🟢 SÓLIDO    — §1, §2, §6 → construídos e prontos. Mecânica de dado pura.
+     🟡 CONFIRMAR — §3 (apresentação), §4 (redação), §5 (inteiro)
+                    → comentados. NÃO fixar no código. Marcos (BSA officer)
+                      redige; entram como render_block_* após validação com
+                      vivência de exame real (OFAC/FinCEN).
+   ----------------------------------------------------------------------------
+   FONTE DOS DADOS: uma linha de `screening_decisions` (migrations 050+051).
+   REGRA: render só LÊ o livro-razão. Nunca deriva versão de lista em runtime —
+          usa o snapshot congelado na linha (list_version / list_release_date).
+   SEGURANÇA: renderizado em SandboxedEnvironment + autoescape. Valores de
+              terceiro (counterparty_name, engine output) são escapados.
+   ============================================================================ #}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Dossiê de Screening — {{ decision.counterparty_name }}</title>
+</head>
+<body>
+
+{# ─── §1 · IDENTIFICAÇÃO E ESCOPO ──────────────────────────────── 🟢 SÓLIDO #}
+<section id="identificacao">
+  <h2>1. Identificação e Escopo</h2>
+  <table>
+    <tr><th>Contraparte</th><td>{{ decision.counterparty_name }}</td></tr>
+    <tr><th>Identificador</th>
+        <td>
+          {% if decision.counterparty_id %}
+            {{ decision.counterparty_id }} ({{ decision.counterparty_id_type }})
+          {% else %}
+            Screening por nome — sem documento no momento da decisão
+          {% endif %}
+        </td></tr>
+    {% if decision.counterparty_jurisdiction %}
+    <tr><th>Jurisdição</th><td>{{ decision.counterparty_jurisdiction }}</td></tr>
+    {% endif %}
+    {% if decision.screening_trigger %}
+    <tr><th>Gatilho do screening</th><td>{{ decision.screening_trigger }}</td></tr>
+    {% endif %}
+    <tr><th>Caso vinculado</th><td>{{ decision.case_id }}</td></tr>
+    <tr><th>Data/hora do screening (UTC)</th><td>{{ decision.screened_at }}</td></tr>
+    <tr><th>Instituição responsável</th><td>{{ decision.tenant_name }}</td></tr>
+  </table>
+</section>
+
+{# ─── §2 · VERSÃO DA LISTA (O CARIMBO) ─────────────────────────── 🟢 SÓLIDO #}
+{# Trunfo do produto. Responde "contra qual build da SDN você rodou?"          #}
+{# Valores vêm CONGELADOS da linha — nunca re-puxados em runtime.              #}
+<section id="versao-lista">
+  <h2>2. Versão da Lista de Sanções</h2>
+  <table>
+    <tr><th>Fonte de registro</th><td>{{ decision.list_of_record }}</td></tr>
+    <tr><th>Lista</th><td>{{ decision.list_source }}</td></tr>
+    <tr><th>Dataset</th><td>{{ decision.list_dataset }}</td></tr>
+    <tr><th>Versão do build</th><td><strong>{{ decision.list_version }}</strong></td></tr>
+    <tr><th>Publicação do build</th><td>{{ decision.list_release_date }}</td></tr>
+  </table>
+  <p class="nota">
+    Screening executado contra a versão do build acima, capturada no instante
+    da decisão e imutável desde então.
+  </p>
+</section>
+
+{# ─── §3 · RESULTADO DO MATCHING ──── 🟡 estrutura ok / APRESENTAÇÃO a confirmar
+   Campos disponíveis: matching_engine, decision, match_score,
+   scoring_rule_version, engine_raw_result (JSONB).
+   ⚠️ A CONFIRMAR com exame real: como renderizar engine_raw_result de forma
+      LEGÍVEL a um examinador não-técnico. JSON cru reprova.
+   Entra como render_block_matching (Markup confiável), não hardcode.
+
+   {{ render_block_matching | default('[§3 PENDENTE — apresentação a confirmar]') }}
+#}
+
+{# ─── §4 · DISPOSIÇÃO HUMANA ──────── 🟡 lógica ok / REDAÇÃO a confirmar
+   Lógica condicional é sólida (garantida pelo CHECK de HITL no banco):
+   POTENTIAL_MATCH exige human_reviewer + rationale.
+   ⚠️ A CONFIRMAR: nível de detalhe de rationale que o examinador exige.
+
+   {{ render_block_disposition | default('[§4 PENDENTE — redação a confirmar]') }}
+#}
+
+{# ─── §5 · BENEFICIAL OWNERSHIP / REGRA 50% ──────────── 🟡 INTEIRO a confirmar
+   ⚠️ Seção mais sensível. Demarca o LIMITE da cobertura sem soar como falha.
+      Texto exato é arte de exame — NÃO fixar sem vivência real. É a Fase 5.
+
+   {{ render_block_ownership | default('[§5 PENDENTE — texto a confirmar com especialista]') }}
+#}
+
+{# ─── §6 · INTEGRIDADE DA TRILHA ───────────────────────────────── 🟢 SÓLIDO #}
+{# Transforma todas as seções acima de "alegação" em "evidência".             #}
+{# Liga no verificador de chain já testado (screening_hash.py).               #}
+<section id="integridade">
+  <h2>6. Integridade da Trilha</h2>
+  <table>
+    <tr><th>Hash desta decisão</th><td><code>{{ decision.entry_hash }}</code></td></tr>
+    <tr><th>Hash anterior (encadeamento)</th><td><code>{{ decision.prev_hash }}</code></td></tr>
+    <tr><th>Método de verificação</th><td>{{ verification_method }}</td></tr>
+  </table>
+  <p class="nota">
+    Registro mantido em livro-razão imutável encadeado por hash. A integridade
+    é verificável de forma independente: qualquer alteração posterior a esta
+    decisão quebra a cadeia e é detectável. Registro contemporâneo à decisão.
+  </p>
+</section>
+
+</body>
+</html>
