@@ -1,0 +1,90 @@
+{# ============================================================================
+   RELATÓRIO AGREGADO DE CARTEIRA — SCREENING DE SANÇÕES
+   output_format: AML_PORTFOLIO_REPORT_v1
+   Render: evidence_pack.narrative.render_narrative(context={report, tenant_name,
+           generated_at})  ·  SandboxedEnvironment + autoescape
+   ----------------------------------------------------------------------------
+   O SKU. Não liga pra um nome — prova que a carteira inteira do cliente do
+   banco correspondente está limpa E provável. Fonte: agregação pura sobre o
+   livro-razão imutável (evidence_pack.portfolio.build_portfolio_report).
+   REGRA DE HONESTIDADE: a manchete é o ÍNDICE DE FRESCOR (% rodada contra o
+   build vigente). Os defasados são DECLARADOS, não escondidos — é o que
+   distingue evidência de maquiagem.
+   ============================================================================ #}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="utf-8"><title>Relatório de Carteira — {{ tenant_name }}</title></head>
+<body>
+
+<section id="cabecalho">
+  <h1>Relatório de Evidência de Screening — Carteira</h1>
+  <p><strong>Instituição:</strong> {{ tenant_name }}</p>
+  <p><strong>Gerado em (UTC):</strong> {{ generated_at }}</p>
+</section>
+
+{# ─── MANCHETE: ÍNDICE DE FRESCOR ─────────────────────────────────────────── #}
+<section id="frescor">
+  <h2>Índice de Frescor da Carteira</h2>
+  <p class="headline">
+    <strong>{{ report.freshness.pct_current }}%</strong> das
+    {{ report.counterparty_count }} contrapartes foram rodadas contra o build
+    vigente da lista.
+  </p>
+  <table>
+    <tr><th>Contrapartes na carteira</th><td>{{ report.counterparty_count }}</td></tr>
+    <tr><th>Rodadas contra build vigente</th><td>{{ report.freshness.fresh }}</td></tr>
+    <tr><th>Em build anterior (fila de re-screening)</th><td>{{ report.freshness.stale }}</td></tr>
+  </table>
+  {% for ds, build in report.current_build.items() %}
+  <p class="nota">Build vigente — <strong>{{ ds }}</strong>: versão
+    {{ build.list_version }}, publicado {{ build.list_release_date }}.</p>
+  {% endfor %}
+</section>
+
+{# ─── POSTURA DA CARTEIRA ─────────────────────────────────────────────────── #}
+<section id="postura">
+  <h2>Postura de Matching</h2>
+  <table>
+    <tr><th>Matches potenciais (estado atual)</th><td>{{ report.potential_matches }}</td></tr>
+    <tr><th>Resolvidos (com disposição registrada)</th><td>{{ report.resolved }}</td></tr>
+    <tr><th>Aguardando revisão humana</th><td>{{ report.pending_review }}</td></tr>
+    <tr><th>Resolvidos SEM rationale</th>
+        <td><strong>{{ report.resolved_without_rationale }}</strong>
+        {% if report.resolved_without_rationale == 0 %}(garantido por constraint de banco){% endif %}</td></tr>
+  </table>
+</section>
+
+{# ─── DEFASADOS — DECLARADOS, NÃO ESCONDIDOS ──────────────────────────────── #}
+{% if report.stale_counterparties %}
+<section id="defasados">
+  <h2>Contrapartes em Build Anterior (fila de re-screening)</h2>
+  <table>
+    <tr><th>Contraparte</th><th>Rodada contra</th><th>Build vigente</th></tr>
+    {% for cp in report.stale_counterparties %}
+    <tr>
+      <td>{{ cp.counterparty_name }}</td>
+      <td>{{ cp.screened_against_version }} ({{ cp.screened_against_release }})</td>
+      <td>{{ cp.current_version }} ({{ cp.current_release }})</td>
+    </tr>
+    {% endfor %}
+  </table>
+  <p class="nota">Estas contrapartes serão re-rodadas na próxima atualização de
+    lista. Declaração explícita: a defesa é atual para as demais; estas estão em
+    fila. Demarcar o limite fortalece o programa.</p>
+</section>
+{% endif %}
+
+{# ─── INTEGRIDADE DA TRILHA ───────────────────────────────────────────────── #}
+<section id="integridade">
+  <h2>Integridade da Trilha</h2>
+  {% if report.chain.intact %}
+  <p>Cadeia de hash <strong>ÍNTEGRA</strong> em toda a carteira. Nenhum registro
+    foi alterado, removido ou reordenado desde a decisão.</p>
+  {% else %}
+  <p><strong>ALERTA:</strong> cadeia quebrada no registro de índice
+    {{ report.chain.first_broken_index }}. Integridade NÃO comprovada — investigar.</p>
+  {% endif %}
+</section>
+
+</body>
+</html>

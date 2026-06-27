@@ -68,6 +68,7 @@ from app.api.v1.endpoints import (
     rule_tuning,
     saved_hunts,
     saved_views,
+    screening,
     shifts,
     sla,
     stix_taxii,
@@ -119,6 +120,7 @@ api_router.include_router(marketplace.router)
 api_router.include_router(rbac.router)
 api_router.include_router(audit.router)
 api_router.include_router(compliance.router)
+api_router.include_router(screening.router)
 # Regulatory communications (CARD-014): Bacen 24h + ANPD ledger,
 # hash-chained per (tenant, kind), with human-gated dispatch.
 api_router.include_router(regulatory.router)

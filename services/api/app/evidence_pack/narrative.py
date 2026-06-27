@@ -1,0 +1,193 @@
+"""F4 renderer motor — sandboxed Jinja2 for AML evidence dossiers.
+
+Why a sandbox (engineering mandate, not optional):
+
+* The narrative template is authored by a human (BSA officer). Rendering a
+  template *string* with the default ``jinja2.Environment`` is a Server-Side
+  Template Injection → RCE vector. Templates run here in
+  ``jinja2.sandbox.SandboxedEnvironment``, which blocks dunder access and
+  unsafe callables.
+* The *values* rendered into the template (e.g. ``counterparty_name``, the
+  engine's raw output) are influenced by third parties — an onboarding name
+  could carry ``<script>`` or stray markup. ``autoescape`` is on, so every
+  value is HTML-escaped unless explicitly wrapped as trusted ``Markup``.
+
+This is the single motor behind both the per-case dossier and the portfolio
+report; only the template string and the context differ. It deliberately does
+NOT touch ``renderer.render_evidence_html`` — the existing Bacen evidence packs
+keep their hardcoded, deterministic layout untouched.
+
+Division of labour (signed): the BSA officer writes the template (the layout
+that survives an OFAC exam is their domain); engineering guarantees that
+rendering it is sandboxed and escaped.
+"""
+
+from __future__ import annotations
+
+from collections.abc import Mapping
+from typing import Any
+
+from jinja2 import select_autoescape
+from jinja2.sandbox import SandboxedEnvironment
+from markupsafe import Markup
+
+from app.evidence_pack.renderer import WeasyPrintUnavailableError
+
+__all__ = [
+    "render_narrative",
+    "render_screening_case_dossier",
+    "render_dossier_pdf",
+]
+
+
+# Fields the dossier template may read off a screening_decisions row. Kept
+# explicit so an ORM object and a plain dict render identically, and so we
+# never leak an unexpected attribute into a template's context.
+_SCREENING_FIELDS = (
+    "id",
+    "tenant_id",
+    "case_id",
+    "counterparty_name",
+    "counterparty_normalized",
+    "counterparty_id",
+    "counterparty_id_type",
+    "counterparty_jurisdiction",
+    "screening_trigger",
+    "matching_engine",
+    "list_of_record",
+    "list_source",
+    "list_dataset",
+    "list_version",
+    "list_release_date",
+    "engine_raw_result",
+    "match_score",
+    "scoring_rule_version",
+    "decision",
+    "disposition",
+    "human_reviewer",
+    "rationale",
+    "screened_at",
+    "created_at",
+    "prev_hash",
+    "entry_hash",
+)
+
+
+def _build_env() -> SandboxedEnvironment:
+    return SandboxedEnvironment(
+        autoescape=select_autoescape(default=True, default_for_string=True),
+        trim_blocks=True,
+        lstrip_blocks=True,
+    )
+
+
+def render_narrative(template_str: str, context: Mapping[str, Any]) -> str:
+    """Render a Jinja2 narrative template in a sandbox with autoescape on.
+
+    Raises ``jinja2.exceptions.SecurityError`` if the template attempts a
+    sandbox-forbidden operation (dunder access, unsafe callable, …) and
+    ``jinja2.exceptions.TemplateError`` on a malformed template.
+    """
+    env = _build_env()
+    template = env.from_string(template_str)
+    return template.render(**dict(context))
+
+
+def _decision_mapping(decision: Any) -> dict[str, Any]:
+    if isinstance(decision, Mapping):
+        return dict(decision)
+    return {field: getattr(decision, field, None) for field in _SCREENING_FIELDS}
+
+
+# §3/§4/§5 sub-templates. These render the REAL ledger fields (mechanical, not
+# invented exam prose). The exact exam wording — especially §5 — is the BSA
+# officer's to refine; the defaults here state honest, conservative facts.
+_BLOCK_MATCHING = """<table>
+<tr><th>Engine de matching</th><td>{{ d.matching_engine }}</td></tr>
+<tr><th>Decisão</th><td>{{ d.decision }}</td></tr>
+<tr><th>Score (0–100)</th><td>{{ d.match_score }} (régua {{ d.scoring_rule_version }})</td></tr>
+{% if hit %}
+<tr><th>Entidade casada</th><td>{{ hit.caption }} ({{ hit.id }})</td></tr>
+<tr><th>Score bruto da engine</th><td>{{ hit.score }}</td></tr>
+<tr><th>Listas da entidade</th><td>{{ hit.datasets | join(', ') }}</td></tr>
+{% else %}
+<tr><td colspan="2">Sem correspondência — nenhuma entidade retornada pela engine.</td></tr>
+{% endif %}
+</table>"""
+
+_BLOCK_DISPOSITION = """<table>
+<tr><th>Disposição</th><td>{{ d.disposition }}</td></tr>
+{% if d.human_reviewer %}
+<tr><th>Revisor humano</th><td>{{ d.human_reviewer }}</td></tr>
+<tr><th>Fundamentação</th><td>{{ d.rationale }}</td></tr>
+{% else %}
+<tr><td colspan="2">Decisão automática — sem revisão humana (visível por desenho).</td></tr>
+{% endif %}
+</table>"""
+
+_BLOCK_OWNERSHIP = """<p>{{ ownership_coverage }}</p>"""
+
+# Honest, conservative default for §5. Demarcates the limit instead of faking
+# coverage. The BSA officer refines the exact exam wording; per-decision
+# persistence of coverage is Phase 5.
+DEFAULT_OWNERSHIP_COVERAGE = (
+    "O screening cobriu correspondência de NOME contra a lista de sanções "
+    "(fonte-de-registro versionada). A verificação de titularidade final / "
+    "controle — regra dos 50% da OFAC — NÃO foi avaliada neste escopo e deve "
+    "ser endereçada por um controle separado de beneficial ownership."
+)
+
+
+def build_case_render_blocks(data: Mapping[str, Any], *, ownership_coverage: str | None = None) -> dict[str, str]:
+    """Build the §3/§4/§5 HTML blocks from one decision's real fields, each
+    rendered through the sandboxed+autoescaped motor so the values are safe."""
+    raw = data.get("engine_raw_result") or {}
+    hit = raw if isinstance(raw, Mapping) and raw.get("caption") else None
+    return {
+        "render_block_matching": render_narrative(_BLOCK_MATCHING, {"d": data, "hit": hit}),
+        "render_block_disposition": render_narrative(_BLOCK_DISPOSITION, {"d": data}),
+        "render_block_ownership": render_narrative(
+            _BLOCK_OWNERSHIP, {"ownership_coverage": ownership_coverage or DEFAULT_OWNERSHIP_COVERAGE}
+        ),
+    }
+
+
+def render_screening_case_dossier(
+    *,
+    decision: Any,
+    template_str: str,
+    tenant_name: str,
+    verification_method: str,
+    render_blocks: Mapping[str, str] | None = None,
+    ownership_coverage: str | None = None,
+) -> str:
+    """Render the per-case screening dossier from one screening_decisions row.
+
+    ``decision`` may be a ``ScreeningDecision`` ORM instance or a plain mapping.
+    ``render_blocks`` carries the §3/§4/§5 prose the compliance team authors;
+    each is treated as TRUSTED, already-sanitized HTML (wrapped as ``Markup``)
+    — the caller is responsible for having produced it safely (ideally via this
+    same motor). Counterparty/engine values are always autoescaped.
+    """
+    data = _decision_mapping(decision)
+    data["tenant_name"] = tenant_name
+
+    context: dict[str, Any] = {
+        "decision": data,
+        "verification_method": verification_method,
+    }
+    blocks = render_blocks or build_case_render_blocks(data, ownership_coverage=ownership_coverage)
+    for key, value in blocks.items():
+        context[key] = Markup(value)
+
+    return render_narrative(template_str, context)
+
+
+def render_dossier_pdf(html_str: str) -> bytes:
+    """Render dossier HTML to PDF via WeasyPrint (same fallback contract as
+    ``renderer.render_evidence_pdf``)."""
+    try:
+        from weasyprint import HTML  # noqa: PLC0415 — lazy: native stack optional
+    except Exception as exc:  # ImportError / missing Cairo-Pango
+        raise WeasyPrintUnavailableError("WeasyPrint native stack unavailable; cannot render dossier PDF") from exc
+    return HTML(string=html_str).write_pdf()
