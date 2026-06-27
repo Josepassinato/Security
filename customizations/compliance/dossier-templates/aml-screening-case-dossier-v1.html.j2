@@ -67,30 +67,28 @@
   </p>
 </section>
 
-{# ─── §3 · RESULTADO DO MATCHING ──── 🟡 estrutura ok / APRESENTAÇÃO a confirmar
-   Campos disponíveis: matching_engine, decision, match_score,
-   scoring_rule_version, engine_raw_result (JSONB).
-   ⚠️ A CONFIRMAR com exame real: como renderizar engine_raw_result de forma
-      LEGÍVEL a um examinador não-técnico. JSON cru reprova.
-   Entra como render_block_matching (Markup confiável), não hardcode.
+{# ─── §3 · RESULTADO DO MATCHING ────────────────────── 🟢 render do dado real
+   render_block_matching é gerado em evidence_pack.narrative a partir dos campos
+   reais; a wording de exame é refinável pelo BSA officer. #}
+<section id="matching">
+  <h2>3. Resultado do Matching</h2>
+  {{ render_block_matching }}
+</section>
 
-   {{ render_block_matching | default('[§3 PENDENTE — apresentação a confirmar]') }}
-#}
+{# ─── §4 · DISPOSIÇÃO HUMANA ──────────────────────────── 🟢 render do dado real
+   Lógica garantida pelo CHECK de HITL no banco; render do revisor/rationale reais. #}
+<section id="disposicao">
+  <h2>4. Disposição Humana</h2>
+  {{ render_block_disposition }}
+</section>
 
-{# ─── §4 · DISPOSIÇÃO HUMANA ──────── 🟡 lógica ok / REDAÇÃO a confirmar
-   Lógica condicional é sólida (garantida pelo CHECK de HITL no banco):
-   POTENTIAL_MATCH exige human_reviewer + rationale.
-   ⚠️ A CONFIRMAR: nível de detalhe de rationale que o examinador exige.
-
-   {{ render_block_disposition | default('[§4 PENDENTE — redação a confirmar]') }}
-#}
-
-{# ─── §5 · BENEFICIAL OWNERSHIP / REGRA 50% ──────────── 🟡 INTEIRO a confirmar
-   ⚠️ Seção mais sensível. Demarca o LIMITE da cobertura sem soar como falha.
-      Texto exato é arte de exame — NÃO fixar sem vivência real. É a Fase 5.
-
-   {{ render_block_ownership | default('[§5 PENDENTE — texto a confirmar com especialista]') }}
-#}
+{# ─── §5 · BENEFICIAL OWNERSHIP / REGRA 50% ──────── 🟡 declaração honesta de limite
+   Default conservador (demarca o que NÃO foi coberto). Wording de exame +
+   persistência por-decisão = Fase 5, refinável pelo BSA officer. #}
+<section id="ownership">
+  <h2>5. Titularidade Final / Regra dos 50%</h2>
+  {{ render_block_ownership }}
+</section>
 
 {# ─── §6 · INTEGRIDADE DA TRILHA ───────────────────────────────── 🟢 SÓLIDO #}
 {# Transforma todas as seções acima de "alegação" em "evidência".             #}

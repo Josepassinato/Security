@@ -99,6 +99,59 @@ def _decision_mapping(decision: Any) -> dict[str, Any]:
     return {field: getattr(decision, field, None) for field in _SCREENING_FIELDS}
 
 
+# §3/§4/§5 sub-templates. These render the REAL ledger fields (mechanical, not
+# invented exam prose). The exact exam wording — especially §5 — is the BSA
+# officer's to refine; the defaults here state honest, conservative facts.
+_BLOCK_MATCHING = """<table>
+<tr><th>Engine de matching</th><td>{{ d.matching_engine }}</td></tr>
+<tr><th>Decisão</th><td>{{ d.decision }}</td></tr>
+<tr><th>Score (0–100)</th><td>{{ d.match_score }} (régua {{ d.scoring_rule_version }})</td></tr>
+{% if hit %}
+<tr><th>Entidade casada</th><td>{{ hit.caption }} ({{ hit.id }})</td></tr>
+<tr><th>Score bruto da engine</th><td>{{ hit.score }}</td></tr>
+<tr><th>Listas da entidade</th><td>{{ hit.datasets | join(', ') }}</td></tr>
+{% else %}
+<tr><td colspan="2">Sem correspondência — nenhuma entidade retornada pela engine.</td></tr>
+{% endif %}
+</table>"""
+
+_BLOCK_DISPOSITION = """<table>
+<tr><th>Disposição</th><td>{{ d.disposition }}</td></tr>
+{% if d.human_reviewer %}
+<tr><th>Revisor humano</th><td>{{ d.human_reviewer }}</td></tr>
+<tr><th>Fundamentação</th><td>{{ d.rationale }}</td></tr>
+{% else %}
+<tr><td colspan="2">Decisão automática — sem revisão humana (visível por desenho).</td></tr>
+{% endif %}
+</table>"""
+
+_BLOCK_OWNERSHIP = """<p>{{ ownership_coverage }}</p>"""
+
+# Honest, conservative default for §5. Demarcates the limit instead of faking
+# coverage. The BSA officer refines the exact exam wording; per-decision
+# persistence of coverage is Phase 5.
+DEFAULT_OWNERSHIP_COVERAGE = (
+    "O screening cobriu correspondência de NOME contra a lista de sanções "
+    "(fonte-de-registro versionada). A verificação de titularidade final / "
+    "controle — regra dos 50% da OFAC — NÃO foi avaliada neste escopo e deve "
+    "ser endereçada por um controle separado de beneficial ownership."
+)
+
+
+def build_case_render_blocks(data: Mapping[str, Any], *, ownership_coverage: str | None = None) -> dict[str, str]:
+    """Build the §3/§4/§5 HTML blocks from one decision's real fields, each
+    rendered through the sandboxed+autoescaped motor so the values are safe."""
+    raw = data.get("engine_raw_result") or {}
+    hit = raw if isinstance(raw, Mapping) and raw.get("caption") else None
+    return {
+        "render_block_matching": render_narrative(_BLOCK_MATCHING, {"d": data, "hit": hit}),
+        "render_block_disposition": render_narrative(_BLOCK_DISPOSITION, {"d": data}),
+        "render_block_ownership": render_narrative(
+            _BLOCK_OWNERSHIP, {"ownership_coverage": ownership_coverage or DEFAULT_OWNERSHIP_COVERAGE}
+        ),
+    }
+
+
 def render_screening_case_dossier(
     *,
     decision: Any,
@@ -106,6 +159,7 @@ def render_screening_case_dossier(
     tenant_name: str,
     verification_method: str,
     render_blocks: Mapping[str, str] | None = None,
+    ownership_coverage: str | None = None,
 ) -> str:
     """Render the per-case screening dossier from one screening_decisions row.
 
@@ -122,7 +176,8 @@ def render_screening_case_dossier(
         "decision": data,
         "verification_method": verification_method,
     }
-    for key, value in (render_blocks or {}).items():
+    blocks = render_blocks or build_case_render_blocks(data, ownership_coverage=ownership_coverage)
+    for key, value in blocks.items():
         context[key] = Markup(value)
 
     return render_narrative(template_str, context)

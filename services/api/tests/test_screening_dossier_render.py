@@ -48,6 +48,9 @@ def _decision(**overrides: Any) -> dict[str, Any]:
         "list_dataset": "us_ofac_sdn",
         "list_version": "20260626181135-nfz",
         "list_release_date": datetime(2026, 6, 26, 18, 11, 35, tzinfo=UTC),
+        "match_score": 0,
+        "scoring_rule_version": "opensanctions-v1",
+        "engine_raw_result": {"hits": []},
         "decision": "NO_MATCH",
         "disposition": "PENDING",
         "human_reviewer": None,
@@ -87,11 +90,30 @@ def test_renders_solid_sections() -> None:
     assert "a" * 64 in html  # prev_hash
 
 
-def test_pending_sections_are_commented_out_not_blank_placeholders() -> None:
-    """§3/§4/§5 are Jinja comments — they must produce no visible output."""
+def test_renders_matching_disposition_ownership() -> None:
+    """§3/§4/§5 now render from real ledger data (no placeholders)."""
     html = _render()
     assert "PENDENTE" not in html
-    assert "render_block_matching" not in html
+    # §3 matching — from real fields
+    assert "Resultado do Matching" in html
+    assert "NO_MATCH" in html
+    assert "opensanctions-v1" in html
+    # §4 disposition — automated path (no human reviewer)
+    assert "Disposição Humana" in html
+    assert "Decisão automática" in html
+    # §5 ownership — honest limit (OFAC 50% rule not evaluated in scope)
+    assert "50% da OFAC" in html
+
+
+def test_human_review_renders_reviewer_and_rationale() -> None:
+    html = _render(
+        decision="POTENTIAL_MATCH",
+        disposition="CLEARED_FALSE_POSITIVE",
+        human_reviewer="bsa@optimus.com",
+        rationale="weak alias, distinct DOB",
+    )
+    assert "bsa@optimus.com" in html
+    assert "weak alias, distinct DOB" in html
 
 
 def test_name_only_screening_renders_fallback() -> None:
