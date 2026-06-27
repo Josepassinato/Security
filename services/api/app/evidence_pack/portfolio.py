@@ -38,6 +38,33 @@ def _cp_key(row: Mapping[str, Any]) -> tuple[str, str]:
     return ("NAME", str(row.get("counterparty_normalized") or row.get("counterparty_name") or ""))
 
 
+def current_build_by_dataset(decisions: Sequence[Mapping[str, Any]]) -> dict[str, dict[str, Any]]:
+    """Freshest (version, release_date) seen per dataset across the decisions."""
+    current_build: dict[str, dict[str, Any]] = {}
+    for row in decisions:
+        ds = row.get("list_dataset")
+        if ds is None:
+            continue
+        rel = row.get("list_release_date")
+        cur = current_build.get(ds)
+        if cur is None or (rel is not None and rel > cur["list_release_date"]):
+            current_build[ds] = {"list_version": row.get("list_version"), "list_release_date": rel}
+    return current_build
+
+
+def latest_by_counterparty(
+    decisions: Sequence[Mapping[str, Any]],
+) -> dict[tuple[str, str], Mapping[str, Any]]:
+    """Most recent decision per counterparty = its current posture."""
+    latest: dict[tuple[str, str], Mapping[str, Any]] = {}
+    for row in decisions:
+        key = _cp_key(row)
+        cur = latest.get(key)
+        if cur is None or row.get("screened_at", "") > cur.get("screened_at", ""):
+            latest[key] = row
+    return latest
+
+
 def build_portfolio_report(
     decisions: Sequence[Mapping[str, Any]],
     *,
@@ -50,27 +77,8 @@ def build_portfolio_report(
     / ``chain_first_broken_index`` come from ``screening_hash.verify_chain`` over
     the same rows — passed in so this function stays pure.
     """
-    # Current build per dataset = the freshest release the portfolio has seen.
-    current_build: dict[str, dict[str, Any]] = {}
-    for row in decisions:
-        ds = row.get("list_dataset")
-        if ds is None:
-            continue
-        rel = row.get("list_release_date")
-        cur = current_build.get(ds)
-        if cur is None or (rel is not None and rel > cur["list_release_date"]):
-            current_build[ds] = {
-                "list_version": row.get("list_version"),
-                "list_release_date": rel,
-            }
-
-    # Latest decision per counterparty = its current posture.
-    latest: dict[tuple[str, str], Mapping[str, Any]] = {}
-    for row in decisions:
-        key = _cp_key(row)
-        cur = latest.get(key)
-        if cur is None or row.get("screened_at", "") > cur.get("screened_at", ""):
-            latest[key] = row
+    current_build = current_build_by_dataset(decisions)
+    latest = latest_by_counterparty(decisions)
 
     n = len(latest)
     fresh = 0
