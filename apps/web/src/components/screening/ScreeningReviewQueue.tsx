@@ -60,10 +60,6 @@ function fmtDate(iso: string | null | undefined): string {
   return d.toISOString().slice(0, 10);
 }
 
-function dossierUrl(id: string): string {
-  return `/api/v1/screening/${encodeURIComponent(id)}/dossier.html`;
-}
-
 // ── Component ───────────────────────────────────────────────────────────────
 
 export function ScreeningReviewQueue() {
@@ -136,12 +132,10 @@ export function ScreeningReviewQueue() {
                   <td className="px-4 py-3 text-xs text-muted-foreground">{fmtDateTime(r.screened_at)}</td>
                   <td className="px-4 py-3 text-right">
                     <a
-                      href={dossierUrl(r.id)}
-                      target="_blank"
-                      rel="noreferrer"
+                      href={`/compliance/screening/${encodeURIComponent(r.id)}`}
                       className="rounded border border-border px-3 py-1.5 text-xs hover:bg-accent"
                     >
-                      dossiê ↗
+                      revisar →
                     </a>
                   </td>
                 </tr>
