@@ -33,6 +33,7 @@ from sqlalchemy import select
 
 from app.api.v1.deps import AuthUser, require_permission
 from app.db.rls import TenantDBSession
+from app.evidence_pack import narrative as _ep_narrative
 from app.evidence_pack.narrative import render_narrative, render_screening_case_dossier
 from app.evidence_pack.portfolio import fetch_portfolio_report
 from app.models.screening_decision import ScreeningDecision
@@ -45,7 +46,10 @@ router = APIRouter(prefix="/screening", tags=["screening"])
 ReadAuth = Annotated[AuthUser, Depends(require_permission("cases:read"))]
 WriteAuth = Annotated[AuthUser, Depends(require_permission("cases:write"))]
 
-_TEMPLATES = Path(__file__).resolve().parents[6] / "customizations/compliance/dossier-templates"
+# Resolve relative to the narrative module so the path is correct in BOTH the
+# repo layout and the container image (/app/app/evidence_pack/dossier_templates),
+# and never raises at import time (parents[6] overran in the container).
+_TEMPLATES = Path(_ep_narrative.__file__).resolve().parent / "dossier_templates"
 _CASE_TEMPLATE = _TEMPLATES / "aml-screening-case-dossier-v1.html.j2"
 _PORTFOLIO_TEMPLATE = _TEMPLATES / "aml-portfolio-report-v1.html.j2"
 

@@ -176,6 +176,8 @@ services:
       QUARRY_CREDENTIAL_KEY: ${QUARRY_CREDENTIAL_KEY:-}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      # AML screening — OpenSanctions source-of-record key (intake returns 503 if unset).
+      OPENSANCTIONS_API_KEY: ${OPENSANCTIONS_API_KEY:-}
       NEO4J_URI: bolt://neo4j:7687
       NEO4J_USER: neo4j
       NEO4J_PASSWORD: ${NEO4J_PASSWORD:-neo4j_demo_secret}
@@ -185,7 +187,11 @@ services:
       # Browser → api CORS origin tracks the web host port so a fallback
       # publish (e.g. 3001) still passes the api's CORS preflight when a
       # caller hits the api directly.
-      CORS_ORIGINS: http://localhost:${QUARRY_WEB_PORT:-3000}
+      CORS_ORIGINS: ${QUARRY_CORS_ORIGINS:-http://localhost:3014,https://quarry.12brain.org}
+      # WebAuthn/Passkey relying-party identity. Em produção pública precisa
+      # casar com o domínio servido (senão o navegador rejeita a passkey).
+      PASSKEY_RP_ID: ${QUARRY_PASSKEY_RP_ID:-quarry.12brain.org}
+      PASSKEY_RP_ORIGINS: ${QUARRY_PASSKEY_RP_ORIGINS:-https://quarry.12brain.org}
       # The agents service listens on port 8084 inside the Docker network
       # (see its Dockerfile + the agents service block below). Without this
       # the api defaults to `http://agents:8000` and every playbook / case
