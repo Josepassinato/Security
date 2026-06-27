@@ -19,7 +19,7 @@ from app.evidence_pack.portfolio import build_portfolio_report
 _T1 = datetime(2026, 6, 20, 8, 0, 0, tzinfo=UTC)  # older SDN build
 _T2 = datetime(2026, 6, 26, 18, 0, 0, tzinfo=UTC)  # current SDN build
 
-_TEMPLATE = Path(__file__).resolve().parents[3] / "customizations/compliance/dossier-templates/aml-portfolio-report-v1.html.j2"
+_TEMPLATE = Path(__file__).resolve().parents[1] / "app/evidence_pack/dossier_templates/aml-portfolio-report-v1.html.j2"
 
 
 def _row(**kw: Any) -> dict[str, Any]:

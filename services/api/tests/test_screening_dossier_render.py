@@ -26,7 +26,7 @@ from app.evidence_pack.narrative import (
 from app.evidence_pack.renderer import WeasyPrintUnavailableError
 from jinja2.exceptions import SecurityError
 
-_TEMPLATE_PATH = Path(__file__).resolve().parents[3] / "customizations/compliance/dossier-templates/aml-screening-case-dossier-v1.html.j2"
+_TEMPLATE_PATH = Path(__file__).resolve().parents[1] / "app/evidence_pack/dossier_templates/aml-screening-case-dossier-v1.html.j2"
 
 
 def _template() -> str:
