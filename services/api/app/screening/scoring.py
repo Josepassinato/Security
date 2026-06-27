@@ -12,10 +12,11 @@ owner, not engineering. Engineering only wires the versioned function. Adding a
 new ruler = a new entry in ``_RULES`` + a new version string; never edit an
 existing one (that would silently re-score sealed history under the same name).
 """
+
 from __future__ import annotations
 
-from collections.abc import Mapping
-from typing import Any, Callable
+from collections.abc import Callable, Mapping
+from typing import Any
 
 # decision values (mirror the screening_decisions CHECK constraint)
 NO_MATCH = "NO_MATCH"
@@ -45,10 +46,7 @@ def derive_match_score(*, raw: Mapping[str, Any], rule_version: str) -> int:
     try:
         rule = _RULES[rule_version]
     except KeyError as exc:
-        raise ValueError(
-            f"unknown scoring_rule_version {rule_version!r}; "
-            f"known: {sorted(_RULES)}"
-        ) from exc
+        raise ValueError(f"unknown scoring_rule_version {rule_version!r}; known: {sorted(_RULES)}") from exc
     return rule(raw)
 
 

@@ -14,6 +14,7 @@ Two calls:
 The API key is a credential: pass it in, never hardcode. Read it from
 ``settings.OPENSANCTIONS_API_KEY`` / ``OPENSANCTIONS_API_KEY`` at the edge.
 """
+
 from __future__ import annotations
 
 from typing import Any

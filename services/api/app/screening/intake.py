@@ -10,6 +10,7 @@ fields out) so the attribution + scoring + decision logic is unit-tested without
 network or DB. ``screen_and_record`` is the thin orchestration that calls the
 client and the append-only writer.
 """
+
 from __future__ import annotations
 
 from datetime import UTC, datetime

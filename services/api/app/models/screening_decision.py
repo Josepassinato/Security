@@ -37,12 +37,8 @@ class ScreeningDecision(Base):
 
     __tablename__ = "screening_decisions"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, server_default=func.uuid_generate_v4()
-    )
-    tenant_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, server_default=func.uuid_generate_v4())
+    tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
     # FK to pld_ft_cases (ON DELETE RESTRICT) is enforced at the DB level by
     # migration 050. pld_ft_cases is NOT an ORM-mapped table, so declaring a
     # SQLAlchemy ForeignKey here would make configure_mappers() raise
@@ -83,9 +79,7 @@ class ScreeningDecision(Base):
 
     # Timestamps (UTC)
     screened_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), nullable=False)
-    created_at: Mapped[datetime] = mapped_column(
-        TIMESTAMP(timezone=True), nullable=False, server_default=func.now()
-    )
+    created_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), nullable=False, server_default=func.now())
 
     # Tamper-evident hash chain
     prev_hash: Mapped[str | None] = mapped_column(String(64))
@@ -114,14 +108,12 @@ class ScreeningDecision(Base):
             name="chk_screening_override_rationale",
         ),
         CheckConstraint(
-            "decision <> 'POTENTIAL_MATCH' OR disposition = 'PENDING' "
-            "OR (human_reviewer IS NOT NULL AND length(btrim(rationale)) > 0)",
+            "decision <> 'POTENTIAL_MATCH' OR disposition = 'PENDING' OR (human_reviewer IS NOT NULL AND length(btrim(rationale)) > 0)",
             name="chk_screening_potential_match_hitl",
         ),
     )
 
     def __repr__(self) -> str:  # pragma: no cover - debugging aid
         return (
-            f"<ScreeningDecision {self.id} {self.counterparty_normalized!r} "
-            f"{self.decision}/{self.disposition} via {self.matching_engine}>"
+            f"<ScreeningDecision {self.id} {self.counterparty_normalized!r} {self.decision}/{self.disposition} via {self.matching_engine}>"
         )

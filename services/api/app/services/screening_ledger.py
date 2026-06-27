@@ -46,9 +46,7 @@ def _assert_hitl(*, decision: str, disposition: str, human_reviewer: str | None,
         raise ValueError("a human-reviewed decision requires a non-empty rationale")
     if decision == "POTENTIAL_MATCH" and disposition != "PENDING":
         if human_reviewer is None or not (rationale or "").strip():
-            raise ValueError(
-                "POTENTIAL_MATCH cannot be resolved without a human reviewer and rationale"
-            )
+            raise ValueError("POTENTIAL_MATCH cannot be resolved without a human reviewer and rationale")
 
 
 async def record_screening_decision(

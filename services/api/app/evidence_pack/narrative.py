@@ -21,6 +21,7 @@ Division of labour (signed): the BSA officer writes the template (the layout
 that survives an OFAC exam is their domain); engineering guarantees that
 rendering it is sandboxed and escaped.
 """
+
 from __future__ import annotations
 
 from collections.abc import Mapping
@@ -133,7 +134,5 @@ def render_dossier_pdf(html_str: str) -> bytes:
     try:
         from weasyprint import HTML  # noqa: PLC0415 — lazy: native stack optional
     except Exception as exc:  # ImportError / missing Cairo-Pango
-        raise WeasyPrintUnavailableError(
-            "WeasyPrint native stack unavailable; cannot render dossier PDF"
-        ) from exc
+        raise WeasyPrintUnavailableError("WeasyPrint native stack unavailable; cannot render dossier PDF") from exc
     return HTML(string=html_str).write_pdf()

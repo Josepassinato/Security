@@ -19,10 +19,7 @@ from app.evidence_pack.portfolio import build_portfolio_report
 _T1 = datetime(2026, 6, 20, 8, 0, 0, tzinfo=UTC)  # older SDN build
 _T2 = datetime(2026, 6, 26, 18, 0, 0, tzinfo=UTC)  # current SDN build
 
-_TEMPLATE = (
-    Path(__file__).resolve().parents[3]
-    / "customizations/compliance/dossier-templates/aml-portfolio-report-v1.html.j2"
-)
+_TEMPLATE = Path(__file__).resolve().parents[3] / "customizations/compliance/dossier-templates/aml-portfolio-report-v1.html.j2"
 
 
 def _row(**kw: Any) -> dict[str, Any]:
@@ -47,18 +44,28 @@ def _row(**kw: Any) -> dict[str, Any]:
 def _portfolio() -> list[dict[str, Any]]:
     return [
         # A: screened twice; latest is current build → fresh, NO_MATCH
-        _row(counterparty_id="111", counterparty_name="A", list_version="v1",
-             list_release_date=_T1, screened_at=_T1),
-        _row(counterparty_id="111", counterparty_name="A", list_version="v2",
-             list_release_date=_T2, screened_at=_T2),
+        _row(counterparty_id="111", counterparty_name="A", list_version="v1", list_release_date=_T1, screened_at=_T1),
+        _row(counterparty_id="111", counterparty_name="A", list_version="v2", list_release_date=_T2, screened_at=_T2),
         # B: only screened against the OLD build → STALE, potential, pending
-        _row(counterparty_id="222", counterparty_name="B", list_version="v1",
-             list_release_date=_T1, screened_at=_T1, decision="POTENTIAL_MATCH",
-             disposition="PENDING"),
+        _row(
+            counterparty_id="222",
+            counterparty_name="B",
+            list_version="v1",
+            list_release_date=_T1,
+            screened_at=_T1,
+            decision="POTENTIAL_MATCH",
+            disposition="PENDING",
+        ),
         # C: name-only, current build, potential RESOLVED with reviewer+rationale
-        _row(counterparty_id=None, counterparty_name="C Souza", counterparty_normalized="c souza",
-             decision="POTENTIAL_MATCH", disposition="CLEARED_FALSE_POSITIVE",
-             human_reviewer="bsa@optimus.com", rationale="weak alias, distinct DOB"),
+        _row(
+            counterparty_id=None,
+            counterparty_name="C Souza",
+            counterparty_normalized="c souza",
+            decision="POTENTIAL_MATCH",
+            disposition="CLEARED_FALSE_POSITIVE",
+            human_reviewer="bsa@optimus.com",
+            rationale="weak alias, distinct DOB",
+        ),
     ]
 
 

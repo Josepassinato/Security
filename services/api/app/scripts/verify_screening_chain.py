@@ -26,6 +26,7 @@ default, which would canonicalise differently and report a false break. We
 register a json.loads decoder so the verifier hashes the same shape the writer
 sealed.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -59,9 +60,7 @@ async def _connect(dsn: str) -> asyncpg.Connection:
     bare_dsn, kwargs = _asyncpg_dsn(dsn)
     conn = await asyncpg.connect(bare_dsn, **kwargs)
     # Match the writer's hashed shape: JSONB → dict, not raw text.
-    await conn.set_type_codec(
-        "jsonb", encoder=json.dumps, decoder=json.loads, schema="pg_catalog"
-    )
+    await conn.set_type_codec("jsonb", encoder=json.dumps, decoder=json.loads, schema="pg_catalog")
     return conn
 
 
@@ -71,8 +70,7 @@ async def _run(dsn: str, tenant: str | None) -> int:
         where = "WHERE tenant_id = $1" if tenant else ""
         params: tuple[Any, ...] = (tenant,) if tenant else ()
         rows = await conn.fetch(
-            f"SELECT {_COLUMNS} FROM screening_decisions {where} "
-            f"ORDER BY tenant_id, created_at ASC, id ASC",
+            f"SELECT {_COLUMNS} FROM screening_decisions {where} ORDER BY tenant_id, created_at ASC, id ASC",
             *params,
         )
     finally:
@@ -94,13 +92,13 @@ async def _run(dsn: str, tenant: str | None) -> int:
         else:
             broken += 1
             bad = tenant_rows[idx] if idx is not None and idx < len(tenant_rows) else None
-            logger.error(
-                "✗ tenant %s: chain BROKEN at index %s — %s", tid, idx, reason
-            )
+            logger.error("✗ tenant %s: chain BROKEN at index %s — %s", tid, idx, reason)
             if bad is not None:
                 logger.error(
                     "  offending row id=%s created_at=%s counterparty=%r",
-                    bad.get("id"), bad.get("created_at"), bad.get("counterparty_name"),
+                    bad.get("id"),
+                    bad.get("created_at"),
+                    bad.get("counterparty_name"),
                 )
     return 1 if broken else 0
 

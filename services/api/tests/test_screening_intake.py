@@ -41,8 +41,7 @@ def test_decide_threshold() -> None:
 
 
 def _hit(score: float = 1.0) -> dict:
-    return {"id": "Q7747", "caption": "Vladimir Putin", "score": score, "match": True,
-            "datasets": ["us_ofac_sdn"]}
+    return {"id": "Q7747", "caption": "Vladimir Putin", "score": score, "match": True, "datasets": ["us_ofac_sdn"]}
 
 
 def test_prepare_record_attributes_and_stamps() -> None:
@@ -81,14 +80,15 @@ def test_prepare_record_no_hit_is_no_match() -> None:
 def test_prepare_record_refuses_unstamped_build() -> None:
     # No version or no release date = no defensible carimbo → refuse, never fake.
     with pytest.raises(ValueError):
-        prepare_screening_record(top_hit=_hit(), list_dataset="us_ofac_sdn",
-                                 list_version=None, list_release_date="2026-06-26T18:11:35+00:00")
+        prepare_screening_record(
+            top_hit=_hit(), list_dataset="us_ofac_sdn", list_version=None, list_release_date="2026-06-26T18:11:35+00:00"
+        )
     with pytest.raises(ValueError):
-        prepare_screening_record(top_hit=_hit(), list_dataset="us_ofac_sdn",
-                                 list_version="v1", list_release_date=None)
+        prepare_screening_record(top_hit=_hit(), list_dataset="us_ofac_sdn", list_version="v1", list_release_date=None)
 
 
 def test_prepare_record_unknown_dataset_raises() -> None:
     with pytest.raises(ValueError):
-        prepare_screening_record(top_hit=_hit(), list_dataset="mystery_list",
-                                 list_version="v1", list_release_date="2026-06-26T18:11:35+00:00")
+        prepare_screening_record(
+            top_hit=_hit(), list_dataset="mystery_list", list_version="v1", list_release_date="2026-06-26T18:11:35+00:00"
+        )

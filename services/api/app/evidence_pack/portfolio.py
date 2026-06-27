@@ -21,6 +21,7 @@ The "current state" of each counterparty is its **latest** screening decision
 (max ``screened_at``); a case investigated many times resolves to one current
 posture, exactly how a bank reads its book.
 """
+
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
@@ -79,12 +80,8 @@ def build_portfolio_report(
     potential = resolved = pending_review = resolved_without_rationale = 0
 
     for row in latest.values():
-        decision_breakdown[row.get("decision", "?")] = (
-            decision_breakdown.get(row.get("decision", "?"), 0) + 1
-        )
-        disposition_breakdown[row.get("disposition", "?")] = (
-            disposition_breakdown.get(row.get("disposition", "?"), 0) + 1
-        )
+        decision_breakdown[row.get("decision", "?")] = decision_breakdown.get(row.get("decision", "?"), 0) + 1
+        disposition_breakdown[row.get("disposition", "?")] = disposition_breakdown.get(row.get("disposition", "?"), 0) + 1
 
         # Freshness vs the current build of this row's dataset.
         ds = row.get("list_dataset")
@@ -150,10 +147,7 @@ async def fetch_portfolio_report(db: Any, tenant_id: Any) -> dict[str, Any]:
         .order_by(ScreeningDecision.created_at.asc(), ScreeningDecision.id.asc())
     )
     orm_rows = (await db.execute(stmt)).scalars().all()
-    rows = [
-        {c.name: getattr(r, c.name) for c in ScreeningDecision.__table__.columns}
-        for r in orm_rows
-    ]
+    rows = [{c.name: getattr(r, c.name) for c in ScreeningDecision.__table__.columns} for r in orm_rows]
     ok, bad_idx, _reason = verify_chain(rows)
     return build_portfolio_report(rows, chain_ok=ok, chain_first_broken_index=bad_idx)
 

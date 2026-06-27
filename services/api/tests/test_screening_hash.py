@@ -209,26 +209,28 @@ def test_any_field_change_changes_digest(field: str, new_value: Any) -> None:
 def test_list_release_date_change_changes_digest() -> None:
     """The list version's publication instant is evidence — tampering must show."""
     base = compute_entry_hash(**_kwargs(_row(prev_hash=None)))
-    later = compute_entry_hash(
-        **_kwargs(_row(prev_hash=None, list_release_date=datetime(2026, 6, 26, 9, 0, 0, tzinfo=UTC)))
-    )
+    later = compute_entry_hash(**_kwargs(_row(prev_hash=None, list_release_date=datetime(2026, 6, 26, 9, 0, 0, tzinfo=UTC))))
     assert base != later
 
 
 def test_engine_raw_result_is_tamper_evident() -> None:
     """The untouched engine payload is sacred — rewriting it breaks the chain."""
     base = compute_entry_hash(**_kwargs(_row(prev_hash=None)))
-    forged = compute_entry_hash(
-        **_kwargs(_row(prev_hash=None, engine_raw_result={"hits": []}))
-    )
+    forged = compute_entry_hash(**_kwargs(_row(prev_hash=None, engine_raw_result={"hits": []})))
     assert base != forged
 
 
 def test_verify_chain_accepts_valid_chain() -> None:
     r1 = _row(prev_hash=None, created_at=_ts(0))
     r2 = _row(prev_hash=r1["entry_hash"], row_id=uuid.uuid4(), created_at=_ts(1), decision="NO_MATCH")
-    r3 = _row(prev_hash=r2["entry_hash"], row_id=uuid.uuid4(), created_at=_ts(2),
-              disposition="CLEARED_FALSE_POSITIVE", human_reviewer="rev@x.com", rationale="cleared")
+    r3 = _row(
+        prev_hash=r2["entry_hash"],
+        row_id=uuid.uuid4(),
+        created_at=_ts(2),
+        disposition="CLEARED_FALSE_POSITIVE",
+        human_reviewer="rev@x.com",
+        rationale="cleared",
+    )
     ok, idx, reason = verify_chain([r1, r2, r3])
     assert ok and idx is None and reason is None
 
