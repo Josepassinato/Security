@@ -54,11 +54,15 @@ def _decision(**kw) -> SimpleNamespace:
     base = {
         "id": uuid.UUID("11111111-1111-1111-1111-111111111111"),
         "counterparty_name": "Vladimir Putin",
+        "counterparty_normalized": "vladimir putin",
         "decision": "POTENTIAL_MATCH",
         "disposition": "PENDING",
         "match_score": 100,
+        "scoring_rule_version": "opensanctions-v1",
+        "engine_raw_result": {"hits": []},
         "matching_engine": "opensanctions",
         "list_of_record": "opensanctions",
+        "list_source": "OFAC_SDN",
         "list_dataset": "us_ofac_sdn",
         "list_version": "20260626181135-nfz",
         "list_release_date": datetime(2026, 6, 26, 18, 11, 35, tzinfo=UTC),
@@ -165,3 +169,76 @@ def test_verify_chain_empty(app_client: TestClient, monkeypatch: pytest.MonkeyPa
     r = app_client.get("/api/v1/screening/verify-chain")
     assert r.status_code == 200
     assert r.json() == {"intact": True, "decisions": 0, "first_broken_index": None, "reason": None}
+
+
+def _row(cid: str, decision: str, disposition: str) -> dict:
+    return {
+        "id": uuid.uuid4(),
+        "counterparty_id": cid,
+        "counterparty_id_type": "CPF",
+        "counterparty_name": cid,
+        "counterparty_normalized": cid.lower(),
+        "counterparty_jurisdiction": None,
+        "decision": decision,
+        "disposition": disposition,
+        "match_score": 90,
+        "matching_engine": "opensanctions",
+        "list_of_record": "opensanctions",
+        "list_source": "OFAC_SDN",
+        "list_dataset": "us_ofac_sdn",
+        "list_version": "v2",
+        "list_release_date": datetime(2026, 6, 26, tzinfo=UTC),
+        "human_reviewer": None,
+        "rationale": "",
+        "screened_at": datetime(2026, 6, 26, tzinfo=UTC),
+        "created_at": datetime(2026, 6, 26, tzinfo=UTC),
+        "entry_hash": "x" * 64,
+    }
+
+
+def test_list_pending_review(app_client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
+    rows = [
+        _row("A", "POTENTIAL_MATCH", "PENDING"),  # in queue
+        _row("B", "NO_MATCH", "PENDING"),  # not a potential match
+        _row("C", "POTENTIAL_MATCH", "CLEARED_FALSE_POSITIVE"),  # already resolved
+    ]
+
+    async def _fake_rows(db, tenant_id):
+        return rows
+
+    monkeypatch.setattr(screening, "_load_tenant_rows", _fake_rows)
+    r = app_client.get("/api/v1/screening?status=pending_review")
+    assert r.status_code == 200
+    assert [d["counterparty_name"] for d in r.json()] == ["A"]
+
+
+def test_review_appends_disposition(app_client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
+    async def _fake_fetch(db, decision_id, tenant_id):
+        return _decision(id=decision_id, decision="POTENTIAL_MATCH", disposition="PENDING")
+
+    captured: dict = {}
+
+    async def _fake_record(db, **kw):
+        captured.update(kw)
+        return _decision(decision=kw["decision"], disposition=kw["disposition"])
+
+    monkeypatch.setattr(screening, "_fetch_decision", _fake_fetch)
+    monkeypatch.setattr(screening, "record_screening_decision", _fake_record)
+    r = app_client.post(
+        "/api/v1/screening/11111111-1111-1111-1111-111111111111/review",
+        json={"disposition": "CLEARED_FALSE_POSITIVE", "rationale": "weak alias, distinct DOB"},
+    )
+    assert r.status_code == 201, r.text
+    assert r.json()["disposition"] == "CLEARED_FALSE_POSITIVE"
+    # append-only review: trigger='review', reviewer = the authed user, rationale carried through
+    assert captured["screening_trigger"] == "review"
+    assert captured["human_reviewer"] == "test-admin@quarry.dev"
+    assert captured["rationale"] == "weak alias, distinct DOB"
+
+
+def test_review_requires_rationale(app_client: TestClient) -> None:
+    r = app_client.post(
+        "/api/v1/screening/11111111-1111-1111-1111-111111111111/review",
+        json={"disposition": "BLOCKED"},  # missing rationale → 422
+    )
+    assert r.status_code == 422
