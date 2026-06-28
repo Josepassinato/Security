@@ -304,6 +304,11 @@ const navSections: NavSection[] = [
         icon: <ShieldIcon />,
       },
       {
+        label: 'Screening (AML)',
+        href: '/compliance/screening',
+        icon: <SearchIcon />,
+      },
+      {
         label: 'MSSP Dashboard',
         href: '/mssp',
         icon: <GlobeIcon />,
