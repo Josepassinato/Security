@@ -1,0 +1,525 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quarry — Competitive Landscape</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300;9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f7f4ef;
+    --bg-tint: #f2eee2;
+    --ink: #1a1a1a;
+    --ink-mid: #3a362e;
+    --ink-soft: #6b665b;
+    --rule: rgba(26,26,26,0.08);
+    --accent: #b8443c;
+    --accent-pink: #ec008c;
+    --ok: #2f6f47;
+    --warn: #b27500;
+    --bad: #a83232;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  .doc { max-width: 1080px; margin: 0 auto; padding: 56px 32px 96px; }
+
+  /* ── Header ──────────────────────────────────────────────────────── */
+  header.cover {
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 48px;
+    margin-bottom: 56px;
+  }
+  .eyebrow {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    font-weight: 600;
+    margin: 0 0 24px;
+  }
+  h1.cover-title {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 400;
+    font-size: clamp(40px, 5.4vw, 72px);
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    margin: 0 0 24px;
+    max-width: 18ch;
+    color: var(--ink);
+  }
+  h1.cover-title em {
+    font-style: italic;
+    color: var(--accent);
+  }
+  .cover-deck {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: clamp(18px, 2vw, 24px);
+    line-height: 1.4;
+    color: var(--ink-mid);
+    max-width: 50ch;
+    font-weight: 400;
+    margin: 0;
+  }
+  .cover-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 32px 56px;
+    margin-top: 56px;
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+  .cover-meta span strong { color: var(--ink); font-weight: 600; display: block; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 6px; }
+
+  /* ── Sections ────────────────────────────────────────────────────── */
+  section.s {
+    border-bottom: 1px solid var(--rule);
+    padding: 56px 0;
+  }
+  section.s:last-of-type { border-bottom: none; }
+  .s-num {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    color: var(--ink-soft);
+    font-style: italic;
+    margin-bottom: 16px;
+  }
+  h2 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 400;
+    font-size: clamp(28px, 3.4vw, 44px);
+    line-height: 1.08;
+    letter-spacing: -0.015em;
+    margin: 0 0 28px;
+    max-width: 22ch;
+  }
+  h2 em { font-style: italic; color: var(--accent); }
+  h3 {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin: 32px 0 12px;
+  }
+  p { margin: 0 0 16px; max-width: 64ch; }
+  ul { padding-left: 22px; margin: 8px 0 20px; max-width: 60ch; }
+  ul li { margin: 6px 0; }
+
+  /* ── Stat gigante ────────────────────────────────────────────────── */
+  .stat {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: clamp(80px, 12vw, 160px);
+    font-weight: 300;
+    line-height: 0.9;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+    margin: 0;
+  }
+  .stat-caption {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: var(--ink-soft);
+    max-width: 32ch;
+    margin-top: 16px;
+    line-height: 1.5;
+  }
+
+  /* ── Tier card ───────────────────────────────────────────────────── */
+  .tier {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+    margin: 24px 0 8px;
+    padding: 28px;
+    background: var(--bg-tint);
+    border: 1px solid var(--rule);
+  }
+  .tier h4 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 22px;
+    font-weight: 500;
+    margin: 0 0 4px;
+  }
+  .tier .threat {
+    display: inline-block;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 100px;
+    margin-left: 8px;
+  }
+  .threat-high { background: rgba(168,50,50,0.12); color: var(--bad); }
+  .threat-med  { background: rgba(178,117,0,0.12);  color: var(--warn); }
+  .threat-low  { background: rgba(47,111,71,0.12);  color: var(--ok); }
+  .tier .players { font-family: 'Inter', sans-serif; font-size: 13px; color: var(--ink-soft); font-style: italic; }
+  .tier .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 12px; }
+  .tier .cols h5 {
+    margin: 0 0 8px;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    font-weight: 600;
+  }
+  .tier .cols ul { margin: 0; padding-left: 18px; font-size: 14px; }
+  @media (max-width: 640px) { .tier .cols { grid-template-columns: 1fr; gap: 16px; } }
+
+  /* ── Matrix ──────────────────────────────────────────────────────── */
+  .matrix-wrap { overflow-x: auto; margin: 16px -16px; padding: 0 16px; }
+  table.matrix {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 760px;
+    font-size: 13px;
+  }
+  .matrix thead th {
+    text-align: left;
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    border-bottom: 1.5px solid var(--ink);
+    padding: 14px 10px;
+    vertical-align: bottom;
+  }
+  .matrix thead th:first-child { width: 38%; }
+  .matrix tbody td {
+    padding: 12px 10px;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+  .matrix tbody td:first-child { color: var(--ink); font-weight: 500; }
+  .matrix .quarry-col { background: rgba(184,68,60,0.04); }
+  .matrix .y  { color: var(--ok); font-weight: 600; }
+  .matrix .n  { color: var(--bad); font-weight: 400; opacity: 0.7; }
+  .matrix .p  { color: var(--warn); font-weight: 500; }
+
+  /* ── Pull quote ──────────────────────────────────────────────────── */
+  .quote {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: clamp(24px, 2.8vw, 36px);
+    line-height: 1.18;
+    font-weight: 400;
+    font-style: italic;
+    color: var(--ink);
+    margin: 48px 0 16px;
+    padding-left: 18px;
+    border-left: 2px solid var(--accent);
+    max-width: 36ch;
+  }
+  .quote-attr {
+    font-family: 'Inter', sans-serif;
+    font-style: normal;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-top: 8px;
+  }
+
+  /* ── Gaps table ──────────────────────────────────────────────────── */
+  table.gaps {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    margin: 12px 0;
+  }
+  table.gaps th, table.gaps td {
+    text-align: left;
+    padding: 12px 16px 12px 0;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+  table.gaps th {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    font-weight: 600;
+  }
+  table.gaps td:last-child { color: var(--ink-soft); font-family: 'Fraunces', Georgia, serif; }
+
+  /* ── Footer ──────────────────────────────────────────────────────── */
+  footer.foot {
+    margin-top: 80px;
+    padding-top: 32px;
+    border-top: 1px solid var(--rule);
+    font-size: 12px;
+    color: var(--ink-soft);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  /* ── Print ───────────────────────────────────────────────────────── */
+  @media print {
+    body { background: white; }
+    .doc { padding: 24px 0; }
+    section.s { page-break-inside: avoid; padding: 28px 0; }
+    .tier { page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="doc">
+
+<header class="cover">
+  <p class="eyebrow">Competitive Landscape · May 2026</p>
+  <h1 class="cover-title">Quarry against the compliance &amp; SOC stack — and why <em>no foreign player</em> solves the Brazilian problem.</h1>
+  <p class="cover-deck">A walk through four tiers of competition, a feature matrix, and the three differentiators an incumbent cannot ship in under six months.</p>
+  <div class="cover-meta">
+    <span><strong>Owner</strong>12Brain Solutions LLC</span>
+    <span><strong>Product</strong>Bacen Evidence Engine</span>
+    <span><strong>Site</strong>quarry.12brain.org</span>
+    <span><strong>Repo</strong>github.com/Josepassinato/Security</span>
+  </div>
+</header>
+
+<!-- 01 The Market ───────────────────────────────────────────────────── -->
+<section class="s">
+  <div class="s-num">01 — the market</div>
+  <h2>Brazilian fintechs live with three regulators on the clock.</h2>
+  <p>BACEN oversight forces three obligations into every regulated fintech's calendar:</p>
+  <ul>
+    <li><strong>24-hour</strong> cyber-incident notification — Comunicado BACEN 44.323/2024</li>
+    <li><strong>3 business days</strong> ANPD breach notification — LGPD Art. 48 + Res. CD/ANPD 15/2024</li>
+    <li><strong>90 days</strong> of evidence of a working incident-response plan — Res. BCB 85/2021 Art. 6º</li>
+  </ul>
+  <p>Today these are produced by hand — consultants, Word documents, screenshots. The cost of a single Big4 engagement runs <strong>R$ 50,000 to R$ 500,000 per cycle</strong>, with multi-week turnaround.</p>
+  <p class="stat">R$ 500k</p>
+  <p class="stat-caption">Top-end cost of a single Bacen compliance cycle through a Big4 firm today. Repeated every 90 days.</p>
+</section>
+
+<!-- 02 Four Tiers ─────────────────────────────────────────────────────  -->
+<section class="s">
+  <div class="s-num">02 — four tiers of competition</div>
+  <h2>Quarry shows up in four buyers' shortlists, against four <em>different</em> sets of players.</h2>
+  <p>None of them, in any tier, ship a native Bacen Evidence Pack with TSA ICP-Brasil and e-CNPJ A3. Each tier has a real customer base.</p>
+
+  <div class="tier">
+    <div>
+      <h4>Tier 1 — Global GRC SaaS<span class="threat threat-high">threat: high</span></h4>
+      <div class="players">Vanta · Drata · Secureframe · OneTrust · AuditBoard · Hyperproof · LogicGate</div>
+    </div>
+    <div class="cols">
+      <div>
+        <h5>What they have</h5>
+        <ul>
+          <li>Continuous control monitoring</li>
+          <li>100+ pre-built control catalogs</li>
+          <li>~8,000 (Vanta) / ~3,000 (Drata) customers</li>
+          <li>Funding north of US$ 200M each</li>
+        </ul>
+      </div>
+      <div>
+        <h5>Gap vs Quarry</h5>
+        <ul>
+          <li>Zero native BACEN packs</li>
+          <li>No TSA ICP-Brasil integration</li>
+          <li>No e-CNPJ A3 signature</li>
+          <li>English-first, data residency outside Brazil</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="tier">
+    <div>
+      <h4>Tier 2 — SIEM / SOC Platforms<span class="threat threat-med">threat: medium</span></h4>
+      <div class="players">Splunk (Cisco) · Microsoft Sentinel · CrowdStrike Falcon · Palo Alto Cortex XSIAM · Elastic Security · Datadog · IBM QRadar</div>
+    </div>
+    <div class="cols">
+      <div>
+        <h5>What they have</h5>
+        <ul>
+          <li>Strong real-time threat detection</li>
+          <li>Mature SOAR and automation</li>
+          <li>Gartner leadership</li>
+          <li>Enterprise pricing power</li>
+        </ul>
+      </div>
+      <div>
+        <h5>Gap vs Quarry</h5>
+        <ul>
+          <li>Detection tools, not evidence engines</li>
+          <li>No regulatory artifacts at the edge</li>
+          <li>Bacen compliance needs a separate integrator</li>
+          <li>Months of professional services to reach output</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="tier">
+    <div>
+      <h4>Tier 3 — Brazilian Security Houses<span class="threat threat-low">threat: medium-low</span></h4>
+      <div class="players">Tempest (Embraer) · Cipher (Prosegur Cyber) · Apura Cyber Intelligence · NCT · Convexa</div>
+    </div>
+    <div class="cols">
+      <div>
+        <h5>What they have</h5>
+        <ul>
+          <li>Local presence, PT support</li>
+          <li>Existing relationships with Brazilian banks</li>
+          <li>MSSP service muscle</li>
+        </ul>
+      </div>
+      <div>
+        <h5>Gap vs Quarry</h5>
+        <ul>
+          <li>Service-based, not product-based</li>
+          <li>No automation of the evidence pack itself</li>
+          <li>Per-hour or per-engagement pricing</li>
+          <li>No open auditable cryptographic chain</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="tier">
+    <div>
+      <h4>Tier 4 — Big4 &amp; Consulting<span class="threat threat-low">threat: low product, high relationship</span></h4>
+      <div class="players">Deloitte · PwC · KPMG · EY · Accenture Security · Mandiant (Google Cloud)</div>
+    </div>
+    <div class="cols">
+      <div>
+        <h5>What they have</h5>
+        <ul>
+          <li>Trust and brand</li>
+          <li>Deep regulatory practices</li>
+          <li>Direct lines to BACEN supervisors</li>
+        </ul>
+      </div>
+      <div>
+        <h5>Gap vs Quarry</h5>
+        <ul>
+          <li>Delivers Word documents and Excel spreadsheets</li>
+          <li>No reproducible cryptographic seal</li>
+          <li>Cost: R$ 50k–500k per engagement</li>
+          <li>Cycle time: weeks to months</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 03 Matrix ─────────────────────────────────────────────────────────  -->
+<section class="s">
+  <div class="s-num">03 — feature matrix</div>
+  <h2>Where each player stands on Brazilian regulatory primitives.</h2>
+  <div class="matrix-wrap">
+    <table class="matrix">
+      <thead>
+        <tr>
+          <th>Capability</th>
+          <th class="quarry-col">Quarry</th>
+          <th>Vanta / Drata</th>
+          <th>OneTrust</th>
+          <th>Splunk / Sentinel</th>
+          <th>Tempest / Cipher</th>
+          <th>Big4</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Native Bacen 24h pack</td><td class="quarry-col y">Ready</td><td class="n">No</td><td class="n">No</td><td class="n">No</td><td class="p">Service</td><td class="p">Word/Excel</td></tr>
+        <tr><td>Native BCB 85 Art. 6º pack</td><td class="quarry-col y">Ready</td><td class="n">No</td><td class="n">No</td><td class="n">No</td><td class="p">Service</td><td class="p">Manual</td></tr>
+        <tr><td>Native LGPD / ANPD Res. 15/2024</td><td class="quarry-col y">Ready</td><td class="p">Generic</td><td class="p">LGPD module</td><td class="n">No</td><td class="p">Service</td><td class="p">Manual</td></tr>
+        <tr><td>TSA ICP-Brasil (SafeWeb)</td><td class="quarry-col y">Framework</td><td class="n">No</td><td class="n">No</td><td class="n">No</td><td class="n">No</td><td class="n">No</td></tr>
+        <tr><td>e-CNPJ A3 signature</td><td class="quarry-col y">Framework</td><td class="n">No</td><td class="n">No</td><td class="n">No</td><td class="n">No</td><td class="n">No</td></tr>
+        <tr><td>Auditable Merkle chain</td><td class="quarry-col y">Verifiable</td><td class="n">No</td><td class="n">No</td><td class="p">Via SIEM</td><td class="n">No</td><td class="n">No</td></tr>
+        <tr><td>Brazilian data residency</td><td class="quarry-col y">3 modalities</td><td class="n">US only</td><td class="p">US/EU</td><td class="p">Azure BR</td><td class="y">BR</td><td class="y">on-prem</td></tr>
+        <tr><td>PT-BR native (UI + support)</td><td class="quarry-col y">Yes</td><td class="n">EN-first</td><td class="p">Translation</td><td class="n">EN</td><td class="y">Yes</td><td class="y">Yes</td></tr>
+        <tr><td>Deterministic HMAC pseudonymization</td><td class="quarry-col y">Yes</td><td class="n">No</td><td class="p">Generic</td><td class="n">No</td><td class="n">No</td><td class="n">No</td></tr>
+        <tr><td>Counsel-validated structure</td><td class="quarry-col y">Parecer 012/2026</td><td class="n">No</td><td class="n">No</td><td class="n">No</td><td class="p">Contractual</td><td class="y">Per engagement</td></tr>
+        <tr><td>Open-source / inspectable</td><td class="quarry-col y">Yes (GitHub)</td><td class="n">No</td><td class="n">No</td><td class="n">No</td><td class="n">No</td><td class="n">No</td></tr>
+        <tr><td>Setup time</td><td class="quarry-col y">days</td><td class="p">weeks</td><td class="n">months</td><td class="n">months</td><td class="n">months</td><td class="n">months</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 04 Where Quarry wins ──────────────────────────────────────────────  -->
+<section class="s">
+  <div class="s-num">04 — where Quarry wins</div>
+  <h2>Three differentiators an incumbent cannot ship in <em>under six months</em>.</h2>
+
+  <h3>Regulatory primitives as code</h3>
+  <p>Bacen-specific YAML packs, signed with TSA + e-CNPJ, anchored to a Merkle chain. A foreign vendor would have to acquire SafeWeb credentials and ICP-Brasil certificates. They have not.</p>
+
+  <h3>Sovereign data path</h3>
+  <p>Three deployment modalities — Mac Mini on-prem, Hostinger BR, Hetzner DE — plus cloud BYOK. Vanta and Drata send everything to US infrastructure by default.</p>
+
+  <h3>Counsel-validated structure</h3>
+  <p>Independent legal opinion (Parecer Jurídico Nº 012/2026, Dr. Ricardo Mendes) confirms admissibility under CPC Art. 422, MP 2.200-2/2001 Art. 10 §1, Res. BCB 4.658/2018 and Res. CD/ANPD 15/2024. None of the competitors publish equivalent legal validation.</p>
+
+  <blockquote class="quote">
+    "The structure presented possesses sufficient technical and juridical fundamentals to be admitted as regulatory evidence in BACEN and ANPD inspections. Maturity above the average observed in traditional GRC and incident-response solutions for the financial market."
+    <div class="quote-attr">— Parecer Jurídico Nº 012/2026, § VIII</div>
+  </blockquote>
+</section>
+
+<!-- 05 Honest gaps ────────────────────────────────────────────────────  -->
+<section class="s">
+  <div class="s-num">05 — honest gaps</div>
+  <h2>What Quarry does <em>not</em> yet have — and what unlocks each.</h2>
+  <table class="gaps">
+    <thead>
+      <tr><th style="width:55%">Gap</th><th>Unlock</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Production TSA wired (real SafeWeb, not mock)</td><td>SafeWeb account · R$ 60–150 / month</td></tr>
+      <tr><td>Production e-CNPJ A3 signer wired</td><td>Certificate · R$ 250 / year</td></tr>
+      <tr><td>Public customer case study</td><td>First paying customer</td></tr>
+      <tr><td>Brand recognition vs Splunk</td><td>12–24 months of execution</td></tr>
+      <tr><td>Signed final legal opinion (OAB-pending)</td><td>Close engagement with Dr. Ricardo</td></tr>
+    </tbody>
+  </table>
+  <p>The technical foundation is built. What is missing is operational and commercial, not engineering.</p>
+</section>
+
+<!-- 06 Strategic moves ────────────────────────────────────────────────  -->
+<section class="s">
+  <div class="s-num">06 — what we run next</div>
+  <h2>Four moves to claim the category.</h2>
+  <h3>01 Anchor customer</h3>
+  <p>One paying fintech under NDA, full pack deployed end-to-end. Eliminates the "you're too new" objection in 90% of pitches.</p>
+  <h3>02 Wire SafeWeb and e-CNPJ in production</h3>
+  <p>Roughly R$ 250 per year total. Unlocks the "production-ready" pitch in every demo.</p>
+  <h3>03 Sign and publish Parecer 012/2026 with OAB number</h3>
+  <p>Tag the repo <code>legal/v1.0</code>. Adds a citable legal artifact to every commercial conversation.</p>
+  <h3>04 Battle cards for the top three threats</h3>
+  <p>Vanta · OneTrust · Splunk. One-pager each. Pre-empts the objections sellers hit in the room.</p>
+</section>
+
+<!-- 07 Bottom line ────────────────────────────────────────────────────  -->
+<section class="s">
+  <div class="s-num">07 — bottom line</div>
+  <h2 style="max-width: 30ch">Quarry is the <em>only</em> player on the planet that ships a Brazilian-regulator-native evidence engine with cryptographic chain of custody, sovereign data residency, and counsel-validated structure.</h2>
+  <p>The incumbents are bigger, better funded, and better known. None of them solve the specific Brazilian problem. The window to claim the category is open.</p>
+</section>
+
+<footer class="foot">
+  <span>Quarry · Bacen Evidence Engine</span>
+  <span>Last updated 2026-05-27 · 12Brain Solutions LLC</span>
+</footer>
+
+</div>
+</body>
+</html>
